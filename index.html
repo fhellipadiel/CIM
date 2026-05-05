@@ -21,17 +21,28 @@
         body {
             background: #000000;
             color: #ffffff;
+            transition: background-image 0.3s ease;
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+        }
+
+        body.bg-image-set {
+            background-repeat: no-repeat;
+            background-size: cover;
+            background-attachment: fixed;
         }
 
         /* Header */
         .header {
-            background: #111111;
+            background: rgba(17, 17, 17, 0.95);
             padding: 15px 0;
             position: sticky;
             top: 0;
             z-index: 1000;
             box-shadow: 0 2px 20px rgba(0, 0, 0, 0.3);
             border-bottom: 1px solid #333333;
+            backdrop-filter: blur(10px);
         }
 
         .header-container {
@@ -304,11 +315,12 @@
             display: flex;
             gap: 15px;
             align-items: center;
-            background: #111111;
+            background: rgba(17, 17, 17, 0.95);
             padding: 5px;
             border-radius: 60px;
             border: 1px solid #333333;
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(5px);
         }
 
         .search-icon {
@@ -344,7 +356,7 @@
         }
 
         .admin-bar {
-            background: #111111;
+            background: rgba(17, 17, 17, 0.95);
             color: white;
             padding: 15px 25px;
             border-radius: 10px;
@@ -354,6 +366,7 @@
             align-items: center;
             border-left: 4px solid #ff6b00;
             border: 1px solid #333333;
+            backdrop-filter: blur(5px);
         }
 
         .admin-title {
@@ -450,12 +463,13 @@
         }
 
         .type-selector {
-            background: #111111;
+            background: rgba(17, 17, 17, 0.95);
             border-radius: 12px;
             padding: 25px;
             margin-bottom: 30px;
             border: 1px solid #333333;
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(5px);
         }
 
         .type-title {
@@ -505,7 +519,7 @@
         }
 
         .price-indicator {
-            background: #111111;
+            background: rgba(17, 17, 17, 0.95);
             padding: 15px 20px;
             border-radius: 10px;
             margin-bottom: 20px;
@@ -514,6 +528,7 @@
             gap: 10px;
             border-left: 4px solid #ff6b00;
             border: 1px solid #333333;
+            backdrop-filter: blur(5px);
         }
 
         .price-indicator i {
@@ -598,10 +613,11 @@
             flex-wrap: wrap;
             gap: 10px;
             margin-bottom: 25px;
-            background: #111111;
+            background: rgba(17, 17, 17, 0.95);
             padding: 15px;
             border-radius: 12px;
             border: 1px solid #333333;
+            backdrop-filter: blur(5px);
         }
 
         .category-tab {
@@ -613,6 +629,19 @@
             transition: all 0.3s ease;
             font-size: 0.9rem;
             color: #ffffff;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .category-tab .click-count-badge {
+            background: #ff6b00;
+            color: #000000;
+            border-radius: 20px;
+            padding: 2px 8px;
+            font-size: 0.7rem;
+            font-weight: bold;
+            margin-left: 5px;
         }
 
         .category-tab:hover,
@@ -620,6 +649,11 @@
             background: #ff6b00;
             color: #000000;
             border-color: #ff6b00;
+        }
+
+        .category-tab.active .click-count-badge {
+            background: #000000;
+            color: #ff6b00;
         }
 
         .admin-mode .category-tab.sortable {
@@ -668,7 +702,7 @@
         }
 
         .product-card {
-            background: #111111;
+            background: rgba(17, 17, 17, 0.95);
             border-radius: 16px;
             overflow: hidden;
             transition: all 0.3s ease;
@@ -677,6 +711,7 @@
             position: relative;
             display: flex;
             flex-direction: column;
+            backdrop-filter: blur(5px);
         }
 
         .product-card.featured {
@@ -977,9 +1012,10 @@
             grid-column: 1 / -1;
             text-align: center;
             padding: 60px 20px;
-            background: #111111;
+            background: rgba(17, 17, 17, 0.95);
             border-radius: 16px;
             border: 1px solid #333333;
+            backdrop-filter: blur(5px);
         }
 
         .no-results i {
@@ -2270,9 +2306,138 @@
             font-size: 1rem;
         }
 
-        @keyframes spin {
-            from { transform: rotate(0deg); }
-            to { transform: rotate(360deg); }
+        /* ===== ESTILOS DA ABA DE CLICK ANALYTICS ===== */
+        .analytics-tab-content {
+            background: rgba(17, 17, 17, 0.95);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border: 1px solid #333333;
+            backdrop-filter: blur(5px);
+        }
+
+        .analytics-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .analytics-header h3 {
+            color: #ff6b00;
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .reset-clicks-btn {
+            background: #dc3545;
+            color: white;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .reset-clicks-btn:hover {
+            background: #c82333;
+            transform: scale(1.02);
+        }
+
+        .analytics-summary {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .summary-card {
+            background: #222222;
+            border-radius: 10px;
+            padding: 15px;
+            text-align: center;
+            border: 1px solid #333333;
+        }
+
+        .summary-card i {
+            font-size: 1.5rem;
+            color: #ff6b00;
+            margin-bottom: 8px;
+        }
+
+        .summary-card .summary-value {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: #ff6b00;
+        }
+
+        .summary-card .summary-label {
+            font-size: 0.8rem;
+            color: #999999;
+        }
+
+        .clicks-history-list {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .click-history-item {
+            background: #222222;
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 8px;
+            border-left: 3px solid #ff6b00;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .click-history-item .click-product {
+            font-weight: 600;
+            color: #ff6b00;
+        }
+
+        .click-history-item .click-time {
+            font-size: 0.8rem;
+            color: #999999;
+        }
+
+        .click-history-item .click-date {
+            font-size: 0.8rem;
+            color: #666666;
+        }
+
+        .product-click-stats {
+            background: #222222;
+            border-radius: 10px;
+            padding: 12px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .product-click-stats .product-name {
+            color: #ffffff;
+            font-weight: 500;
+        }
+
+        .product-click-stats .click-count {
+            background: #ff6b00;
+            color: #000000;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 0.9rem;
         }
 
         @media (max-width: 768px) {
@@ -2372,6 +2537,10 @@
             
             .employee-carousel-item.selected {
                 transform: scale(1.1);
+            }
+
+            .analytics-summary {
+                grid-template-columns: 1fr;
             }
         }
     </style>
@@ -2520,6 +2689,9 @@
                 <h3>Modo Administrador</h3>
             </div>
             <div class="admin-actions">
+                <button class="admin-btn info" id="changeBgBtn" onclick="openChangeBackgroundModal()">
+                    <i class="fas fa-image"></i> Mudar Fundo
+                </button>
                 <button class="admin-btn warning" id="togglePricesBtn" onclick="togglePricesVisibility()">
                     <i class="fas fa-eye-slash"></i> Ocultar Preços
                 </button>
@@ -2546,6 +2718,9 @@
                 </button>
             </div>
         </div>
+
+        <!-- Category Tabs com aba de Analytics -->
+        <div class="category-tabs" id="categoryTabs"></div>
 
         <!-- Search Bar -->
         <div class="search-section">
@@ -2592,21 +2767,91 @@
             <p>Para ver valores adicione os itens no carrinho e finalize o pedido, o atendente irá dar detalhes da peça solicitada.</p>
         </div>
 
-        <!-- Category Tabs -->
-        <div class="category-tabs" id="categoryTabs" style="display: none;"></div>
-
-        <!-- Results Info -->
-        <div class="results-info" id="resultsInfo">
-            <div class="results-count">
-                <strong id="resultsCount">0</strong> peças encontradas
+        <!-- Resultados e Conteúdo Dinâmico (Products Grid) -->
+        <div id="dynamicContent">
+            <div class="results-info" id="resultsInfo">
+                <div class="results-count">
+                    <strong id="resultsCount">0</strong> peças encontradas
+                </div>
+                <div class="clear-search" id="clearSearchBtn" onclick="clearSearch()" style="display: none;">
+                    <i class="fas fa-times"></i> Limpar busca
+                </div>
             </div>
-            <div class="clear-search" id="clearSearchBtn" onclick="clearSearch()" style="display: none;">
-                <i class="fas fa-times"></i> Limpar busca
+
+            <!-- Products Grid -->
+            <div class="products-grid" id="productsGrid"></div>
+        </div>
+    </div>
+
+    <!-- Modal para Mudar Fundo -->
+    <div class="modal" id="changeBgModal">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeChangeBgModal()"><i class="fas fa-times"></i></button>
+            <div class="modal-header">
+                <h2>Alterar Fundo do Site</h2>
+            </div>
+            <div class="modal-body">
+                <div class="image-upload-area" id="bgUploadArea" onclick="document.getElementById('bgImageInput').click()">
+                    <i class="fas fa-cloud-upload-alt"></i>
+                    <p>Clique para selecionar uma imagem de fundo</p>
+                    <small>Formatos: JPG, PNG, GIF</small>
+                    <input type="file" id="bgImageInput" accept="image/*" style="display: none;">
+                </div>
+                <div class="image-preview" id="bgPreview" style="display: none;">
+                    <img src="" alt="Preview" id="previewBgImage">
+                    <div class="image-preview-overlay" onclick="document.getElementById('bgImageInput').click()">
+                        <span><i class="fas fa-camera"></i> Trocar imagem</span>
+                    </div>
+                </div>
+                <div style="display: flex; gap: 10px; margin-top: 20px;">
+                    <button class="btn btn-outline" style="flex: 1;" onclick="resetBackground()">
+                        <i class="fas fa-undo"></i> Restaurar Padrão
+                    </button>
+                    <button class="btn btn-primary" style="flex: 1;" onclick="closeChangeBgModal()">
+                        Fechar
+                    </button>
+                </div>
             </div>
         </div>
+    </div>
 
-        <!-- Products Grid -->
-        <div class="products-grid" id="productsGrid"></div>
+    <!-- Modal de Cliques (Histórico e Estatísticas) -->
+    <div class="modal" id="clicksAnalyticsModal">
+        <div class="modal-content large">
+            <button class="modal-close" onclick="closeClicksAnalyticsModal()"><i class="fas fa-times"></i></button>
+            <div class="modal-header">
+                <h2><i class="fas fa-chart-line"></i> Estatísticas de Cliques</h2>
+            </div>
+            <div class="modal-body">
+                <div class="analytics-tab-content">
+                    <div class="analytics-header">
+                        <h3><i class="fas fa-chart-simple"></i> Histórico de Cliques</h3>
+                        <button class="reset-clicks-btn" onclick="resetAllClicks()">
+                            <i class="fas fa-trash-alt"></i> Reiniciar Todas Contagens
+                        </button>
+                    </div>
+                    
+                    <div class="analytics-summary" id="analyticsSummary">
+                        <div class="summary-card">
+                            <i class="fas fa-chart-simple"></i>
+                            <div class="summary-value" id="totalClicksCount">0</div>
+                            <div class="summary-label">Total de Cliques</div>
+                        </div>
+                        <div class="summary-card">
+                            <i class="fas fa-box"></i>
+                            <div class="summary-value" id="productsClickedCount">0</div>
+                            <div class="summary-label">Peças Clicadas</div>
+                        </div>
+                    </div>
+                    
+                    <h4 style="color: #ff6b00; margin-bottom: 10px;"><i class="fas fa-chart-bar"></i> Cliques por Peça</h4>
+                    <div id="productClickStats" class="clicks-history-list" style="margin-bottom: 20px;"></div>
+                    
+                    <h4 style="color: #ff6b00; margin-bottom: 10px;"><i class="fas fa-clock"></i> Últimos Cliques</h4>
+                    <div id="clicksHistoryList" class="clicks-history-list"></div>
+                </div>
+            </div>
+        </div>
     </div>
 
     <!-- Login Modal -->
@@ -3071,6 +3316,11 @@
         let employees = {};
         let editingEmployeeId = null;
         let selectedEmployeeId = null;
+        
+        // Estado para analytics de cliques
+        let clickHistory = [];
+        let productClickCounts = {};
+        let currentView = 'products'; // 'products' or 'analytics'
 
         // Elementos DOM
         const productsGrid = document.getElementById('productsGrid');
@@ -3094,6 +3344,222 @@
         const hiddenModeBadge = document.getElementById('hiddenModeBadge');
         const pricesHiddenMessage = document.getElementById('pricesHiddenMessage');
         const personTypeSelector = document.getElementById('personTypeSelector');
+        const dynamicContent = document.getElementById('dynamicContent');
+
+        // ===== FUNÇÕES PARA MUDAR FUNDO =====
+        function openChangeBackgroundModal() {
+            document.getElementById('changeBgModal').classList.add('active');
+            document.getElementById('bgImageInput').value = '';
+            document.getElementById('bgPreview').style.display = 'none';
+            document.getElementById('bgUploadArea').style.display = 'block';
+            setupBgImageUpload();
+        }
+        
+        function closeChangeBgModal() {
+            document.getElementById('changeBgModal').classList.remove('active');
+        }
+        
+        function setupBgImageUpload() {
+            const imageInput = document.getElementById('bgImageInput');
+            imageInput.onchange = async (e) => {
+                const file = e.target.files[0];
+                if (!file) return;
+                
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    document.getElementById('previewBgImage').src = e.target.result;
+                    document.getElementById('bgPreview').style.display = 'block';
+                    document.getElementById('bgUploadArea').style.display = 'none';
+                };
+                reader.readAsDataURL(file);
+                
+                const imageUrl = await uploadImageToImgBB(file);
+                if (imageUrl) {
+                    document.body.style.backgroundImage = `url(${imageUrl})`;
+                    document.body.classList.add('bg-image-set');
+                    // Salvar no Firebase para persistir
+                    await database.ref('settings/backgroundImage').set(imageUrl);
+                    showToast('Imagem de fundo alterada com sucesso!');
+                    closeChangeBgModal();
+                }
+            };
+        }
+        
+        function resetBackground() {
+            document.body.style.backgroundImage = '';
+            document.body.classList.remove('bg-image-set');
+            database.ref('settings/backgroundImage').remove();
+            showToast('Fundo restaurado para o padrão');
+            closeChangeBgModal();
+        }
+        
+        function loadBackgroundImage() {
+            database.ref('settings/backgroundImage').on('value', (snapshot) => {
+                const bgUrl = snapshot.val();
+                if (bgUrl) {
+                    document.body.style.backgroundImage = `url(${bgUrl})`;
+                    document.body.classList.add('bg-image-set');
+                } else {
+                    document.body.style.backgroundImage = '';
+                    document.body.classList.remove('bg-image-set');
+                }
+            });
+        }
+
+        // ===== FUNÇÕES PARA ANALYTICS DE CLIQUES =====
+        function registerClick(productId, productName) {
+            const now = new Date();
+            const clickData = {
+                productId: productId,
+                productName: productName,
+                timestamp: now.toISOString(),
+                date: now.toLocaleDateString('pt-BR'),
+                time: now.toLocaleTimeString('pt-BR')
+            };
+            
+            // Adicionar ao histórico
+            clickHistory.unshift(clickData);
+            // Manter apenas últimos 100 cliques
+            if (clickHistory.length > 100) clickHistory.pop();
+            
+            // Atualizar contagem por peça
+            productClickCounts[productId] = (productClickCounts[productId] || 0) + 1;
+            
+            // Salvar no Firebase
+            const analyticsRef = database.ref('analytics');
+            analyticsRef.child('history').set(clickHistory.slice(0, 50));
+            analyticsRef.child('counts').set(productClickCounts);
+            
+            // Atualizar UI se a aba de analytics estiver aberta
+            if (document.getElementById('clicksAnalyticsModal').classList.contains('active')) {
+                updateAnalyticsModal();
+            }
+            
+            // Atualizar badges nas abas de categoria
+            updateCategoryClickBadges();
+        }
+        
+        function updateCategoryClickBadges() {
+            // Atualiza a quantidade de cliques ao lado do nome do card nas abas
+            const tabs = document.querySelectorAll('.category-tab');
+            tabs.forEach(tab => {
+                const category = tab.dataset.category;
+                if (category && productClickCounts) {
+                    // Contar cliques em produtos desta categoria
+                    let categoryClicks = 0;
+                    products.forEach(product => {
+                        if (product.category === category && productClickCounts[product.id]) {
+                            categoryClicks += productClickCounts[product.id];
+                        }
+                    });
+                    
+                    // Remover badge antigo e adicionar novo
+                    const existingBadge = tab.querySelector('.click-count-badge');
+                    if (existingBadge) existingBadge.remove();
+                    
+                    if (categoryClicks > 0) {
+                        const badge = document.createElement('span');
+                        badge.className = 'click-count-badge';
+                        badge.innerHTML = `${categoryClicks}`;
+                        tab.appendChild(badge);
+                    }
+                } else if (!category && tab.dataset.category === '') {
+                    // Aba "Todos" - mostrar total de cliques
+                    const totalClicks = Object.values(productClickCounts).reduce((a, b) => a + b, 0);
+                    const existingBadge = tab.querySelector('.click-count-badge');
+                    if (existingBadge) existingBadge.remove();
+                    if (totalClicks > 0) {
+                        const badge = document.createElement('span');
+                        badge.className = 'click-count-badge';
+                        badge.innerHTML = `${totalClicks}`;
+                        tab.appendChild(badge);
+                    }
+                }
+            });
+        }
+        
+        function openClicksAnalyticsModal() {
+            updateAnalyticsModal();
+            document.getElementById('clicksAnalyticsModal').classList.add('active');
+        }
+        
+        function closeClicksAnalyticsModal() {
+            document.getElementById('clicksAnalyticsModal').classList.remove('active');
+        }
+        
+        function updateAnalyticsModal() {
+            // Total de cliques
+            const totalClicks = Object.values(productClickCounts).reduce((a, b) => a + b, 0);
+            document.getElementById('totalClicksCount').textContent = totalClicks;
+            
+            // Peças clicadas
+            const productsClicked = Object.keys(productClickCounts).length;
+            document.getElementById('productsClickedCount').textContent = productsClicked;
+            
+            // Estatísticas por peça
+            const productStatsContainer = document.getElementById('productClickStats');
+            const productStatsArray = Object.entries(productClickCounts)
+                .map(([id, count]) => {
+                    const product = products.find(p => p.id === id);
+                    return { id, name: product?.name || 'Peça removida', count };
+                })
+                .sort((a, b) => b.count - a.count);
+            
+            if (productStatsArray.length === 0) {
+                productStatsContainer.innerHTML = '<div class="no-results" style="padding: 20px;"><i class="fas fa-chart-simple"></i><p>Nenhum clique registrado ainda</p></div>';
+            } else {
+                productStatsContainer.innerHTML = productStatsArray.map(stat => `
+                    <div class="product-click-stats">
+                        <span class="product-name">${stat.name}</span>
+                        <span class="click-count">${stat.count} clique${stat.count !== 1 ? 's' : ''}</span>
+                    </div>
+                `).join('');
+            }
+            
+            // Histórico de cliques
+            const historyContainer = document.getElementById('clicksHistoryList');
+            if (clickHistory.length === 0) {
+                historyContainer.innerHTML = '<div class="no-results" style="padding: 20px;"><i class="fas fa-clock"></i><p>Nenhum clique registrado ainda</p></div>';
+            } else {
+                historyContainer.innerHTML = clickHistory.map(click => `
+                    <div class="click-history-item">
+                        <div>
+                            <span class="click-product">${click.productName}</span>
+                        </div>
+                        <div class="click-time">
+                            <i class="fas fa-calendar-alt"></i> ${click.date} <i class="fas fa-clock"></i> ${click.time}
+                        </div>
+                    </div>
+                `).join('');
+            }
+        }
+        
+        async function resetAllClicks() {
+            if (confirm('Tem certeza que deseja reiniciar todas as contagens de cliques? Esta ação não pode ser desfeita.')) {
+                clickHistory = [];
+                productClickCounts = {};
+                await database.ref('analytics').remove();
+                updateAnalyticsModal();
+                updateCategoryClickBadges();
+                showToast('Todas as contagens de cliques foram reiniciadas!');
+            }
+        }
+        
+        function loadAnalyticsData() {
+            database.ref('analytics/history').on('value', (snapshot) => {
+                const data = snapshot.val();
+                if (data) clickHistory = data;
+                else clickHistory = [];
+                if (document.getElementById('clicksAnalyticsModal').classList.contains('active')) updateAnalyticsModal();
+            });
+            database.ref('analytics/counts').on('value', (snapshot) => {
+                const data = snapshot.val();
+                if (data) productClickCounts = data;
+                else productClickCounts = {};
+                updateCategoryClickBadges();
+                if (document.getElementById('clicksAnalyticsModal').classList.contains('active')) updateAnalyticsModal();
+            });
+        }
 
         // Função para mostrar loading
         function showLoading(message = 'Enviando imagem...') {
@@ -3197,11 +3663,9 @@
                         return null;
                     }
                     
-                    // Aguardar antes de tentar novamente
                     await new Promise(resolve => setTimeout(resolve, 1000));
                 }
             }
-            
             return null;
         }
 
@@ -3466,7 +3930,6 @@
                 const file = e.target.files[0];
                 if (!file) return;
 
-                // Mostrar prévia imediatamente
                 const reader = new FileReader();
                 reader.onload = (e) => {
                     previewImg.src = e.target.result;
@@ -3475,12 +3938,10 @@
                 };
                 reader.readAsDataURL(file);
 
-                // Fazer upload com retry
                 const imageUrl = await uploadImageToImgBB(file);
                 if (imageUrl) {
                     window.currentEmployeeImage = imageUrl;
                 } else {
-                    // Se falhar, manter a prévia mas usar a imagem padrão
                     showToast('Falha no upload, usando imagem padrão', 'error');
                     window.currentEmployeeImage = DEFAULT_EMPLOYEE_IMAGE;
                     previewImg.src = DEFAULT_EMPLOYEE_IMAGE;
@@ -3740,6 +4201,9 @@
             const product = products.find(p => p.id === productId);
             if (!product) return;
             
+            // Registrar o clique para analytics
+            registerClick(product.id, product.name);
+            
             currentProduct = product;
             document.getElementById('modalTitle').textContent = product.name || 'Sem nome';
             
@@ -3920,7 +4384,7 @@
                     });
                 }
             }
-            if (selectedCategory) {
+            if (selectedCategory && selectedCategory !== '') {
                 filtered = filtered.filter(product => product.category === selectedCategory);
             }
             updateResultsCount(filtered.length);
@@ -4256,29 +4720,93 @@
             database.ref().update(updates).then(() => { closeBulkPriceModal(); showToast(`${actionText} de R$ ${amount.toFixed(2)} aplicado com sucesso`); }).catch(() => showToast(`Erro ao aplicar ${actionText.toLowerCase()}`, 'error'));
         }
 
-        // ===== FUNÇÕES DE CATEGORIAS =====
+        // ===== FUNÇÕES DE CATEGORIAS COM ABA DE ANALYTICS =====
         function updateCategoryTabs() {
             const categories = [...new Set(products.map(p => p.category))].filter(c => c && c.trim() !== '');
-            if (categories.length > 1) {
-                categoryTabs.style.display = 'flex';
+            let tabsHTML = '';
+            
+            if (isAdmin) {
+                // Em modo admin, adicionar aba de analytics
+                tabsHTML = `<div class="category-tab ${currentView === 'products' && !selectedCategory ? 'active' : ''}" data-category="" onclick="switchToProductsView()">📦 Todos</div>`;
+                tabsHTML += `<div class="category-tab ${currentView === 'analytics' ? 'active' : ''}" data-view="analytics" onclick="switchToAnalyticsView()">📊 Cliques</div>`;
+            } else {
+                tabsHTML = `<div class="category-tab ${!selectedCategory ? 'active' : ''}" data-category="" onclick="selectCategory('')">Todos</div>`;
+            }
+            
+            if (currentView === 'products') {
                 let orderedCategories = [...categories];
                 if (categoryOrder && categoryOrder.length > 0) {
                     orderedCategories = categoryOrder.filter(cat => categories.includes(cat));
                     const newCategories = categories.filter(cat => !categoryOrder.includes(cat));
                     orderedCategories = [...orderedCategories, ...newCategories];
                 }
-                let tabsHTML = `<div class="category-tab ${!selectedCategory ? 'active' : ''} ${isAdmin ? 'sortable' : ''}" data-category="" onclick="selectCategory('')">Todos</div>`;
                 orderedCategories.forEach(cat => {
-                    tabsHTML += `<div class="category-tab ${selectedCategory === cat ? 'active' : ''} ${isAdmin ? 'sortable' : ''}" data-category="${cat}" onclick="selectCategory('${cat}')">${cat}</div>`;
+                    // Contar cliques nos produtos desta categoria
+                    let categoryClicks = 0;
+                    products.forEach(product => {
+                        if (product.category === cat && productClickCounts[product.id]) {
+                            categoryClicks += productClickCounts[product.id];
+                        }
+                    });
+                    const clickBadge = categoryClicks > 0 ? `<span class="click-count-badge">${categoryClicks}</span>` : '';
+                    tabsHTML += `<div class="category-tab ${selectedCategory === cat ? 'active' : ''} ${isAdmin ? 'sortable' : ''}" data-category="${cat}" onclick="selectCategory('${cat}')">${cat}${clickBadge}</div>`;
                 });
-                categoryTabs.innerHTML = tabsHTML;
-                if (isAdmin) setupCategoryDragDrop();
-            } else {
-                categoryTabs.style.display = 'none';
             }
+            
+            categoryTabs.innerHTML = tabsHTML;
+            
+            // Adicionar badge de total de cliques na aba "Todos" se em modo admin e view products
+            if (isAdmin && currentView === 'products') {
+                const totalClicks = Object.values(productClickCounts).reduce((a, b) => a + b, 0);
+                const allTab = categoryTabs.querySelector('.category-tab[data-category=""]');
+                if (allTab && totalClicks > 0) {
+                    const existingBadge = allTab.querySelector('.click-count-badge');
+                    if (existingBadge) existingBadge.remove();
+                    const badge = document.createElement('span');
+                    badge.className = 'click-count-badge';
+                    badge.innerHTML = `${totalClicks}`;
+                    allTab.appendChild(badge);
+                }
+            }
+            
+            if (isAdmin && currentView === 'products') setupCategoryDragDrop();
+        }
+        
+        function switchToProductsView() {
+            currentView = 'products';
+            selectedCategory = '';
+            searchTerm = '';
+            searchInput.value = '';
+            // Mostrar elementos normais
+            document.getElementById('search-section')?.classList.remove('hidden');
+            document.querySelector('.type-selector').style.display = 'block';
+            document.getElementById('priceIndicator').style.display = currentPersonType ? 'flex' : 'none';
+            document.getElementById('pricesHiddenMessage').style.display = pricesHidden ? 'block' : 'none';
+            document.getElementById('personTypeSelector').style.display = pricesHidden ? 'none' : 'block';
+            // Mostrar products grid
+            productsGrid.style.display = 'grid';
+            document.getElementById('resultsInfo').style.display = 'flex';
+            updateCategoryTabs();
+            filterProducts();
+        }
+        
+        function switchToAnalyticsView() {
+            currentView = 'analytics';
+            // Esconder elementos de produtos
+            productsGrid.style.display = 'none';
+            document.getElementById('resultsInfo').style.display = 'none';
+            document.querySelector('.type-selector').style.display = 'none';
+            document.getElementById('priceIndicator').style.display = 'none';
+            document.getElementById('pricesHiddenMessage').style.display = 'none';
+            // Mostrar analytics
+            openClicksAnalyticsModal();
+            updateCategoryTabs();
         }
 
         function selectCategory(category) {
+            if (currentView !== 'products') {
+                switchToProductsView();
+            }
             selectedCategory = category;
             updateCategoryTabs();
             filterProducts();
@@ -4301,7 +4829,7 @@
                         } else {
                             parent.insertBefore(draggedTab, tab);
                         }
-                        const newOrder = [...parent.children].map(t => t.dataset.category);
+                        const newOrder = [...parent.children].filter(t => t.dataset.category && t.dataset.category !== '').map(t => t.dataset.category);
                         database.ref('settings/categoryOrder').set(newOrder).then(() => showToast('Ordem das abas salva!'));
                     }
                 });
@@ -4351,6 +4879,8 @@
                 filterProducts();
             });
             loadEmployees();
+            loadAnalyticsData();
+            loadBackgroundImage();
         }
 
         auth.onAuthStateChanged((user) => {
@@ -4369,13 +4899,25 @@
                 adminBadge.style.display = 'none';
                 document.body.classList.remove('admin-mode');
                 disableInlineEditing();
+                // Reset view para produtos ao sair do admin
+                currentView = 'products';
                 updateCategoryTabs();
                 hiddenModeBadge.style.display = 'none';
+                // Fechar modal de analytics se estiver aberto
+                closeClicksAnalyticsModal();
+                productsGrid.style.display = 'grid';
+                document.getElementById('resultsInfo').style.display = 'flex';
+                document.querySelector('.type-selector').style.display = 'block';
             }
             filterProducts();
         });
 
-        searchInput.addEventListener('input', (e) => { searchTerm = e.target.value; filterProducts(); });
+        searchInput.addEventListener('input', (e) => { 
+            if (currentView === 'products') {
+                searchTerm = e.target.value; 
+                filterProducts(); 
+            }
+        });
         document.addEventListener('click', (event) => { if (cartPanel.classList.contains('open') && !cartPanel.contains(event.target) && !event.target.closest('.cart-icon')) cartPanel.classList.remove('open'); });
 
         loadData();
