@@ -10,7 +10,6 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
     <style>
-        /* Reset e estilos base */
         * {
             margin: 0;
             padding: 0;
@@ -25,6 +24,7 @@
             background-size: cover;
             background-position: center;
             background-attachment: fixed;
+            min-height: 100vh;
         }
 
         body.bg-image-set {
@@ -33,7 +33,6 @@
             background-attachment: fixed;
         }
 
-        /* Header */
         .header {
             background: rgba(17, 17, 17, 0.95);
             padding: 15px 0;
@@ -305,6 +304,8 @@
             max-width: 1400px;
             margin: 30px auto;
             padding: 0 40px;
+            position: relative;
+            z-index: 1;
         }
 
         .search-section {
@@ -1482,7 +1483,6 @@
             margin-left: auto;
         }
 
-        /* ========== CART PANEL STYLES ========== */
         .cart-panel {
             position: fixed;
             top: 0;
@@ -1698,7 +1698,6 @@
             margin-bottom: 10px;
         }
 
-        /* ========== EMPLOYEE CAROUSEL INSIDE CART ========== */
         .employee-carousel-container {
             margin-bottom: 20px;
             padding-bottom: 15px;
@@ -1742,7 +1741,6 @@
             border-radius: 10px;
         }
 
-        /* Card do funcionário estilo Instagram */
         .employee-carousel-item {
             flex: 0 0 auto;
             display: flex;
@@ -1755,7 +1753,6 @@
             padding: 5px;
         }
 
-        /* Avatar com borda gradiente laranja */
         .employee-avatar-circle {
             width: 70px;
             height: 70px;
@@ -1780,7 +1777,6 @@
             object-fit: cover;
         }
 
-        /* Nome do funcionário */
         .employee-name-label {
             font-size: 0.7rem;
             font-weight: 500;
@@ -1792,7 +1788,6 @@
             transition: color 0.3s ease;
         }
 
-        /* Efeito de selecionado - AUMENTA O TAMANHO */
         .employee-carousel-item.selected {
             transform: scale(1.15);
         }
@@ -1807,7 +1802,6 @@
             font-weight: 600;
         }
 
-        /* Hover animado */
         .employee-carousel-item:hover {
             transform: scale(1.05);
         }
@@ -1816,7 +1810,6 @@
             color: #ff6b00;
         }
 
-        /* Mensagem quando não há funcionários */
         .no-employees-message {
             text-align: center;
             padding: 10px;
@@ -2191,7 +2184,6 @@
             opacity: 1;
         }
 
-        /* Estilos para funcionários no modal de edição */
         .employee-card {
             background: #222222;
             border-radius: 12px;
@@ -2279,7 +2271,6 @@
             background: #c82333;
         }
 
-        /* Loading overlay para upload */
         .loading-overlay {
             position: fixed;
             top: 0;
@@ -2306,7 +2297,6 @@
             font-size: 1rem;
         }
 
-        /* ===== ESTILOS DA ABA DE CLICK ANALYTICS ===== */
         .analytics-tab-content {
             background: rgba(17, 17, 17, 0.95);
             border-radius: 12px;
@@ -2440,6 +2430,10 @@
             font-size: 0.9rem;
         }
 
+        .hidden {
+            display: none !important;
+        }
+
         @media (max-width: 768px) {
             .header-container {
                 padding: 0 15px;
@@ -2546,7 +2540,6 @@
     </style>
 </head>
 <body>
-    <!-- Header -->
     <header class="header">
         <div class="header-container">
             <div class="logo" onclick="openLoginModal()">
@@ -2570,7 +2563,6 @@
         </div>
     </header>
 
-    <!-- Side Menu -->
     <div class="side-menu" id="sideMenu">
         <div class="menu-header">
             <img src="https://i.ibb.co/PvtM4DTs/IMG-6505.jpg" alt="CIM" style="height: 80px; margin-bottom: 10px;">
@@ -2580,7 +2572,6 @@
         </div>
         
         <div class="menu-content">
-            <!-- Contato -->
             <div class="menu-section">
                 <div class="menu-section-title">Contato</div>
                 <a href="https://wa.me/5511986866888" target="_blank" class="contact-item" id="contactWhatsapp">
@@ -2614,7 +2605,6 @@
                 </a>
             </div>
 
-            <!-- Redes Sociais -->
             <div class="menu-section">
                 <div class="menu-section-title">Redes Sociais</div>
                 <div class="social-grid">
@@ -2629,7 +2619,6 @@
                 </div>
             </div>
 
-            <!-- Localização -->
             <div class="menu-section">
                 <div class="menu-section-title">Localização</div>
                 <a href="https://maps.google.com/?q=Rua+Nicolau+Ancona+Lopez+Cambuci+São+Paulo" target="_blank" class="contact-item" id="contactAddress">
@@ -2652,7 +2641,6 @@
                 </div>
             </div>
 
-            <!-- Horário de Funcionamento -->
             <div class="menu-section">
                 <div class="menu-section-title">Horário de Funcionamento</div>
                 <div class="business-hours" id="businessHours">
@@ -2677,12 +2665,9 @@
         </div>
     </div>
 
-    <!-- Menu Overlay -->
     <div class="menu-overlay" id="menuOverlay" onclick="toggleMenu()"></div>
 
-    <!-- Main Container -->
     <div class="main-container">
-        <!-- Admin Bar -->
         <div class="admin-bar" id="adminBar" style="display: none;">
             <div class="admin-title">
                 <i class="fas fa-crown"></i>
@@ -2719,11 +2704,9 @@
             </div>
         </div>
 
-        <!-- Category Tabs com aba de Analytics -->
         <div class="category-tabs" id="categoryTabs"></div>
 
-        <!-- Search Bar -->
-        <div class="search-section">
+        <div class="search-section" id="searchSection">
             <div class="search-container">
                 <span class="search-icon"><i class="fas fa-search"></i></span>
                 <input 
@@ -2739,7 +2722,6 @@
             </div>
         </div>
 
-        <!-- Person Type Selector -->
         <div class="type-selector" id="personTypeSelector">
             <div class="type-title">Selecione o tipo de cliente para ver os preços</div>
             <div class="type-buttons">
@@ -2754,20 +2736,17 @@
             </div>
         </div>
 
-        <!-- Price Indicator -->
         <div class="price-indicator" id="priceIndicator" style="display: none;">
             <i class="fas fa-tag"></i>
             <span>Mostrando preços para <strong id="selectedTypeLabel">Pessoa Física</strong></span>
         </div>
 
-        <!-- Mensagem quando preços estão ocultos (para clientes) -->
         <div class="price-hidden-message" id="pricesHiddenMessage" style="display: none;">
             <i class="fas fa-star"></i>
             <h3>Atenção</h3>
             <p>Para ver valores adicione os itens no carrinho e finalize o pedido, o atendente irá dar detalhes da peça solicitada.</p>
         </div>
 
-        <!-- Resultados e Conteúdo Dinâmico (Products Grid) -->
         <div id="dynamicContent">
             <div class="results-info" id="resultsInfo">
                 <div class="results-count">
@@ -2778,12 +2757,10 @@
                 </div>
             </div>
 
-            <!-- Products Grid -->
             <div class="products-grid" id="productsGrid"></div>
         </div>
     </div>
 
-    <!-- Modal para Mudar Fundo -->
     <div class="modal" id="changeBgModal">
         <div class="modal-content">
             <button class="modal-close" onclick="closeChangeBgModal()"><i class="fas fa-times"></i></button>
@@ -2815,7 +2792,6 @@
         </div>
     </div>
 
-    <!-- Modal de Cliques (Histórico e Estatísticas) -->
     <div class="modal" id="clicksAnalyticsModal">
         <div class="modal-content large">
             <button class="modal-close" onclick="closeClicksAnalyticsModal()"><i class="fas fa-times"></i></button>
@@ -2854,7 +2830,6 @@
         </div>
     </div>
 
-    <!-- Login Modal -->
     <div class="modal" id="loginModal">
         <div class="modal-content">
             <button class="modal-close" onclick="closeLoginModal()"><i class="fas fa-times"></i></button>
@@ -2880,7 +2855,6 @@
         </div>
     </div>
 
-    <!-- Modal de Confirmação para Apagar PEÇAS -->
     <div class="modal" id="deleteAllModal">
         <div class="modal-content">
             <button class="modal-close" onclick="closeDeleteAllModal()"><i class="fas fa-times"></i></button>
@@ -2920,7 +2894,6 @@
         </div>
     </div>
 
-    <!-- Modal para Importar Nomes -->
     <div class="modal" id="importNamesModal">
         <div class="modal-content large">
             <button class="modal-close" onclick="closeImportNamesModal()"><i class="fas fa-times"></i></button>
@@ -2934,8 +2907,8 @@
                         <strong>Coluna A:</strong> Nome da Peça (obrigatório)<br>
                         <strong>Coluna B:</strong> Valor Pessoa Física (opcional)<br>
                         <strong>Coluna C:</strong> Valor Pessoa Jurídica (opcional)<br>
-                        <strong>Coluna D:</strong> Categoria da Peça (opcional)<br>
-                        <strong>Coluna E:</strong> Código da Peça (opcional)<br><br>
+                        <strong>Coluna D:</strong> Categoria (opcional)<br>
+                        <strong>Coluna E:</strong> Código (opcional)<br><br>
                         <span style="color: #ff6b00;">✓</span> Se só tiver Coluna B → Cria peça com valor PF<br>
                         <span style="color: #ff6b00;">✓</span> Se só tiver Coluna C → Cria peça com valor PJ<br>
                         <span style="color: #ff6b00;">✓</span> Se tiver B e C → Cria peça completa<br>
@@ -2973,7 +2946,6 @@
         </div>
     </div>
 
-    <!-- Product Edit Modal -->
     <div class="modal" id="productEditModal">
         <div class="modal-content large">
             <button class="modal-close" onclick="closeProductModal()"><i class="fas fa-times"></i></button>
@@ -3001,7 +2973,7 @@
                     
                     <div class="form-group">
                         <label>Código da Peça (opcional)</label>
-                        <input type="text" id="productCodigo" placeholder="Ex: 12345, PF-001, etc.">
+                        <input type="text" id="productCodigo" placeholder="Ex: 12345">
                     </div>
                     
                     <div class="form-group">
@@ -3034,7 +3006,6 @@
         </div>
     </div>
 
-    <!-- Contact Edit Modal com Seção de Funcionários -->
     <div class="modal" id="contactEditModal">
         <div class="modal-content large">
             <button class="modal-close" onclick="closeContactModal()"><i class="fas fa-times"></i></button>
@@ -3091,17 +3062,14 @@
                         <input type="text" id="editHourSun">
                     </div>
                     
-                    <!-- SEÇÃO: Funcionários -->
                     <h3 style="margin: 20px 0 15px; color: #ff6b00; display: flex; align-items: center; gap: 10px;">
                         <i class="fas fa-users"></i> Equipe de Atendimento
                     </h3>
                     <p style="color: #999; font-size: 0.85rem; margin-bottom: 15px;">
-                        Adicione os funcionários que receberão os pedidos. Eles aparecerão como um carrossel dentro do carrinho.
+                        Adicione os funcionários que receberão os pedidos.
                     </p>
                     
-                    <div id="employeesList" style="margin-bottom: 15px; max-height: 400px; overflow-y: auto;">
-                        <!-- Os funcionários serão listados aqui via JavaScript -->
-                    </div>
+                    <div id="employeesList" style="margin-bottom: 15px; max-height: 400px; overflow-y: auto;"></div>
                     
                     <button type="button" class="admin-btn primary" style="width: 100%; margin-bottom: 20px;" onclick="openAddEmployeeModal()">
                         <i class="fas fa-user-plus"></i> Adicionar Novo Funcionário
@@ -3115,7 +3083,6 @@
         </div>
     </div>
 
-    <!-- Modal para Adicionar/Editar Funcionário com upload melhorado -->
     <div class="modal" id="employeeModal">
         <div class="modal-content">
             <button class="modal-close" onclick="closeEmployeeModal()"><i class="fas fa-times"></i></button>
@@ -3124,12 +3091,11 @@
             </div>
             <div class="modal-body">
                 <div class="product-form">
-                    <!-- Upload de Imagem melhorado -->
                     <div class="image-upload-area" id="employeeImageUploadArea" onclick="document.getElementById('employeeImageInput').click()">
                         <i class="fas fa-cloud-upload-alt"></i>
                         <p>Clique para selecionar a foto do funcionário</p>
-                        <small style="color: #ff6b00;">Suporte para fotos da galeria e câmera do celular</small>
-                        <input type="file" id="employeeImageInput" accept="image/*" capture="environment" style="display: none;">
+                        <small style="color: #ff6b00;">Suporte para fotos da galeria</small>
+                        <input type="file" id="employeeImageInput" accept="image/*" style="display: none;">
                     </div>
                     <div class="image-preview" id="employeeImagePreview" style="display: none;">
                         <img src="" alt="Preview" id="previewEmployeeImage">
@@ -3160,7 +3126,6 @@
         </div>
     </div>
 
-    <!-- Bulk Price Update Modal -->
     <div class="modal" id="bulkPriceModal">
         <div class="modal-content">
             <button class="modal-close" onclick="closeBulkPriceModal()"><i class="fas fa-times"></i></button>
@@ -3171,7 +3136,7 @@
                 <div class="bulk-price-update">
                     <div class="form-group">
                         <label id="bulkAmountLabel">Valor do Acréscimo (R$)</label>
-                        <input type="number" id="bulkAmount" step="0.01" min="0" placeholder="Ex: 100 para R$ 100,00">
+                        <input type="number" id="bulkAmount" step="0.01" min="0" placeholder="Ex: 100">
                     </div>
                     <div class="form-group">
                         <label>Aplicar para</label>
@@ -3183,7 +3148,6 @@
                     </div>
                     <div style="margin: 20px 0; color: #cccccc;" id="bulkInfoMessage">
                         <p><i class="fas fa-info-circle" style="color: #ff6b00;"></i> Este acréscimo será SOMADO ao preço atual de todas as peças.</p>
-                        <p style="margin-top: 10px; font-size: 0.9rem;">Ex: Se uma peça custa R$ 500 e você adicionar R$ 100, ela passará a custar R$ 600.</p>
                     </div>
                     <div style="display: flex; gap: 10px;">
                         <button class="btn btn-outline" style="flex: 1;" onclick="closeBulkPriceModal()">Cancelar</button>
@@ -3196,7 +3160,6 @@
         </div>
     </div>
 
-    <!-- Product Modal (visualização) -->
     <div class="modal" id="productModal">
         <div class="modal-content">
             <button class="modal-close" onclick="closeModal()"><i class="fas fa-times"></i></button>
@@ -3227,7 +3190,6 @@
         </div>
     </div>
 
-    <!-- Fullscreen Image Modal -->
     <div class="modal" id="fullscreenImageModal">
         <div class="modal-content fullscreen-modal">
             <button class="modal-close" onclick="closeFullscreenImage()"><i class="fas fa-times"></i></button>
@@ -3237,7 +3199,6 @@
         </div>
     </div>
 
-    <!-- Cart Panel com Carrossel de Funcionários (estilo Instagram) -->
     <div class="cart-panel" id="cartPanel">
         <div class="cart-header">
             <h3><i class="fas fa-shopping-cart"></i> Meu Carrinho</h3>
@@ -3250,16 +3211,13 @@
             </div>
         </div>
         <div class="cart-footer">
-            <!-- CARROSSEL DE FUNCIONÁRIOS (Estilo Instagram - DENTRO DO CARRINHO) -->
             <div id="employeeCarouselContainer" style="display: none;">
                 <div class="employee-carousel-container">
                     <div class="employee-carousel-title">
                         <i class="fas fa-user-headset"></i>
                         <span>Escolha seu atendente</span>
                     </div>
-                    <div class="employee-carousel" id="employeeCarousel">
-                        <!-- Funcionários serão inseridos aqui como carrossel -->
-                    </div>
+                    <div class="employee-carousel" id="employeeCarousel"></div>
                 </div>
             </div>
             
@@ -3277,7 +3235,6 @@
     </div>
 
     <script>
-        // Configuração do Firebase
         const firebaseConfig = {
             apiKey: "AIzaSyBVtlnA85ugvll5hLAvOF8FuM4BGnKEovM",
             authDomain: "redx-6b53f.firebaseapp.com",
@@ -3288,17 +3245,14 @@
             appId: "1:194933965008:web:ae1dae6df66ea44259ded5"
         };
 
-        // Inicializa Firebase
         firebase.initializeApp(firebaseConfig);
         const database = firebase.database();
         const auth = firebase.auth();
 
-        // Configuração ImgBB
         const IMGBB_API_KEY = '8d6bcd122e2d808ccb276de3bbb0790c';
         const DEFAULT_PLACEHOLDER_IMAGE = 'https://i.ibb.co/F4dXSwVG/IMG-6495.jpg';
         const DEFAULT_EMPLOYEE_IMAGE = 'https://i.ibb.co/6J5qZ9K/default-avatar.png';
 
-        // Estado da aplicação
         let currentPersonType = null;
         let cart = [];
         let currentProduct = null;
@@ -3306,7 +3260,6 @@
         let selectedCategory = '';
         let isAdmin = false;
         let editingProductId = null;
-        let uploadAbortController = null;
         let bulkActionType = 'increase';
         let categoryOrder = [];
         let draggedTab = null;
@@ -3317,12 +3270,10 @@
         let editingEmployeeId = null;
         let selectedEmployeeId = null;
         
-        // Estado para analytics de cliques
         let clickHistory = [];
         let productClickCounts = {};
-        let currentView = 'products'; // 'products' or 'analytics'
+        let currentView = 'products';
 
-        // Elementos DOM
         const productsGrid = document.getElementById('productsGrid');
         const cartPanel = document.getElementById('cartPanel');
         const sideMenu = document.getElementById('sideMenu');
@@ -3344,108 +3295,43 @@
         const hiddenModeBadge = document.getElementById('hiddenModeBadge');
         const pricesHiddenMessage = document.getElementById('pricesHiddenMessage');
         const personTypeSelector = document.getElementById('personTypeSelector');
-        const dynamicContent = document.getElementById('dynamicContent');
 
-        // ===== FUNÇÕES PARA MUDAR FUNDO =====
-        function openChangeBackgroundModal() {
-            document.getElementById('changeBgModal').classList.add('active');
-            document.getElementById('bgImageInput').value = '';
-            document.getElementById('bgPreview').style.display = 'none';
-            document.getElementById('bgUploadArea').style.display = 'block';
-            setupBgImageUpload();
-        }
-        
-        function closeChangeBgModal() {
-            document.getElementById('changeBgModal').classList.remove('active');
-        }
-        
-        function setupBgImageUpload() {
-            const imageInput = document.getElementById('bgImageInput');
-            imageInput.onchange = async (e) => {
-                const file = e.target.files[0];
-                if (!file) return;
-                
-                const reader = new FileReader();
-                reader.onload = (e) => {
-                    document.getElementById('previewBgImage').src = e.target.result;
-                    document.getElementById('bgPreview').style.display = 'block';
-                    document.getElementById('bgUploadArea').style.display = 'none';
-                };
-                reader.readAsDataURL(file);
-                
-                const imageUrl = await uploadImageToImgBB(file);
-                if (imageUrl) {
-                    document.body.style.backgroundImage = `url(${imageUrl})`;
-                    document.body.classList.add('bg-image-set');
-                    // Salvar no Firebase para persistir
-                    await database.ref('settings/backgroundImage').set(imageUrl);
-                    showToast('Imagem de fundo alterada com sucesso!');
-                    closeChangeBgModal();
-                }
-            };
-        }
-        
-        function resetBackground() {
-            document.body.style.backgroundImage = '';
-            document.body.classList.remove('bg-image-set');
-            database.ref('settings/backgroundImage').remove();
-            showToast('Fundo restaurado para o padrão');
-            closeChangeBgModal();
-        }
-        
-        function loadBackgroundImage() {
-            database.ref('settings/backgroundImage').on('value', (snapshot) => {
-                const bgUrl = snapshot.val();
-                if (bgUrl) {
-                    document.body.style.backgroundImage = `url(${bgUrl})`;
-                    document.body.classList.add('bg-image-set');
-                } else {
-                    document.body.style.backgroundImage = '';
-                    document.body.classList.remove('bg-image-set');
-                }
-            });
-        }
-
-        // ===== FUNÇÕES PARA ANALYTICS DE CLIQUES =====
-        function registerClick(productId, productName) {
+        function registerClick(productId, productName, source = 'detail') {
+            if (isAdmin) return;
+            
+            console.log(`Clique registrado: ${productName} (${source})`);
+            
             const now = new Date();
             const clickData = {
                 productId: productId,
                 productName: productName,
+                source: source,
                 timestamp: now.toISOString(),
                 date: now.toLocaleDateString('pt-BR'),
                 time: now.toLocaleTimeString('pt-BR')
             };
             
-            // Adicionar ao histórico
             clickHistory.unshift(clickData);
-            // Manter apenas últimos 100 cliques
             if (clickHistory.length > 100) clickHistory.pop();
             
-            // Atualizar contagem por peça
             productClickCounts[productId] = (productClickCounts[productId] || 0) + 1;
             
-            // Salvar no Firebase
             const analyticsRef = database.ref('analytics');
             analyticsRef.child('history').set(clickHistory.slice(0, 50));
             analyticsRef.child('counts').set(productClickCounts);
             
-            // Atualizar UI se a aba de analytics estiver aberta
             if (document.getElementById('clicksAnalyticsModal').classList.contains('active')) {
                 updateAnalyticsModal();
             }
             
-            // Atualizar badges nas abas de categoria
             updateCategoryClickBadges();
         }
         
         function updateCategoryClickBadges() {
-            // Atualiza a quantidade de cliques ao lado do nome do card nas abas
             const tabs = document.querySelectorAll('.category-tab');
             tabs.forEach(tab => {
                 const category = tab.dataset.category;
-                if (category && productClickCounts) {
-                    // Contar cliques em produtos desta categoria
+                if (category && category !== '' && productClickCounts) {
                     let categoryClicks = 0;
                     products.forEach(product => {
                         if (product.category === category && productClickCounts[product.id]) {
@@ -3453,7 +3339,6 @@
                         }
                     });
                     
-                    // Remover badge antigo e adicionar novo
                     const existingBadge = tab.querySelector('.click-count-badge');
                     if (existingBadge) existingBadge.remove();
                     
@@ -3463,8 +3348,7 @@
                         badge.innerHTML = `${categoryClicks}`;
                         tab.appendChild(badge);
                     }
-                } else if (!category && tab.dataset.category === '') {
-                    // Aba "Todos" - mostrar total de cliques
+                } else if ((!category || category === '') && tab.dataset.category === '') {
                     const totalClicks = Object.values(productClickCounts).reduce((a, b) => a + b, 0);
                     const existingBadge = tab.querySelector('.click-count-badge');
                     if (existingBadge) existingBadge.remove();
@@ -3488,15 +3372,12 @@
         }
         
         function updateAnalyticsModal() {
-            // Total de cliques
             const totalClicks = Object.values(productClickCounts).reduce((a, b) => a + b, 0);
             document.getElementById('totalClicksCount').textContent = totalClicks;
             
-            // Peças clicadas
             const productsClicked = Object.keys(productClickCounts).length;
             document.getElementById('productsClickedCount').textContent = productsClicked;
             
-            // Estatísticas por peça
             const productStatsContainer = document.getElementById('productClickStats');
             const productStatsArray = Object.entries(productClickCounts)
                 .map(([id, count]) => {
@@ -3510,13 +3391,12 @@
             } else {
                 productStatsContainer.innerHTML = productStatsArray.map(stat => `
                     <div class="product-click-stats">
-                        <span class="product-name">${stat.name}</span>
+                        <span class="product-name">${escapeHtml(stat.name)}</span>
                         <span class="click-count">${stat.count} clique${stat.count !== 1 ? 's' : ''}</span>
                     </div>
                 `).join('');
             }
             
-            // Histórico de cliques
             const historyContainer = document.getElementById('clicksHistoryList');
             if (clickHistory.length === 0) {
                 historyContainer.innerHTML = '<div class="no-results" style="padding: 20px;"><i class="fas fa-clock"></i><p>Nenhum clique registrado ainda</p></div>';
@@ -3524,7 +3404,8 @@
                 historyContainer.innerHTML = clickHistory.map(click => `
                     <div class="click-history-item">
                         <div>
-                            <span class="click-product">${click.productName}</span>
+                            <span class="click-product">${escapeHtml(click.productName)}</span>
+                            <small style="color:#666; font-size:0.7rem;"> (${click.source})</small>
                         </div>
                         <div class="click-time">
                             <i class="fas fa-calendar-alt"></i> ${click.date} <i class="fas fa-clock"></i> ${click.time}
@@ -3535,7 +3416,7 @@
         }
         
         async function resetAllClicks() {
-            if (confirm('Tem certeza que deseja reiniciar todas as contagens de cliques? Esta ação não pode ser desfeita.')) {
+            if (confirm('Tem certeza que deseja reiniciar todas as contagens de cliques?')) {
                 clickHistory = [];
                 productClickCounts = {};
                 await database.ref('analytics').remove();
@@ -3561,17 +3442,19 @@
             });
         }
 
-        // Função para mostrar loading
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
         function showLoading(message = 'Enviando imagem...') {
             const existingOverlay = document.querySelector('.loading-overlay');
             if (existingOverlay) existingOverlay.remove();
             
             const overlay = document.createElement('div');
             overlay.className = 'loading-overlay';
-            overlay.innerHTML = `
-                <i class="fas fa-spinner"></i>
-                <span>${message}</span>
-            `;
+            overlay.innerHTML = `<i class="fas fa-spinner"></i><span>${message}</span>`;
             document.body.appendChild(overlay);
         }
 
@@ -3580,7 +3463,6 @@
             if (overlay) overlay.remove();
         }
 
-        // Função para comprimir imagem antes do upload (melhor para celular)
         async function compressImage(file, maxWidth = 800, maxHeight = 800, quality = 0.8) {
             return new Promise((resolve, reject) => {
                 const reader = new FileReader();
@@ -3617,15 +3499,11 @@
             });
         }
 
-        // Upload de imagem para ImgBB com retry e melhor tratamento de erro
         async function uploadImageToImgBB(file, retryCount = 2) {
-            let lastError = null;
-            
             for (let attempt = 0; attempt <= retryCount; attempt++) {
                 try {
                     showLoading(attempt === 0 ? 'Enviando imagem...' : `Tentativa ${attempt + 1}...`);
                     
-                    // Comprimir imagem antes do upload (importante para celular)
                     const compressedBlob = await compressImage(file, 500, 500, 0.7);
                     const compressedFile = new File([compressedBlob], file.name, { type: file.type });
                     
@@ -3654,22 +3532,76 @@
                         throw new Error(data.error?.message || 'Erro no upload');
                     }
                 } catch (error) {
-                    lastError = error;
                     console.error(`Tentativa ${attempt + 1} falhou:`, error);
-                    
                     if (attempt === retryCount) {
                         hideLoading();
                         showToast('Erro ao enviar imagem. Tente novamente.', 'error');
                         return null;
                     }
-                    
                     await new Promise(resolve => setTimeout(resolve, 1000));
                 }
             }
             return null;
         }
 
-        // ===== FUNÇÕES PARA APAGAR PEÇAS =====
+        function openChangeBackgroundModal() {
+            document.getElementById('changeBgModal').classList.add('active');
+            document.getElementById('bgImageInput').value = '';
+            document.getElementById('bgPreview').style.display = 'none';
+            document.getElementById('bgUploadArea').style.display = 'block';
+            setupBgImageUpload();
+        }
+        
+        function closeChangeBgModal() {
+            document.getElementById('changeBgModal').classList.remove('active');
+        }
+        
+        function setupBgImageUpload() {
+            const imageInput = document.getElementById('bgImageInput');
+            imageInput.onchange = async (e) => {
+                const file = e.target.files[0];
+                if (!file) return;
+                
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    document.getElementById('previewBgImage').src = e.target.result;
+                    document.getElementById('bgPreview').style.display = 'block';
+                    document.getElementById('bgUploadArea').style.display = 'none';
+                };
+                reader.readAsDataURL(file);
+                
+                const imageUrl = await uploadImageToImgBB(file);
+                if (imageUrl) {
+                    document.body.style.backgroundImage = `url(${imageUrl})`;
+                    document.body.classList.add('bg-image-set');
+                    await database.ref('settings/backgroundImage').set(imageUrl);
+                    showToast('Imagem de fundo alterada com sucesso!');
+                    closeChangeBgModal();
+                }
+            };
+        }
+        
+        function resetBackground() {
+            document.body.style.backgroundImage = '';
+            document.body.classList.remove('bg-image-set');
+            database.ref('settings/backgroundImage').remove();
+            showToast('Fundo restaurado para o padrão');
+            closeChangeBgModal();
+        }
+        
+        function loadBackgroundImage() {
+            database.ref('settings/backgroundImage').on('value', (snapshot) => {
+                const bgUrl = snapshot.val();
+                if (bgUrl) {
+                    document.body.style.backgroundImage = `url(${bgUrl})`;
+                    document.body.classList.add('bg-image-set');
+                } else {
+                    document.body.style.backgroundImage = '';
+                    document.body.classList.remove('bg-image-set');
+                }
+            });
+        }
+
         function openDeleteAllModal() {
             document.getElementById('deleteAllModal').classList.add('active');
             document.getElementById('deleteConfirmationInput').value = '';
@@ -3714,7 +3646,6 @@
             }
         }
 
-        // ===== FUNÇÕES PARA GERENCIAR FUNCIONÁRIOS =====
         function loadEmployees() {
             database.ref('employees').on('value', (snapshot) => {
                 const data = snapshot.val();
@@ -3733,7 +3664,6 @@
                     <div style="text-align: center; padding: 30px; background: #222; border-radius: 10px; border: 1px dashed #333;">
                         <i class="fas fa-user-friends" style="font-size: 2rem; color: #666; margin-bottom: 10px;"></i>
                         <p style="color: #999;">Nenhum funcionário cadastrado</p>
-                        <p style="color: #666; font-size: 0.8rem;">Clique em "Adicionar Novo Funcionário" para começar</p>
                     </div>
                 `;
                 return;
@@ -3749,7 +3679,7 @@
                         <img src="${emp.image || DEFAULT_EMPLOYEE_IMAGE}" alt="${emp.name}" onerror="this.src='${DEFAULT_EMPLOYEE_IMAGE}'">
                     </div>
                     <div class="employee-info">
-                        <div class="employee-name">${emp.name}</div>
+                        <div class="employee-name">${escapeHtml(emp.name)}</div>
                         <div class="employee-whatsapp">
                             <i class="fab fa-whatsapp"></i> ${emp.whatsapp}
                         </div>
@@ -3795,7 +3725,7 @@
                                 <img src="${emp.image || DEFAULT_EMPLOYEE_IMAGE}" alt="${emp.name}" onerror="this.src='${DEFAULT_EMPLOYEE_IMAGE}'">
                             </div>
                         </div>
-                        <div class="employee-name-label">${emp.name}</div>
+                        <div class="employee-name-label">${escapeHtml(emp.name)}</div>
                     </div>
                 `;
             });
@@ -4031,6 +3961,8 @@
             const product = products.find(p => p.id === productId);
             if (!product) return;
             
+            registerClick(product.id, product.name, 'carrinho');
+            
             if (product.soldOut) {
                 showToast('Produto esgotado', 'error');
                 return;
@@ -4068,7 +4000,7 @@
                                 <img src="${imageUrl}" alt="${item.name}">
                             </div>
                             <div class="cart-item-info">
-                                <div class="cart-item-name">${item.name}</div>
+                                <div class="cart-item-name">${escapeHtml(item.name)}</div>
                                 <div class="cart-item-price">${pricesHidden ? '---' : (currentPersonType && item.prices ? `R$ ${(item.prices[currentPersonType] || 0).toFixed(2)}` : '---')}</div>
                                 <div class="cart-item-quantity">
                                     <button class="quantity-btn" onclick="event.stopPropagation(); updateQuantity('${item.id}', -1)">-</button>
@@ -4141,7 +4073,7 @@
             if (isAdmin) {
                 const codigoDisplay = product.codigo ? 
                     `<div style="font-size: 0.7rem; color: #ff6b00; margin: 5px 0; padding: 3px 5px; background: #222222; border-radius: 4px; border-left: 2px solid #ff6b00;">
-                        <i class="fas fa-barcode"></i> Cód: ${product.codigo}
+                        <i class="fas fa-barcode"></i> Cód: ${escapeHtml(product.codigo)}
                     </div>` : '';
                 
                 adminActions = `
@@ -4172,15 +4104,15 @@
             const imageUrl = product.image || DEFAULT_PLACEHOLDER_IMAGE;
             
             card.innerHTML = `
-                <div class="product-image">
-                    <img src="${imageUrl}" alt="${product.name || 'Peça'}" loading="lazy" onclick="openFullscreenImage('${imageUrl}')">
-                    <div class="fullscreen-icon" onclick="event.stopPropagation(); openFullscreenImage('${imageUrl}')">
+                <div class="product-image" onclick="openFullscreenWithClick('${product.id}', '${imageUrl}')">
+                    <img src="${imageUrl}" alt="${product.name || 'Peça'}" loading="lazy">
+                    <div class="fullscreen-icon" onclick="event.stopPropagation(); openFullscreenWithClick('${product.id}', '${imageUrl}')">
                         <i class="fas fa-expand"></i>
                     </div>
                 </div>
                 <div class="product-info">
-                    <div class="product-category">${product.category || 'Sem categoria'}</div>
-                    <h3 class="product-name">${product.name || 'Sem nome'}</h3>
+                    <div class="product-category">${escapeHtml(product.category || 'Sem categoria')}</div>
+                    <h3 class="product-name">${escapeHtml(product.name || 'Sem nome')}</h3>
                     ${priceDisplay}
                     <div class="product-actions">
                         <button class="btn btn-outline" onclick="showDetails('${product.id}')">
@@ -4196,13 +4128,22 @@
             
             return card;
         }
+        
+        function openFullscreenWithClick(productId, imageUrl) {
+            const product = products.find(p => p.id === productId);
+            if (product && !isAdmin) {
+                registerClick(product.id, product.name, 'foto');
+            }
+            openFullscreenImage(imageUrl);
+        }
 
         function showDetails(productId) {
             const product = products.find(p => p.id === productId);
             if (!product) return;
             
-            // Registrar o clique para analytics
-            registerClick(product.id, product.name);
+            if (!isAdmin) {
+                registerClick(product.id, product.name, 'detalhes');
+            }
             
             currentProduct = product;
             document.getElementById('modalTitle').textContent = product.name || 'Sem nome';
@@ -4407,7 +4348,6 @@
             });
         }
 
-        // ===== FUNÇÕES DE IMPORT =====
         function openImportNamesModal() {
             document.getElementById('importNamesModal').classList.add('active');
             document.getElementById('importPreview').style.display = 'none';
@@ -4465,7 +4405,7 @@
                 }
                 const categoryDisplay = item.category ? ` [${item.category}]` : '';
                 const codigoDisplay = item.codigo ? ` (Cód: ${item.codigo})` : '';
-                return `<div class="import-preview-item"><i class="fas ${typeIcon}"></i> ${item.name}${categoryDisplay}${codigoDisplay}<span class="price-badge">${typeText}</span></div>`;
+                return `<div class="import-preview-item"><i class="fas ${typeIcon}"></i> ${escapeHtml(item.name)}${categoryDisplay}${codigoDisplay}<span class="price-badge">${typeText}</span></div>`;
             }).join('');
             if (items.length > 10) previewList.innerHTML += `<div class="import-preview-item">... e mais ${items.length - 10} peças</div>`;
             const bothCount = items.filter(i => i.type === 'both').length;
@@ -4498,7 +4438,6 @@
             database.ref().update(updates).then(() => { closeImportNamesModal(); showToast(`${count} peças importadas com sucesso!`); }).catch(() => showToast('Erro ao importar peças', 'error'));
         }
 
-        // ===== FUNÇÕES DE PRODUTOS =====
         function openAddProductModal() {
             editingProductId = null;
             document.getElementById('productModalTitle').textContent = 'Nova Peça';
@@ -4621,7 +4560,6 @@
             input.click();
         }
 
-        // ===== FUNÇÕES DE CONTATO =====
         function openEditContactModal() {
             document.getElementById('editWhatsapp').value = contactInfo.whatsapp || '';
             document.getElementById('editPhone').value = contactInfo.phone || '';
@@ -4669,7 +4607,6 @@
             if (contactInfo.hourSun) document.getElementById('hourSun').textContent = contactInfo.hourSun;
         }
 
-        // ===== FUNÇÕES DE AJUSTE EM MASSA =====
         function openBulkPriceModal(actionType) {
             bulkActionType = actionType;
             const modalTitle = document.getElementById('bulkPriceModalTitle');
@@ -4679,7 +4616,7 @@
             if (actionType === 'increase') {
                 modalTitle.textContent = 'Acréscimo em Massa';
                 amountLabel.textContent = 'Valor do Acréscimo (R$)';
-                infoMessage.innerHTML = `<p><i class="fas fa-info-circle" style="color: #ff6b00;"></i> Este acréscimo será SOMADO ao preço atual de todas as peças.</p><p style="margin-top: 10px; font-size: 0.9rem;">Ex: Se uma peça custa R$ 500 e você adicionar R$ 100, ela passará a custar R$ 600.</p>`;
+                infoMessage.innerHTML = `<p><i class="fas fa-info-circle" style="color: #ff6b00;"></i> Este acréscimo será SOMADO ao preço atual de todas as peças.</p>`;
                 actionButton.innerHTML = '<i class="fas fa-arrow-up"></i> Aplicar Acréscimo';
             } else {
                 modalTitle.textContent = 'Decréscimo em Massa';
@@ -4720,13 +4657,11 @@
             database.ref().update(updates).then(() => { closeBulkPriceModal(); showToast(`${actionText} de R$ ${amount.toFixed(2)} aplicado com sucesso`); }).catch(() => showToast(`Erro ao aplicar ${actionText.toLowerCase()}`, 'error'));
         }
 
-        // ===== FUNÇÕES DE CATEGORIAS COM ABA DE ANALYTICS =====
         function updateCategoryTabs() {
             const categories = [...new Set(products.map(p => p.category))].filter(c => c && c.trim() !== '');
             let tabsHTML = '';
             
             if (isAdmin) {
-                // Em modo admin, adicionar aba de analytics
                 tabsHTML = `<div class="category-tab ${currentView === 'products' && !selectedCategory ? 'active' : ''}" data-category="" onclick="switchToProductsView()">📦 Todos</div>`;
                 tabsHTML += `<div class="category-tab ${currentView === 'analytics' ? 'active' : ''}" data-view="analytics" onclick="switchToAnalyticsView()">📊 Cliques</div>`;
             } else {
@@ -4741,7 +4676,6 @@
                     orderedCategories = [...orderedCategories, ...newCategories];
                 }
                 orderedCategories.forEach(cat => {
-                    // Contar cliques nos produtos desta categoria
                     let categoryClicks = 0;
                     products.forEach(product => {
                         if (product.category === cat && productClickCounts[product.id]) {
@@ -4749,13 +4683,12 @@
                         }
                     });
                     const clickBadge = categoryClicks > 0 ? `<span class="click-count-badge">${categoryClicks}</span>` : '';
-                    tabsHTML += `<div class="category-tab ${selectedCategory === cat ? 'active' : ''} ${isAdmin ? 'sortable' : ''}" data-category="${cat}" onclick="selectCategory('${cat}')">${cat}${clickBadge}</div>`;
+                    tabsHTML += `<div class="category-tab ${selectedCategory === cat ? 'active' : ''} ${isAdmin ? 'sortable' : ''}" data-category="${cat}" onclick="selectCategory('${cat}')">${escapeHtml(cat)}${clickBadge}</div>`;
                 });
             }
             
             categoryTabs.innerHTML = tabsHTML;
             
-            // Adicionar badge de total de cliques na aba "Todos" se em modo admin e view products
             if (isAdmin && currentView === 'products') {
                 const totalClicks = Object.values(productClickCounts).reduce((a, b) => a + b, 0);
                 const allTab = categoryTabs.querySelector('.category-tab[data-category=""]');
@@ -4777,13 +4710,14 @@
             selectedCategory = '';
             searchTerm = '';
             searchInput.value = '';
-            // Mostrar elementos normais
-            document.getElementById('search-section')?.classList.remove('hidden');
-            document.querySelector('.type-selector').style.display = 'block';
+            closeClicksAnalyticsModal();
+            document.getElementById('searchSection').classList.remove('hidden');
+            document.getElementById('personTypeSelector').style.display = 'block';
             document.getElementById('priceIndicator').style.display = currentPersonType ? 'flex' : 'none';
             document.getElementById('pricesHiddenMessage').style.display = pricesHidden ? 'block' : 'none';
-            document.getElementById('personTypeSelector').style.display = pricesHidden ? 'none' : 'block';
-            // Mostrar products grid
+            if (pricesHidden) {
+                document.getElementById('personTypeSelector').style.display = 'none';
+            }
             productsGrid.style.display = 'grid';
             document.getElementById('resultsInfo').style.display = 'flex';
             updateCategoryTabs();
@@ -4792,13 +4726,11 @@
         
         function switchToAnalyticsView() {
             currentView = 'analytics';
-            // Esconder elementos de produtos
             productsGrid.style.display = 'none';
             document.getElementById('resultsInfo').style.display = 'none';
-            document.querySelector('.type-selector').style.display = 'none';
+            document.getElementById('personTypeSelector').style.display = 'none';
             document.getElementById('priceIndicator').style.display = 'none';
             document.getElementById('pricesHiddenMessage').style.display = 'none';
-            // Mostrar analytics
             openClicksAnalyticsModal();
             updateCategoryTabs();
         }
@@ -4899,15 +4831,17 @@
                 adminBadge.style.display = 'none';
                 document.body.classList.remove('admin-mode');
                 disableInlineEditing();
-                // Reset view para produtos ao sair do admin
                 currentView = 'products';
                 updateCategoryTabs();
                 hiddenModeBadge.style.display = 'none';
-                // Fechar modal de analytics se estiver aberto
                 closeClicksAnalyticsModal();
                 productsGrid.style.display = 'grid';
                 document.getElementById('resultsInfo').style.display = 'flex';
-                document.querySelector('.type-selector').style.display = 'block';
+                document.getElementById('personTypeSelector').style.display = 'block';
+                document.getElementById('searchSection').classList.remove('hidden');
+                if (pricesHidden) {
+                    document.getElementById('personTypeSelector').style.display = 'none';
+                }
             }
             filterProducts();
         });
