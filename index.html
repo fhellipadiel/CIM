@@ -24,13 +24,15 @@
             transition: background-image 0.3s ease;
             background-size: cover;
             background-position: center;
-            background-attachment: fixed;
+            background-repeat: no-repeat;
+            min-height: 100vh;
         }
 
-        body.bg-image-set {
-            background-repeat: no-repeat;
-            background-size: cover;
-            background-attachment: fixed;
+        /* Para desktop apenas - fundo fixo */
+        @media (min-width: 769px) {
+            body {
+                background-attachment: fixed;
+            }
         }
 
         /* Header */
@@ -2782,7 +2784,7 @@
                 <div class="products-grid" id="productsGrid"></div>
             </div>
             
-            <!-- Analytics View - Inicialmente escondida -->
+            <!-- Analytics View -->
             <div id="analyticsView" style="display: none;">
                 <div class="analytics-tab-content">
                     <div class="analytics-header">
@@ -3038,7 +3040,7 @@
                 <div class="contact-form">
                     <h3 style="margin-bottom: 15px; color: #ff6b00;">Contato</h3>
                     <div class="form-group">
-                        <label>WhatsApp (Padrão)</label>
+                        <label>WhatsApp</label>
                         <input type="text" id="editWhatsapp">
                     </div>
                     <div class="form-group">
@@ -3117,8 +3119,7 @@
                     <div class="image-upload-area" id="employeeImageUploadArea" onclick="document.getElementById('employeeImageInput').click()">
                         <i class="fas fa-cloud-upload-alt"></i>
                         <p>Clique para selecionar a foto do funcionário</p>
-                        <small style="color: #ff6b00;">Suporte para fotos da galeria e câmera do celular</small>
-                        <input type="file" id="employeeImageInput" accept="image/*" capture="environment" style="display: none;">
+                        <input type="file" id="employeeImageInput" accept="image/*" style="display: none;">
                     </div>
                     <div class="image-preview" id="employeeImagePreview" style="display: none;">
                         <img src="" alt="Preview" id="previewEmployeeImage">
@@ -3306,7 +3307,7 @@
         // Estado para analytics de cliques
         let clickHistory = [];
         let productClickCounts = {};
-        let currentView = 'products'; // 'products' or 'analytics'
+        let currentView = 'products';
 
         // Elementos DOM
         const productsGrid = document.getElementById('productsGrid');
@@ -3372,33 +3373,32 @@
             };
         }
         
-        function resetBackground() {
+        async function resetBackground() {
             document.body.style.backgroundImage = '';
             document.body.classList.remove('bg-image-set');
-            database.ref('settings/backgroundImage').remove();
+            await database.ref('settings/backgroundImage').remove();
             showToast('Fundo restaurado para o padrão');
             closeChangeBgModal();
         }
         
-        function loadBackgroundImage() {
-            database.ref('settings/backgroundImage').on('value', (snapshot) => {
-                const bgUrl = snapshot.val();
-                if (bgUrl) {
+        async function loadBackgroundImage() {
+            const snapshot = await database.ref('settings/backgroundImage').once('value');
+            const bgUrl = snapshot.val();
+            if (bgUrl) {
+                const img = new Image();
+                img.onload = () => {
                     document.body.style.backgroundImage = `url(${bgUrl})`;
                     document.body.classList.add('bg-image-set');
-                } else {
-                    document.body.style.backgroundImage = '';
-                    document.body.classList.remove('bg-image-set');
-                }
-            });
+                };
+                img.src = bgUrl;
+            } else {
+                document.body.style.backgroundImage = '';
+                document.body.classList.remove('bg-image-set');
+            }
         }
 
         // ===== FUNÇÕES PARA ANALYTICS DE CLIQUES =====
-        // FUNÇÃO CORRIGIDA: Agora só registra clique quando é ação do VISITANTE (clique no produto)
         function registerClick(productId, productName) {
-            // Só registra clique se NÃO for admin (ou se quiser registrar também admin, descomente a linha abaixo)
-            // if (isAdmin) return; // Opcional: não registrar cliques do admin
-            
             const now = new Date();
             const clickData = {
                 productId: productId,
@@ -3532,7 +3532,6 @@
             });
         }
 
-        // Função para mostrar loading
         function showLoading(message = 'Enviando imagem...') {
             const existingOverlay = document.querySelector('.loading-overlay');
             if (existingOverlay) existingOverlay.remove();
@@ -4169,7 +4168,6 @@
             const product = products.find(p => p.id === productId);
             if (!product) return;
             
-            // REGISTRA O CLIQUE - AGORA SÓ ACONTECE AQUI (visitante clicando em Detalhes)
             registerClick(product.id, product.name);
             
             currentProduct = product;
@@ -4865,7 +4863,6 @@
                 document.body.classList.add('admin-mode');
                 setupInlineEditing();
                 if (currentView === 'analytics') {
-                    // Se já estava em analytics, atualiza
                     updateAnalyticsDisplay();
                 } else {
                     switchToProductsView();
@@ -4898,9 +4895,61 @@
 
         // Inicializar
         loadData();
-        
-        // Garantir que está na view de produtos no início
         switchToProductsView();
+        
+        // Tornar funções globais para onclick
+        window.openChangeBackgroundModal = openChangeBackgroundModal;
+        window.closeChangeBgModal = closeChangeBgModal;
+        window.resetBackground = resetBackground;
+        window.togglePricesVisibility = togglePricesVisibility;
+        window.openAddProductModal = openAddProductModal;
+        window.openImportNamesModal = openImportNamesModal;
+        window.openEditContactModal = openEditContactModal;
+        window.openBulkPriceModal = openBulkPriceModal;
+        window.openDeleteAllModal = openDeleteAllModal;
+        window.logout = logout;
+        window.toggleCart = toggleCart;
+        window.toggleMenu = toggleMenu;
+        window.setPersonType = setPersonType;
+        window.clearSearch = clearSearch;
+        window.closeModal = closeModal;
+        window.addFromModal = addFromModal;
+        window.updateQuantity = updateQuantity;
+        window.removeFromCart = removeFromCart;
+        window.clearCart = clearCart;
+        window.showDetails = showDetails;
+        window.addToCart = addToCart;
+        window.editProduct = editProduct;
+        window.editProductImage = editProductImage;
+        window.toggleFeature = toggleFeature;
+        window.togglePin = togglePin;
+        window.toggleSoldOut = toggleSoldOut;
+        window.deleteProduct = deleteProduct;
+        window.finalizePurchase = finalizePurchase;
+        window.openFullscreenImage = openFullscreenImage;
+        window.closeFullscreenImage = closeFullscreenImage;
+        window.openLoginModal = openLoginModal;
+        window.closeLoginModal = closeLoginModal;
+        window.doLogin = doLogin;
+        window.closeProductModal = closeProductModal;
+        window.saveProduct = saveProduct;
+        window.closeContactModal = closeContactModal;
+        window.saveContactInfo = saveContactInfo;
+        window.closeImportNamesModal = closeImportNamesModal;
+        window.importNames = importNames;
+        window.closeBulkPriceModal = closeBulkPriceModal;
+        window.applyBulkPriceChange = applyBulkPriceChange;
+        window.deleteAllData = deleteAllData;
+        window.resetAllClicks = resetAllClicks;
+        window.switchToProductsView = switchToProductsView;
+        window.switchToAnalyticsView = switchToAnalyticsView;
+        window.selectCategory = selectCategory;
+        window.openAddEmployeeModal = openAddEmployeeModal;
+        window.editEmployee = editEmployee;
+        window.deleteEmployee = deleteEmployee;
+        window.saveEmployee = saveEmployee;
+        window.closeEmployeeModal = closeEmployeeModal;
+        window.selectEmployeeInCart = selectEmployeeInCart;
     </script>
 </body>
 </html>
