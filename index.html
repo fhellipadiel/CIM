@@ -10,6 +10,7 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
     <style>
+        /* Reset e estilos base */
         * {
             margin: 0;
             padding: 0;
@@ -24,7 +25,6 @@
             background-size: cover;
             background-position: center;
             background-attachment: fixed;
-            min-height: 100vh;
         }
 
         body.bg-image-set {
@@ -33,6 +33,7 @@
             background-attachment: fixed;
         }
 
+        /* Header */
         .header {
             background: rgba(17, 17, 17, 0.95);
             padding: 15px 0;
@@ -304,8 +305,6 @@
             max-width: 1400px;
             margin: 30px auto;
             padding: 0 40px;
-            position: relative;
-            z-index: 1;
         }
 
         .search-section {
@@ -1483,6 +1482,7 @@
             margin-left: auto;
         }
 
+        /* ========== CART PANEL STYLES ========== */
         .cart-panel {
             position: fixed;
             top: 0;
@@ -1698,6 +1698,7 @@
             margin-bottom: 10px;
         }
 
+        /* ========== EMPLOYEE CAROUSEL INSIDE CART ========== */
         .employee-carousel-container {
             margin-bottom: 20px;
             padding-bottom: 15px;
@@ -1741,6 +1742,7 @@
             border-radius: 10px;
         }
 
+        /* Card do funcionário estilo Instagram */
         .employee-carousel-item {
             flex: 0 0 auto;
             display: flex;
@@ -1753,6 +1755,7 @@
             padding: 5px;
         }
 
+        /* Avatar com borda gradiente laranja */
         .employee-avatar-circle {
             width: 70px;
             height: 70px;
@@ -1777,6 +1780,7 @@
             object-fit: cover;
         }
 
+        /* Nome do funcionário */
         .employee-name-label {
             font-size: 0.7rem;
             font-weight: 500;
@@ -1788,6 +1792,7 @@
             transition: color 0.3s ease;
         }
 
+        /* Efeito de selecionado - AUMENTA O TAMANHO */
         .employee-carousel-item.selected {
             transform: scale(1.15);
         }
@@ -1802,6 +1807,7 @@
             font-weight: 600;
         }
 
+        /* Hover animado */
         .employee-carousel-item:hover {
             transform: scale(1.05);
         }
@@ -1810,6 +1816,7 @@
             color: #ff6b00;
         }
 
+        /* Mensagem quando não há funcionários */
         .no-employees-message {
             text-align: center;
             padding: 10px;
@@ -2184,6 +2191,7 @@
             opacity: 1;
         }
 
+        /* Estilos para funcionários no modal de edição */
         .employee-card {
             background: #222222;
             border-radius: 12px;
@@ -2271,6 +2279,7 @@
             background: #c82333;
         }
 
+        /* Loading overlay para upload */
         .loading-overlay {
             position: fixed;
             top: 0;
@@ -2297,6 +2306,7 @@
             font-size: 1rem;
         }
 
+        /* ===== ESTILOS DA ABA DE CLICK ANALYTICS ===== */
         .analytics-tab-content {
             background: rgba(17, 17, 17, 0.95);
             border-radius: 12px;
@@ -2430,10 +2440,6 @@
             font-size: 0.9rem;
         }
 
-        .hidden {
-            display: none !important;
-        }
-
         @media (max-width: 768px) {
             .header-container {
                 padding: 0 15px;
@@ -2540,6 +2546,7 @@
     </style>
 </head>
 <body>
+    <!-- Header -->
     <header class="header">
         <div class="header-container">
             <div class="logo" onclick="openLoginModal()">
@@ -2563,6 +2570,7 @@
         </div>
     </header>
 
+    <!-- Side Menu -->
     <div class="side-menu" id="sideMenu">
         <div class="menu-header">
             <img src="https://i.ibb.co/PvtM4DTs/IMG-6505.jpg" alt="CIM" style="height: 80px; margin-bottom: 10px;">
@@ -2572,6 +2580,7 @@
         </div>
         
         <div class="menu-content">
+            <!-- Contato -->
             <div class="menu-section">
                 <div class="menu-section-title">Contato</div>
                 <a href="https://wa.me/5511986866888" target="_blank" class="contact-item" id="contactWhatsapp">
@@ -2605,6 +2614,7 @@
                 </a>
             </div>
 
+            <!-- Redes Sociais -->
             <div class="menu-section">
                 <div class="menu-section-title">Redes Sociais</div>
                 <div class="social-grid">
@@ -2619,6 +2629,7 @@
                 </div>
             </div>
 
+            <!-- Localização -->
             <div class="menu-section">
                 <div class="menu-section-title">Localização</div>
                 <a href="https://maps.google.com/?q=Rua+Nicolau+Ancona+Lopez+Cambuci+São+Paulo" target="_blank" class="contact-item" id="contactAddress">
@@ -2641,6 +2652,7 @@
                 </div>
             </div>
 
+            <!-- Horário de Funcionamento -->
             <div class="menu-section">
                 <div class="menu-section-title">Horário de Funcionamento</div>
                 <div class="business-hours" id="businessHours">
@@ -2665,9 +2677,12 @@
         </div>
     </div>
 
+    <!-- Menu Overlay -->
     <div class="menu-overlay" id="menuOverlay" onclick="toggleMenu()"></div>
 
+    <!-- Main Container -->
     <div class="main-container">
+        <!-- Admin Bar -->
         <div class="admin-bar" id="adminBar" style="display: none;">
             <div class="admin-title">
                 <i class="fas fa-crown"></i>
@@ -2704,8 +2719,10 @@
             </div>
         </div>
 
+        <!-- Category Tabs -->
         <div class="category-tabs" id="categoryTabs"></div>
 
+        <!-- Search Bar -->
         <div class="search-section" id="searchSection">
             <div class="search-container">
                 <span class="search-icon"><i class="fas fa-search"></i></span>
@@ -2722,6 +2739,7 @@
             </div>
         </div>
 
+        <!-- Person Type Selector -->
         <div class="type-selector" id="personTypeSelector">
             <div class="type-title">Selecione o tipo de cliente para ver os preços</div>
             <div class="type-buttons">
@@ -2736,69 +2754,36 @@
             </div>
         </div>
 
+        <!-- Price Indicator -->
         <div class="price-indicator" id="priceIndicator" style="display: none;">
             <i class="fas fa-tag"></i>
             <span>Mostrando preços para <strong id="selectedTypeLabel">Pessoa Física</strong></span>
         </div>
 
+        <!-- Mensagem quando preços estão ocultos -->
         <div class="price-hidden-message" id="pricesHiddenMessage" style="display: none;">
             <i class="fas fa-star"></i>
             <h3>Atenção</h3>
             <p>Para ver valores adicione os itens no carrinho e finalize o pedido, o atendente irá dar detalhes da peça solicitada.</p>
         </div>
 
+        <!-- Área de conteúdo dinâmico -->
         <div id="dynamicContent">
-            <div class="results-info" id="resultsInfo">
-                <div class="results-count">
-                    <strong id="resultsCount">0</strong> peças encontradas
-                </div>
-                <div class="clear-search" id="clearSearchBtn" onclick="clearSearch()" style="display: none;">
-                    <i class="fas fa-times"></i> Limpar busca
-                </div>
-            </div>
-
-            <div class="products-grid" id="productsGrid"></div>
-        </div>
-    </div>
-
-    <div class="modal" id="changeBgModal">
-        <div class="modal-content">
-            <button class="modal-close" onclick="closeChangeBgModal()"><i class="fas fa-times"></i></button>
-            <div class="modal-header">
-                <h2>Alterar Fundo do Site</h2>
-            </div>
-            <div class="modal-body">
-                <div class="image-upload-area" id="bgUploadArea" onclick="document.getElementById('bgImageInput').click()">
-                    <i class="fas fa-cloud-upload-alt"></i>
-                    <p>Clique para selecionar uma imagem de fundo</p>
-                    <small>Formatos: JPG, PNG, GIF</small>
-                    <input type="file" id="bgImageInput" accept="image/*" style="display: none;">
-                </div>
-                <div class="image-preview" id="bgPreview" style="display: none;">
-                    <img src="" alt="Preview" id="previewBgImage">
-                    <div class="image-preview-overlay" onclick="document.getElementById('bgImageInput').click()">
-                        <span><i class="fas fa-camera"></i> Trocar imagem</span>
+            <!-- Products View -->
+            <div id="productsView">
+                <div class="results-info" id="resultsInfo">
+                    <div class="results-count">
+                        <strong id="resultsCount">0</strong> peças encontradas
+                    </div>
+                    <div class="clear-search" id="clearSearchBtn" onclick="clearSearch()" style="display: none;">
+                        <i class="fas fa-times"></i> Limpar busca
                     </div>
                 </div>
-                <div style="display: flex; gap: 10px; margin-top: 20px;">
-                    <button class="btn btn-outline" style="flex: 1;" onclick="resetBackground()">
-                        <i class="fas fa-undo"></i> Restaurar Padrão
-                    </button>
-                    <button class="btn btn-primary" style="flex: 1;" onclick="closeChangeBgModal()">
-                        Fechar
-                    </button>
-                </div>
+                <div class="products-grid" id="productsGrid"></div>
             </div>
-        </div>
-    </div>
-
-    <div class="modal" id="clicksAnalyticsModal">
-        <div class="modal-content large">
-            <button class="modal-close" onclick="closeClicksAnalyticsModal()"><i class="fas fa-times"></i></button>
-            <div class="modal-header">
-                <h2><i class="fas fa-chart-line"></i> Estatísticas de Cliques</h2>
-            </div>
-            <div class="modal-body">
+            
+            <!-- Analytics View - Inicialmente escondida -->
+            <div id="analyticsView" style="display: none;">
                 <div class="analytics-tab-content">
                     <div class="analytics-header">
                         <h3><i class="fas fa-chart-simple"></i> Histórico de Cliques</h3>
@@ -2830,6 +2815,39 @@
         </div>
     </div>
 
+    <!-- Modal para Mudar Fundo -->
+    <div class="modal" id="changeBgModal">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeChangeBgModal()"><i class="fas fa-times"></i></button>
+            <div class="modal-header">
+                <h2>Alterar Fundo do Site</h2>
+            </div>
+            <div class="modal-body">
+                <div class="image-upload-area" id="bgUploadArea" onclick="document.getElementById('bgImageInput').click()">
+                    <i class="fas fa-cloud-upload-alt"></i>
+                    <p>Clique para selecionar uma imagem de fundo</p>
+                    <small>Formatos: JPG, PNG, GIF</small>
+                    <input type="file" id="bgImageInput" accept="image/*" style="display: none;">
+                </div>
+                <div class="image-preview" id="bgPreview" style="display: none;">
+                    <img src="" alt="Preview" id="previewBgImage">
+                    <div class="image-preview-overlay" onclick="document.getElementById('bgImageInput').click()">
+                        <span><i class="fas fa-camera"></i> Trocar imagem</span>
+                    </div>
+                </div>
+                <div style="display: flex; gap: 10px; margin-top: 20px;">
+                    <button class="btn btn-outline" style="flex: 1;" onclick="resetBackground()">
+                        <i class="fas fa-undo"></i> Restaurar Padrão
+                    </button>
+                    <button class="btn btn-primary" style="flex: 1;" onclick="closeChangeBgModal()">
+                        Fechar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Login Modal -->
     <div class="modal" id="loginModal">
         <div class="modal-content">
             <button class="modal-close" onclick="closeLoginModal()"><i class="fas fa-times"></i></button>
@@ -2855,6 +2873,7 @@
         </div>
     </div>
 
+    <!-- Modal de Confirmação para Apagar PEÇAS -->
     <div class="modal" id="deleteAllModal">
         <div class="modal-content">
             <button class="modal-close" onclick="closeDeleteAllModal()"><i class="fas fa-times"></i></button>
@@ -2894,6 +2913,7 @@
         </div>
     </div>
 
+    <!-- Modal para Importar Nomes -->
     <div class="modal" id="importNamesModal">
         <div class="modal-content large">
             <button class="modal-close" onclick="closeImportNamesModal()"><i class="fas fa-times"></i></button>
@@ -2907,8 +2927,8 @@
                         <strong>Coluna A:</strong> Nome da Peça (obrigatório)<br>
                         <strong>Coluna B:</strong> Valor Pessoa Física (opcional)<br>
                         <strong>Coluna C:</strong> Valor Pessoa Jurídica (opcional)<br>
-                        <strong>Coluna D:</strong> Categoria (opcional)<br>
-                        <strong>Coluna E:</strong> Código (opcional)<br><br>
+                        <strong>Coluna D:</strong> Categoria da Peça (opcional)<br>
+                        <strong>Coluna E:</strong> Código da Peça (opcional)<br><br>
                         <span style="color: #ff6b00;">✓</span> Se só tiver Coluna B → Cria peça com valor PF<br>
                         <span style="color: #ff6b00;">✓</span> Se só tiver Coluna C → Cria peça com valor PJ<br>
                         <span style="color: #ff6b00;">✓</span> Se tiver B e C → Cria peça completa<br>
@@ -2946,6 +2966,7 @@
         </div>
     </div>
 
+    <!-- Product Edit Modal -->
     <div class="modal" id="productEditModal">
         <div class="modal-content large">
             <button class="modal-close" onclick="closeProductModal()"><i class="fas fa-times"></i></button>
@@ -2973,7 +2994,7 @@
                     
                     <div class="form-group">
                         <label>Código da Peça (opcional)</label>
-                        <input type="text" id="productCodigo" placeholder="Ex: 12345">
+                        <input type="text" id="productCodigo" placeholder="Ex: 12345, PF-001, etc.">
                     </div>
                     
                     <div class="form-group">
@@ -3006,6 +3027,7 @@
         </div>
     </div>
 
+    <!-- Contact Edit Modal -->
     <div class="modal" id="contactEditModal">
         <div class="modal-content large">
             <button class="modal-close" onclick="closeContactModal()"><i class="fas fa-times"></i></button>
@@ -3066,7 +3088,7 @@
                         <i class="fas fa-users"></i> Equipe de Atendimento
                     </h3>
                     <p style="color: #999; font-size: 0.85rem; margin-bottom: 15px;">
-                        Adicione os funcionários que receberão os pedidos.
+                        Adicione os funcionários que receberão os pedidos. Eles aparecerão como um carrossel dentro do carrinho.
                     </p>
                     
                     <div id="employeesList" style="margin-bottom: 15px; max-height: 400px; overflow-y: auto;"></div>
@@ -3083,6 +3105,7 @@
         </div>
     </div>
 
+    <!-- Modal para Adicionar/Editar Funcionário -->
     <div class="modal" id="employeeModal">
         <div class="modal-content">
             <button class="modal-close" onclick="closeEmployeeModal()"><i class="fas fa-times"></i></button>
@@ -3094,8 +3117,8 @@
                     <div class="image-upload-area" id="employeeImageUploadArea" onclick="document.getElementById('employeeImageInput').click()">
                         <i class="fas fa-cloud-upload-alt"></i>
                         <p>Clique para selecionar a foto do funcionário</p>
-                        <small style="color: #ff6b00;">Suporte para fotos da galeria</small>
-                        <input type="file" id="employeeImageInput" accept="image/*" style="display: none;">
+                        <small style="color: #ff6b00;">Suporte para fotos da galeria e câmera do celular</small>
+                        <input type="file" id="employeeImageInput" accept="image/*" capture="environment" style="display: none;">
                     </div>
                     <div class="image-preview" id="employeeImagePreview" style="display: none;">
                         <img src="" alt="Preview" id="previewEmployeeImage">
@@ -3126,6 +3149,7 @@
         </div>
     </div>
 
+    <!-- Bulk Price Update Modal -->
     <div class="modal" id="bulkPriceModal">
         <div class="modal-content">
             <button class="modal-close" onclick="closeBulkPriceModal()"><i class="fas fa-times"></i></button>
@@ -3136,7 +3160,7 @@
                 <div class="bulk-price-update">
                     <div class="form-group">
                         <label id="bulkAmountLabel">Valor do Acréscimo (R$)</label>
-                        <input type="number" id="bulkAmount" step="0.01" min="0" placeholder="Ex: 100">
+                        <input type="number" id="bulkAmount" step="0.01" min="0" placeholder="Ex: 100 para R$ 100,00">
                     </div>
                     <div class="form-group">
                         <label>Aplicar para</label>
@@ -3148,6 +3172,7 @@
                     </div>
                     <div style="margin: 20px 0; color: #cccccc;" id="bulkInfoMessage">
                         <p><i class="fas fa-info-circle" style="color: #ff6b00;"></i> Este acréscimo será SOMADO ao preço atual de todas as peças.</p>
+                        <p style="margin-top: 10px; font-size: 0.9rem;">Ex: Se uma peça custa R$ 500 e você adicionar R$ 100, ela passará a custar R$ 600.</p>
                     </div>
                     <div style="display: flex; gap: 10px;">
                         <button class="btn btn-outline" style="flex: 1;" onclick="closeBulkPriceModal()">Cancelar</button>
@@ -3160,6 +3185,7 @@
         </div>
     </div>
 
+    <!-- Product Modal (visualização) -->
     <div class="modal" id="productModal">
         <div class="modal-content">
             <button class="modal-close" onclick="closeModal()"><i class="fas fa-times"></i></button>
@@ -3190,6 +3216,7 @@
         </div>
     </div>
 
+    <!-- Fullscreen Image Modal -->
     <div class="modal" id="fullscreenImageModal">
         <div class="modal-content fullscreen-modal">
             <button class="modal-close" onclick="closeFullscreenImage()"><i class="fas fa-times"></i></button>
@@ -3199,6 +3226,7 @@
         </div>
     </div>
 
+    <!-- Cart Panel -->
     <div class="cart-panel" id="cartPanel">
         <div class="cart-header">
             <h3><i class="fas fa-shopping-cart"></i> Meu Carrinho</h3>
@@ -3235,6 +3263,7 @@
     </div>
 
     <script>
+        // Configuração do Firebase
         const firebaseConfig = {
             apiKey: "AIzaSyBVtlnA85ugvll5hLAvOF8FuM4BGnKEovM",
             authDomain: "redx-6b53f.firebaseapp.com",
@@ -3245,14 +3274,17 @@
             appId: "1:194933965008:web:ae1dae6df66ea44259ded5"
         };
 
+        // Inicializa Firebase
         firebase.initializeApp(firebaseConfig);
         const database = firebase.database();
         const auth = firebase.auth();
 
+        // Configuração ImgBB
         const IMGBB_API_KEY = '8d6bcd122e2d808ccb276de3bbb0790c';
         const DEFAULT_PLACEHOLDER_IMAGE = 'https://i.ibb.co/F4dXSwVG/IMG-6495.jpg';
         const DEFAULT_EMPLOYEE_IMAGE = 'https://i.ibb.co/6J5qZ9K/default-avatar.png';
 
+        // Estado da aplicação
         let currentPersonType = null;
         let cart = [];
         let currentProduct = null;
@@ -3260,6 +3292,7 @@
         let selectedCategory = '';
         let isAdmin = false;
         let editingProductId = null;
+        let uploadAbortController = null;
         let bulkActionType = 'increase';
         let categoryOrder = [];
         let draggedTab = null;
@@ -3270,10 +3303,12 @@
         let editingEmployeeId = null;
         let selectedEmployeeId = null;
         
+        // Estado para analytics de cliques
         let clickHistory = [];
         let productClickCounts = {};
-        let currentView = 'products';
+        let currentView = 'products'; // 'products' or 'analytics'
 
+        // Elementos DOM
         const productsGrid = document.getElementById('productsGrid');
         const cartPanel = document.getElementById('cartPanel');
         const sideMenu = document.getElementById('sideMenu');
@@ -3295,255 +3330,11 @@
         const hiddenModeBadge = document.getElementById('hiddenModeBadge');
         const pricesHiddenMessage = document.getElementById('pricesHiddenMessage');
         const personTypeSelector = document.getElementById('personTypeSelector');
+        const productsView = document.getElementById('productsView');
+        const analyticsView = document.getElementById('analyticsView');
+        const searchSection = document.getElementById('searchSection');
 
-        function registerClick(productId, productName, source = 'detail') {
-            if (isAdmin) return;
-            
-            console.log(`Clique registrado: ${productName} (${source})`);
-            
-            const now = new Date();
-            const clickData = {
-                productId: productId,
-                productName: productName,
-                source: source,
-                timestamp: now.toISOString(),
-                date: now.toLocaleDateString('pt-BR'),
-                time: now.toLocaleTimeString('pt-BR')
-            };
-            
-            clickHistory.unshift(clickData);
-            if (clickHistory.length > 100) clickHistory.pop();
-            
-            productClickCounts[productId] = (productClickCounts[productId] || 0) + 1;
-            
-            const analyticsRef = database.ref('analytics');
-            analyticsRef.child('history').set(clickHistory.slice(0, 50));
-            analyticsRef.child('counts').set(productClickCounts);
-            
-            if (document.getElementById('clicksAnalyticsModal').classList.contains('active')) {
-                updateAnalyticsModal();
-            }
-            
-            updateCategoryClickBadges();
-        }
-        
-        function updateCategoryClickBadges() {
-            const tabs = document.querySelectorAll('.category-tab');
-            tabs.forEach(tab => {
-                const category = tab.dataset.category;
-                if (category && category !== '' && productClickCounts) {
-                    let categoryClicks = 0;
-                    products.forEach(product => {
-                        if (product.category === category && productClickCounts[product.id]) {
-                            categoryClicks += productClickCounts[product.id];
-                        }
-                    });
-                    
-                    const existingBadge = tab.querySelector('.click-count-badge');
-                    if (existingBadge) existingBadge.remove();
-                    
-                    if (categoryClicks > 0) {
-                        const badge = document.createElement('span');
-                        badge.className = 'click-count-badge';
-                        badge.innerHTML = `${categoryClicks}`;
-                        tab.appendChild(badge);
-                    }
-                } else if ((!category || category === '') && tab.dataset.category === '') {
-                    const totalClicks = Object.values(productClickCounts).reduce((a, b) => a + b, 0);
-                    const existingBadge = tab.querySelector('.click-count-badge');
-                    if (existingBadge) existingBadge.remove();
-                    if (totalClicks > 0) {
-                        const badge = document.createElement('span');
-                        badge.className = 'click-count-badge';
-                        badge.innerHTML = `${totalClicks}`;
-                        tab.appendChild(badge);
-                    }
-                }
-            });
-        }
-        
-        function openClicksAnalyticsModal() {
-            updateAnalyticsModal();
-            document.getElementById('clicksAnalyticsModal').classList.add('active');
-        }
-        
-        function closeClicksAnalyticsModal() {
-            document.getElementById('clicksAnalyticsModal').classList.remove('active');
-        }
-        
-        function updateAnalyticsModal() {
-            const totalClicks = Object.values(productClickCounts).reduce((a, b) => a + b, 0);
-            document.getElementById('totalClicksCount').textContent = totalClicks;
-            
-            const productsClicked = Object.keys(productClickCounts).length;
-            document.getElementById('productsClickedCount').textContent = productsClicked;
-            
-            const productStatsContainer = document.getElementById('productClickStats');
-            const productStatsArray = Object.entries(productClickCounts)
-                .map(([id, count]) => {
-                    const product = products.find(p => p.id === id);
-                    return { id, name: product?.name || 'Peça removida', count };
-                })
-                .sort((a, b) => b.count - a.count);
-            
-            if (productStatsArray.length === 0) {
-                productStatsContainer.innerHTML = '<div class="no-results" style="padding: 20px;"><i class="fas fa-chart-simple"></i><p>Nenhum clique registrado ainda</p></div>';
-            } else {
-                productStatsContainer.innerHTML = productStatsArray.map(stat => `
-                    <div class="product-click-stats">
-                        <span class="product-name">${escapeHtml(stat.name)}</span>
-                        <span class="click-count">${stat.count} clique${stat.count !== 1 ? 's' : ''}</span>
-                    </div>
-                `).join('');
-            }
-            
-            const historyContainer = document.getElementById('clicksHistoryList');
-            if (clickHistory.length === 0) {
-                historyContainer.innerHTML = '<div class="no-results" style="padding: 20px;"><i class="fas fa-clock"></i><p>Nenhum clique registrado ainda</p></div>';
-            } else {
-                historyContainer.innerHTML = clickHistory.map(click => `
-                    <div class="click-history-item">
-                        <div>
-                            <span class="click-product">${escapeHtml(click.productName)}</span>
-                            <small style="color:#666; font-size:0.7rem;"> (${click.source})</small>
-                        </div>
-                        <div class="click-time">
-                            <i class="fas fa-calendar-alt"></i> ${click.date} <i class="fas fa-clock"></i> ${click.time}
-                        </div>
-                    </div>
-                `).join('');
-            }
-        }
-        
-        async function resetAllClicks() {
-            if (confirm('Tem certeza que deseja reiniciar todas as contagens de cliques?')) {
-                clickHistory = [];
-                productClickCounts = {};
-                await database.ref('analytics').remove();
-                updateAnalyticsModal();
-                updateCategoryClickBadges();
-                showToast('Todas as contagens de cliques foram reiniciadas!');
-            }
-        }
-        
-        function loadAnalyticsData() {
-            database.ref('analytics/history').on('value', (snapshot) => {
-                const data = snapshot.val();
-                if (data) clickHistory = data;
-                else clickHistory = [];
-                if (document.getElementById('clicksAnalyticsModal').classList.contains('active')) updateAnalyticsModal();
-            });
-            database.ref('analytics/counts').on('value', (snapshot) => {
-                const data = snapshot.val();
-                if (data) productClickCounts = data;
-                else productClickCounts = {};
-                updateCategoryClickBadges();
-                if (document.getElementById('clicksAnalyticsModal').classList.contains('active')) updateAnalyticsModal();
-            });
-        }
-
-        function escapeHtml(text) {
-            const div = document.createElement('div');
-            div.textContent = text;
-            return div.innerHTML;
-        }
-
-        function showLoading(message = 'Enviando imagem...') {
-            const existingOverlay = document.querySelector('.loading-overlay');
-            if (existingOverlay) existingOverlay.remove();
-            
-            const overlay = document.createElement('div');
-            overlay.className = 'loading-overlay';
-            overlay.innerHTML = `<i class="fas fa-spinner"></i><span>${message}</span>`;
-            document.body.appendChild(overlay);
-        }
-
-        function hideLoading() {
-            const overlay = document.querySelector('.loading-overlay');
-            if (overlay) overlay.remove();
-        }
-
-        async function compressImage(file, maxWidth = 800, maxHeight = 800, quality = 0.8) {
-            return new Promise((resolve, reject) => {
-                const reader = new FileReader();
-                reader.readAsDataURL(file);
-                reader.onload = (e) => {
-                    const img = new Image();
-                    img.src = e.target.result;
-                    img.onload = () => {
-                        let width = img.width;
-                        let height = img.height;
-                        
-                        if (width > maxWidth) {
-                            height = (height * maxWidth) / width;
-                            width = maxWidth;
-                        }
-                        if (height > maxHeight) {
-                            width = (width * maxHeight) / height;
-                            height = maxHeight;
-                        }
-                        
-                        const canvas = document.createElement('canvas');
-                        canvas.width = width;
-                        canvas.height = height;
-                        const ctx = canvas.getContext('2d');
-                        ctx.drawImage(img, 0, 0, width, height);
-                        
-                        canvas.toBlob((blob) => {
-                            resolve(blob);
-                        }, file.type, quality);
-                    };
-                    img.onerror = reject;
-                };
-                reader.onerror = reject;
-            });
-        }
-
-        async function uploadImageToImgBB(file, retryCount = 2) {
-            for (let attempt = 0; attempt <= retryCount; attempt++) {
-                try {
-                    showLoading(attempt === 0 ? 'Enviando imagem...' : `Tentativa ${attempt + 1}...`);
-                    
-                    const compressedBlob = await compressImage(file, 500, 500, 0.7);
-                    const compressedFile = new File([compressedBlob], file.name, { type: file.type });
-                    
-                    const formData = new FormData();
-                    formData.append('key', IMGBB_API_KEY);
-                    formData.append('image', compressedFile);
-                    
-                    const controller = new AbortController();
-                    const timeoutId = setTimeout(() => controller.abort(), 30000);
-                    
-                    const response = await fetch('https://api.imgbb.com/1/upload', {
-                        method: 'POST',
-                        body: formData,
-                        signal: controller.signal
-                    });
-                    
-                    clearTimeout(timeoutId);
-                    
-                    const data = await response.json();
-                    
-                    if (data.success) {
-                        hideLoading();
-                        showToast('Imagem enviada com sucesso!');
-                        return data.data.url;
-                    } else {
-                        throw new Error(data.error?.message || 'Erro no upload');
-                    }
-                } catch (error) {
-                    console.error(`Tentativa ${attempt + 1} falhou:`, error);
-                    if (attempt === retryCount) {
-                        hideLoading();
-                        showToast('Erro ao enviar imagem. Tente novamente.', 'error');
-                        return null;
-                    }
-                    await new Promise(resolve => setTimeout(resolve, 1000));
-                }
-            }
-            return null;
-        }
-
+        // ===== FUNÇÕES PARA MUDAR FUNDO =====
         function openChangeBackgroundModal() {
             document.getElementById('changeBgModal').classList.add('active');
             document.getElementById('bgImageInput').value = '';
@@ -3602,6 +3393,251 @@
             });
         }
 
+        // ===== FUNÇÕES PARA ANALYTICS DE CLIQUES =====
+        // FUNÇÃO CORRIGIDA: Agora só registra clique quando é ação do VISITANTE (clique no produto)
+        function registerClick(productId, productName) {
+            // Só registra clique se NÃO for admin (ou se quiser registrar também admin, descomente a linha abaixo)
+            // if (isAdmin) return; // Opcional: não registrar cliques do admin
+            
+            const now = new Date();
+            const clickData = {
+                productId: productId,
+                productName: productName,
+                timestamp: now.toISOString(),
+                date: now.toLocaleDateString('pt-BR'),
+                time: now.toLocaleTimeString('pt-BR')
+            };
+            
+            clickHistory.unshift(clickData);
+            if (clickHistory.length > 100) clickHistory.pop();
+            
+            productClickCounts[productId] = (productClickCounts[productId] || 0) + 1;
+            
+            const analyticsRef = database.ref('analytics');
+            analyticsRef.child('history').set(clickHistory.slice(0, 50));
+            analyticsRef.child('counts').set(productClickCounts);
+            
+            if (currentView === 'analytics' && isAdmin) {
+                updateAnalyticsDisplay();
+            }
+            
+            updateCategoryClickBadges();
+        }
+        
+        function updateCategoryClickBadges() {
+            if (!isAdmin) return;
+            
+            const tabs = document.querySelectorAll('.category-tab');
+            tabs.forEach(tab => {
+                const category = tab.dataset.category;
+                if (category !== undefined) {
+                    let categoryClicks = 0;
+                    if (category === '') {
+                        categoryClicks = Object.values(productClickCounts).reduce((a, b) => a + b, 0);
+                    } else {
+                        products.forEach(product => {
+                            if (product.category === category && productClickCounts[product.id]) {
+                                categoryClicks += productClickCounts[product.id];
+                            }
+                        });
+                    }
+                    
+                    const existingBadge = tab.querySelector('.click-count-badge');
+                    if (existingBadge) existingBadge.remove();
+                    
+                    if (categoryClicks > 0 && tab.dataset.view !== 'analytics') {
+                        const badge = document.createElement('span');
+                        badge.className = 'click-count-badge';
+                        badge.innerHTML = `${categoryClicks}`;
+                        tab.appendChild(badge);
+                    }
+                }
+            });
+        }
+        
+        function updateAnalyticsDisplay() {
+            const totalClicks = Object.values(productClickCounts).reduce((a, b) => a + b, 0);
+            document.getElementById('totalClicksCount').textContent = totalClicks;
+            
+            const productsClicked = Object.keys(productClickCounts).length;
+            document.getElementById('productsClickedCount').textContent = productsClicked;
+            
+            const productStatsContainer = document.getElementById('productClickStats');
+            const productStatsArray = Object.entries(productClickCounts)
+                .map(([id, count]) => {
+                    const product = products.find(p => p.id === id);
+                    return { id, name: product?.name || 'Peça removida', count };
+                })
+                .sort((a, b) => b.count - a.count);
+            
+            if (productStatsArray.length === 0) {
+                productStatsContainer.innerHTML = '<div class="no-results" style="padding: 20px;"><i class="fas fa-chart-simple"></i><p>Nenhum clique registrado ainda</p></div>';
+            } else {
+                productStatsContainer.innerHTML = productStatsArray.map(stat => `
+                    <div class="product-click-stats">
+                        <span class="product-name">${escapeHtml(stat.name)}</span>
+                        <span class="click-count">${stat.count} clique${stat.count !== 1 ? 's' : ''}</span>
+                    </div>
+                `).join('');
+            }
+            
+            const historyContainer = document.getElementById('clicksHistoryList');
+            if (clickHistory.length === 0) {
+                historyContainer.innerHTML = '<div class="no-results" style="padding: 20px;"><i class="fas fa-clock"></i><p>Nenhum clique registrado ainda</p></div>';
+            } else {
+                historyContainer.innerHTML = clickHistory.map(click => `
+                    <div class="click-history-item">
+                        <div>
+                            <span class="click-product">${escapeHtml(click.productName)}</span>
+                        </div>
+                        <div class="click-time">
+                            <i class="fas fa-calendar-alt"></i> ${click.date} <i class="fas fa-clock"></i> ${click.time}
+                        </div>
+                    </div>
+                `).join('');
+            }
+        }
+        
+        function escapeHtml(text) {
+            if (!text) return '';
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+        
+        async function resetAllClicks() {
+            if (confirm('Tem certeza que deseja reiniciar todas as contagens de cliques? Esta ação não pode ser desfeita.')) {
+                clickHistory = [];
+                productClickCounts = {};
+                await database.ref('analytics').remove();
+                updateAnalyticsDisplay();
+                updateCategoryClickBadges();
+                showToast('Todas as contagens de cliques foram reiniciadas!');
+            }
+        }
+        
+        function loadAnalyticsData() {
+            database.ref('analytics/history').on('value', (snapshot) => {
+                const data = snapshot.val();
+                if (data) clickHistory = data;
+                else clickHistory = [];
+                if (currentView === 'analytics' && isAdmin) updateAnalyticsDisplay();
+            });
+            database.ref('analytics/counts').on('value', (snapshot) => {
+                const data = snapshot.val();
+                if (data) productClickCounts = data;
+                else productClickCounts = {};
+                updateCategoryClickBadges();
+                if (currentView === 'analytics' && isAdmin) updateAnalyticsDisplay();
+            });
+        }
+
+        // Função para mostrar loading
+        function showLoading(message = 'Enviando imagem...') {
+            const existingOverlay = document.querySelector('.loading-overlay');
+            if (existingOverlay) existingOverlay.remove();
+            
+            const overlay = document.createElement('div');
+            overlay.className = 'loading-overlay';
+            overlay.innerHTML = `
+                <i class="fas fa-spinner"></i>
+                <span>${message}</span>
+            `;
+            document.body.appendChild(overlay);
+        }
+
+        function hideLoading() {
+            const overlay = document.querySelector('.loading-overlay');
+            if (overlay) overlay.remove();
+        }
+
+        async function compressImage(file, maxWidth = 800, maxHeight = 800, quality = 0.8) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.readAsDataURL(file);
+                reader.onload = (e) => {
+                    const img = new Image();
+                    img.src = e.target.result;
+                    img.onload = () => {
+                        let width = img.width;
+                        let height = img.height;
+                        
+                        if (width > maxWidth) {
+                            height = (height * maxWidth) / width;
+                            width = maxWidth;
+                        }
+                        if (height > maxHeight) {
+                            width = (width * maxHeight) / height;
+                            height = maxHeight;
+                        }
+                        
+                        const canvas = document.createElement('canvas');
+                        canvas.width = width;
+                        canvas.height = height;
+                        const ctx = canvas.getContext('2d');
+                        ctx.drawImage(img, 0, 0, width, height);
+                        
+                        canvas.toBlob((blob) => {
+                            resolve(blob);
+                        }, file.type, quality);
+                    };
+                    img.onerror = reject;
+                };
+                reader.onerror = reject;
+            });
+        }
+
+        async function uploadImageToImgBB(file, retryCount = 2) {
+            let lastError = null;
+            
+            for (let attempt = 0; attempt <= retryCount; attempt++) {
+                try {
+                    showLoading(attempt === 0 ? 'Enviando imagem...' : `Tentativa ${attempt + 1}...`);
+                    
+                    const compressedBlob = await compressImage(file, 500, 500, 0.7);
+                    const compressedFile = new File([compressedBlob], file.name, { type: file.type });
+                    
+                    const formData = new FormData();
+                    formData.append('key', IMGBB_API_KEY);
+                    formData.append('image', compressedFile);
+                    
+                    const controller = new AbortController();
+                    const timeoutId = setTimeout(() => controller.abort(), 30000);
+                    
+                    const response = await fetch('https://api.imgbb.com/1/upload', {
+                        method: 'POST',
+                        body: formData,
+                        signal: controller.signal
+                    });
+                    
+                    clearTimeout(timeoutId);
+                    
+                    const data = await response.json();
+                    
+                    if (data.success) {
+                        hideLoading();
+                        showToast('Imagem enviada com sucesso!');
+                        return data.data.url;
+                    } else {
+                        throw new Error(data.error?.message || 'Erro no upload');
+                    }
+                } catch (error) {
+                    lastError = error;
+                    console.error(`Tentativa ${attempt + 1} falhou:`, error);
+                    
+                    if (attempt === retryCount) {
+                        hideLoading();
+                        showToast('Erro ao enviar imagem. Tente novamente.', 'error');
+                        return null;
+                    }
+                    
+                    await new Promise(resolve => setTimeout(resolve, 1000));
+                }
+            }
+            return null;
+        }
+
+        // ===== FUNÇÕES PARA APAGAR PEÇAS =====
         function openDeleteAllModal() {
             document.getElementById('deleteAllModal').classList.add('active');
             document.getElementById('deleteConfirmationInput').value = '';
@@ -3646,6 +3682,7 @@
             }
         }
 
+        // ===== FUNÇÕES PARA GERENCIAR FUNCIONÁRIOS =====
         function loadEmployees() {
             database.ref('employees').on('value', (snapshot) => {
                 const data = snapshot.val();
@@ -3664,6 +3701,7 @@
                     <div style="text-align: center; padding: 30px; background: #222; border-radius: 10px; border: 1px dashed #333;">
                         <i class="fas fa-user-friends" style="font-size: 2rem; color: #666; margin-bottom: 10px;"></i>
                         <p style="color: #999;">Nenhum funcionário cadastrado</p>
+                        <p style="color: #666; font-size: 0.8rem;">Clique em "Adicionar Novo Funcionário" para começar</p>
                     </div>
                 `;
                 return;
@@ -3961,8 +3999,6 @@
             const product = products.find(p => p.id === productId);
             if (!product) return;
             
-            registerClick(product.id, product.name, 'carrinho');
-            
             if (product.soldOut) {
                 showToast('Produto esgotado', 'error');
                 return;
@@ -4104,9 +4140,9 @@
             const imageUrl = product.image || DEFAULT_PLACEHOLDER_IMAGE;
             
             card.innerHTML = `
-                <div class="product-image" onclick="openFullscreenWithClick('${product.id}', '${imageUrl}')">
-                    <img src="${imageUrl}" alt="${product.name || 'Peça'}" loading="lazy">
-                    <div class="fullscreen-icon" onclick="event.stopPropagation(); openFullscreenWithClick('${product.id}', '${imageUrl}')">
+                <div class="product-image">
+                    <img src="${imageUrl}" alt="${product.name || 'Peça'}" loading="lazy" onclick="openFullscreenImage('${imageUrl}')">
+                    <div class="fullscreen-icon" onclick="event.stopPropagation(); openFullscreenImage('${imageUrl}')">
                         <i class="fas fa-expand"></i>
                     </div>
                 </div>
@@ -4128,22 +4164,13 @@
             
             return card;
         }
-        
-        function openFullscreenWithClick(productId, imageUrl) {
-            const product = products.find(p => p.id === productId);
-            if (product && !isAdmin) {
-                registerClick(product.id, product.name, 'foto');
-            }
-            openFullscreenImage(imageUrl);
-        }
 
         function showDetails(productId) {
             const product = products.find(p => p.id === productId);
             if (!product) return;
             
-            if (!isAdmin) {
-                registerClick(product.id, product.name, 'detalhes');
-            }
+            // REGISTRA O CLIQUE - AGORA SÓ ACONTECE AQUI (visitante clicando em Detalhes)
+            registerClick(product.id, product.name);
             
             currentProduct = product;
             document.getElementById('modalTitle').textContent = product.name || 'Sem nome';
@@ -4253,6 +4280,9 @@
         }
 
         function clearSearch() {
+            if (currentView !== 'products') {
+                switchToProductsView();
+            }
             searchTerm = '';
             selectedCategory = '';
             searchInput.value = '';
@@ -4311,6 +4341,8 @@
         }
 
         function filterProducts() {
+            if (currentView !== 'products') return;
+            
             let filtered = products;
             if (searchTerm) {
                 const term = searchTerm.toLowerCase().trim();
@@ -4348,6 +4380,7 @@
             });
         }
 
+        // ===== FUNÇÕES DE IMPORT =====
         function openImportNamesModal() {
             document.getElementById('importNamesModal').classList.add('active');
             document.getElementById('importPreview').style.display = 'none';
@@ -4438,6 +4471,7 @@
             database.ref().update(updates).then(() => { closeImportNamesModal(); showToast(`${count} peças importadas com sucesso!`); }).catch(() => showToast('Erro ao importar peças', 'error'));
         }
 
+        // ===== FUNÇÕES DE PRODUTOS =====
         function openAddProductModal() {
             editingProductId = null;
             document.getElementById('productModalTitle').textContent = 'Nova Peça';
@@ -4560,6 +4594,7 @@
             input.click();
         }
 
+        // ===== FUNÇÕES DE CONTATO =====
         function openEditContactModal() {
             document.getElementById('editWhatsapp').value = contactInfo.whatsapp || '';
             document.getElementById('editPhone').value = contactInfo.phone || '';
@@ -4607,6 +4642,7 @@
             if (contactInfo.hourSun) document.getElementById('hourSun').textContent = contactInfo.hourSun;
         }
 
+        // ===== FUNÇÕES DE AJUSTE EM MASSA =====
         function openBulkPriceModal(actionType) {
             bulkActionType = actionType;
             const modalTitle = document.getElementById('bulkPriceModalTitle');
@@ -4616,7 +4652,7 @@
             if (actionType === 'increase') {
                 modalTitle.textContent = 'Acréscimo em Massa';
                 amountLabel.textContent = 'Valor do Acréscimo (R$)';
-                infoMessage.innerHTML = `<p><i class="fas fa-info-circle" style="color: #ff6b00;"></i> Este acréscimo será SOMADO ao preço atual de todas as peças.</p>`;
+                infoMessage.innerHTML = `<p><i class="fas fa-info-circle" style="color: #ff6b00;"></i> Este acréscimo será SOMADO ao preço atual de todas as peças.</p><p style="margin-top: 10px; font-size: 0.9rem;">Ex: Se uma peça custa R$ 500 e você adicionar R$ 100, ela passará a custar R$ 600.</p>`;
                 actionButton.innerHTML = '<i class="fas fa-arrow-up"></i> Aplicar Acréscimo';
             } else {
                 modalTitle.textContent = 'Decréscimo em Massa';
@@ -4657,12 +4693,46 @@
             database.ref().update(updates).then(() => { closeBulkPriceModal(); showToast(`${actionText} de R$ ${amount.toFixed(2)} aplicado com sucesso`); }).catch(() => showToast(`Erro ao aplicar ${actionText.toLowerCase()}`, 'error'));
         }
 
+        // ===== FUNÇÕES DE CATEGORIAS E VISUALIZAÇÃO =====
+        function switchToProductsView() {
+            currentView = 'products';
+            selectedCategory = '';
+            searchTerm = '';
+            searchInput.value = '';
+            
+            productsView.style.display = 'block';
+            analyticsView.style.display = 'none';
+            searchSection.style.display = 'block';
+            personTypeSelector.style.display = pricesHidden ? 'none' : 'block';
+            priceIndicator.style.display = currentPersonType ? 'flex' : 'none';
+            pricesHiddenMessage.style.display = pricesHidden ? 'block' : 'none';
+            
+            updateCategoryTabs();
+            filterProducts();
+        }
+        
+        function switchToAnalyticsView() {
+            if (!isAdmin) return;
+            
+            currentView = 'analytics';
+            
+            productsView.style.display = 'none';
+            analyticsView.style.display = 'block';
+            searchSection.style.display = 'none';
+            personTypeSelector.style.display = 'none';
+            priceIndicator.style.display = 'none';
+            pricesHiddenMessage.style.display = 'none';
+            
+            updateAnalyticsDisplay();
+            updateCategoryTabs();
+        }
+
         function updateCategoryTabs() {
             const categories = [...new Set(products.map(p => p.category))].filter(c => c && c.trim() !== '');
             let tabsHTML = '';
             
             if (isAdmin) {
-                tabsHTML = `<div class="category-tab ${currentView === 'products' && !selectedCategory ? 'active' : ''}" data-category="" onclick="switchToProductsView()">📦 Todos</div>`;
+                tabsHTML = `<div class="category-tab ${currentView === 'products' && !selectedCategory ? 'active' : ''}" data-category="" data-view="products" onclick="switchToProductsView()">📦 Todos</div>`;
                 tabsHTML += `<div class="category-tab ${currentView === 'analytics' ? 'active' : ''}" data-view="analytics" onclick="switchToAnalyticsView()">📊 Cliques</div>`;
             } else {
                 tabsHTML = `<div class="category-tab ${!selectedCategory ? 'active' : ''}" data-category="" onclick="selectCategory('')">Todos</div>`;
@@ -4682,7 +4752,7 @@
                             categoryClicks += productClickCounts[product.id];
                         }
                     });
-                    const clickBadge = categoryClicks > 0 ? `<span class="click-count-badge">${categoryClicks}</span>` : '';
+                    const clickBadge = (isAdmin && categoryClicks > 0) ? `<span class="click-count-badge">${categoryClicks}</span>` : '';
                     tabsHTML += `<div class="category-tab ${selectedCategory === cat ? 'active' : ''} ${isAdmin ? 'sortable' : ''}" data-category="${cat}" onclick="selectCategory('${cat}')">${escapeHtml(cat)}${clickBadge}</div>`;
                 });
             }
@@ -4692,7 +4762,7 @@
             if (isAdmin && currentView === 'products') {
                 const totalClicks = Object.values(productClickCounts).reduce((a, b) => a + b, 0);
                 const allTab = categoryTabs.querySelector('.category-tab[data-category=""]');
-                if (allTab && totalClicks > 0) {
+                if (allTab && totalClicks > 0 && allTab.dataset.view !== 'analytics') {
                     const existingBadge = allTab.querySelector('.click-count-badge');
                     if (existingBadge) existingBadge.remove();
                     const badge = document.createElement('span');
@@ -4703,36 +4773,6 @@
             }
             
             if (isAdmin && currentView === 'products') setupCategoryDragDrop();
-        }
-        
-        function switchToProductsView() {
-            currentView = 'products';
-            selectedCategory = '';
-            searchTerm = '';
-            searchInput.value = '';
-            closeClicksAnalyticsModal();
-            document.getElementById('searchSection').classList.remove('hidden');
-            document.getElementById('personTypeSelector').style.display = 'block';
-            document.getElementById('priceIndicator').style.display = currentPersonType ? 'flex' : 'none';
-            document.getElementById('pricesHiddenMessage').style.display = pricesHidden ? 'block' : 'none';
-            if (pricesHidden) {
-                document.getElementById('personTypeSelector').style.display = 'none';
-            }
-            productsGrid.style.display = 'grid';
-            document.getElementById('resultsInfo').style.display = 'flex';
-            updateCategoryTabs();
-            filterProducts();
-        }
-        
-        function switchToAnalyticsView() {
-            currentView = 'analytics';
-            productsGrid.style.display = 'none';
-            document.getElementById('resultsInfo').style.display = 'none';
-            document.getElementById('personTypeSelector').style.display = 'none';
-            document.getElementById('priceIndicator').style.display = 'none';
-            document.getElementById('pricesHiddenMessage').style.display = 'none';
-            openClicksAnalyticsModal();
-            updateCategoryTabs();
         }
 
         function selectCategory(category) {
@@ -4761,7 +4801,7 @@
                         } else {
                             parent.insertBefore(draggedTab, tab);
                         }
-                        const newOrder = [...parent.children].filter(t => t.dataset.category && t.dataset.category !== '').map(t => t.dataset.category);
+                        const newOrder = [...parent.children].filter(t => t.dataset.category && t.dataset.category !== '' && t.dataset.view !== 'analytics').map(t => t.dataset.category);
                         database.ref('settings/categoryOrder').set(newOrder).then(() => showToast('Ordem das abas salva!'));
                     }
                 });
@@ -4806,8 +4846,10 @@
                     if (pricesHidden) { hiddenModeBadge.style.display = 'inline-flex'; togglePricesBtn.innerHTML = '<i class="fas fa-eye"></i> Mostrar Preços'; togglePricesBtn.classList.add('active'); }
                     else { hiddenModeBadge.style.display = 'none'; togglePricesBtn.innerHTML = '<i class="fas fa-eye-slash"></i> Ocultar Preços'; togglePricesBtn.classList.remove('active'); }
                 }
-                if (pricesHidden) { pricesHiddenMessage.style.display = 'block'; personTypeSelector.style.display = 'none'; priceIndicator.style.display = 'none'; }
-                else { pricesHiddenMessage.style.display = 'none'; if (currentPersonType) { personTypeSelector.style.display = 'block'; priceIndicator.style.display = 'flex'; } else { personTypeSelector.style.display = 'block'; } }
+                if (currentView === 'products') {
+                    if (pricesHidden) { pricesHiddenMessage.style.display = 'block'; personTypeSelector.style.display = 'none'; priceIndicator.style.display = 'none'; }
+                    else { pricesHiddenMessage.style.display = 'none'; if (currentPersonType) { personTypeSelector.style.display = 'block'; priceIndicator.style.display = 'flex'; } else { personTypeSelector.style.display = 'block'; } }
+                }
                 filterProducts();
             });
             loadEmployees();
@@ -4822,6 +4864,12 @@
                 adminBadge.style.display = 'inline-block';
                 document.body.classList.add('admin-mode');
                 setupInlineEditing();
+                if (currentView === 'analytics') {
+                    // Se já estava em analytics, atualiza
+                    updateAnalyticsDisplay();
+                } else {
+                    switchToProductsView();
+                }
                 updateCategoryTabs();
                 if (pricesHidden) { togglePricesBtn.innerHTML = '<i class="fas fa-eye"></i> Mostrar Preços'; togglePricesBtn.classList.add('active'); hiddenModeBadge.style.display = 'inline-flex'; }
                 else { togglePricesBtn.innerHTML = '<i class="fas fa-eye-slash"></i> Ocultar Preços'; togglePricesBtn.classList.remove('active'); hiddenModeBadge.style.display = 'none'; }
@@ -4831,17 +4879,11 @@
                 adminBadge.style.display = 'none';
                 document.body.classList.remove('admin-mode');
                 disableInlineEditing();
-                currentView = 'products';
+                if (currentView === 'analytics') {
+                    switchToProductsView();
+                }
                 updateCategoryTabs();
                 hiddenModeBadge.style.display = 'none';
-                closeClicksAnalyticsModal();
-                productsGrid.style.display = 'grid';
-                document.getElementById('resultsInfo').style.display = 'flex';
-                document.getElementById('personTypeSelector').style.display = 'block';
-                document.getElementById('searchSection').classList.remove('hidden');
-                if (pricesHidden) {
-                    document.getElementById('personTypeSelector').style.display = 'none';
-                }
             }
             filterProducts();
         });
@@ -4854,7 +4896,11 @@
         });
         document.addEventListener('click', (event) => { if (cartPanel.classList.contains('open') && !cartPanel.contains(event.target) && !event.target.closest('.cart-icon')) cartPanel.classList.remove('open'); });
 
+        // Inicializar
         loadData();
+        
+        // Garantir que está na view de produtos no início
+        switchToProductsView();
     </script>
 </body>
 </html>
