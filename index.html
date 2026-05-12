@@ -24,22 +24,16 @@
         }
 
         .header {
-    /* Cor preta com 40% de opacidade */
-    background-color: rgba(0, 0, 0, 0.4) !important; 
-    
-    /* O efeito de embaçamento */
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px); /* Para funcionar no iPhone/Safari */
-    
-    /* Melhora o contraste com o fundo escuro */
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1); 
-    
-    /* Garante que o cabeçalho fique por cima de tudo ao rolar */
-    position: sticky;
-    top: 0;
-    z-index: 9999;
-}
-        
+            background-color: rgba(0, 0, 0, 0.4) !important;
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+        }
 
         .header-container {
             max-width: 1400px;
@@ -48,6 +42,11 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
+        }
+
+        /* Espaçamento para compensar o header fixo */
+        body {
+            padding-top: 80px;
         }
 
         .logo {
@@ -64,7 +63,7 @@
         }
 
         .logo-img {
-            height: 80px;
+            height: 60px;
             width: auto;
             border-radius: 8px;
         }
@@ -99,11 +98,6 @@
             0% { opacity: 1; }
             50% { opacity: 0.7; background: #b02a37; }
             100% { opacity: 1; }
-        }
-
-        .hidden-mode-badge i {
-            font-size: 0.9rem;
-            color: #ffc107;
         }
 
         .admin-btn.danger.delete-all {
@@ -215,7 +209,7 @@
             background: #222222;
             border: 1px solid #333333;
             border-radius: 50px;
-            padding: 12px 20px;
+            padding: 10px 20px;
             cursor: pointer;
             display: flex;
             align-items: center;
@@ -249,7 +243,7 @@
             position: relative;
             cursor: pointer;
             background: #222222;
-            padding: 12px 25px;
+            padding: 10px 25px;
             border-radius: 50px;
             transition: all 0.3s ease;
             display: flex;
@@ -299,8 +293,8 @@
 
         .main-container {
             max-width: 1400px;
-            margin: 30px auto;
-            padding: 0 40px;
+            margin: 0 auto;
+            padding: 20px 40px;
         }
 
         .search-section {
@@ -375,7 +369,7 @@
 
         .ad-slide img {
             width: 100%;
-            height: 900px;
+            height: 300px;
             object-fit: cover;
             border-radius: 12px;
         }
@@ -1575,6 +1569,7 @@
             margin-left: auto;
         }
 
+        /* CARRINHO - CORREÇÃO: Z-INDEX MAIOR QUE O HEADER */
         .cart-panel {
             position: fixed;
             top: 0;
@@ -1583,7 +1578,7 @@
             height: 100vh;
             background: #111111;
             box-shadow: -5px 0 30px rgba(0, 0, 0, 0.5);
-            z-index: 1500;
+            z-index: 2001;
             transition: right 0.3s ease;
             display: flex;
             flex-direction: column;
@@ -1910,7 +1905,7 @@
             height: 100vh;
             background: #111111;
             box-shadow: 5px 0 30px rgba(0, 0, 0, 0.5);
-            z-index: 2000;
+            z-index: 2002;
             transition: left 0.3s ease;
             display: flex;
             flex-direction: column;
@@ -2359,8 +2354,14 @@
             .header-container {
                 padding: 0 15px;
             }
+            .logo-img {
+                height: 45px;
+            }
+            body {
+                padding-top: 65px;
+            }
             .main-container {
-                padding: 0 15px;
+                padding: 15px;
             }
             .menu-toggle span {
                 display: none;
@@ -2369,7 +2370,7 @@
                 display: none;
             }
             .cart-icon {
-                padding: 12px 15px;
+                padding: 10px 15px;
             }
             .cart-panel {
                 width: 100%;
@@ -2431,7 +2432,7 @@
                 transform: scale(1.1);
             }
             .ad-slide img {
-                height: 200px;
+                height: 150px;
             }
         }
     </style>
@@ -2462,7 +2463,7 @@
 
     <div class="side-menu" id="sideMenu">
         <div class="menu-header">
-            <img src="https://i.ibb.co/PvtM4DTs/IMG-6505.jpg" alt="CIM" style="height: 80px; margin-bottom: 10px;">
+            <img src="https://i.ibb.co/PvtM4DTs/IMG-6505.jpg" alt="CIM" style="height: 60px; margin-bottom: 10px;">
             <h2>Global Parts</h2>
             <p>Peças Mecânicas</p>
             <button class="menu-close" onclick="toggleMenu()"><i class="fas fa-times"></i></button>
@@ -2615,7 +2616,40 @@
 
     <div class="modal" id="fullscreenImageModal"><div class="modal-content fullscreen-modal"><button class="modal-close" onclick="closeFullscreenImage()"><i class="fas fa-times"></i></button><div class="fullscreen-image-container"><img id="fullscreenImage" src="" alt="Imagem em tela cheia"></div></div></div>
 
-    <div class="cart-panel" id="cartPanel"><div class="cart-header"><h3><i class="fas fa-shopping-cart"></i> Meu Carrinho</h3><button class="cart-close" onclick="toggleCart()"><i class="fas fa-times"></i></button></div><div class="cart-items" id="cartItems"><div class="empty-cart"><i class="fas fa-shopping-basket"></i><p>Seu carrinho está vazio</p></div></div><div class="cart-footer"><div id="employeeCarouselContainer" style="display: none;"><div class="employee-carousel-container"><div class="employee-carousel-title"><i class="fas fa-user-headset"></i><span>Escolha seu atendente</span></div><div class="employee-carousel" id="employeeCarousel"></div></div></div><div class="cart-total"><span>Total:</span><span class="cart-total-value" id="cartTotal">R$ 0,00</span></div><button class="cart-whatsapp-btn" onclick="finalizePurchase()"><i class="fab fa-whatsapp"></i> Finalizar Pedido</button><button class="cart-clear-btn" onclick="clearCart()"><i class="fas fa-trash"></i> Limpar Carrinho</button></div></div>
+    <!-- CARRINHO - CORREÇÃO: POSITION FIXED COM Z-INDEX ALTO -->
+    <div class="cart-panel" id="cartPanel">
+        <div class="cart-header">
+            <h3><i class="fas fa-shopping-cart"></i> Meu Carrinho</h3>
+            <button class="cart-close" onclick="toggleCart()"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="cart-items" id="cartItems">
+            <div class="empty-cart">
+                <i class="fas fa-shopping-basket"></i>
+                <p>Seu carrinho está vazio</p>
+            </div>
+        </div>
+        <div class="cart-footer">
+            <div id="employeeCarouselContainer" style="display: none;">
+                <div class="employee-carousel-container">
+                    <div class="employee-carousel-title">
+                        <i class="fas fa-user-headset"></i>
+                        <span>Escolha seu atendente</span>
+                    </div>
+                    <div class="employee-carousel" id="employeeCarousel"></div>
+                </div>
+            </div>
+            <div class="cart-total">
+                <span>Total:</span>
+                <span class="cart-total-value" id="cartTotal">R$ 0,00</span>
+            </div>
+            <button class="cart-whatsapp-btn" onclick="finalizePurchase()">
+                <i class="fab fa-whatsapp"></i> Finalizar Pedido
+            </button>
+            <button class="cart-clear-btn" onclick="clearCart()">
+                <i class="fas fa-trash"></i> Limpar Carrinho
+            </button>
+        </div>
+    </div>
 
     <script>
         const firebaseConfig = {
@@ -2768,7 +2802,6 @@
             
             container.style.display = 'block';
             
-            // Renderizar slides
             slider.innerHTML = ads.map((ad, index) => {
                 const linkStart = ad.link && ad.link.trim() !== '' ? `<a href="${ad.link}" target="_blank">` : '';
                 const linkEnd = ad.link && ad.link.trim() !== '' ? '</a>' : '';
@@ -2776,14 +2809,11 @@
                 return `<div class="ad-slide" data-index="${index}">${linkStart}<img src="${ad.image || DEFAULT_AD_IMAGE}" alt="Propaganda ${index + 1}">${linkEnd}${adminControls}</div>`;
             }).join('');
             
-            // Renderizar dots
             dotsContainer.innerHTML = ads.map((_, index) => `<div class="slider-dot ${index === currentAdIndex ? 'active' : ''}" onclick="goToSlide(${index})"></div>`).join('');
             
-            // Resetar posição
             currentAdIndex = 0;
             updateSliderPosition();
             
-            // Reiniciar auto-slide
             if (autoSlideInterval) clearInterval(autoSlideInterval);
             if (ads.length > 1) {
                 autoSlideInterval = setInterval(() => {
@@ -2796,7 +2826,6 @@
             const slider = document.getElementById('adsSlider');
             if (slider) {
                 slider.style.transform = `translateX(-${currentAdIndex * 100}%)`;
-                // Atualizar dots
                 const dots = document.querySelectorAll('.slider-dot');
                 dots.forEach((dot, index) => {
                     if (index === currentAdIndex) dot.classList.add('active');
@@ -2821,7 +2850,6 @@
             if (index >= 0 && index < ads.length) {
                 currentAdIndex = index;
                 updateSliderPosition();
-                // Resetar timer do auto-slide
                 if (autoSlideInterval) {
                     clearInterval(autoSlideInterval);
                     if (ads.length > 1) {
@@ -2942,7 +2970,6 @@
         }
         
         function fixAdOrder(adId) {
-            // Move a propaganda para o início
             const adIndex = ads.findIndex(a => a.id === adId);
             if (adIndex > 0) {
                 const reordered = [ads[adIndex], ...ads.filter((_, i) => i !== adIndex)];
@@ -2962,7 +2989,8 @@
             const adData = {
                 link: link || '',
                 image: imageUrl,
-                order: Date.now()
+                order: Date.now(),
+                id: editingAdId || database.ref().child('ads').push().key
             };
             
             if (editingAdId) {
@@ -2971,9 +2999,7 @@
                     closeAdModal();
                 });
             } else {
-                const newId = database.ref().child('ads').push().key;
-                adData.id = newId;
-                database.ref(`ads/${newId}`).set(adData).then(() => {
+                database.ref(`ads/${adData.id}`).set(adData).then(() => {
                     showToast('Propaganda adicionada!');
                     closeAdModal();
                 });
@@ -2984,7 +3010,7 @@
             document.getElementById('adModal').classList.remove('active');
         }
 
-        // ========== FUNÇÕES EXISTENTES (modificadas) ==========
+        // ========== FUNÇÕES EXISTENTES ==========
         
         function openAddProductModal() {
             editingProductId = null;
@@ -3211,7 +3237,6 @@
             const card = document.createElement('div');
             card.className = `product-card ${product.featured ? 'featured' : ''} ${product.soldOut ? 'sold-out' : ''}`;
             let priceDisplay = '';
-            // Admin sempre vê os preços, mesmo com pricesHidden = true
             if (isAdmin) {
                 const pfPrice = (product.prices && product.prices.PF) ? product.prices.PF.toFixed(2) : '0.00';
                 const pjPrice = (product.prices && product.prices.PJ) ? product.prices.PJ.toFixed(2) : '0.00';
@@ -3248,7 +3273,6 @@
             const codigoContainer = document.getElementById('modalCodigoContainer'); const codigoElement = document.getElementById('modalCodigo');
             if (product.codigo && product.codigo.trim() !== '') { codigoElement.textContent = product.codigo; codigoContainer.style.display = 'block'; } else codigoContainer.style.display = 'none';
             let priceDisplay = '';
-            // Admin sempre vê os preços
             if (isAdmin) {
                 const pfPrice = (product.prices && product.prices.PF) ? product.prices.PF.toFixed(2) : '0.00';
                 const pjPrice = (product.prices && product.prices.PJ) ? product.prices.PJ.toFixed(2) : '0.00';
@@ -3366,7 +3390,7 @@
                 document.body.classList.add('admin-mode'); 
                 setupInlineEditing(); 
                 updateCategoryTabs(); 
-                updateAdsSlider(); // Atualiza o slider com controles de admin
+                updateAdsSlider();
                 if (pricesHidden) { 
                     togglePricesBtn.innerHTML = '<i class="fas fa-eye"></i> Mostrar Preços'; 
                     togglePricesBtn.classList.add('active'); 
@@ -3383,7 +3407,7 @@
                 document.body.classList.remove('admin-mode'); 
                 disableInlineEditing(); 
                 updateCategoryTabs(); 
-                updateAdsSlider(); // Atualiza o slider sem controles de admin
+                updateAdsSlider();
                 hiddenModeBadge.style.display = 'none'; 
             } 
             filterProducts(); 
