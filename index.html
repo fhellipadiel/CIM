@@ -24,15 +24,22 @@
         }
 
         .header {
-            background: rgba(17, 17, 17, 0.95);
-            padding: 15px 0;
-            position: sticky;
-            top: 0;
-            z-index: 1000;
-            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.3);
-            border-bottom: 1px solid #333333;
-            backdrop-filter: blur(10px);
-        }
+    /* Cor preta com 40% de opacidade */
+    background-color: rgba(0, 0, 0, 0.4) !important; 
+    
+    /* O efeito de embaçamento */
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px); /* Para funcionar no iPhone/Safari */
+    
+    /* Melhora o contraste com o fundo escuro */
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1); 
+    
+    /* Garante que o cabeçalho fique por cima de tudo ao rolar */
+    position: sticky;
+    top: 0;
+    z-index: 9999;
+}
+        
 
         .header-container {
             max-width: 1400px;
