@@ -979,6 +979,13 @@
             background: #a52a2a;
             transform: scale(1.05);
         }
+        .admin-btn.promo {
+            background: #9b59b6;
+            color: #fff;
+        }
+        .admin-btn.promo:hover {
+            background: #8e44ad;
+        }
 
         /* ========== SESSÕES ========== */
         .sessions-carousel-wrapper {
@@ -1372,6 +1379,22 @@
             box-shadow: 0 15px 30px rgba(255, 107, 0, 0.15);
             border-color: #ff6b00;
         }
+        .product-card.promocao {
+            border-color: #9b59b6;
+        }
+        .product-card.promocao::before {
+            content: '🔥 PROMOÇÃO';
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: #9b59b6;
+            color: #fff;
+            padding: 4px 10px;
+            border-radius: 30px;
+            font-size: 0.7rem;
+            font-weight: 700;
+            z-index: 2;
+        }
 
         .product-image {
             height: 150px;
@@ -1466,6 +1489,16 @@
             font-weight: 700;
             font-size: 1.1rem;
             color: #ff6b00;
+        }
+        .product-price .price-value.original {
+            text-decoration: line-through;
+            color: #888;
+            font-size: 0.9rem;
+            margin-right: 6px;
+        }
+        .product-price .price-value.promocional {
+            color: #9b59b6;
+            font-size: 1.3rem;
         }
         .price-hidden .product-price {
             background: #333;
@@ -1800,6 +1833,16 @@
             font-weight: 700;
             font-size: 2rem;
             color: #ff6b00;
+        }
+        .modal-price-value.original {
+            text-decoration: line-through;
+            color: #888;
+            font-size: 1.4rem;
+            margin-right: 10px;
+        }
+        .modal-price-value.promocional {
+            color: #9b59b6;
+            font-size: 2.2rem;
         }
         .modal-price-hidden {
             color: #ffc107;
@@ -2514,6 +2557,11 @@
             color: #ff6b00;
             font-size: 0.75rem;
         }
+        .user-list-item .user-data .user-phone {
+            color: #aaa;
+            font-size: 0.8rem;
+            margin-top: 2px;
+        }
         .user-list-item .user-data .user-dates {
             color: #999;
             font-size: 0.7rem;
@@ -2527,6 +2575,24 @@
         .user-list-item .user-actions {
             display: flex;
             gap: 4px;
+            align-items: center;
+        }
+        .user-list-item .user-actions .whatsapp-btn {
+            background: #25d366;
+            color: #fff;
+            border: none;
+            border-radius: 50%;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: 0.3s;
+            font-size: 1rem;
+        }
+        .user-list-item .user-actions .whatsapp-btn:hover {
+            transform: scale(1.1);
         }
         .user-list-item .user-actions button {
             padding: 4px 8px;
@@ -2994,7 +3060,8 @@
                     <button class="admin-btn info" onclick="openClickHistoryModal()"><i class="fas fa-history"></i> Histórico</button>
                     <button class="admin-btn danger" onclick="resetAllClicks()"><i class="fas fa-undo-alt"></i> Resetar Cliques</button>
                     <button class="admin-btn info" onclick="openMetaAchievementsModal()"><i class="fas fa-trophy"></i> Metas Batidas</button>
-                    <button class="admin-btn primary" onclick="openAdminUsersModal()"><i class="fas fa-users-cog"></i> Usuários Cadastrados</button>
+                    <button class="admin-btn primary" onclick="openAdminUsersModal()"><i class="fas fa-users-cog"></i> Usuários</button>
+                    <button class="admin-btn promo" onclick="openPromocoesModal()"><i class="fas fa-percent"></i> Promoções</button>
                     <button class="admin-btn outline" onclick="logoutAdmin()"><i class="fas fa-sign-out-alt"></i> Sair</button>
                 </div>
             </div>
@@ -3079,6 +3146,7 @@
                     <div class="form-group"><label>Nome <span style="color:#ff6b00;">*</span></label><input type="text" id="registerName" placeholder="Seu nome completo"></div>
                     <div class="form-group"><label>E-mail <span style="color:#ff6b00;">*</span></label><input type="email" id="registerEmail" placeholder="Digite seu e-mail"></div>
                     <div class="form-group"><label>Senha <span style="color:#ff6b00;">*</span></label><input type="password" id="registerPassword" placeholder="Mínimo 6 caracteres"></div>
+                    <div class="form-group"><label>Telefone (WhatsApp) <span style="color:#ff6b00;">*</span></label><input type="tel" id="registerPhone" placeholder="Digite apenas números, ex: 5511999999999" oninput="this.value=this.value.replace(/\D/g,'')"></div>
                     <div class="form-group"><label>Tipo de Cliente <span style="color:#ff6b00;">*</span></label>
                         <select id="registerUserType" onchange="toggleRegisterDocFields()">
                             <option value="">Selecione...</option>
@@ -3129,6 +3197,7 @@
                 <div class="form-group"><label>Nome</label><input type="text" id="userProfileName" disabled></div>
                 <div class="form-group"><label>E-mail</label><input type="text" id="userProfileEmail" disabled></div>
                 <div class="form-group"><label>Tipo</label><input type="text" id="userProfileType" disabled></div>
+                <div class="form-group"><label>Telefone</label><input type="tel" id="userProfilePhone" placeholder="Apenas números"></div>
                 <div class="form-group" id="userProfileDocGroup"><label>CPF/CNPJ</label><input type="text" id="userProfileDoc" disabled></div>
                 <div id="userProfileCompanyData" style="display:none;background:#222;padding:12px;border-radius:8px;border:1px solid #333;margin-bottom:15px;">
                     <div style="font-size:0.9rem;color:#ccc;"><strong>Dados da Empresa:</strong></div>
@@ -3488,6 +3557,57 @@
         </div>
     </div>
 
+    <!-- ========== PROMOÇÕES MODAL ========== -->
+    <div class="modal" id="promocoesModal">
+        <div class="modal-content large">
+            <button class="modal-close" onclick="closePromocoesModal()"><i class="fas fa-times"></i></button>
+            <div class="modal-header"><h2><i class="fas fa-percent"></i> Gerenciar Promoções</h2></div>
+            <div class="modal-body">
+                <button class="admin-btn primary" style="margin-bottom:20px;" onclick="openNovaPromocaoModal()"><i class="fas fa-plus"></i> Nova Promoção</button>
+                <div id="promocoesList"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- NOVA/EDITAR PROMOÇÃO MODAL -->
+    <div class="modal" id="novaPromocaoModal">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeNovaPromocaoModal()"><i class="fas fa-times"></i></button>
+            <div class="modal-header"><h2 id="novaPromocaoTitle">Nova Promoção</h2></div>
+            <div class="modal-body">
+                <div class="product-form">
+                    <div class="form-group"><label>Tipo de Promoção <span style="color:#ff6b00;">*</span></label>
+                        <select id="promoTipo" onchange="carregarAlvosPromocao()">
+                            <option value="sessao">Sessão</option>
+                            <option value="categoria">Categoria</option>
+                            <option value="produto">Produto Específico</option>
+                        </select>
+                    </div>
+                    <div class="form-group"><label>Selecione o alvo <span style="color:#ff6b00;">*</span></label>
+                        <select id="promoAlvo"></select>
+                    </div>
+                    <div class="form-group"><label>Público-alvo <span style="color:#ff6b00;">*</span></label>
+                        <select id="promoTipoCliente">
+                            <option value="PF">Pessoa Física</option>
+                            <option value="PJ">Pessoa Jurídica</option>
+                            <option value="ambos">Ambos</option>
+                        </select>
+                    </div>
+                    <div class="form-group"><label>Desconto (%) <span style="color:#ff6b00;">*</span></label>
+                        <input type="number" id="promoDesconto" min="0" max="100" step="1" placeholder="Ex: 10">
+                    </div>
+                    <div class="form-group"><label>Data e hora de expiração <span style="color:#ff6b00;">*</span></label>
+                        <input type="datetime-local" id="promoExpiracao">
+                    </div>
+                    <div style="display:flex;gap:10px;margin-top:20px;">
+                        <button class="btn btn-outline" style="flex:1;" onclick="closeNovaPromocaoModal()">Cancelar</button>
+                        <button class="btn btn-primary" style="flex:1;" onclick="salvarPromocao()"><i class="fas fa-save"></i> Salvar Promoção</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- ==================== CARRINHO PANEL ==================== -->
     <div class="cart-panel" id="cartPanel">
         <div class="cart-header">
@@ -3560,13 +3680,15 @@
         let categoryClicks = {};
         let sessionClicks = {};
         let brandClicks = {};
+        let promocoes = {};
+        let editingPromocaoId = null;
 
         // ========== SISTEMA DE USUÁRIOS ==========
         let currentUser = null;
         let currentUserPhoto = null;
         let isAdminUser = false;
         let cnpjValidated = false;
-        let cnpjStatus = ''; // 'ATIVA', 'INATIVA', etc.
+        let cnpjStatus = '';
         let cnpjData = null;
 
         // ========== DOM REFS ==========
@@ -4214,6 +4336,228 @@
             searchHeader.classList.remove('focused');
         }
 
+        // ========== PROMOÇÕES ==========
+        function carregarPromocoes() {
+            database.ref('promocoes').on('value', (snapshot) => {
+                promocoes = snapshot.val() || {};
+                verificarExpiracao();
+                if (document.getElementById('promocoesModal').classList.contains('active')) {
+                    renderPromocoesList();
+                }
+            });
+        }
+
+        function verificarExpiracao() {
+            const now = Date.now();
+            let expiradas = [];
+            Object.keys(promocoes).forEach(id => {
+                const promo = promocoes[id];
+                if (promo.ativa && promo.dataExpiracao && promo.dataExpiracao < now) {
+                    expiradas.push(id);
+                }
+            });
+            if (expiradas.length > 0) {
+                const updates = {};
+                expiradas.forEach(id => { updates[`promocoes/${id}/ativa`] = false; });
+                database.ref().update(updates).then(() => {
+                    showToast(`${expiradas.length} promoção(ões) expiraram automaticamente`);
+                });
+            }
+        }
+
+        function openPromocoesModal() {
+            document.getElementById('promocoesModal').classList.add('active');
+            renderPromocoesList();
+        }
+
+        function closePromocoesModal() {
+            document.getElementById('promocoesModal').classList.remove('active');
+        }
+
+        function renderPromocoesList() {
+            const container = document.getElementById('promocoesList');
+            if (!container) return;
+            const keys = Object.keys(promocoes);
+            if (keys.length === 0) {
+                container.innerHTML =
+                    '<div style="color:#888;padding:20px;text-align:center;">Nenhuma promoção cadastrada.</div>';
+                return;
+            }
+            let html = '';
+            keys.forEach(id => {
+                const p = promocoes[id];
+                const status = p.ativa ? '🟢 Ativa' : '🔴 Inativa';
+                const cliente = p.tipoCliente === 'ambos' ? 'Ambos' : p.tipoCliente;
+                const expira = p.dataExpiracao ? formatDateTime(p.dataExpiracao) : '—';
+                html += `
+                            <div class="admin-session-item" style="border-left:4px solid ${p.ativa ? '#28a745' : '#dc3545'};">
+                                <div style="flex:1;">
+                                    <div><strong>${escapeHtml(p.alvoNome)}</strong> (${p.tipo})</div>
+                                    <div style="font-size:0.85rem;color:#aaa;">${p.descontoPercentual}% para ${cliente} | Expira: ${expira}</div>
+                                    <div style="font-size:0.8rem;color:${p.ativa ? '#28a745' : '#dc3545'};">${status}</div>
+                                </div>
+                                <div class="session-actions">
+                                    <button class="edit-session" onclick="togglePromocao('${id}')" style="background:${p.ativa ? '#ffc107' : '#28a745'};">
+                                        ${p.ativa ? 'Desativar' : 'Ativar'}
+                                    </button>
+                                    <button class="edit-session" onclick="editarPromocao('${id}')"><i class="fas fa-edit"></i></button>
+                                    <button class="delete-session" onclick="excluirPromocao('${id}')"><i class="fas fa-trash"></i></button>
+                                </div>
+                            </div>
+                        `;
+            });
+            container.innerHTML = html;
+        }
+
+        function openNovaPromocaoModal(editId = null) {
+            editingPromocaoId = editId;
+            document.getElementById('novaPromocaoTitle').textContent = editId ? 'Editar Promoção' : 'Nova Promoção';
+            document.getElementById('promoTipo').value = editId ? promocoes[editId].tipo : 'sessao';
+            document.getElementById('promoTipoCliente').value = editId ? promocoes[editId].tipoCliente : 'ambos';
+            document.getElementById('promoDesconto').value = editId ? promocoes[editId].descontoPercentual : '';
+            if (editId) {
+                const dt = promocoes[editId].dataExpiracao;
+                if (dt) {
+                    const d = new Date(dt);
+                    const local = d.toISOString().slice(0, 16);
+                    document.getElementById('promoExpiracao').value = local;
+                } else {
+                    document.getElementById('promoExpiracao').value = '';
+                }
+            } else {
+                document.getElementById('promoExpiracao').value = '';
+            }
+            carregarAlvosPromocao(editId);
+            document.getElementById('novaPromocaoModal').classList.add('active');
+        }
+
+        function closeNovaPromocaoModal() {
+            document.getElementById('novaPromocaoModal').classList.remove('active');
+            editingPromocaoId = null;
+        }
+
+        function carregarAlvosPromocao(editId = null) {
+            const tipo = document.getElementById('promoTipo').value;
+            const select = document.getElementById('promoAlvo');
+            select.innerHTML = '<option value="">Carregando...</option>';
+            let itens = [];
+            if (tipo === 'sessao') {
+                itens = Object.keys(sessions).map(id => ({ id, nome: sessions[id].name }));
+                itens.sort((a, b) => (a.nome || '').localeCompare(b.nome || ''));
+            } else if (tipo === 'categoria') {
+                const cats = [...new Set(products.map(p => p.category).filter(c => c && c.trim() !== ''))];
+                itens = cats.map(c => ({ id: c, nome: c }));
+                itens.sort((a, b) => (a.nome || '').localeCompare(b.nome || ''));
+            } else if (tipo === 'produto') {
+                itens = products.map(p => ({ id: p.id, nome: p.name }));
+                itens.sort((a, b) => (a.nome || '').localeCompare(b.nome || ''));
+            }
+            select.innerHTML = '';
+            itens.forEach(item => {
+                const opt = document.createElement('option');
+                opt.value = item.id;
+                opt.textContent = item.nome;
+                select.appendChild(opt);
+            });
+            if (editId && promocoes[editId]) {
+                const alvoId = promocoes[editId].alvoId;
+                if ([...select.options].some(o => o.value === alvoId)) select.value = alvoId;
+            }
+        }
+
+        function salvarPromocao() {
+            const tipo = document.getElementById('promoTipo').value;
+            const alvoId = document.getElementById('promoAlvo').value;
+            const alvoNome = document.getElementById('promoAlvo').selectedOptions[0]?.textContent || '';
+            const tipoCliente = document.getElementById('promoTipoCliente').value;
+            const desconto = parseFloat(document.getElementById('promoDesconto').value);
+            const expiracao = document.getElementById('promoExpiracao').value;
+
+            if (!alvoId) { showToast('Selecione um alvo', 'error'); return; }
+            if (!desconto || desconto < 0 || desconto > 100) { showToast('Desconto deve ser entre 0 e 100', 'error');
+                return; }
+            if (!expiracao) { showToast('Defina uma data de expiração', 'error'); return; }
+
+            const dataExpiracao = new Date(expiracao).getTime();
+            if (dataExpiracao <= Date.now()) { showToast('A data deve ser futura', 'error'); return; }
+
+            const data = {
+                tipo,
+                alvoId,
+                alvoNome,
+                tipoCliente,
+                descontoPercentual: desconto,
+                dataExpiracao,
+                ativa: true,
+                criadaEm: Date.now()
+            };
+
+            if (editingPromocaoId) {
+                database.ref(`promocoes/${editingPromocaoId}`).update(data).then(() => {
+                    showToast('Promoção atualizada');
+                    closeNovaPromocaoModal();
+                    renderPromocoesList();
+                });
+            } else {
+                const newId = database.ref().child('promocoes').push().key;
+                data.id = newId;
+                database.ref(`promocoes/${newId}`).set(data).then(() => {
+                    showToast('Promoção criada');
+                    closeNovaPromocaoModal();
+                    renderPromocoesList();
+                });
+            }
+        }
+
+        function togglePromocao(id) {
+            const promo = promocoes[id];
+            if (!promo) return;
+            database.ref(`promocoes/${id}/ativa`).set(!promo.ativa).then(() => {
+                showToast(promo.ativa ? 'Desativada' : 'Ativada');
+            });
+        }
+
+        function editarPromocao(id) {
+            if (!promocoes[id]) return;
+            openNovaPromocaoModal(id);
+        }
+
+        function excluirPromocao(id) {
+            if (!confirm('Excluir esta promoção?')) return;
+            database.ref(`promocoes/${id}`).remove().then(() => {
+                showToast('Promoção excluída');
+                renderPromocoesList();
+            });
+        }
+
+        // ========== APLICAÇÃO DE DESCONTO NOS PRODUTOS ==========
+        function getPromocaoParaProduto(product) {
+            if (!product) return null;
+            const now = Date.now();
+            for (let id in promocoes) {
+                const promo = promocoes[id];
+                if (!promo.ativa) continue;
+                if (promo.dataExpiracao && promo.dataExpiracao < now) continue;
+                let match = false;
+                if (promo.tipo === 'produto' && promo.alvoId === product.id) match = true;
+                else if (promo.tipo === 'categoria' && promo.alvoId === product.category) match = true;
+                else if (promo.tipo === 'sessao' && promo.alvoId === product.sessionId) match = true;
+                if (match) {
+                    const cliente = promo.tipoCliente;
+                    const userType = currentUser ? currentUser.userType : null;
+                    if (cliente === 'ambos' || cliente === userType) {
+                        return promo;
+                    }
+                }
+            }
+            return null;
+        }
+
+        function calcularPrecoComDesconto(preco, descontoPercent) {
+            if (!preco || preco <= 0) return 0;
+            return preco * (1 - descontoPercent / 100);
+        }
+
         // ========== FILTRAR PRODUTOS ==========
         function filterProducts() {
             let filtered = products;
@@ -4257,37 +4601,62 @@
         // ========== CRIAR CARD DE PRODUTO ==========
         function createProductCard(product) {
             const card = document.createElement('div');
-            card.className = `product-card ${product.featured ? 'featured' : ''} ${product.soldOut ? 'sold-out' : ''}`;
+            let isPromo = false;
+            let promoData = getPromocaoParaProduto(product);
+            let desconto = promoData ? promoData.descontoPercentual : 0;
+            let precoOriginalPF = product.prices?.PF || 0;
+            let precoOriginalPJ = product.prices?.PJ || 0;
+            let precoPromoPF = calcularPrecoComDesconto(precoOriginalPF, desconto);
+            let precoPromoPJ = calcularPrecoComDesconto(precoOriginalPJ, desconto);
+            if (promoData && (precoPromoPF > 0 || precoPromoPJ > 0)) isPromo = true;
+
+            card.className = `product-card ${product.featured ? 'featured' : ''} ${product.soldOut ? 'sold-out' : ''} ${isPromo ? 'promocao' : ''}`;
 
             let priceDisplay = '';
             const showPrice = !pricesHidden;
             const userType = currentUser ? currentUser.userType : null;
 
             if (isAdmin) {
-                const pf = product.prices?.PF?.toFixed(2) || '0.00';
-                const pj = product.prices?.PJ?.toFixed(2) || '0.00';
+                const pf = precoOriginalPF.toFixed(2);
+                const pj = precoOriginalPJ.toFixed(2);
                 const showPF = !pricesHidden || (pricesHidden !== 'PF' && pricesHidden !== 'both');
                 const showPJ = !pricesHidden || (pricesHidden !== 'PJ' && pricesHidden !== 'both');
 
                 let html = '';
                 if (showPF) {
+                    let priceHtml = `<div class="price-value">R$ ${pf}</div>`;
+                    if (isPromo && precoPromoPF > 0) {
+                        priceHtml =
+                            `<span class="price-value original">R$ ${pf}</span> <span class="price-value promocional">R$ ${precoPromoPF.toFixed(2)}</span>`;
+                    }
                     html +=
-                        `<div class="product-price"><div class="price-label"><i class="fas fa-user"></i> PF</div><div class="price-value">R$ ${pf}</div></div>`;
+                    `<div class="product-price"><div class="price-label"><i class="fas fa-user"></i> PF</div>${priceHtml}</div>`;
                 }
                 if (showPJ) {
+                    let priceHtml = `<div class="price-value">R$ ${pj}</div>`;
+                    if (isPromo && precoPromoPJ > 0) {
+                        priceHtml =
+                            `<span class="price-value original">R$ ${pj}</span> <span class="price-value promocional">R$ ${precoPromoPJ.toFixed(2)}</span>`;
+                    }
                     html +=
-                        `<div class="product-price" style="${showPF ? 'margin-top:5px;' : ''}"><div class="price-label"><i class="fas fa-building"></i> PJ</div><div class="price-value">R$ ${pj}</div></div>`;
+                    `<div class="product-price" style="${showPF ? 'margin-top:5px;' : ''}"><div class="price-label"><i class="fas fa-building"></i> PJ</div>${priceHtml}</div>`;
                 }
                 if (!showPF && !showPJ) {
                     html = `<div class="price-hidden-badge"><i class="fas fa-star"></i> Preços ocultos</div>`;
                 }
                 priceDisplay = html;
             } else if (showPrice && userType) {
-                const price = product.prices?.[userType]?.toFixed(2) || '0.00';
+                const precoOriginal = userType === 'PF' ? precoOriginalPF : precoOriginalPJ;
+                const precoPromo = userType === 'PF' ? precoPromoPF : precoPromoPJ;
                 const label = userType === 'PF' ? 'Pessoa Física' : 'Pessoa Jurídica';
                 const icon = userType === 'PF' ? 'fa-user' : 'fa-building';
+                let priceHtml = `<div class="price-value">R$ ${precoOriginal.toFixed(2)}</div>`;
+                if (isPromo && precoPromo > 0) {
+                    priceHtml =
+                        `<span class="price-value original">R$ ${precoOriginal.toFixed(2)}</span> <span class="price-value promocional">R$ ${precoPromo.toFixed(2)}</span>`;
+                }
                 priceDisplay =
-                    `<div class="product-price"><div class="price-label"><i class="fas ${icon}"></i> Preço ${label}</div><div class="price-value">R$ ${price}</div></div>`;
+                    `<div class="product-price"><div class="price-label"><i class="fas ${icon}"></i> Preço ${label}</div>${priceHtml}</div>`;
             } else {
                 priceDisplay = `<div class="price-hidden-badge"><i class="fas fa-star"></i> Consulte</div>`;
             }
@@ -5354,31 +5723,57 @@
             let priceDisplay = '';
             const showPrice = !pricesHidden;
             const userType = currentUser ? currentUser.userType : null;
+            const promo = getPromocaoParaProduto(product);
+            const desconto = promo ? promo.descontoPercentual : 0;
+            const precoOriginalPF = product.prices?.PF || 0;
+            const precoOriginalPJ = product.prices?.PJ || 0;
+            const precoPromoPF = calcularPrecoComDesconto(precoOriginalPF, desconto);
+            const precoPromoPJ = calcularPrecoComDesconto(precoOriginalPJ, desconto);
+            const isPromo = promo && (precoPromoPF > 0 || precoPromoPJ > 0);
 
             if (isAdmin) {
-                const pf = product.prices?.PF?.toFixed(2) || '0.00';
-                const pj = product.prices?.PJ?.toFixed(2) || '0.00';
+                const pf = precoOriginalPF.toFixed(2);
+                const pj = precoOriginalPJ.toFixed(2);
                 const showPF = !pricesHidden || (pricesHidden !== 'PF' && pricesHidden !== 'both');
                 const showPJ = !pricesHidden || (pricesHidden !== 'PJ' && pricesHidden !== 'both');
+
+                let html = '';
                 if (showPF && showPJ) {
-                    priceDisplay =
-                        `<div class="modal-price-label"><i class="fas fa-user"></i> PF</div><div class="modal-price-value">R$ ${pf}</div><div class="modal-price-label" style="margin-top:15px;"><i class="fas fa-building"></i> PJ</div><div class="modal-price-value">R$ ${pj}</div>`;
+                    let pfHtml = `R$ ${pf}`;
+                    if (isPromo && precoPromoPF > 0) pfHtml =
+                        `<span class="modal-price-value original">R$ ${pf}</span> <span class="modal-price-value promocional">R$ ${precoPromoPF.toFixed(2)}</span>`;
+                    let pjHtml = `R$ ${pj}`;
+                    if (isPromo && precoPromoPJ > 0) pjHtml =
+                        `<span class="modal-price-value original">R$ ${pj}</span> <span class="modal-price-value promocional">R$ ${precoPromoPJ.toFixed(2)}</span>`;
+                    html =
+                        `<div class="modal-price-label"><i class="fas fa-user"></i> PF</div><div>${pfHtml}</div><div class="modal-price-label" style="margin-top:15px;"><i class="fas fa-building"></i> PJ</div><div>${pjHtml}</div>`;
                 } else if (showPF) {
-                    priceDisplay =
-                        `<div class="modal-price-label"><i class="fas fa-user"></i> PF</div><div class="modal-price-value">R$ ${pf}</div>`;
+                    let pfHtml = `R$ ${pf}`;
+                    if (isPromo && precoPromoPF > 0) pfHtml =
+                        `<span class="modal-price-value original">R$ ${pf}</span> <span class="modal-price-value promocional">R$ ${precoPromoPF.toFixed(2)}</span>`;
+                    html = `<div class="modal-price-label"><i class="fas fa-user"></i> PF</div><div>${pfHtml}</div>`;
                 } else if (showPJ) {
-                    priceDisplay =
-                        `<div class="modal-price-label"><i class="fas fa-building"></i> PJ</div><div class="modal-price-value">R$ ${pj}</div>`;
+                    let pjHtml = `R$ ${pj}`;
+                    if (isPromo && precoPromoPJ > 0) pjHtml =
+                        `<span class="modal-price-value original">R$ ${pj}</span> <span class="modal-price-value promocional">R$ ${precoPromoPJ.toFixed(2)}</span>`;
+                    html = `<div class="modal-price-label"><i class="fas fa-building"></i> PJ</div><div>${pjHtml}</div>`;
                 } else {
-                    priceDisplay = `<div class="modal-price-hidden"><i class="fas fa-star"></i> Preços ocultos</div>`;
+                    html = `<div class="modal-price-hidden"><i class="fas fa-star"></i> Preços ocultos</div>`;
                 }
+                priceDisplay = html;
                 document.getElementById('modalAddButton').disabled = false;
             } else if (showPrice && userType) {
-                const price = product.prices?.[userType]?.toFixed(2) || '0.00';
+                const precoOriginal = userType === 'PF' ? precoOriginalPF : precoOriginalPJ;
+                const precoPromo = userType === 'PF' ? precoPromoPF : precoPromoPJ;
                 const label = userType === 'PF' ? 'PF' : 'PJ';
                 const icon = userType === 'PF' ? 'fa-user' : 'fa-building';
+                let priceHtml = `R$ ${precoOriginal.toFixed(2)}`;
+                if (isPromo && precoPromo > 0) {
+                    priceHtml =
+                        `<span class="modal-price-value original">R$ ${precoOriginal.toFixed(2)}</span> <span class="modal-price-value promocional">R$ ${precoPromo.toFixed(2)}</span>`;
+                }
                 priceDisplay =
-                    `<div class="modal-price-label"><i class="fas ${icon}"></i> Preço ${label}</div><div class="modal-price-value">R$ ${price}</div>`;
+                    `<div class="modal-price-label"><i class="fas ${icon}"></i> Preço ${label}</div><div>${priceHtml}</div>`;
                 document.getElementById('modalAddButton').disabled = false;
             } else {
                 priceDisplay = `<div class="modal-price-hidden"><i class="fas fa-star"></i> Consulte</div>`;
@@ -5650,7 +6045,8 @@
                     companyData: data.companyData || null,
                     isAdmin: data.isAdmin || false,
                     createdAt: data.createdAt || null,
-                    lastAccess: data.lastAccess || null
+                    lastAccess: data.lastAccess || null,
+                    telefone: data.telefone || ''
                 };
                 currentUserPhoto = data.photoURL || DEFAULT_USER_AVATAR;
                 isAdminUser = currentUser.isAdmin || false;
@@ -5767,7 +6163,8 @@
                         name: user.displayName || 'Usuário',
                         photoURL: user.photoURL || DEFAULT_USER_AVATAR,
                         userType: null,
-                        isAdmin: false
+                        isAdmin: false,
+                        telefone: ''
                     };
                     updateProfileUIUser();
                 }
@@ -5828,6 +6225,7 @@
             document.getElementById('registerName').value = '';
             document.getElementById('registerEmail').value = '';
             document.getElementById('registerPassword').value = '';
+            document.getElementById('registerPhone').value = '';
             document.getElementById('registerUserType').value = '';
             document.getElementById('registerDocFields').style.display = 'none';
             document.getElementById('registerCpfGroup').style.display = 'block';
@@ -5944,13 +6342,18 @@
             const name = document.getElementById('registerName').value.trim();
             const email = document.getElementById('registerEmail').value.trim();
             const password = document.getElementById('registerPassword').value;
+            const telefone = document.getElementById('registerPhone').value.replace(/\D/g, '');
             const userType = document.getElementById('registerUserType').value;
             const terms = document.getElementById('registerTerms').checked;
             const cpf = document.getElementById('registerCpf').value.replace(/\D/g, '');
             const cnpj = document.getElementById('registerCnpj').value.replace(/\D/g, '');
 
-            if (!name || !email || !password || !userType) {
+            if (!name || !email || !password || !userType || !telefone) {
                 document.getElementById('registerError').textContent = 'Preencha todos os campos obrigatórios';
+                return;
+            }
+            if (telefone.length < 10) {
+                document.getElementById('registerError').textContent = 'Telefone inválido (mínimo 10 dígitos)';
                 return;
             }
             if (password.length < 6) { document.getElementById('registerError').textContent =
@@ -5984,6 +6387,7 @@
                         name: name,
                         photoURL: DEFAULT_USER_AVATAR,
                         userType: userType,
+                        telefone: telefone,
                         cpf: userType === 'PF' ? cpf : '',
                         cnpj: userType === 'PJ' ? cnpj : '',
                         companyData: userType === 'PJ' ? cnpjData : null,
@@ -6070,6 +6474,7 @@
                                         <p style="color:#ccc;margin-bottom:15px;">Você entrou com o Google. Agora precisamos saber seu tipo de cliente.</p>
                                         <div class="form-group"><label>Nome</label><input type="text" id="completeName" value="${user.displayName || ''}"></div>
                                         <div class="form-group"><label>E-mail</label><input type="text" id="completeEmail" value="${user.email || ''}" disabled></div>
+                                        <div class="form-group"><label>Telefone (WhatsApp) <span style="color:#ff6b00;">*</span></label><input type="tel" id="completePhone" placeholder="Apenas números" oninput="this.value=this.value.replace(/\\D/g,'')"></div>
                                         <div class="form-group"><label>Tipo de Cliente <span style="color:#ff6b00;">*</span></label>
                                             <select id="completeUserType" onchange="toggleCompleteDocFields()">
                                                 <option value="">Selecione...</option>
@@ -6099,6 +6504,7 @@
             }
             document.getElementById('completeName').value = user.displayName || '';
             document.getElementById('completeEmail').value = user.email || '';
+            document.getElementById('completePhone').value = '';
             document.getElementById('completeUserType').value = '';
             document.getElementById('completeDocFields').style.display = 'none';
             document.getElementById('completeCpf').value = '';
@@ -6184,12 +6590,17 @@
             const user = pendingGoogleUser;
             if (!user) { showToast('Erro: usuário não encontrado', 'error'); return; }
             const name = document.getElementById('completeName').value.trim();
+            const telefone = document.getElementById('completePhone').value.replace(/\D/g, '');
             const userType = document.getElementById('completeUserType').value;
             const cpf = document.getElementById('completeCpf').value.replace(/\D/g, '');
             const cnpj = document.getElementById('completeCnpj').value.replace(/\D/g, '');
 
-            if (!name || !userType) {
+            if (!name || !userType || !telefone) {
                 document.getElementById('completeError').textContent = 'Preencha todos os campos obrigatórios';
+                return;
+            }
+            if (telefone.length < 10) {
+                document.getElementById('completeError').textContent = 'Telefone inválido (mínimo 10 dígitos)';
                 return;
             }
             if (userType === 'PF' && cpf.length !== 11) {
@@ -6213,6 +6624,7 @@
                 email: user.email || '',
                 name: name,
                 photoURL: user.photoURL || DEFAULT_USER_AVATAR,
+                telefone: telefone,
                 userType: userType,
                 cpf: userType === 'PF' ? cpf : '',
                 cnpj: userType === 'PJ' ? cnpj : '',
@@ -6263,6 +6675,7 @@
             document.getElementById('userProfileName').value = currentUser.name || '';
             document.getElementById('userProfileEmail').value = currentUser.email || '';
             document.getElementById('userProfileType').value = currentUser.userType || 'Não definido';
+            document.getElementById('userProfilePhone').value = currentUser.telefone || '';
             const docField = document.getElementById('userProfileDocGroup');
             const docInput = document.getElementById('userProfileDoc');
             if (currentUser.userType === 'PF') {
@@ -6327,15 +6740,19 @@
         function updateUserProfile() {
             if (!currentUser) return;
             const name = document.getElementById('userProfileName').value.trim();
+            const telefone = document.getElementById('userProfilePhone').value.replace(/\D/g, '');
             if (!name) { showToast('Nome não pode estar vazio', 'error'); return; }
+            if (telefone && telefone.length < 10) { showToast('Telefone inválido (mínimo 10 dígitos)', 'error'); return; }
             const updates = {};
             updates[`users/${currentUser.uid}/name`] = name;
+            updates[`users/${currentUser.uid}/telefone`] = telefone;
             if (currentUserPhoto && currentUserPhoto !== currentUser.photoURL) {
                 updates[`users/${currentUser.uid}/photoURL`] = currentUserPhoto;
             }
             database.ref().update(updates).then(() => {
                 showToast('Perfil atualizado');
                 currentUser.name = name;
+                currentUser.telefone = telefone;
                 if (currentUserPhoto) currentUser.photoURL = currentUserPhoto;
                 updateProfileUIUser();
                 closeUserProfileModal();
@@ -6393,6 +6810,9 @@
                     `<img src="${u.photoURL}" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">` :
                     '';
                 const doc = u.userType === 'PF' ? formatCpfCnpj(u.cpf || '', 'PF') : formatCpfCnpj(u.cnpj || '', 'PJ');
+                const phone = u.telefone || '';
+                const phoneLink = phone ? `https://wa.me/55${phone}` : '#';
+                const phoneDisplay = phone ? formatCpfCnpj(phone, 'PF') : '—';
                 let companyInfo = '';
                 if (u.userType === 'PJ' && u.companyData) {
                     const d = u.companyData;
@@ -6418,10 +6838,12 @@
                                     <div class="user-name">${escapeHtml(u.name || 'Sem nome')}</div>
                                     <div class="user-email">${escapeHtml(u.email || '')}</div>
                                     <div class="user-doc">${doc}</div>
+                                    <div class="user-phone"><i class="fas fa-phone"></i> ${phoneDisplay}</div>
                                     ${companyInfo}
                                     ${datesInfo}
                                 </div>
                                 <div class="user-actions">
+                                    ${phone ? `<a href="${phoneLink}" target="_blank" class="whatsapp-btn" title="WhatsApp"><i class="fab fa-whatsapp"></i></a>` : ''}
                                     ${!u.isAdmin ? `<button onclick="deleteUser('${u.uid}')"><i class="fas fa-trash"></i></button>` : '<span style="color:#ff6b00;font-size:0.7rem;">Admin</span>'}
                                 </div>
                             </div>
@@ -6462,6 +6884,7 @@
                                 photoURL: user.photoURL || DEFAULT_USER_AVATAR,
                                 userType: 'PF',
                                 isAdmin: true,
+                                telefone: '5511986866888',
                                 createdAt: Date.now(),
                                 lastAccess: Date.now()
                             };
@@ -6490,6 +6913,7 @@
                                     photoURL: user.photoURL || DEFAULT_USER_AVATAR,
                                     userType: null,
                                     isAdmin: false,
+                                    telefone: '',
                                     createdAt: Date.now(),
                                     lastAccess: Date.now()
                                 };
@@ -6527,6 +6951,7 @@
             loadBrands();
             loadClickHistory();
             loadMetaAchievements();
+            carregarPromocoes();
 
             database.ref('categoryClicks').on('value', (snapshot) => {
                 categoryClicks = snapshot.val() || {};
@@ -6565,6 +6990,9 @@
                 if (pricesHidden === undefined || pricesHidden === null) pricesHidden = false;
                 updatePriceDisplay();
             });
+
+            // Verificar expiração a cada 30 segundos
+            setInterval(() => verificarExpiracao(), 30000);
         }
 
         // ========== INICIALIZAR ==========
@@ -6673,10 +7101,20 @@
         window.onSearchBlur = onSearchBlur;
         window.handleInstagramClick = handleInstagramClick;
         window.editInstagramLink = editInstagramLink;
+        window.openPromocoesModal = openPromocoesModal;
+        window.closePromocoesModal = closePromocoesModal;
+        window.openNovaPromocaoModal = openNovaPromocaoModal;
+        window.closeNovaPromocaoModal = closeNovaPromocaoModal;
+        window.carregarAlvosPromocao = carregarAlvosPromocao;
+        window.salvarPromocao = salvarPromocao;
+        window.togglePromocao = togglePromocao;
+        window.editarPromocao = editarPromocao;
+        window.excluirPromocao = excluirPromocao;
 
         console.log('🚀 CIM - Sistema carregado com sucesso!');
         console.log('📌 Administrador: cim@gmail.com');
         console.log('🔐 Autenticação Google configurada.');
+        console.log('🔥 Promoções ativas: aguardando dados...');
     </script>
 </body>
 </html>
