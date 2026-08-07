@@ -359,6 +359,12 @@
             color: #888;
             font-weight: 400;
         }
+        .profile-dropdown .user-info .user-doc {
+            font-size: 0.8rem;
+            color: #ff6b00;
+            font-weight: 500;
+            margin-top: 4px;
+        }
         .dropdown-avatar-section {
             text-align: center;
             padding: 14px 16px 10px;
@@ -683,6 +689,12 @@
             color: #ccc;
             margin-top: 4px;
             line-height: 1.4;
+        }
+        .bottom-menu .profile-doc {
+            font-size: 0.85rem;
+            color: #ff6b00;
+            margin-top: 4px;
+            font-weight: 500;
         }
         .bottom-menu .admin-edit-badge {
             background: #ff6b00;
@@ -2862,6 +2874,7 @@
                                 <div id="dropdownUserName">Usuário</div>
                                 <div class="user-type" id="dropdownUserType"></div>
                                 <div class="user-email" id="dropdownUserEmail"></div>
+                                <div class="user-doc" id="dropdownUserDoc"></div>
                             </div>
                             <div class="dropdown-divider"></div>
                             <button class="dropdown-item" onclick="event.stopPropagation(); document.getElementById('dropdownAvatarInput').click()"><i class="fas fa-camera"></i> Mudar Foto de Perfil</button>
@@ -2905,6 +2918,7 @@
                 <div class="profile-name" id="profileName">CIM Peças</div>
                 <div class="profile-subtitle" id="profileSubtitle">Mecânica de confiança</div>
                 <div class="profile-message" id="profileMessage">Sua peça com qualidade e rapidez</div>
+                <div class="profile-doc" id="profileDoc" style="display:none;"></div>
                 <span class="admin-edit-badge" id="editProfileBadge" style="display:none;" onclick="openEditProfileModal()">
                     <i class="fas fa-edit"></i> Editar Perfil
                 </span>
@@ -3009,8 +3023,6 @@
         </div>
 
         <!-- TIPO DE CLIENTE (removido para não logados) -->
-        <!-- <div class="type-selector" id="personTypeSelector"> ... </div> -->
-
         <div class="price-indicator" id="priceIndicator">
             <i class="fas fa-tag"></i>
             <span>Mostrando preços para <strong id="selectedTypeLabel">Pessoa Física</strong></span>
@@ -3087,7 +3099,7 @@
                         </div>
                     </div>
                     <div class="checkbox-group"><input type="checkbox" id="registerTerms"><label for="registerTerms">Aceito os termos e condições</label></div>
-                    <button class="btn btn-primary" style="width:100%;" onclick="doRegister()"><i class="fas fa-user-plus"></i> Cadastrar</button>
+                    <button class="btn btn-primary" style="width:100%;" onclick="doRegister()" id="registerButton"><i class="fas fa-user-plus"></i> Cadastrar</button>
                     <div id="registerError" style="color:#dc3545;margin-top:10px;text-align:center;"></div>
                     <div style="text-align:center;margin-top:12px;color:#888;font-size:0.85rem;">
                         Já tem conta? <a href="#" onclick="event.preventDefault();closeRegisterModal();openLoginModal();" style="color:#ff6b00;">Entrar</a>
@@ -3508,9 +3520,6 @@
         const database = firebase.database();
         const auth = firebase.auth();
 
-        // Google OAuth Client ID
-        const GOOGLE_CLIENT_ID = '209027736278-rf37sfr0ajqkmnoi3rr2tevd11r9mku8.apps.googleusercontent.com';
-
         const IMGBB_API_KEY = '8d6bcd122e2d808ccb276de3bbb0790c';
         const DEFAULT_PLACEHOLDER_IMAGE = 'https://i.ibb.co/F4dXSwVG/IMG-6495.jpg';
         const DEFAULT_CONTACT_IMAGE = 'https://i.ibb.co/6J5qZ9K/default-avatar.png';
@@ -3553,9 +3562,12 @@
         let brandClicks = {};
 
         // ========== SISTEMA DE USUÁRIOS ==========
-        let currentUser = null; // { uid, email, name, photoURL, userType, cpf, cnpj, companyData, isAdmin }
+        let currentUser = null;
         let currentUserPhoto = null;
         let isAdminUser = false;
+        let cnpjValidated = false;
+        let cnpjStatus = ''; // 'ATIVA', 'INATIVA', etc.
+        let cnpjData = null;
 
         // ========== DOM REFS ==========
         const productsGrid = document.getElementById('productsGrid');
@@ -3572,8 +3584,6 @@
         const categoryTabs = document.getElementById('categoryTabs');
         const brandTabs = document.getElementById('brandTabs');
         const togglePricesBtn = document.getElementById('togglePricesBtn');
-        const personTypeSelector = document.getElementById('personTypeSelector'); // será oculto
-        const productsView = document.getElementById('productsView');
         const sessionsCarousel = document.getElementById('sessionsCarousel');
         const sessionsWrapper = document.getElementById('sessionsWrapper');
         const viewAllSessions = document.getElementById('viewAllSessions');
@@ -3594,6 +3604,8 @@
         // Novos elementos do menu
         const menuChangePhoto = document.getElementById('menuChangePhoto');
         const menuLogout = document.getElementById('menuLogout');
+        const profileDoc = document.getElementById('profileDoc');
+        const dropdownUserDoc = document.getElementById('dropdownUserDoc');
 
         // ========== UTILITÁRIOS ==========
         function showToast(msg, type = 'success') {
@@ -3746,7 +3758,6 @@
 
         function getPriceForItem(item) {
             if (pricesHidden) return 0;
-            // Apenas usuários logados veem preços
             if (currentUser && currentUser.userType) {
                 const type = currentUser.userType;
                 return item.prices?.[type] || 0;
@@ -4278,7 +4289,6 @@
                 priceDisplay =
                     `<div class="product-price"><div class="price-label"><i class="fas ${icon}"></i> Preço ${label}</div><div class="price-value">R$ ${price}</div></div>`;
             } else {
-                // Não logado ou sem tipo: não mostra preço
                 priceDisplay = `<div class="price-hidden-badge"><i class="fas fa-star"></i> Consulte</div>`;
             }
 
@@ -5589,7 +5599,6 @@
         // ========== PRICES HIDDEN (admin) ==========
         function togglePricesVisibility() {
             if (!isAdmin) return;
-            // Ciclo: none -> PF -> PJ -> both -> none
             if (pricesHidden === false) {
                 pricesHidden = 'PF';
                 togglePricesBtn.innerHTML = '<i class="fas fa-eye-slash"></i> Ocultar PF';
@@ -5610,10 +5619,8 @@
         function updatePriceDisplay() {
             const isHidden = pricesHidden !== false;
             if (isHidden) {
-                // Se preços ocultos, não mostra indicador
                 priceIndicator.classList.remove('visible');
             } else {
-                // Mostra indicador apenas se houver usuário logado com tipo definido
                 if (currentUser && currentUser.userType) {
                     priceIndicator.classList.add('visible');
                     selectedTypeLabel.textContent = currentUser.userType === 'PF' ? 'Pessoa Física' : 'Pessoa Jurídica';
@@ -5647,7 +5654,7 @@
                 };
                 currentUserPhoto = data.photoURL || DEFAULT_USER_AVATAR;
                 isAdminUser = currentUser.isAdmin || false;
-                isAdmin = isAdminUser; // admin global
+                isAdmin = isAdminUser;
                 updateProfileUIUser();
                 updatePriceDisplay();
                 filterProducts();
@@ -5674,15 +5681,29 @@
                     if (dropdownAvatarImg) dropdownAvatarImg.src = DEFAULT_USER_AVATAR;
                 }
                 dot.className = 'status-dot online';
-                // Atualizar dropdown (perfil redondo, dados e botão sair)
+
+                // Dropdown info
                 document.getElementById('dropdownLogged').style.display = 'block';
                 document.getElementById('dropdownUserName').textContent = currentUser.name || 'Usuário';
                 document.getElementById('dropdownUserType').textContent = currentUser.userType ? (currentUser.userType === 'PF' ? 'Pessoa Física' : 'Pessoa Jurídica') : 'Tipo não definido';
                 document.getElementById('dropdownUserEmail').textContent = currentUser.email || '';
+                // Documento no dropdown
+                const docStr = currentUser.userType === 'PF' ? formatCpfCnpj(currentUser.cpf || '', 'PF') :
+                              currentUser.userType === 'PJ' ? formatCpfCnpj(currentUser.cnpj || '', 'PJ') : '';
+                dropdownUserDoc.textContent = docStr;
+                dropdownUserDoc.style.display = docStr ? 'block' : 'none';
 
-                // Mostrar itens do menu (alterar foto e sair)
+                // Mostrar itens do menu
                 menuChangePhoto.style.display = 'flex';
                 menuLogout.style.display = 'flex';
+
+                // Documento no bottom menu
+                if (docStr) {
+                    profileDoc.textContent = currentUser.userType === 'PF' ? `CPF: ${docStr}` : `CNPJ: ${docStr}`;
+                    profileDoc.style.display = 'block';
+                } else {
+                    profileDoc.style.display = 'none';
+                }
 
                 if (isAdminUser) {
                     document.getElementById('dropdownAdmin').style.display = 'block';
@@ -5690,7 +5711,6 @@
                     document.getElementById('dropdownAdmin').style.display = 'none';
                 }
 
-                // Se admin, mostrar barra admin
                 if (isAdminUser) {
                     adminBar.style.display = 'flex';
                     document.body.classList.add('admin-mode');
@@ -5698,7 +5718,6 @@
                     document.getElementById('adminContactsActions').style.display = 'inline-block';
                     instagramEditIcon.style.display = 'flex';
                     setupMenuItems();
-                    // Atualizar botão de preços
                     if (pricesHidden !== false) {
                         if (pricesHidden === 'PF') togglePricesBtn.innerHTML = '<i class="fas fa-eye-slash"></i> Ocultar PF';
                         else if (pricesHidden === 'PJ') togglePricesBtn.innerHTML = '<i class="fas fa-eye-slash"></i> Ocultar PJ';
@@ -5729,6 +5748,8 @@
                 instagramEditIcon.style.display = 'none';
                 menuChangePhoto.style.display = 'none';
                 menuLogout.style.display = 'none';
+                profileDoc.style.display = 'none';
+                dropdownUserDoc.style.display = 'none';
             }
             renderContacts();
             updateCategoryTabs();
@@ -5767,7 +5788,6 @@
             document.getElementById('profileDropdown').classList.remove('open');
         }
 
-        // Fechar dropdown ao clicar fora
         document.addEventListener('click', function(e) {
             const btn = document.getElementById('profileBtn');
             const dropdown = document.getElementById('profileDropdown');
@@ -5776,7 +5796,6 @@
             }
         });
 
-        // Upload da foto de perfil direto pelo dropdown
         document.getElementById('dropdownAvatarInput').addEventListener('change', async function(e) {
             const file = e.target.files[0];
             if (!file || !currentUser) return;
@@ -5817,6 +5836,10 @@
             document.getElementById('registerCnpj').value = '';
             document.getElementById('registerTerms').checked = false;
             document.getElementById('cnpjDataResult').innerHTML = '';
+            cnpjValidated = false;
+            cnpjStatus = '';
+            cnpjData = null;
+            document.getElementById('registerButton').disabled = false;
             closeProfileDropdown();
         }
 
@@ -5832,19 +5855,26 @@
                 cpfGroup.style.display = 'block';
                 cnpjGroup.style.display = 'none';
                 document.getElementById('cnpjDataResult').innerHTML = '';
+                cnpjValidated = false;
+                cnpjStatus = '';
+                cnpjData = null;
             } else if (type === 'PJ') {
                 fields.style.display = 'block';
                 cpfGroup.style.display = 'none';
                 cnpjGroup.style.display = 'block';
                 document.getElementById('cnpjDataResult').innerHTML = '';
+                cnpjValidated = false;
+                cnpjStatus = '';
+                cnpjData = null;
             } else {
                 fields.style.display = 'none';
+                cnpjValidated = false;
+                cnpjStatus = '';
+                cnpjData = null;
             }
         }
 
         // Buscar dados do CNPJ via Brasil API
-        let cnpjValidated = false;
-
         async function fetchCnpjData() {
             const cnpj = document.getElementById('registerCnpj').value.replace(/\D/g, '');
             if (cnpj.length !== 14) { showToast('Digite um CNPJ válido com 14 dígitos', 'error'); return; }
@@ -5853,29 +5883,40 @@
                 const resp = await fetch(`https://brasilapi.com.br/api/cnpj/v1/${cnpj}`);
                 if (!resp.ok) throw new Error('CNPJ não encontrado');
                 const data = await resp.json();
+                const status = data.situacao_cadastral || '';
+                const statusMsg = status === 'ATIVA' ? '✅ ATIVA' : '❌ ' + (status || 'INATIVA');
+                const isActive = status === 'ATIVA';
+
                 document.getElementById('cnpjDataResult').innerHTML = `
-                            <div style="background:#222;padding:12px;border-radius:8px;border:1px solid #ff6b00;">
+                            <div style="background:#222;padding:12px;border-radius:8px;border:1px solid ${isActive ? '#28a745' : '#dc3545'};">
                                 <p><strong>Razão Social:</strong> ${escapeHtml(data.razao_social || '')}</p>
                                 <p><strong>Nome Fantasia:</strong> ${escapeHtml(data.nome_fantasia || '')}</p>
+                                <p><strong>Situação Cadastral:</strong> <span style="color:${isActive ? '#28a745' : '#dc3545'};font-weight:600;">${statusMsg}</span></p>
                                 <p><strong>Endereço:</strong> ${escapeHtml(data.logradouro || '')}, ${escapeHtml(data.numero || '')} - ${escapeHtml(data.bairro || '')}, ${escapeHtml(data.municipio || '')} - ${escapeHtml(data.uf || '')}</p>
-                                <p><strong>Telefone:</strong> ${escapeHtml(data.ddd_telefone_1 || '')}</p>
                             </div>
                         `;
-                if (data.nome_fantasia) {
-                    document.getElementById('registerName').value = data.nome_fantasia;
-                } else if (data.razao_social) {
-                    document.getElementById('registerName').value = data.razao_social;
+
+                if (isActive) {
+                    if (data.nome_fantasia) document.getElementById('registerName').value = data.nome_fantasia;
+                    else if (data.razao_social) document.getElementById('registerName').value = data.razao_social;
+                    cnpjData = data;
+                    cnpjValidated = true;
+                    cnpjStatus = 'ATIVA';
+                    showToast('CNPJ validado com sucesso');
+                } else {
+                    cnpjValidated = false;
+                    cnpjStatus = status || 'INATIVA';
+                    showToast('Empresa com situação cadastral inválida. Não é possível criar conta.', 'error');
                 }
-                window._cnpjData = data;
-                cnpjValidated = true;
                 hideLoading();
-                showToast('CNPJ validado com sucesso');
             } catch (e) {
                 hideLoading();
                 showToast('Erro ao buscar CNPJ: ' + e.message, 'error');
                 document.getElementById('cnpjDataResult').innerHTML =
                     `<div style="color:#dc3545;padding:8px;">${e.message}</div>`;
                 cnpjValidated = false;
+                cnpjStatus = '';
+                cnpjData = null;
             }
         }
 
@@ -5917,18 +5958,19 @@
             if (!terms) { document.getElementById('registerError').textContent =
                 'Você precisa aceitar os termos para continuar'; return; }
 
-            if (userType === 'PF' && cpf.length !== 11) {
-                document.getElementById('registerError').textContent = 'Digite um CPF válido com 11 dígitos';
-                return;
-            }
-            if (userType === 'PJ') {
+            if (userType === 'PF') {
+                if (cpf.length !== 11) {
+                    document.getElementById('registerError').textContent = 'Digite um CPF válido com 11 dígitos';
+                    return;
+                }
+            } else if (userType === 'PJ') {
                 if (cnpj.length !== 14) {
                     document.getElementById('registerError').textContent = 'Digite um CNPJ válido com 14 dígitos';
                     return;
                 }
                 if (!cnpjValidated) {
                     document.getElementById('registerError').textContent =
-                    'Clique em "Buscar dados do CNPJ" para validar o CNPJ';
+                    'Clique em "Buscar dados do CNPJ" para validar o CNPJ e verificar situação cadastral ativa.';
                     return;
                 }
             }
@@ -5944,7 +5986,7 @@
                         userType: userType,
                         cpf: userType === 'PF' ? cpf : '',
                         cnpj: userType === 'PJ' ? cnpj : '',
-                        companyData: userType === 'PJ' ? (window._cnpjData || null) : null,
+                        companyData: userType === 'PJ' ? cnpjData : null,
                         isAdmin: false,
                         createdAt: Date.now(),
                         lastAccess: Date.now()
@@ -6105,19 +6147,30 @@
                 const resp = await fetch(`https://brasilapi.com.br/api/cnpj/v1/${cnpj}`);
                 if (!resp.ok) throw new Error('CNPJ não encontrado');
                 const data = await resp.json();
+                const status = data.situacao_cadastral || '';
+                const statusMsg = status === 'ATIVA' ? '✅ ATIVA' : '❌ ' + (status || 'INATIVA');
+                const isActive = status === 'ATIVA';
+
                 document.getElementById('completeCnpjResult').innerHTML = `
-                            <div style="background:#222;padding:12px;border-radius:8px;border:1px solid #ff6b00;">
+                            <div style="background:#222;padding:12px;border-radius:8px;border:1px solid ${isActive ? '#28a745' : '#dc3545'};">
                                 <p><strong>Razão Social:</strong> ${escapeHtml(data.razao_social || '')}</p>
                                 <p><strong>Nome Fantasia:</strong> ${escapeHtml(data.nome_fantasia || '')}</p>
+                                <p><strong>Situação Cadastral:</strong> <span style="color:${isActive ? '#28a745' : '#dc3545'};font-weight:600;">${statusMsg}</span></p>
                                 <p><strong>Endereço:</strong> ${escapeHtml(data.logradouro || '')}, ${escapeHtml(data.numero || '')} - ${escapeHtml(data.bairro || '')}, ${escapeHtml(data.municipio || '')} - ${escapeHtml(data.uf || '')}</p>
                             </div>
                         `;
-                if (data.nome_fantasia) document.getElementById('completeName').value = data.nome_fantasia;
-                else if (data.razao_social) document.getElementById('completeName').value = data.razao_social;
-                window._completeCnpjData = data;
-                completeCnpjValidated = true;
+
+                if (isActive) {
+                    if (data.nome_fantasia) document.getElementById('completeName').value = data.nome_fantasia;
+                    else if (data.razao_social) document.getElementById('completeName').value = data.razao_social;
+                    window._completeCnpjData = data;
+                    completeCnpjValidated = true;
+                    showToast('CNPJ validado');
+                } else {
+                    completeCnpjValidated = false;
+                    showToast('Empresa com situação cadastral inválida.', 'error');
+                }
                 hideLoading();
-                showToast('CNPJ validado');
             } catch (e) {
                 hideLoading();
                 showToast('Erro ao buscar CNPJ: ' + e.message, 'error');
@@ -6150,7 +6203,7 @@
                 }
                 if (!completeCnpjValidated) {
                     document.getElementById('completeError').textContent =
-                        'Clique em "Buscar dados do CNPJ" para validar o CNPJ';
+                        'Clique em "Buscar dados do CNPJ" para validar o CNPJ e verificar situação ativa.';
                     return;
                 }
             }
@@ -6518,32 +6571,27 @@
         loadData();
 
         // ========== EXPOR FUNÇÕES ==========
-        // Menu
         window.toggleBottomMenu = toggleBottomMenu;
         window.closeBottomMenu = closeBottomMenu;
         window.openEditProfileModal = openEditProfileModal;
         window.closeProfileEditModal = closeProfileEditModal;
         window.saveProfile = saveProfile;
-        // Contatos
         window.openAddContactModal = openAddContactModal;
         window.editContact = editContact;
         window.deleteContact = deleteContact;
         window.saveContactItem = saveContactItem;
         window.closeContactItemModal = closeContactItemModal;
-        // Busca
         window.toggleSearch = toggleSearch;
         window.handleSearchInput = handleSearchInput;
         window.selectSuggestion = selectSuggestion;
         window.clearSearchHeader = clearSearchHeader;
         window.clearSearch = clearSearch;
-        // Carrinho
         window.toggleCart = toggleCart;
         window.addToCart = addToCart;
         window.removeFromCart = removeFromCart;
         window.clearCart = clearCart;
         window.updateQuantity = updateQuantity;
         window.finalizePurchase = finalizePurchase;
-        // Produtos
         window.openAddProductModal = openAddProductModal;
         window.editProduct = editProduct;
         window.closeProductModal = closeProductModal;
@@ -6573,7 +6621,6 @@
         window.openDeleteAllModal = openDeleteAllModal;
         window.closeDeleteAllModal = closeDeleteAllModal;
         window.deleteAllData = deleteAllData;
-        // Sessões
         window.selectSession = selectSession;
         window.openManageSessionsModal = openManageSessionsModal;
         window.closeManageSessionsModal = closeManageSessionsModal;
@@ -6583,11 +6630,9 @@
         window.saveSession = saveSession;
         window.closeSessionModal = closeSessionModal;
         window.moveSession = moveSession;
-        // Categorias
         window.selectCategory = selectCategory;
         window.editCategory = editCategory;
         window.deleteCategory = deleteCategory;
-        // Marcas
         window.selectBrand = selectBrand;
         window.openManageBrandsModal = openManageBrandsModal;
         window.closeManageBrandsModal = closeManageBrandsModal;
@@ -6596,11 +6641,9 @@
         window.deleteBrandItem = deleteBrandItem;
         window.saveBrand = saveBrand;
         window.closeBrandModal = closeBrandModal;
-        // Histórico
         window.openClickHistoryModal = openClickHistoryModal;
         window.closeClickHistoryModal = closeClickHistoryModal;
         window.clearClickHistory = clearClickHistory;
-        // Login/Register
         window.openLoginModal = openLoginModal;
         window.closeLoginModal = closeLoginModal;
         window.doLogin = doLogin;
@@ -6626,7 +6669,6 @@
         window.toggleCompleteDocFields = toggleCompleteDocFields;
         window.completeGoogleProfile = completeGoogleProfile;
         window.closeCompleteProfileModal = closeCompleteProfileModal;
-        // Outros
         window.onSearchFocus = onSearchFocus;
         window.onSearchBlur = onSearchBlur;
         window.handleInstagramClick = handleInstagramClick;
