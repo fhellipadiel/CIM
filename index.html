@@ -305,12 +305,12 @@
             min-width: 240px;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8);
             display: none;
-            z-index: 1002;
+            z-index: 9999 !important;
             overflow: hidden;
             padding: 6px 0;
         }
         .profile-dropdown.open {
-            display: block;
+            display: block !important;
         }
         .profile-dropdown .dropdown-item {
             padding: 10px 16px;
@@ -5770,11 +5770,28 @@
             updateBrandTabs();
         }
 
-        // ========== CLIQUE NO BOTÃO DE PERFIL ==========
+        // ========== CLIQUE NO BOTÃO DE PERFIL (CORRIGIDO) ==========
         function handleProfileBtnClick() {
-            if (currentUser && currentUser.uid) {
+            const user = auth.currentUser;
+            console.log('handleProfileBtnClick chamado. user =', user ? user.uid : 'null');
+            if (user) {
+                // Se o currentUser ainda não foi carregado, criamos um objeto temporário
+                if (!currentUser) {
+                    currentUser = {
+                        uid: user.uid,
+                        email: user.email,
+                        name: user.displayName || 'Usuário',
+                        photoURL: user.photoURL || DEFAULT_USER_AVATAR,
+                        userType: null,
+                        isAdmin: false
+                    };
+                    // Atualiza a UI com dados básicos
+                    updateProfileUIUser();
+                }
                 toggleProfileDropdown();
+                console.log('Dropdown toggle executado.');
             } else {
+                console.log('Usuário não logado, abrindo login.');
                 openLoginModal();
             }
         }
@@ -5782,7 +5799,12 @@
         // ========== DROPDOWN PERFIL ==========
         function toggleProfileDropdown() {
             const dropdown = document.getElementById('profileDropdown');
+            if (!dropdown) {
+                console.error('Elemento profileDropdown não encontrado!');
+                return;
+            }
             dropdown.classList.toggle('open');
+            console.log('Dropdown classes:', dropdown.className);
         }
 
         function closeProfileDropdown() {
