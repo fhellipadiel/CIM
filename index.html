@@ -67,14 +67,11 @@
         }
 
         .logo {
-            cursor: pointer;
+            cursor: default;
             display: flex;
             align-items: center;
             gap: 8px;
             flex-shrink: 0;
-        }
-        .logo:hover {
-            transform: scale(1.05);
         }
         .logo-img {
             height: 50px;
@@ -305,7 +302,7 @@
             background: #1a1a1a;
             border: 1px solid #333;
             border-radius: 12px;
-            min-width: 220px;
+            min-width: 240px;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8);
             display: none;
             z-index: 1002;
@@ -346,12 +343,11 @@
             margin: 4px 12px;
         }
         .profile-dropdown .user-info {
-            padding: 10px 16px 6px;
+            padding: 0 16px 10px;
             color: #fff;
             font-weight: 500;
             font-size: 0.9rem;
-            border-bottom: 1px solid #333;
-            margin-bottom: 4px;
+            text-align: center;
         }
         .profile-dropdown .user-info .user-type {
             font-size: 0.7rem;
@@ -362,6 +358,42 @@
             font-size: 0.75rem;
             color: #888;
             font-weight: 400;
+        }
+        .dropdown-avatar-section {
+            text-align: center;
+            padding: 14px 16px 10px;
+        }
+        .dropdown-avatar-wrap {
+            width: 74px;
+            height: 74px;
+            border-radius: 50%;
+            margin: 0 auto;
+            cursor: pointer;
+            overflow: hidden;
+            border: 2px solid #ff6b00;
+            position: relative;
+            background: #222;
+            transition: transform 0.2s ease;
+        }
+        .dropdown-avatar-wrap:hover {
+            transform: scale(1.05);
+        }
+        .dropdown-avatar-wrap img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+        .dropdown-avatar-wrap .avatar-edit-hint {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(0, 0, 0, 0.65);
+            color: #ff6b00;
+            font-size: 0.65rem;
+            text-align: center;
+            padding: 3px 0;
         }
 
         /* ========== CARRINHO FLUTUANTE ========== */
@@ -2517,6 +2549,16 @@
             color: #ff6b00;
             font-size: 0.75rem;
         }
+        .user-list-item .user-data .user-dates {
+            color: #999;
+            font-size: 0.7rem;
+            margin-top: 4px;
+            line-height: 1.5;
+        }
+        .user-list-item .user-data .user-dates i {
+            color: #ff6b00;
+            width: 14px;
+        }
         .user-list-item .user-actions {
             display: flex;
             gap: 4px;
@@ -2809,7 +2851,7 @@
     <!-- ==================== HEADER ==================== -->
     <header class="header">
         <div class="header-container">
-            <div class="logo" onclick="openLoginModal()">
+            <div class="logo">
                 <img src="https://i.ibb.co/PvtM4DTs/IMG-6505.jpg" alt="CIM Peças Mecânicas" class="logo-img">
             </div>
             <div class="header-actions" id="headerActions">
@@ -2824,22 +2866,26 @@
                     <div class="suggestions-dropdown" id="suggestionsDropdown"></div>
                 </div>
                 <!-- Botão Perfil -->
-                <div class="profile-btn" id="profileBtn" onclick="toggleProfileDropdown()" style="position:relative;">
+                <div class="profile-btn" id="profileBtn" onclick="handleProfileBtnClick()" style="position:relative;">
                     <img src="https://i.ibb.co/6J5qZ9K/default-avatar.png" alt="Perfil" id="profileBtnImage" style="display:none;">
                     <i class="fas fa-user default-icon" id="profileBtnIcon"></i>
                     <span class="status-dot offline" id="profileStatusDot"></span>
-                    <!-- Dropdown -->
+                    <!-- Dropdown (somente para quem já está logado) -->
                     <div class="profile-dropdown" id="profileDropdown">
-                        <div class="user-info" id="dropdownUserInfo" style="display:none;">
-                            <div id="dropdownUserName">Usuário</div>
-                            <div class="user-type" id="dropdownUserType"></div>
-                            <div class="user-email" id="dropdownUserEmail"></div>
-                        </div>
-                        <div id="dropdownNotLogged" style="display:block;">
-                            <button class="dropdown-item" onclick="openLoginModal()"><i class="fas fa-sign-in-alt"></i> Entrar</button>
-                            <button class="dropdown-item" onclick="openRegisterModal()"><i class="fas fa-user-plus"></i> Cadastrar</button>
-                        </div>
                         <div id="dropdownLogged" style="display:none;">
+                            <div class="dropdown-avatar-section">
+                                <div class="dropdown-avatar-wrap" onclick="event.stopPropagation(); document.getElementById('dropdownAvatarInput').click()" title="Clique para alterar a foto">
+                                    <img id="dropdownAvatarImg" src="https://i.ibb.co/6J5qZ9K/default-avatar.png" alt="Sua foto">
+                                    <div class="avatar-edit-hint"><i class="fas fa-camera"></i> Trocar foto</div>
+                                </div>
+                                <input type="file" id="dropdownAvatarInput" accept="image/*" style="display:none;">
+                            </div>
+                            <div class="user-info" id="dropdownUserInfo">
+                                <div id="dropdownUserName">Usuário</div>
+                                <div class="user-type" id="dropdownUserType"></div>
+                                <div class="user-email" id="dropdownUserEmail"></div>
+                            </div>
+                            <div class="dropdown-divider"></div>
                             <button class="dropdown-item" onclick="openUserProfileModal()"><i class="fas fa-user-cog"></i> Meu Perfil</button>
                             <div class="dropdown-divider"></div>
                             <button class="dropdown-item" onclick="logoutUser()"><i class="fas fa-sign-out-alt"></i> Sair</button>
@@ -2942,6 +2988,7 @@
                     <button class="admin-btn info" onclick="openClickHistoryModal()"><i class="fas fa-history"></i> Histórico</button>
                     <button class="admin-btn danger" onclick="resetAllClicks()"><i class="fas fa-undo-alt"></i> Resetar Cliques</button>
                     <button class="admin-btn info" onclick="openMetaAchievementsModal()"><i class="fas fa-trophy"></i> Metas Batidas</button>
+                    <button class="admin-btn primary" onclick="openAdminUsersModal()"><i class="fas fa-users-cog"></i> Usuários Cadastrados</button>
                     <button class="admin-btn outline" onclick="logoutAdmin()"><i class="fas fa-sign-out-alt"></i> Sair</button>
                 </div>
             </div>
@@ -3096,7 +3143,7 @@
     <div class="modal" id="adminUsersModal">
         <div class="modal-content large">
             <button class="modal-close" onclick="closeAdminUsersModal()"><i class="fas fa-times"></i></button>
-            <div class="modal-header"><h2><i class="fas fa-users"></i> Gerenciar Usuários</h2></div>
+            <div class="modal-header"><h2><i class="fas fa-users"></i> Usuários Cadastrados</h2></div>
             <div class="modal-body">
                 <div class="users-tabs">
                     <button class="users-tab active" onclick="switchUsersTab('PF')" id="usersTabPF">Pessoa Física</button>
@@ -3654,6 +3701,11 @@
             return clean;
         }
 
+        function formatDateTime(ts) {
+            if (!ts) return '—';
+            try { return new Date(ts).toLocaleString('pt-BR'); } catch (e) { return '—'; }
+        }
+
         // ========== CARRINHO ==========
         function saveCart() { try { localStorage.setItem('cim_cart', JSON.stringify(cart)); } catch (e) {} }
 
@@ -3706,7 +3758,6 @@
         function getPriceForItem(item) {
             if (pricesHidden) return 0;
             if (isAdmin) {
-                // Admin vê PF ou PJ dependendo do que estiver selecionado, ou ambos
                 if (currentUser && currentUser.userType === 'PF') return item.prices?.PF || 0;
                 if (currentUser && currentUser.userType === 'PJ') return item.prices?.PJ || 0;
                 if (currentPersonType === 'PF') return item.prices?.PF || 0;
@@ -4219,7 +4270,6 @@
             const userType = currentUser ? currentUser.userType : currentPersonType;
 
             if (isAdmin) {
-                // Admin vê ambos os preços com opção de ocultar
                 const pf = product.prices?.PF?.toFixed(2) || '0.00';
                 const pj = product.prices?.PJ?.toFixed(2) || '0.00';
                 const showPF = !pricesHidden || (pricesHidden !== 'PF' && pricesHidden !== 'both');
@@ -5633,7 +5683,9 @@
                     cpf: data.cpf || '',
                     cnpj: data.cnpj || '',
                     companyData: data.companyData || null,
-                    isAdmin: data.isAdmin || false
+                    isAdmin: data.isAdmin || false,
+                    createdAt: data.createdAt || null,
+                    lastAccess: data.lastAccess || null
                 };
                 currentUserPhoto = data.photoURL || DEFAULT_USER_AVATAR;
                 isAdminUser = currentUser.isAdmin || false;
@@ -5649,23 +5701,24 @@
             const img = document.getElementById('profileBtnImage');
             const icon = document.getElementById('profileBtnIcon');
             const dot = document.getElementById('profileStatusDot');
+            const dropdownAvatarImg = document.getElementById('dropdownAvatarImg');
 
             if (currentUser && currentUser.uid) {
                 if (currentUser.photoURL && currentUser.photoURL !== DEFAULT_USER_AVATAR) {
                     img.src = currentUser.photoURL;
                     img.style.display = 'block';
                     icon.style.display = 'none';
+                    if (dropdownAvatarImg) dropdownAvatarImg.src = currentUser.photoURL;
                 } else {
                     img.style.display = 'none';
                     icon.style.display = 'block';
+                    if (dropdownAvatarImg) dropdownAvatarImg.src = DEFAULT_USER_AVATAR;
                 }
                 dot.className = 'status-dot online';
-                // Atualizar dropdown
-                document.getElementById('dropdownNotLogged').style.display = 'none';
+                // Atualizar dropdown (perfil redondo, dados e botão sair)
                 document.getElementById('dropdownLogged').style.display = 'block';
-                document.getElementById('dropdownUserInfo').style.display = 'block';
                 document.getElementById('dropdownUserName').textContent = currentUser.name || 'Usuário';
-                document.getElementById('dropdownUserType').textContent = currentUser.userType || 'Tipo não definido';
+                document.getElementById('dropdownUserType').textContent = currentUser.userType ? (currentUser.userType === 'PF' ? 'Pessoa Física' : 'Pessoa Jurídica') : 'Tipo não definido';
                 document.getElementById('dropdownUserEmail').textContent = currentUser.email || '';
 
                 if (isAdminUser) {
@@ -5703,10 +5756,9 @@
                 img.style.display = 'none';
                 icon.style.display = 'block';
                 dot.className = 'status-dot offline';
-                document.getElementById('dropdownNotLogged').style.display = 'block';
                 document.getElementById('dropdownLogged').style.display = 'none';
-                document.getElementById('dropdownUserInfo').style.display = 'none';
                 document.getElementById('dropdownAdmin').style.display = 'none';
+                document.getElementById('profileDropdown').classList.remove('open');
                 adminBar.style.display = 'none';
                 document.body.classList.remove('admin-mode');
                 document.getElementById('editProfileBadge').style.display = 'none';
@@ -5718,10 +5770,23 @@
             updateBrandTabs();
         }
 
+        // ========== CLIQUE NO BOTÃO DE PERFIL ==========
+        function handleProfileBtnClick() {
+            if (currentUser && currentUser.uid) {
+                toggleProfileDropdown();
+            } else {
+                openLoginModal();
+            }
+        }
+
         // ========== DROPDOWN PERFIL ==========
         function toggleProfileDropdown() {
             const dropdown = document.getElementById('profileDropdown');
             dropdown.classList.toggle('open');
+        }
+
+        function closeProfileDropdown() {
+            document.getElementById('profileDropdown').classList.remove('open');
         }
 
         // Fechar dropdown ao clicar fora
@@ -5731,6 +5796,22 @@
             if (!btn.contains(e.target) && !dropdown.contains(e.target)) {
                 dropdown.classList.remove('open');
             }
+        });
+
+        // Upload da foto de perfil direto pelo dropdown
+        document.getElementById('dropdownAvatarInput').addEventListener('change', async function(e) {
+            const file = e.target.files[0];
+            if (!file || !currentUser) return;
+            const url = await uploadImageToImgBB(file);
+            if (url) {
+                database.ref(`users/${currentUser.uid}/photoURL`).set(url).then(() => {
+                    currentUser.photoURL = url;
+                    currentUserPhoto = url;
+                    updateProfileUIUser();
+                    showToast('Foto atualizada');
+                });
+            }
+            e.target.value = '';
         });
 
         // ========== LOGIN / CADASTRO ==========
@@ -5784,6 +5865,8 @@
         }
 
         // Buscar dados do CNPJ via Brasil API
+        let cnpjValidated = false;
+
         async function fetchCnpjData() {
             const cnpj = document.getElementById('registerCnpj').value.replace(/\D/g, '');
             if (cnpj.length !== 14) { showToast('Digite um CNPJ válido com 14 dígitos', 'error'); return; }
@@ -5800,21 +5883,21 @@
                                 <p><strong>Telefone:</strong> ${escapeHtml(data.ddd_telefone_1 || '')}</p>
                             </div>
                         `;
-                // Preencher nome automaticamente
                 if (data.nome_fantasia) {
                     document.getElementById('registerName').value = data.nome_fantasia;
                 } else if (data.razao_social) {
                     document.getElementById('registerName').value = data.razao_social;
                 }
-                // Salvar dados para uso no cadastro
                 window._cnpjData = data;
+                cnpjValidated = true;
                 hideLoading();
-                showToast('Dados carregados com sucesso');
+                showToast('CNPJ validado com sucesso');
             } catch (e) {
                 hideLoading();
                 showToast('Erro ao buscar CNPJ: ' + e.message, 'error');
                 document.getElementById('cnpjDataResult').innerHTML =
                     `<div style="color:#dc3545;padding:8px;">${e.message}</div>`;
+                cnpjValidated = false;
             }
         }
 
@@ -5830,7 +5913,6 @@
                     hideLoading();
                     closeLoginModal();
                     showToast('Bem-vindo!');
-                    // O auth state vai carregar o usuário
                 })
                 .catch((err) => {
                     hideLoading();
@@ -5861,9 +5943,16 @@
                 document.getElementById('registerError').textContent = 'Digite um CPF válido com 11 dígitos';
                 return;
             }
-            if (userType === 'PJ' && cnpj.length !== 14) {
-                document.getElementById('registerError').textContent = 'Digite um CNPJ válido com 14 dígitos';
-                return;
+            if (userType === 'PJ') {
+                if (cnpj.length !== 14) {
+                    document.getElementById('registerError').textContent = 'Digite um CNPJ válido com 14 dígitos';
+                    return;
+                }
+                if (!cnpjValidated) {
+                    document.getElementById('registerError').textContent =
+                    'Clique em "Buscar dados do CNPJ" para validar o CNPJ';
+                    return;
+                }
             }
 
             showLoading('Criando conta...');
@@ -5879,7 +5968,8 @@
                         cnpj: userType === 'PJ' ? cnpj : '',
                         companyData: userType === 'PJ' ? (window._cnpjData || null) : null,
                         isAdmin: false,
-                        createdAt: Date.now()
+                        createdAt: Date.now(),
+                        lastAccess: Date.now()
                     };
                     return database.ref(`users/${user.uid}`).set(userData);
                 })
@@ -5904,10 +5994,8 @@
                     hideLoading();
                     closeLoginModal();
                     const user = result.user;
-                    // Verificar se usuário já existe no banco
                     database.ref(`users/${user.uid}`).once('value').then((snapshot) => {
                         if (!snapshot.exists()) {
-                            // Novo usuário - abrir modal para completar cadastro
                             openCompleteProfileModal(user);
                         } else {
                             showToast('Bem-vindo!');
@@ -5943,12 +6031,11 @@
                 });
         }
 
-        // ========== COMPLETE PROFILE MODAL (para usuários Google que precisam escolher PF/PJ) ==========
+        // ========== COMPLETE PROFILE MODAL ==========
         let pendingGoogleUser = null;
 
         function openCompleteProfileModal(user) {
             pendingGoogleUser = user;
-            // Criar modal dinâmico se não existir
             let modal = document.getElementById('completeProfileModal');
             if (!modal) {
                 modal = document.createElement('div');
@@ -5999,7 +6086,6 @@
             document.getElementById('completeCnpjResult').innerHTML = '';
             document.getElementById('completeError').textContent = '';
             modal.classList.add('active');
-            // Fechar outros modais
             closeLoginModal();
             closeRegisterModal();
             closeProfileDropdown();
@@ -6031,6 +6117,8 @@
             }
         }
 
+        let completeCnpjValidated = false;
+
         async function fetchCompleteCnpjData() {
             const cnpj = document.getElementById('completeCnpj').value.replace(/\D/g, '');
             if (cnpj.length !== 14) { showToast('Digite um CNPJ válido com 14 dígitos', 'error'); return; }
@@ -6049,13 +6137,15 @@
                 if (data.nome_fantasia) document.getElementById('completeName').value = data.nome_fantasia;
                 else if (data.razao_social) document.getElementById('completeName').value = data.razao_social;
                 window._completeCnpjData = data;
+                completeCnpjValidated = true;
                 hideLoading();
-                showToast('Dados carregados com sucesso');
+                showToast('CNPJ validado');
             } catch (e) {
                 hideLoading();
                 showToast('Erro ao buscar CNPJ: ' + e.message, 'error');
                 document.getElementById('completeCnpjResult').innerHTML =
                     `<div style="color:#dc3545;padding:8px;">${e.message}</div>`;
+                completeCnpjValidated = false;
             }
         }
 
@@ -6075,9 +6165,16 @@
                 document.getElementById('completeError').textContent = 'Digite um CPF válido com 11 dígitos';
                 return;
             }
-            if (userType === 'PJ' && cnpj.length !== 14) {
-                document.getElementById('completeError').textContent = 'Digite um CNPJ válido com 14 dígitos';
-                return;
+            if (userType === 'PJ') {
+                if (cnpj.length !== 14) {
+                    document.getElementById('completeError').textContent = 'Digite um CNPJ válido com 14 dígitos';
+                    return;
+                }
+                if (!completeCnpjValidated) {
+                    document.getElementById('completeError').textContent =
+                        'Clique em "Buscar dados do CNPJ" para validar o CNPJ';
+                    return;
+                }
             }
 
             showLoading('Salvando dados...');
@@ -6090,14 +6187,14 @@
                 cnpj: userType === 'PJ' ? cnpj : '',
                 companyData: userType === 'PJ' ? (window._completeCnpjData || null) : null,
                 isAdmin: false,
-                createdAt: Date.now()
+                createdAt: Date.now(),
+                lastAccess: Date.now()
             };
             database.ref(`users/${user.uid}`).set(userData)
                 .then(() => {
                     hideLoading();
                     closeCompleteProfileModal();
                     showToast('Cadastro completo!');
-                    // Forçar atualização do usuário
                     loadUserData(user.uid);
                 })
                 .catch((err) => {
@@ -6155,12 +6252,12 @@
                             <p><strong>Razão Social:</strong> ${escapeHtml(d.razao_social || '')}</p>
                             <p><strong>Nome Fantasia:</strong> ${escapeHtml(d.nome_fantasia || '')}</p>
                             <p><strong>Endereço:</strong> ${escapeHtml(d.logradouro || '')}, ${escapeHtml(d.numero || '')} - ${escapeHtml(d.bairro || '')}, ${escapeHtml(d.municipio || '')} - ${escapeHtml(d.uf || '')}</p>
+                            <p><strong>Telefone:</strong> ${escapeHtml(d.ddd_telefone_1 || '')}</p>
                         `;
             } else {
                 companyDiv.style.display = 'none';
             }
 
-            // Foto
             if (currentUser.photoURL && currentUser.photoURL !== DEFAULT_USER_AVATAR) {
                 document.getElementById('previewUserPhoto').src = currentUser.photoURL;
                 document.getElementById('userPhotoPreview').style.display = 'block';
@@ -6213,7 +6310,7 @@
             });
         }
 
-        // ========== ADMIN USERS MANAGEMENT ==========
+        // ========== ADMIN USERS MANAGEMENT (app exclusiva de usuários cadastrados) ==========
         let usersListCache = [];
         let usersTabCurrent = 'PF';
 
@@ -6221,6 +6318,7 @@
             if (!isAdminUser) { showToast('Acesso restrito', 'error'); return; }
             document.getElementById('adminUsersModal').classList.add('active');
             loadUsersList();
+            closeProfileDropdown();
         }
 
         function closeAdminUsersModal() { document.getElementById('adminUsersModal').classList.remove('active'); }
@@ -6238,8 +6336,7 @@
                 hideLoading();
                 const data = snapshot.val() || {};
                 usersListCache = Object.keys(data).map(uid => ({ uid, ...data[uid] }));
-                // Ordenar por data de criação
-                usersListCache.sort((a, b) => (a.createdAt || 0) - (b.createdAt || 0));
+                usersListCache.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
                 renderUsersList();
             }).catch(() => { hideLoading();
                 showToast('Erro ao carregar usuários', 'error'); });
@@ -6264,6 +6361,21 @@
                     `<img src="${u.photoURL}" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">` :
                     '';
                 const doc = u.userType === 'PF' ? formatCpfCnpj(u.cpf || '', 'PF') : formatCpfCnpj(u.cnpj || '', 'PJ');
+                let companyInfo = '';
+                if (u.userType === 'PJ' && u.companyData) {
+                    const d = u.companyData;
+                    companyInfo = `
+                                <div style="font-size:0.7rem;color:#aaa;margin-top:2px;">
+                                    ${escapeHtml(d.razao_social || '')} | ${escapeHtml(d.nome_fantasia || '')} | ${escapeHtml(d.logradouro || '')}, ${escapeHtml(d.numero || '')} - ${escapeHtml(d.bairro || '')}, ${escapeHtml(d.municipio || '')} - ${escapeHtml(d.uf || '')}
+                                </div>
+                            `;
+                }
+                const datesInfo = `
+                            <div class="user-dates">
+                                <i class="fas fa-calendar-plus"></i> Criado em: ${formatDateTime(u.createdAt)}<br>
+                                <i class="fas fa-clock"></i> Último acesso: ${formatDateTime(u.lastAccess)}
+                            </div>
+                        `;
                 html += `
                             <div class="user-list-item">
                                 <div class="user-avatar">
@@ -6274,6 +6386,8 @@
                                     <div class="user-name">${escapeHtml(u.name || 'Sem nome')}</div>
                                     <div class="user-email">${escapeHtml(u.email || '')}</div>
                                     <div class="user-doc">${doc}</div>
+                                    ${companyInfo}
+                                    ${datesInfo}
                                 </div>
                                 <div class="user-actions">
                                     ${!u.isAdmin ? `<button onclick="deleteUser('${u.uid}')"><i class="fas fa-trash"></i></button>` : '<span style="color:#ff6b00;font-size:0.7rem;">Admin</span>'}
@@ -6288,9 +6402,6 @@
             if (!confirm('Tem certeza que deseja excluir este usuário? Esta ação é irreversível.')) return;
             if (uid === auth.currentUser?.uid) { showToast('Não é possível excluir o próprio usuário', 'error'); return; }
             showLoading('Excluindo usuário...');
-            // Primeiro deletar do Firebase Auth
-            // Nota: para deletar outro usuário, precisa de admin SDK ou função cloud
-            // Vamos deletar apenas do database e deslogar o usuário se for ele
             database.ref(`users/${uid}`).remove().then(() => {
                 hideLoading();
                 showToast('Usuário removido');
@@ -6305,44 +6416,50 @@
         auth.onAuthStateChanged((user) => {
             if (user) {
                 const uid = user.uid;
-                // Verificar se é o admin cim@gmail.com
                 if (user.email === 'cim@gmail.com') {
-                    // Admin especial
-                    const adminData = {
-                        email: user.email,
-                        name: 'Admin CIM',
-                        photoURL: user.photoURL || DEFAULT_USER_AVATAR,
-                        userType: 'PF',
-                        isAdmin: true,
-                        createdAt: Date.now()
-                    };
-                    database.ref(`users/${uid}`).set(adminData).then(() => {
-                        isAdmin = true;
-                        isAdminUser = true;
-                        loadUserData(uid);
+                    database.ref(`users/${uid}`).once('value').then((snapshot) => {
+                        if (snapshot.exists()) {
+                            database.ref(`users/${uid}/lastAccess`).set(Date.now());
+                            isAdmin = true;
+                            isAdminUser = true;
+                            loadUserData(uid);
+                        } else {
+                            const adminData = {
+                                email: user.email,
+                                name: 'Admin CIM',
+                                photoURL: user.photoURL || DEFAULT_USER_AVATAR,
+                                userType: 'PF',
+                                isAdmin: true,
+                                createdAt: Date.now(),
+                                lastAccess: Date.now()
+                            };
+                            database.ref(`users/${uid}`).set(adminData).then(() => {
+                                isAdmin = true;
+                                isAdminUser = true;
+                                loadUserData(uid);
+                            });
+                        }
                     });
                 } else {
-                    // Usuário normal
                     database.ref(`users/${uid}`).once('value').then((snapshot) => {
                         if (snapshot.exists()) {
                             const data = snapshot.val();
                             isAdmin = data.isAdmin || false;
                             isAdminUser = data.isAdmin || false;
+                            database.ref(`users/${uid}/lastAccess`).set(Date.now());
                             loadUserData(uid);
                         } else {
-                            // Usuário autenticado mas sem dados no DB (ex: Google login incompleto)
-                            // Tentar completar o perfil
                             if (user.providerData && user.providerData[0]?.providerId === 'google.com') {
                                 openCompleteProfileModal(user);
                             } else {
-                                // Email/password sem dados - criar perfil básico
                                 const basicData = {
                                     email: user.email || '',
                                     name: user.displayName || user.email || 'Usuário',
                                     photoURL: user.photoURL || DEFAULT_USER_AVATAR,
                                     userType: null,
                                     isAdmin: false,
-                                    createdAt: Date.now()
+                                    createdAt: Date.now(),
+                                    lastAccess: Date.now()
                                 };
                                 database.ref(`users/${uid}`).set(basicData).then(() => {
                                     loadUserData(uid);
@@ -6352,7 +6469,6 @@
                     });
                 }
             } else {
-                // Deslogado
                 currentUser = null;
                 currentUserPhoto = null;
                 isAdmin = false;
@@ -6361,13 +6477,11 @@
                 updatePriceDisplay();
                 filterProducts();
                 updateCart();
-                // Esconder admin bar
                 adminBar.style.display = 'none';
                 document.body.classList.remove('admin-mode');
                 document.getElementById('editProfileBadge').style.display = 'none';
                 document.getElementById('adminContactsActions').style.display = 'none';
                 instagramEditIcon.style.display = 'none';
-                // Fechar dropdown
                 closeProfileDropdown();
             }
         });
@@ -6519,6 +6633,7 @@
         window.registerWithGoogle = registerWithGoogle;
         window.logoutUser = logoutUser;
         window.logoutAdmin = logoutAdmin;
+        window.handleProfileBtnClick = handleProfileBtnClick;
         window.toggleProfileDropdown = toggleProfileDropdown;
         window.openUserProfileModal = openUserProfileModal;
         window.closeUserProfileModal = closeUserProfileModal;
