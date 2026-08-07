@@ -1209,56 +1209,9 @@
             display: inline-block;
         }
 
-        /* ========== TIPO DE CLIENTE (para não logados) ========== */
+        /* ========== TIPO DE CLIENTE (removido para não logados) ========== */
         .type-selector {
-            background: rgba(17, 17, 17, 0.95);
-            border-radius: 12px;
-            padding: 16px 20px;
-            margin: 16px 0;
-            border: 1px solid #333;
-            display: none;
-        }
-        .type-selector.visible {
-            display: block;
-        }
-        .type-title {
-            font-size: 0.9rem;
-            color: #999;
-            margin-bottom: 10px;
-            font-weight: 500;
-        }
-        .type-buttons {
-            display: flex;
-            gap: 12px;
-        }
-        .type-btn {
-            flex: 1;
-            padding: 10px 16px;
-            border: 1px solid #333;
-            border-radius: 8px;
-            background: #222;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        .type-btn i {
-            font-size: 1rem;
-            color: #ff6b00;
-            width: 20px;
-        }
-        .type-btn span {
-            font-weight: 500;
-            color: #fff;
-        }
-        .type-btn.active {
-            background: #ff6b00;
-            border-color: #ff6b00;
-        }
-        .type-btn.active i,
-        .type-btn.active span {
-            color: #000;
+            display: none !important;
         }
 
         .price-indicator {
@@ -2991,6 +2944,21 @@
             </div>
             <div id="contactsList"></div>
         </div>
+
+        <!-- ===== NOVOS ITENS DO MENU: ALTERAR FOTO E SAIR ===== -->
+        <div id="menuChangePhoto" class="menu-item" style="display:none;" onclick="document.getElementById('dropdownAvatarInput').click()">
+            <i class="fas fa-camera"></i>
+            <div class="item-content">
+                <div class="item-label">Alterar Foto de Perfil</div>
+            </div>
+        </div>
+        <div id="menuLogout" class="menu-item" style="display:none;" onclick="logoutUser()">
+            <i class="fas fa-sign-out-alt"></i>
+            <div class="item-content">
+                <div class="item-label">Sair da Conta</div>
+            </div>
+        </div>
+        <!-- ===== FIM NOVOS ITENS ===== -->
     </div>
 
     <!-- ==================== CONTEÚDO PRINCIPAL ==================== -->
@@ -3040,14 +3008,8 @@
             </div>
         </div>
 
-        <!-- TIPO DE CLIENTE (para não logados) -->
-        <div class="type-selector" id="personTypeSelector">
-            <div class="type-title">Selecione o tipo de cliente para ver os preços</div>
-            <div class="type-buttons">
-                <button class="type-btn" onclick="setPersonType('PF')" id="btnPF"><i class="fas fa-user"></i><span>Pessoa Física</span></button>
-                <button class="type-btn" onclick="setPersonType('PJ')" id="btnPJ"><i class="fas fa-building"></i><span>Pessoa Jurídica</span></button>
-            </div>
-        </div>
+        <!-- TIPO DE CLIENTE (removido para não logados) -->
+        <!-- <div class="type-selector" id="personTypeSelector"> ... </div> -->
 
         <div class="price-indicator" id="priceIndicator">
             <i class="fas fa-tag"></i>
@@ -3557,7 +3519,6 @@
         const DEFAULT_USER_AVATAR = 'https://i.ibb.co/6J5qZ9K/default-avatar.png';
 
         // ========== VARIÁVEIS GLOBAIS ==========
-        let currentPersonType = null;
         let cart = [];
         let products = [];
         let isAdmin = false;
@@ -3603,8 +3564,6 @@
         const cartFloatCount = document.getElementById('cartFloatCount');
         const cartItems = document.getElementById('cartItems');
         const cartTotal = document.getElementById('cartTotal');
-        const btnPF = document.getElementById('btnPF');
-        const btnPJ = document.getElementById('btnPJ');
         const resultsCount = document.getElementById('resultsCount');
         const clearSearchBtn = document.getElementById('clearSearchBtn');
         const priceIndicator = document.getElementById('priceIndicator');
@@ -3613,7 +3572,7 @@
         const categoryTabs = document.getElementById('categoryTabs');
         const brandTabs = document.getElementById('brandTabs');
         const togglePricesBtn = document.getElementById('togglePricesBtn');
-        const personTypeSelector = document.getElementById('personTypeSelector');
+        const personTypeSelector = document.getElementById('personTypeSelector'); // será oculto
         const productsView = document.getElementById('productsView');
         const sessionsCarousel = document.getElementById('sessionsCarousel');
         const sessionsWrapper = document.getElementById('sessionsWrapper');
@@ -3631,6 +3590,10 @@
         const addressValue = document.getElementById('addressValue');
         const hoursValue = document.getElementById('hoursValue');
         const backToTop = document.getElementById('backToTop');
+
+        // Novos elementos do menu
+        const menuChangePhoto = document.getElementById('menuChangePhoto');
+        const menuLogout = document.getElementById('menuLogout');
 
         // ========== UTILITÁRIOS ==========
         function showToast(msg, type = 'success') {
@@ -3783,17 +3746,11 @@
 
         function getPriceForItem(item) {
             if (pricesHidden) return 0;
-            if (isAdmin) {
-                if (currentUser && currentUser.userType === 'PF') return item.prices?.PF || 0;
-                if (currentUser && currentUser.userType === 'PJ') return item.prices?.PJ || 0;
-                if (currentPersonType === 'PF') return item.prices?.PF || 0;
-                if (currentPersonType === 'PJ') return item.prices?.PJ || 0;
-                return item.prices?.PF || 0;
+            // Apenas usuários logados veem preços
+            if (currentUser && currentUser.userType) {
+                const type = currentUser.userType;
+                return item.prices?.[type] || 0;
             }
-            if (currentUser && currentUser.userType === 'PF') return item.prices?.PF || 0;
-            if (currentUser && currentUser.userType === 'PJ') return item.prices?.PJ || 0;
-            if (currentPersonType === 'PF') return item.prices?.PF || 0;
-            if (currentPersonType === 'PJ') return item.prices?.PJ || 0;
             return 0;
         }
 
@@ -3833,7 +3790,7 @@
             let typeLabel = 'Não definido';
             if (currentUser && currentUser.userType) typeLabel = currentUser.userType === 'PF' ? 'Pessoa Física' :
             'Pessoa Jurídica';
-            else if (currentPersonType) typeLabel = currentPersonType === 'PF' ? 'Pessoa Física' : 'Pessoa Jurídica';
+            else typeLabel = 'Não logado';
             msg += `*Cliente:* ${typeLabel}\n`;
             if (currentUser && currentUser.name) msg += `*Nome:* ${currentUser.name}\n`;
             msg += `\n*ITENS:*\n`;
@@ -4293,7 +4250,7 @@
 
             let priceDisplay = '';
             const showPrice = !pricesHidden;
-            const userType = currentUser ? currentUser.userType : currentPersonType;
+            const userType = currentUser ? currentUser.userType : null;
 
             if (isAdmin) {
                 const pf = product.prices?.PF?.toFixed(2) || '0.00';
@@ -4320,10 +4277,8 @@
                 const icon = userType === 'PF' ? 'fa-user' : 'fa-building';
                 priceDisplay =
                     `<div class="product-price"><div class="price-label"><i class="fas ${icon}"></i> Preço ${label}</div><div class="price-value">R$ ${price}</div></div>`;
-            } else if (showPrice && !userType) {
-                priceDisplay =
-                    `<div class="product-price"><div class="price-label"><i class="fas fa-tag"></i> Selecione PF/PJ</div><div class="price-value">--</div></div>`;
             } else {
+                // Não logado ou sem tipo: não mostra preço
                 priceDisplay = `<div class="price-hidden-badge"><i class="fas fa-star"></i> Consulte</div>`;
             }
 
@@ -5388,7 +5343,7 @@
 
             let priceDisplay = '';
             const showPrice = !pricesHidden;
-            const userType = currentUser ? currentUser.userType : currentPersonType;
+            const userType = currentUser ? currentUser.userType : null;
 
             if (isAdmin) {
                 const pf = product.prices?.PF?.toFixed(2) || '0.00';
@@ -5415,10 +5370,6 @@
                 priceDisplay =
                     `<div class="modal-price-label"><i class="fas ${icon}"></i> Preço ${label}</div><div class="modal-price-value">R$ ${price}</div>`;
                 document.getElementById('modalAddButton').disabled = false;
-            } else if (showPrice && !userType) {
-                priceDisplay =
-                    `<div class="modal-price-label"><i class="fas fa-exclamation-circle"></i> Selecione PF ou PJ</div><div class="modal-price-value">--</div>`;
-                document.getElementById('modalAddButton').disabled = true;
             } else {
                 priceDisplay = `<div class="modal-price-hidden"><i class="fas fa-star"></i> Consulte</div>`;
                 document.getElementById('modalAddButton').disabled = false;
@@ -5439,20 +5390,6 @@
             document.getElementById('fullscreenImageModal').classList.add('active'); }
 
         function closeFullscreenImage() { document.getElementById('fullscreenImageModal').classList.remove('active'); }
-
-        // ========== SET PERSON TYPE (para não logados) ==========
-        function setPersonType(type) {
-            if (pricesHidden) { showToast('Preços ocultos', 'info'); return; }
-            currentPersonType = type;
-            btnPF.classList.remove('active');
-            btnPJ.classList.remove('active');
-            if (type === 'PF') { btnPF.classList.add('active');
-                selectedTypeLabel.textContent = 'Pessoa Física'; } else { btnPJ.classList.add('active');
-                selectedTypeLabel.textContent = 'Pessoa Jurídica'; }
-            priceIndicator.classList.add('visible');
-            filterProducts();
-            updateCart();
-        }
 
         // ========== CONTATO E HORÁRIOS ==========
         function updateMenuContactInfo() {
@@ -5673,19 +5610,14 @@
         function updatePriceDisplay() {
             const isHidden = pricesHidden !== false;
             if (isHidden) {
-                personTypeSelector.style.display = 'none';
+                // Se preços ocultos, não mostra indicador
                 priceIndicator.classList.remove('visible');
             } else {
+                // Mostra indicador apenas se houver usuário logado com tipo definido
                 if (currentUser && currentUser.userType) {
-                    personTypeSelector.style.display = 'none';
                     priceIndicator.classList.add('visible');
                     selectedTypeLabel.textContent = currentUser.userType === 'PF' ? 'Pessoa Física' : 'Pessoa Jurídica';
-                } else if (currentPersonType) {
-                    personTypeSelector.style.display = 'block';
-                    priceIndicator.classList.add('visible');
-                    selectedTypeLabel.textContent = currentPersonType === 'PF' ? 'Pessoa Física' : 'Pessoa Jurídica';
                 } else {
-                    personTypeSelector.style.display = 'block';
                     priceIndicator.classList.remove('visible');
                 }
             }
@@ -5715,6 +5647,7 @@
                 };
                 currentUserPhoto = data.photoURL || DEFAULT_USER_AVATAR;
                 isAdminUser = currentUser.isAdmin || false;
+                isAdmin = isAdminUser; // admin global
                 updateProfileUIUser();
                 updatePriceDisplay();
                 filterProducts();
@@ -5746,6 +5679,10 @@
                 document.getElementById('dropdownUserName').textContent = currentUser.name || 'Usuário';
                 document.getElementById('dropdownUserType').textContent = currentUser.userType ? (currentUser.userType === 'PF' ? 'Pessoa Física' : 'Pessoa Jurídica') : 'Tipo não definido';
                 document.getElementById('dropdownUserEmail').textContent = currentUser.email || '';
+
+                // Mostrar itens do menu (alterar foto e sair)
+                menuChangePhoto.style.display = 'flex';
+                menuLogout.style.display = 'flex';
 
                 if (isAdminUser) {
                     document.getElementById('dropdownAdmin').style.display = 'block';
@@ -5790,18 +5727,18 @@
                 document.getElementById('editProfileBadge').style.display = 'none';
                 document.getElementById('adminContactsActions').style.display = 'none';
                 instagramEditIcon.style.display = 'none';
+                menuChangePhoto.style.display = 'none';
+                menuLogout.style.display = 'none';
             }
             renderContacts();
             updateCategoryTabs();
             updateBrandTabs();
         }
 
-        // ========== CLIQUE NO BOTÃO DE PERFIL (CORRIGIDO) ==========
+        // ========== CLIQUE NO BOTÃO DE PERFIL ==========
         function handleProfileBtnClick() {
             const user = auth.currentUser;
-            console.log('handleProfileBtnClick chamado. user =', user ? user.uid : 'null');
             if (user) {
-                // Se o currentUser ainda não foi carregado, criamos um objeto temporário
                 if (!currentUser) {
                     currentUser = {
                         uid: user.uid,
@@ -5811,13 +5748,10 @@
                         userType: null,
                         isAdmin: false
                     };
-                    // Atualiza a UI com dados básicos
                     updateProfileUIUser();
                 }
                 toggleProfileDropdown();
-                console.log('Dropdown toggle executado.');
             } else {
-                console.log('Usuário não logado, abrindo login.');
                 openLoginModal();
             }
         }
@@ -5825,12 +5759,8 @@
         // ========== DROPDOWN PERFIL ==========
         function toggleProfileDropdown() {
             const dropdown = document.getElementById('profileDropdown');
-            if (!dropdown) {
-                console.error('Elemento profileDropdown não encontrado!');
-                return;
-            }
+            if (!dropdown) return;
             dropdown.classList.toggle('open');
-            console.log('Dropdown classes:', dropdown.className);
         }
 
         function closeProfileDropdown() {
@@ -6265,6 +6195,7 @@
                 updateCart();
                 showToast('Até logo!');
                 closeProfileDropdown();
+                closeBottomMenu();
             }
         }
 
@@ -6358,7 +6289,7 @@
             });
         }
 
-        // ========== ADMIN USERS MANAGEMENT (app exclusiva de usuários cadastrados) ==========
+        // ========== ADMIN USERS MANAGEMENT ==========
         let usersListCache = [];
         let usersTabCurrent = 'PF';
 
@@ -6632,7 +6563,6 @@
         window.addFromModal = addFromModal;
         window.openFullscreenImage = openFullscreenImage;
         window.closeFullscreenImage = closeFullscreenImage;
-        window.setPersonType = setPersonType;
         window.togglePricesVisibility = togglePricesVisibility;
         window.openImportNamesModal = openImportNamesModal;
         window.closeImportNamesModal = closeImportNamesModal;
