@@ -1026,11 +1026,11 @@
             transform: scale(1.05);
         }
         .admin-btn.promo {
-            background: #DC143C;
+            background: #E60000;
             color: #fff;
         }
         .admin-btn.promo:hover {
-            background: #b01030;
+            background: #cc0000;
         }
 
         /* ========== SESSÕES ========== */
@@ -1125,13 +1125,13 @@
             color: #ff6b00;
         }
 
-        /* Badge de promoção na sessão - metade fora, metade dentro */
+        /* Badge de promoção na sessão - topo do círculo */
         .session-item .session-promo-badge {
             position: absolute;
-            bottom: -8px;
+            top: -8px;
             left: 50%;
             transform: translateX(-50%);
-            background: #DC143C;
+            background: #E60000;
             color: #fff;
             font-size: 0.7rem;
             font-weight: 700;
@@ -1143,8 +1143,9 @@
             line-height: 1.2;
             box-shadow: 0 2px 6px rgba(0,0,0,0.5);
         }
+
         .session-promo-countdown {
-            display: none !important; /* oculto */
+            display: none !important;
         }
 
         .session-clicks {
@@ -1181,7 +1182,7 @@
             transform: scale(1.02);
         }
 
-        /* ========== CATEGORIAS E MARCAS (antigo) ========== */
+        /* ========== CATEGORIAS E MARCAS ========== */
         .category-tab,
         .brand-tab {
             padding: 6px 14px;
@@ -1297,9 +1298,9 @@
             display: inline-block;
         }
 
-        /* Badge de promoção na categoria - só o número */
+        /* Badge de promoção na categoria */
         .category-promo-badge {
-            background: #DC143C;
+            background: #E60000;
             color: #fff;
             font-size: 0.7rem;
             font-weight: 700;
@@ -1315,10 +1316,10 @@
             font-size: 0.5rem;
         }
         .category-promo-countdown {
-            display: none !important; /* oculto */
+            display: none !important;
         }
 
-        /* ========== BANNERS DE PROMOÇÃO GRANDES - OCULTOS ========== */
+        /* ========== BANNERS DE PROMOÇÃO - OCULTOS ========== */
         #sessionPromoBanner, #categoryPromoBanner {
             display: none !important;
         }
@@ -1475,29 +1476,16 @@
             border-color: #ff6b00;
         }
         .product-card.promocao {
-            border-color: #DC143C;
-        }
-        .product-card.promocao::before {
-            content: '⭐ PROMOÇÃO';
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            background: #DC143C;
-            color: #fff;
-            padding: 4px 10px;
-            border-radius: 30px;
-            font-size: 0.7rem;
-            font-weight: 700;
-            z-index: 2;
+            border-color: #E60000;
         }
 
-        /* Faixa diagonal para promoção em produto específico */
+        /* Faixa diagonal para promoção - agora do lado esquerdo */
         .product-card .promo-ribbon {
             position: absolute;
             top: 12px;
-            right: -30px;
-            transform: rotate(45deg);
-            background: #DC143C;
+            left: -30px;
+            transform: rotate(-45deg);
+            background: #E60000;
             color: #fff;
             padding: 4px 40px;
             font-size: 0.8rem;
@@ -1612,27 +1600,77 @@
             margin-right: 6px;
         }
         .product-price .price-value.promocional {
-            color: #DC143C;
+            color: #E60000;
             font-size: 1.3rem;
         }
         .price-hidden .product-price {
-            background: #333;
-            border-color: #ffc107;
+            display: none;
         }
-        .price-hidden .product-price .price-label i,
-        .price-hidden .product-price .price-label span {
-            color: #ffc107;
+        .btn-login-trigger {
+            background: #ff6b00;
+            color: #000;
+            border: none;
+            border-radius: 6px;
+            padding: 8px 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.3s;
+            width: 100%;
+            text-align: center;
+            font-size: 0.85rem;
         }
-        .price-hidden .product-price .price-value {
-            color: #ffc107;
-            font-size: 0.9rem;
-            font-weight: 400;
+        .btn-login-trigger:hover {
+            background: #e05e00;
+            transform: scale(1.02);
+        }
+
+        /* ===== NOVO ESTILO PARA LINK DE LOGIN ===== */
+        .login-prompt {
+            display: block;
+            width: 100%;
+            text-align: center;
+            margin-top: 6px;
+            color: #ffffff;
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            font-size: 0.85rem;
+            text-decoration: underline;
+            padding: 4px 0;
+            transition: color 0.2s;
+        }
+        .login-prompt:hover {
+            color: #ff6b00;
+        }
+        .login-prompt-modal {
+            display: inline-block;
+            color: #ffffff;
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            font-size: 0.95rem;
+            text-decoration: underline;
+            padding: 8px 12px;
+            transition: color 0.2s;
+        }
+        .login-prompt-modal:hover {
+            color: #ff6b00;
         }
 
         .product-actions {
             display: flex;
             gap: 6px;
+            flex-wrap: wrap;
             margin-top: auto;
+            flex-direction: column;
+        }
+        .product-actions .action-row {
+            display: flex;
+            gap: 6px;
+            width: 100%;
+        }
+        .product-actions .action-row .btn {
+            flex: 1;
         }
         .btn {
             flex: 1;
@@ -1672,20 +1710,6 @@
             opacity: 0.5;
             cursor: not-allowed;
             transform: none;
-        }
-        .price-hidden-badge {
-            background: #333;
-            border: 1px dashed #ffc107;
-            border-radius: 8px;
-            padding: 8px 15px;
-            text-align: center;
-            color: #ffc107;
-            font-size: 0.9rem;
-            margin: 10px 0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 5px;
         }
 
         .admin-product-actions {
@@ -1956,15 +1980,11 @@
             margin-right: 10px;
         }
         .modal-price-value.promocional {
-            color: #DC143C;
+            color: #E60000;
             font-size: 2.2rem;
         }
         .modal-price-hidden {
-            color: #ffc107;
-            font-size: 1.2rem;
-            padding: 10px;
-            border: 2px dashed #ffc107;
-            border-radius: 8px;
+            display: none;
         }
         .modal-close {
             position: absolute;
@@ -2938,12 +2958,14 @@
                 font-size: 1rem;
             }
 
-            .product-actions {
+            .product-actions .action-row {
                 flex-direction: column;
                 gap: 6px;
             }
-            .btn {
+            .product-actions .action-row .btn {
                 width: 100%;
+            }
+            .btn {
                 padding: 9px 6px;
                 font-size: 0.78rem;
             }
@@ -3027,13 +3049,13 @@
                 font-size: 0.6rem;
                 padding: 2px 25px;
                 width: 80px;
-                right: -20px;
+                left: -20px;
             }
         }
 
         /* ========== IMPORT MODAL EXTRA ========== */
         #importFormatSelect {
-            display: none; /* removido */
+            display: none;
         }
     </style>
 </head>
@@ -4692,7 +4714,6 @@
                 if (!sessionId) return;
                 const oldBadge = item.querySelector('.session-promo-badge');
                 if (oldBadge) oldBadge.remove();
-                // Não adiciona contagem
                 for (let id in promocoes) {
                     const promo = promocoes[id];
                     if (promo.ativa && promo.tipo === 'sessao' && promo.alvoId === sessionId && promo.dataExpiracao > now) {
@@ -4806,10 +4827,10 @@
 
             card.className = `product-card ${product.featured ? 'featured' : ''} ${product.soldOut ? 'sold-out' : ''} ${isPromo ? 'promocao' : ''}`;
 
-            // Faixa diagonal para promoção em produto específico
+            // Faixa diagonal - mostra apenas o percentual
             let ribbonHtml = '';
-            if (promoData && promoData.tipo === 'produto') {
-                ribbonHtml = `<div class="promo-ribbon">-${desconto}%</div>`;
+            if (isPromo && desconto > 0) {
+                ribbonHtml = `<div class="promo-ribbon">-${desconto}% OFF</div>`;
             }
 
             let priceDisplay = '';
@@ -4842,7 +4863,7 @@
                     `<div class="product-price" style="${showPF ? 'margin-top:5px;' : ''}"><div class="price-label"><i class="fas fa-building"></i> PJ</div>${priceHtml}</div>`;
                 }
                 if (!showPF && !showPJ) {
-                    html = `<div class="price-hidden-badge"><i class="fas fa-star"></i> Preços ocultos</div>`;
+                    html = ''; // não mostra nada quando oculto
                 }
                 priceDisplay = html;
             } else if (showPrice && userType) {
@@ -4858,7 +4879,8 @@
                 priceDisplay =
                     `<div class="product-price"><div class="price-label"><i class="fas ${icon}"></i> Preço ${label}</div>${priceHtml}</div>`;
             } else {
-                priceDisplay = `<div class="price-hidden-badge"><i class="fas fa-star"></i> Consulte</div>`;
+                // Visitante: não exibe preço (será mostrado o link na ação)
+                priceDisplay = '';
             }
 
             let adminActions = '';
@@ -4884,6 +4906,10 @@
             }
 
             const img = product.image || DEFAULT_PLACEHOLDER_IMAGE;
+            const loginPrompt = (!currentUser && !pricesHidden) ?
+                `<div class="login-prompt" onclick="openLoginModal()">🔑 Entrar para ver preços</div>` :
+                '';
+
             card.innerHTML = `
                         ${ribbonHtml}
                         <div class="product-image">
@@ -4896,8 +4922,11 @@
                             <h3 class="product-name">${escapeHtml(product.name || 'Sem nome')}</h3>
                             ${priceDisplay}
                             <div class="product-actions">
-                                <button class="btn btn-outline" onclick="showDetails('${product.id}')"><i class="fas fa-info-circle"></i> Detalhes</button>
-                                <button class="btn btn-primary" onclick="addToCart('${product.id}')" ${product.soldOut ? 'disabled' : ''}><i class="fas fa-cart-plus"></i> ${product.soldOut ? 'Esgotado' : 'Adicionar'}</button>
+                                <div class="action-row">
+                                    <button class="btn btn-outline" onclick="showDetails('${product.id}')"><i class="fas fa-info-circle"></i> Detalhes</button>
+                                    <button class="btn btn-primary" onclick="addToCart('${product.id}')" ${product.soldOut ? 'disabled' : ''}><i class="fas fa-cart-plus"></i> ${product.soldOut ? 'Esgotado' : 'Adicionar'}</button>
+                                </div>
+                                ${loginPrompt}
                             </div>
                             ${adminActions}
                         </div>
@@ -5935,10 +5964,10 @@
                         `<span class="modal-price-value original">R$ ${pj}</span> <span class="modal-price-value promocional">R$ ${precoPromoPJ.toFixed(2)}</span>`;
                     html = `<div class="modal-price-label"><i class="fas fa-building"></i> PJ</div><div>${pjHtml}</div>`;
                 } else {
-                    html = `<div class="modal-price-hidden"><i class="fas fa-star"></i> Preços ocultos</div>`;
+                    html = ''; // não mostra nada quando oculto
                 }
                 priceDisplay = html;
-                document.getElementById('modalAddButton').disabled = false;
+                document.getElementById('modalAddButton').style.display = 'block';
             } else if (showPrice && userType) {
                 const precoOriginal = userType === 'PF' ? precoOriginalPF : precoOriginalPJ;
                 const precoPromo = userType === 'PF' ? precoPromoPF : precoPromoPJ;
@@ -5951,10 +5980,17 @@
                 }
                 priceDisplay =
                     `<div class="modal-price-label"><i class="fas ${icon}"></i> Preço ${label}</div><div>${priceHtml}</div>`;
-                document.getElementById('modalAddButton').disabled = false;
+                document.getElementById('modalAddButton').style.display = 'block';
             } else {
-                priceDisplay = `<div class="modal-price-hidden"><i class="fas fa-star"></i> Consulte</div>`;
-                document.getElementById('modalAddButton').disabled = false;
+                // Visitante: exibe link para login em vez do preço
+                if (!pricesHidden) {
+                    priceDisplay =
+                        `<button class="login-prompt-modal" onclick="openLoginModal()">🔑 Entrar para ver preços</button>`;
+                    document.getElementById('modalAddButton').style.display = 'none';
+                } else {
+                    priceDisplay = '';
+                    document.getElementById('modalAddButton').style.display = 'none';
+                }
             }
             document.getElementById('modalPriceBox').innerHTML = priceDisplay;
             document.getElementById('productModal').classList.add('active');
@@ -6056,7 +6092,6 @@
                     if (cols.length < 1) return;
                     const name = cols[0];
                     if (!name) return; // nome obrigatório
-                    // Se filtro H ativo, verifica se coluna H (índice 7) é A ou B (case insensitive)
                     if (filterH) {
                         const hVal = cols[7] ? cols[7].toUpperCase().trim() : '';
                         if (hVal !== 'A' && hVal !== 'B') {
@@ -6069,7 +6104,6 @@
                     const codigo = cols[4] ? cols[4].trim() : '';
                     const brand = cols[5] ? cols[5].trim() : '';
                     const image = cols[6] ? cols[6].trim() : '';
-                    // Coluna H já foi usada como filtro, não armazenamos
                     items.push({ name, pricePF, pricePJ, category, codigo, brand, image });
                 });
                 if (items.length === 0) { showToast('Nenhuma peça válida para importar', 'error'); return; }
@@ -6098,11 +6132,9 @@
             document.getElementById('confirmImport').onchange = (e) => {
                 document.getElementById('importButton').disabled = !e.target.checked;
             };
-            // Reexecuta a leitura se o checkbox mudar
             document.getElementById('filterByColH').onchange = function() {
                 const inputFile = document.getElementById('csvFileInput');
                 if (inputFile.files && inputFile.files.length > 0) {
-                    // Dispara o change novamente para reavaliar
                     inputFile.dispatchEvent(new Event('change'));
                 }
             };
@@ -7164,9 +7196,7 @@
                 updatePriceDisplay();
             });
 
-            // Verificação de expiração a cada 30 segundos
             setInterval(() => verificarExpiracao(), 30000);
-            // Atualiza badges a cada minuto (para casos de promoções que expiraram)
             setInterval(() => renderPromotionBadgesOnly(), 60000);
         }
 
