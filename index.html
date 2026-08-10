@@ -505,13 +505,115 @@
             border-bottom: 1px solid rgba(255, 255, 255, 0.05);
         }
 
-        /* ========== ÁREA NORMAL (MARCAS) ========== */
+        /* ========== ÁREA NORMAL (MARCAS) - NOVO LAYOUT ========== */
         .brand-filters-area {
             background: #000000;
             padding: 6px 0 12px;
         }
 
-        /* ========== CAROUSEL DE ABAS ========== */
+        /* ========== CARROSSEL DE MARCAS (CONTÍNUO) ========== */
+        .brand-marquee-wrapper {
+            position: relative;
+            overflow: hidden;
+            padding: 20px 0;
+            margin: 0 -10px;
+        }
+        .brand-marquee-wrapper .gradient-left {
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 80px;
+            background: linear-gradient(to right, #000000, transparent);
+            z-index: 10;
+            pointer-events: none;
+        }
+        .brand-marquee-wrapper .gradient-right {
+            position: absolute;
+            right: 0;
+            top: 0;
+            bottom: 0;
+            width: 80px;
+            background: linear-gradient(to left, #000000, transparent);
+            z-index: 10;
+            pointer-events: none;
+        }
+
+        @keyframes brandScroll {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
+        }
+        .brand-marquee-track {
+            display: flex;
+            width: max-content;
+            animation: brandScroll 40s linear infinite;
+            align-items: center;
+            gap: 80px;
+        }
+        .brand-marquee-track:hover {
+            animation-play-state: paused;
+        }
+
+        .brand-marquee-item {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0.7;
+            transition: opacity 0.3s ease, transform 0.3s ease;
+            cursor: pointer;
+            flex-shrink: 0;
+            padding: 4px;
+            background: transparent !important;
+            border: none !important;
+            box-shadow: none !important;
+            position: relative;
+        }
+        .brand-marquee-item:hover {
+            opacity: 1;
+            transform: scale(1.05);
+        }
+        .brand-marquee-item.active {
+            opacity: 1;
+        }
+        .brand-marquee-item img {
+            height: 80px;
+            width: auto;
+            max-width: 160px;
+            object-fit: contain;
+            background: transparent !important;
+            display: block;
+            border: none !important;
+            box-shadow: none !important;
+            filter: none !important;
+        }
+        .brand-marquee-item.active img {
+            filter: none !important;
+            box-shadow: none !important;
+        }
+        .brand-marquee-item:hover img {
+            filter: none !important;
+            box-shadow: none !important;
+        }
+
+        .admin-mode .brand-marquee-item .brand-clicks {
+            display: block;
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background: #ff6b00;
+            color: #000;
+            font-size: 0.6rem;
+            font-weight: 700;
+            padding: 2px 6px;
+            border-radius: 20px;
+            border: 1px solid #000;
+            line-height: 1.2;
+        }
+        .brand-marquee-item .brand-clicks {
+            display: none;
+        }
+
+        /* ========== CAROUSEL DE ABAS (CATEGORIAS) ========== */
         .tabs-carousel-wrapper {
             position: relative;
             display: flex;
@@ -539,62 +641,6 @@
         }
         .tabs-carousel-wrapper .tabs-scroll::-webkit-scrollbar {
             display: none;
-        }
-
-        /* ========== ITENS DE MARCA ========== */
-        .brand-item {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            cursor: pointer;
-            padding: 4px 8px;
-            min-width: 120px;
-            background: transparent !important;
-            border: none !important;
-            box-shadow: none !important;
-            transition: transform 0.2s ease;
-            flex-shrink: 0;
-            position: relative;
-        }
-        .brand-item:hover {
-            transform: scale(1.08);
-        }
-        .brand-item.active img {
-            filter: drop-shadow(0 0 10px rgba(255, 107, 0, 0.6));
-        }
-        .brand-item img {
-            height: 150px;
-            width: auto;
-            max-width: 180px;
-            object-fit: contain;
-            background: transparent !important;
-            border: none !important;
-            display: block;
-            pointer-events: none;
-            transition: filter 0.3s;
-        }
-        .brand-item .brand-name {
-            color: #ccc;
-            font-size: 0.85rem;
-            margin-top: 6px;
-            text-align: center;
-            font-weight: 500;
-            display: none;
-        }
-        .brand-item .brand-name.visible {
-            display: block;
-        }
-        .brand-item.active .brand-name {
-            color: #ff6b00;
-        }
-        .brand-item .brand-clicks {
-            font-size: 0.7rem;
-            color: #999;
-            margin-top: 2px;
-            display: none;
-        }
-        .admin-mode .brand-item .brand-clicks {
-            display: block !important;
         }
 
         /* ========== OVERLAY E MENU INFERIOR ========== */
@@ -980,11 +1026,11 @@
             transform: scale(1.05);
         }
         .admin-btn.promo {
-            background: #9b59b6;
+            background: #DC143C;
             color: #fff;
         }
         .admin-btn.promo:hover {
-            background: #8e44ad;
+            background: #b01030;
         }
 
         /* ========== SESSÕES ========== */
@@ -1036,6 +1082,7 @@
             background: transparent;
             transition: all 0.3s ease;
             box-shadow: none;
+            position: relative;
         }
         .session-avatar-circle-inner {
             width: 100%;
@@ -1078,6 +1125,28 @@
             color: #ff6b00;
         }
 
+        /* Badge de promoção na sessão - metade fora, metade dentro */
+        .session-item .session-promo-badge {
+            position: absolute;
+            bottom: -8px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #DC143C;
+            color: #fff;
+            font-size: 0.7rem;
+            font-weight: 700;
+            padding: 2px 8px;
+            border-radius: 12px;
+            border: 2px solid #000;
+            white-space: nowrap;
+            z-index: 5;
+            line-height: 1.2;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.5);
+        }
+        .session-promo-countdown {
+            display: none !important; /* oculto */
+        }
+
         .session-clicks {
             font-size: 0.65rem;
             color: #888;
@@ -1112,7 +1181,7 @@
             transform: scale(1.02);
         }
 
-        /* ========== CATEGORIAS E MARCAS ========== */
+        /* ========== CATEGORIAS E MARCAS (antigo) ========== */
         .category-tab,
         .brand-tab {
             padding: 6px 14px;
@@ -1226,6 +1295,32 @@
         .admin-mode .category-tab .cat-clicks,
         .admin-mode .brand-tab .brand-clicks-tab {
             display: inline-block;
+        }
+
+        /* Badge de promoção na categoria - só o número */
+        .category-promo-badge {
+            background: #DC143C;
+            color: #fff;
+            font-size: 0.7rem;
+            font-weight: 700;
+            padding: 1px 6px;
+            border-radius: 12px;
+            margin-left: 4px;
+            white-space: nowrap;
+            display: inline-flex;
+            align-items: center;
+            gap: 2px;
+        }
+        .category-promo-badge i {
+            font-size: 0.5rem;
+        }
+        .category-promo-countdown {
+            display: none !important; /* oculto */
+        }
+
+        /* ========== BANNERS DE PROMOÇÃO GRANDES - OCULTOS ========== */
+        #sessionPromoBanner, #categoryPromoBanner {
+            display: none !important;
         }
 
         /* ========== TIPO DE CLIENTE (removido para não logados) ========== */
@@ -1380,20 +1475,40 @@
             border-color: #ff6b00;
         }
         .product-card.promocao {
-            border-color: #9b59b6;
+            border-color: #DC143C;
         }
         .product-card.promocao::before {
-            content: '🔥 PROMOÇÃO';
+            content: '⭐ PROMOÇÃO';
             position: absolute;
             top: 10px;
             right: 10px;
-            background: #9b59b6;
+            background: #DC143C;
             color: #fff;
             padding: 4px 10px;
             border-radius: 30px;
             font-size: 0.7rem;
             font-weight: 700;
             z-index: 2;
+        }
+
+        /* Faixa diagonal para promoção em produto específico */
+        .product-card .promo-ribbon {
+            position: absolute;
+            top: 12px;
+            right: -30px;
+            transform: rotate(45deg);
+            background: #DC143C;
+            color: #fff;
+            padding: 4px 40px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            z-index: 15;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.4);
+            text-align: center;
+            width: 120px;
+            letter-spacing: 1px;
+            border: 1px solid #ff6b00;
+            pointer-events: none;
         }
 
         .product-image {
@@ -1497,7 +1612,7 @@
             margin-right: 6px;
         }
         .product-price .price-value.promocional {
-            color: #9b59b6;
+            color: #DC143C;
             font-size: 1.3rem;
         }
         .price-hidden .product-price {
@@ -1841,7 +1956,7 @@
             margin-right: 10px;
         }
         .modal-price-value.promocional {
-            color: #9b59b6;
+            color: #DC143C;
             font-size: 2.2rem;
         }
         .modal-price-hidden {
@@ -2787,14 +2902,17 @@
             .brand-filters-area {
                 padding: 4px 0 4px;
             }
-            .brand-item img {
-                height: 100px;
-                max-width: 140px;
+            .brand-marquee-wrapper .gradient-left,
+            .brand-marquee-wrapper .gradient-right {
+                width: 40px;
             }
-            .brand-item {
-                min-width: 100px;
-                padding: 4px 6px;
+            .brand-marquee-track {
+                gap: 40px;
             }
+            .brand-marquee-item img {
+                height: 60px;
+            }
+
             .type-selector {
                 margin: 6px 0;
                 padding: 12px 16px;
@@ -2901,6 +3019,21 @@
                 padding: 6px 14px;
                 font-size: 0.8rem;
             }
+
+            #sessionPromoBanner, #categoryPromoBanner {
+                display: none !important;
+            }
+            .product-card .promo-ribbon {
+                font-size: 0.6rem;
+                padding: 2px 25px;
+                width: 80px;
+                right: -20px;
+            }
+        }
+
+        /* ========== IMPORT MODAL EXTRA ========== */
+        #importFormatSelect {
+            display: none; /* removido */
         }
     </style>
 </head>
@@ -3066,6 +3199,9 @@
                 </div>
             </div>
 
+            <!-- BANNER DE PROMOÇÃO DE SESSÃO (oculto) -->
+            <div id="sessionPromoBanner"></div>
+
             <!-- SESSÕES -->
             <div class="sessions-carousel-wrapper hidden" id="sessionsWrapper">
                 <div class="sessions-carousel" id="sessionsCarousel"></div>
@@ -3082,10 +3218,12 @@
             </div>
         </div>
 
-        <!-- ÁREA NORMAL: MARCAS -->
+        <!-- ÁREA NORMAL: MARCAS (NOVO LAYOUT) -->
         <div class="brand-filters-area" id="brandFiltersArea">
-            <div class="tabs-carousel-wrapper" style="border: none; background: transparent; padding:0;">
-                <div class="tabs-scroll" id="brandTabs" style="padding: 10px 4px; gap: 16px;"></div>
+            <div class="brand-marquee-wrapper">
+                <div class="gradient-left"></div>
+                <div class="gradient-right"></div>
+                <div class="brand-marquee-track" id="brandTabs"></div>
             </div>
         </div>
 
@@ -3097,6 +3235,9 @@
 
         <!-- PRODUTOS -->
         <div id="productsView">
+            <!-- BANNER DE PROMOÇÃO DE CATEGORIA (oculto) -->
+            <div id="categoryPromoBanner"></div>
+
             <div class="results-info" id="resultsInfo">
                 <div class="results-count"><strong id="resultsCount">0</strong> peças encontradas</div>
                 <div class="clear-search" id="clearSearchBtn" onclick="clearSearch()" style="display: none;"><i class="fas fa-times"></i> Limpar busca</div>
@@ -3253,26 +3394,30 @@
     <div class="modal" id="importNamesModal">
         <div class="modal-content large">
             <button class="modal-close" onclick="closeImportNamesModal()"><i class="fas fa-times"></i></button>
-            <div class="modal-header"><h2>Importar Peças do Arquivo .CST</h2></div>
+            <div class="modal-header"><h2>Importar Peças do Arquivo .CSV</h2></div>
             <div class="modal-body">
                 <div class="form-group">
-                    <label>Formato do arquivo:</label>
-                    <p style="color:#cccccc;font-size:0.9rem;margin-bottom:10px;">
-                        <strong>Coluna A:</strong> Nome (obrigatório)<br>
+                    <p style="color:#cccccc;font-size:0.9rem;margin-bottom:12px;">
+                        <strong>Formato esperado (separador: vírgula ou ponto-e-vírgula):</strong><br>
+                        <strong>Coluna A:</strong> Nome da peça (obrigatório)<br>
                         <strong>Coluna B:</strong> Preço PF (opcional)<br>
                         <strong>Coluna C:</strong> Preço PJ (opcional)<br>
                         <strong>Coluna D:</strong> Categoria (opcional)<br>
                         <strong>Coluna E:</strong> Código (opcional)<br>
                         <strong>Coluna F:</strong> Marca (opcional)<br>
-                        <span style="color:#ff6b00;">✓</span> Se só tiver Coluna B → Cria peça com valor PF<br>
-                        <span style="color:#ff6b00;">✓</span> Se só tiver Coluna C → Cria peça com valor PJ<br>
-                        <span style="color:#ff6b00;">✓</span> Se tiver B e C → Cria peça completa
+                        <strong>Coluna G:</strong> Link da foto (opcional)<br>
+                        <strong>Coluna H:</strong> Filtro (opcional) – usado apenas se a opção abaixo estiver marcada.
                     </p>
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="filterByColH">
+                        <label for="filterByColH">Filtrar pela coluna H (apenas A e B)</label>
+                    </div>
+                    <p style="color:#ff6b00;font-size:0.85rem;"><i class="fas fa-info-circle"></i> Linhas com nome em branco serão ignoradas.</p>
                 </div>
                 <div class="import-area" id="importArea" onclick="document.getElementById('csvFileInput').click()">
                     <i class="fas fa-file-csv"></i>
-                    <p>Clique para selecionar o arquivo .CST</p>
-                    <small>Apenas .csv com nome (A), valor PF (B), valor PJ (C), categoria (D), código (E), marca (F)</small>
+                    <p>Clique para selecionar o arquivo .CSV</p>
+                    <small>Arquivo com separador vírgula ou ponto-e-vírgula</small>
                     <input type="file" id="csvFileInput" accept=".csv,.txt" style="display: none;">
                 </div>
                 <div id="importPreview" style="display: none;">
@@ -3729,6 +3874,10 @@
         const profileDoc = document.getElementById('profileDoc');
         const dropdownUserDoc = document.getElementById('dropdownUserDoc');
 
+        // Banners de promoção - não usamos mais
+        const sessionPromoBanner = document.getElementById('sessionPromoBanner');
+        const categoryPromoBanner = document.getElementById('categoryPromoBanner');
+
         // ========== UTILITÁRIOS ==========
         function showToast(msg, type = 'success') {
             const toast = document.createElement('div');
@@ -3922,7 +4071,7 @@
             let msg = `*CIM - PEÇAS MECÂNICAS*\n━━━━━━━━━━━━━━━━\n*NOVO PEDIDO*\n`;
             let typeLabel = 'Não definido';
             if (currentUser && currentUser.userType) typeLabel = currentUser.userType === 'PF' ? 'Pessoa Física' :
-            'Pessoa Jurídica';
+                'Pessoa Jurídica';
             else typeLabel = 'Não logado';
             msg += `*Cliente:* ${typeLabel}\n`;
             if (currentUser && currentUser.name) msg += `*Nome:* ${currentUser.name}\n`;
@@ -4344,6 +4493,7 @@
                 if (document.getElementById('promocoesModal').classList.contains('active')) {
                     renderPromocoesList();
                 }
+                renderPromotionBadgesOnly();
             });
         }
 
@@ -4361,6 +4511,7 @@
                 expiradas.forEach(id => { updates[`promocoes/${id}/ativa`] = false; });
                 database.ref().update(updates).then(() => {
                     showToast(`${expiradas.length} promoção(ões) expiraram automaticamente`);
+                    renderPromotionBadgesOnly();
                 });
             }
         }
@@ -4479,7 +4630,7 @@
             if (!expiracao) { showToast('Defina uma data de expiração', 'error'); return; }
 
             const dataExpiracao = new Date(expiracao).getTime();
-            if (dataExpiracao <= Date.now()) { showToast('A data deve ser futura', 'error'); return; }
+            if (dataExpiracao < Date.now()) { showToast('A data deve ser futura ou igual ao agora', 'error'); return; }
 
             const data = {
                 tipo,
@@ -4514,6 +4665,7 @@
             if (!promo) return;
             database.ref(`promocoes/${id}/ativa`).set(!promo.ativa).then(() => {
                 showToast(promo.ativa ? 'Desativada' : 'Ativada');
+                renderPromotionBadgesOnly();
             });
         }
 
@@ -4527,6 +4679,48 @@
             database.ref(`promocoes/${id}`).remove().then(() => {
                 showToast('Promoção excluída');
                 renderPromocoesList();
+                renderPromotionBadgesOnly();
+            });
+        }
+
+        // ========== RENDERIZAÇÃO APENAS DOS BADGES (SEM CRONÔMETRO) ==========
+        function renderPromotionBadgesOnly() {
+            const now = Date.now();
+            // Sessões
+            document.querySelectorAll('.session-item').forEach(item => {
+                const sessionId = item.getAttribute('data-session-id');
+                if (!sessionId) return;
+                const oldBadge = item.querySelector('.session-promo-badge');
+                if (oldBadge) oldBadge.remove();
+                // Não adiciona contagem
+                for (let id in promocoes) {
+                    const promo = promocoes[id];
+                    if (promo.ativa && promo.tipo === 'sessao' && promo.alvoId === sessionId && promo.dataExpiracao > now) {
+                        const badge = document.createElement('div');
+                        badge.className = 'session-promo-badge';
+                        badge.textContent = `${promo.descontoPercentual}%`;
+                        item.appendChild(badge);
+                        break;
+                    }
+                }
+            });
+
+            // Categorias
+            document.querySelectorAll('.category-tab').forEach(tab => {
+                const cat = tab.getAttribute('data-category');
+                if (!cat || cat === '') return;
+                const oldBadge = tab.querySelector('.category-promo-badge');
+                if (oldBadge) oldBadge.remove();
+                for (let id in promocoes) {
+                    const promo = promocoes[id];
+                    if (promo.ativa && promo.tipo === 'categoria' && promo.alvoId === cat && promo.dataExpiracao > now) {
+                        const badge = document.createElement('span');
+                        badge.className = 'category-promo-badge';
+                        badge.textContent = `${promo.descontoPercentual}%`;
+                        tab.appendChild(badge);
+                        break;
+                    }
+                }
             });
         }
 
@@ -4612,6 +4806,12 @@
 
             card.className = `product-card ${product.featured ? 'featured' : ''} ${product.soldOut ? 'sold-out' : ''} ${isPromo ? 'promocao' : ''}`;
 
+            // Faixa diagonal para promoção em produto específico
+            let ribbonHtml = '';
+            if (promoData && promoData.tipo === 'produto') {
+                ribbonHtml = `<div class="promo-ribbon">-${desconto}%</div>`;
+            }
+
             let priceDisplay = '';
             const showPrice = !pricesHidden;
             const userType = currentUser ? currentUser.userType : null;
@@ -4685,6 +4885,7 @@
 
             const img = product.image || DEFAULT_PLACEHOLDER_IMAGE;
             card.innerHTML = `
+                        ${ribbonHtml}
                         <div class="product-image">
                             <img src="${img}" alt="${product.name || 'Peça'}" loading="lazy" onclick="openFullscreenImage('${img}')">
                             <div class="fullscreen-icon" onclick="event.stopPropagation(); openFullscreenImage('${img}')"><i class="fas fa-expand"></i></div>
@@ -4715,6 +4916,7 @@
                     selectedSessionId = null;
                     filterProducts();
                 }
+                renderPromotionBadgesOnly();
             });
         }
 
@@ -4734,7 +4936,7 @@
             sessionArray.forEach(s => {
                 const sel = selectedSessionId === s.id;
                 const clicks = sessionClicks[s.id] || 0;
-                html += `<div class="session-item ${sel ? 'selected' : ''}" onclick="selectSession('${s.id}')">
+                html += `<div class="session-item ${sel ? 'selected' : ''}" onclick="selectSession('${s.id}')" data-session-id="${s.id}">
                             <div class="session-avatar-circle">
                                 <div class="session-avatar-circle-inner">
                                     <img src="${s.image || DEFAULT_SESSION_IMAGE}" alt="${escapeHtml(s.name)}" onerror="this.src='${DEFAULT_SESSION_IMAGE}'">
@@ -4750,6 +4952,7 @@
             } else {
                 viewAllSessions.classList.remove('active');
             }
+            renderPromotionBadgesOnly();
         }
 
         function selectSession(id) {
@@ -4767,6 +4970,7 @@
             updateProductCategorySelect();
             updateProductBrandSelect();
             document.getElementById('productsView').scrollIntoView({ behavior: 'smooth', block: 'start' });
+            renderPromotionBadgesOnly();
         }
 
         function registerSessionClick(sessionId) {
@@ -4924,70 +5128,39 @@
         }
 
         function updateBrandTabs() {
-            let brandArray = Object.keys(brands).map(id => ({ id, ...brands[id] }));
+            if (!brandTabs) return;
+            const brandArray = Object.keys(brands).map(id => ({ id, ...brands[id] }));
             brandArray.sort((a, b) => (a.order || 0) - (b.order || 0));
+
+            if (brandArray.length === 0) {
+                brandTabs.innerHTML = '';
+                return;
+            }
+
+            const doubled = [...brandArray, ...brandArray];
             let html = '';
-            brandArray.forEach(b => {
-                const isActive = selectedBrand === b.name;
-                const displayName = b.name && b.name.trim() !== '' ? b.name : '';
-                const clicks = brandClicks[b.name] || 0;
+            doubled.forEach((brand) => {
+                const isActive = selectedBrand === brand.name;
+                const clicks = brandClicks[brand.name] || 0;
+                const imgSrc = brand.image || DEFAULT_PLACEHOLDER_IMAGE;
+
                 html += `
-                            <div class="brand-item ${isActive ? 'active' : ''}" 
-                                 data-brand-id="${b.id}" 
-                                 onclick="selectBrand('${b.name || ''}')">
-                                <img src="${b.image || DEFAULT_PLACEHOLDER_IMAGE}" 
-                                     alt="${displayName || 'Marca'}" 
-                                     onerror="this.src='${DEFAULT_PLACEHOLDER_IMAGE}'">
-                                ${displayName ? `<span class="brand-name visible">${escapeHtml(displayName)}</span>` : ''}
-                                ${isAdmin ? `<span class="brand-clicks visible">${clicks} cliques</span>` : ''}
+                            <div class="brand-marquee-item ${isActive ? 'active' : ''}" 
+                                 data-brand-name="${escapeHtml(brand.name)}" 
+                                 onclick="selectBrand('${escapeHtml(brand.name)}')">
+                                <img src="${imgSrc}" alt="${escapeHtml(brand.name)}" onerror="this.src='${DEFAULT_PLACEHOLDER_IMAGE}'">
+                                ${isAdmin ? `<span class="brand-clicks">${clicks}</span>` : ''}
                             </div>
                         `;
             });
+
             brandTabs.innerHTML = html;
-            if (isAdmin) { setupBrandDragDrop(); }
         }
 
         function selectBrand(b) {
             if (selectedBrand === b) { selectedBrand = ''; } else { selectedBrand = b; }
             updateBrandTabs();
             filterProducts();
-        }
-
-        function setupBrandDragDrop() {
-            const items = document.querySelectorAll('.brand-item');
-            items.forEach(item => {
-                item.setAttribute('draggable', 'true');
-                item.addEventListener('dragstart', (e) => {
-                    draggedTab = item;
-                    e.dataTransfer.setData('text/plain', item.dataset.brandId);
-                });
-                item.addEventListener('dragend', () => {
-                    document.querySelectorAll('.brand-item').forEach(el => el.classList.remove('over'));
-                });
-                item.addEventListener('dragover', (e) => {
-                    e.preventDefault();
-                    if (draggedTab !== item) item.classList.add('over');
-                });
-                item.addEventListener('dragleave', () => item.classList.remove('over'));
-                item.addEventListener('drop', (e) => {
-                    e.preventDefault();
-                    item.classList.remove('over');
-                    if (draggedTab && draggedTab !== item) {
-                        const parent = brandTabs;
-                        if ([...parent.children].indexOf(draggedTab) < [...parent.children].indexOf(item)) {
-                            parent.insertBefore(draggedTab, item.nextSibling);
-                        } else {
-                            parent.insertBefore(draggedTab, item);
-                        }
-                        const newOrder = [...parent.children].map(el => el.dataset.brandId);
-                        const updates = {};
-                        newOrder.forEach((id, idx) => {
-                            updates[`brands/${id}/order`] = idx;
-                        });
-                        database.ref().update(updates);
-                    }
-                });
-            });
         }
 
         function updateBrandsList() {
@@ -5153,6 +5326,7 @@
             });
             categoryTabs.innerHTML = html;
             if (isAdmin) setupCategoryDragDrop();
+            renderPromotionBadgesOnly();
         }
 
         function selectCategory(cat) {
@@ -5165,6 +5339,7 @@
             }
             updateCategoryTabs();
             filterProducts();
+            renderPromotionBadgesOnly();
         }
 
         function editCategory(categoryName) {
@@ -5219,6 +5394,7 @@
                 selectedCategory = '';
                 updateCategoryTabs();
                 filterProducts();
+                renderPromotionBadgesOnly();
             });
         }
 
@@ -5239,6 +5415,7 @@
                 selectedCategory = newName;
                 updateCategoryTabs();
                 filterProducts();
+                renderPromotionBadgesOnly();
             });
         }
 
@@ -5858,13 +6035,14 @@
                 showToast('Aplicado!'); });
         }
 
-        // ========== IMPORT NAMES ==========
+        // ========== IMPORT NAMES (COM FILTRO OPCIONAL PELA COLUNA H) ==========
         function openImportNamesModal() {
             document.getElementById('importNamesModal').classList.add('active');
             document.getElementById('importPreview').style.display = 'none';
             document.getElementById('csvFileInput').value = '';
             document.getElementById('confirmImport').checked = false;
             document.getElementById('importButton').disabled = true;
+            document.getElementById('filterByColH').checked = false;
             const input = document.getElementById('csvFileInput');
             input.onchange = async (e) => {
                 const file = e.target.files[0];
@@ -5872,47 +6050,44 @@
                 const text = await file.text();
                 const lines = text.split('\n').filter(l => l.trim() !== '');
                 const items = [];
+                const filterH = document.getElementById('filterByColH').checked;
                 lines.forEach(line => {
                     const cols = line.split(/[,;]/).map(c => c.replace(/["']/g, '').trim());
+                    if (cols.length < 1) return;
                     const name = cols[0];
-                    if (!name) return;
+                    if (!name) return; // nome obrigatório
+                    // Se filtro H ativo, verifica se coluna H (índice 7) é A ou B (case insensitive)
+                    if (filterH) {
+                        const hVal = cols[7] ? cols[7].toUpperCase().trim() : '';
+                        if (hVal !== 'A' && hVal !== 'B') {
+                            return; // ignora linha
+                        }
+                    }
                     const pricePF = cols[1] ? parseFloat(cols[1].replace(',', '.')) || 0 : 0;
                     const pricePJ = cols[2] ? parseFloat(cols[2].replace(',', '.')) || 0 : 0;
                     const category = cols[3] ? cols[3].trim() : '';
                     const codigo = cols[4] ? cols[4].trim() : '';
                     const brand = cols[5] ? cols[5].trim() : '';
-                    let type = 'only_name';
-                    if (pricePF > 0 && pricePJ > 0) type = 'both';
-                    else if (pricePF > 0) type = 'only_pf';
-                    else if (pricePJ > 0) type = 'only_pj';
-                    items.push({ name, pricePF, pricePJ, category, codigo, brand, type });
+                    const image = cols[6] ? cols[6].trim() : '';
+                    // Coluna H já foi usada como filtro, não armazenamos
+                    items.push({ name, pricePF, pricePJ, category, codigo, brand, image });
                 });
-                if (items.length === 0) { showToast('Nenhum nome', 'error'); return; }
+                if (items.length === 0) { showToast('Nenhuma peça válida para importar', 'error'); return; }
                 const preview = document.getElementById('importPreviewList');
                 preview.innerHTML = items.slice(0, 10).map(item => {
-                    let icon = '',
-                        text = '';
-                    switch (item.type) {
-                        case 'both':
-                            icon = 'fa-users';
-                            text = 'PF+PJ';
-                            break;
-                        case 'only_pf':
-                            icon = 'fa-user';
-                            text = 'Só PF';
-                            break;
-                        case 'only_pj':
-                            icon = 'fa-building';
-                            text = 'Só PJ';
-                            break;
-                        default:
-                            icon = 'fa-tag';
-                            text = 'Sem preço';
-                    }
+                    const hasPF = item.pricePF > 0;
+                    const hasPJ = item.pricePJ > 0;
+                    let icon = 'fa-tag',
+                        text = 'Sem preço';
+                    if (hasPF && hasPJ) { icon = 'fa-users';
+                        text = 'PF+PJ'; } else if (hasPF) { icon = 'fa-user';
+                        text = 'Só PF'; } else if (hasPJ) { icon = 'fa-building';
+                        text = 'Só PJ'; }
                     const cat = item.category ? ` [${item.category}]` : '';
                     const br = item.brand ? ` (${item.brand})` : '';
                     const cod = item.codigo ? ` Cód:${item.codigo}` : '';
-                    return `<div class="import-preview-item"><i class="fas ${icon}"></i> ${escapeHtml(item.name)}${cat}${br}${cod}<span class="price-badge">${text}</span></div>`;
+                    const img = item.image ? ` 📷` : '';
+                    return `<div class="import-preview-item"><i class="fas ${icon}"></i> ${escapeHtml(item.name)}${cat}${br}${cod}${img}<span class="price-badge">${text}</span></div>`;
                 }).join('');
                 if (items.length > 10) preview.innerHTML +=
                     `<div class="import-preview-item">... e mais ${items.length - 10} peças</div>`;
@@ -5922,6 +6097,14 @@
             };
             document.getElementById('confirmImport').onchange = (e) => {
                 document.getElementById('importButton').disabled = !e.target.checked;
+            };
+            // Reexecuta a leitura se o checkbox mudar
+            document.getElementById('filterByColH').onchange = function() {
+                const inputFile = document.getElementById('csvFileInput');
+                if (inputFile.files && inputFile.files.length > 0) {
+                    // Dispara o change novamente para reavaliar
+                    inputFile.dispatchEvent(new Event('change'));
+                }
             };
         }
 
@@ -5934,9 +6117,8 @@
             let count = 0;
             items.forEach(item => {
                 const id = database.ref().child('products').push().key;
-                const prices = { PF: 0, PJ: 0 };
-                if (item.type === 'both' || item.type === 'only_pf') prices.PF = item.pricePF;
-                if (item.type === 'both' || item.type === 'only_pj') prices.PJ = item.pricePJ;
+                const prices = { PF: item.pricePF, PJ: item.pricePJ };
+                const image = item.image || DEFAULT_PLACEHOLDER_IMAGE;
                 updates[`products/${id}`] = {
                     id,
                     name: item.name,
@@ -5944,7 +6126,7 @@
                     brand: item.brand || '',
                     codigo: item.codigo || '',
                     description: '',
-                    image: DEFAULT_PLACEHOLDER_IMAGE,
+                    image: image,
                     featured: false,
                     pinned: false,
                     soldOut: false,
@@ -6029,7 +6211,6 @@
 
         // ========== SISTEMA DE USUÁRIOS ==========
 
-        // Carregar dados do usuário atual
         function loadUserData(uid) {
             if (!uid) return;
             database.ref(`users/${uid}`).once('value').then((snapshot) => {
@@ -6055,6 +6236,7 @@
                 updatePriceDisplay();
                 filterProducts();
                 updateCart();
+                renderPromotionBadgesOnly();
             });
         }
 
@@ -6078,22 +6260,18 @@
                 }
                 dot.className = 'status-dot online';
 
-                // Dropdown info
                 document.getElementById('dropdownLogged').style.display = 'block';
                 document.getElementById('dropdownUserName').textContent = currentUser.name || 'Usuário';
                 document.getElementById('dropdownUserType').textContent = currentUser.userType ? (currentUser.userType === 'PF' ? 'Pessoa Física' : 'Pessoa Jurídica') : 'Tipo não definido';
                 document.getElementById('dropdownUserEmail').textContent = currentUser.email || '';
-                // Documento no dropdown
                 const docStr = currentUser.userType === 'PF' ? formatCpfCnpj(currentUser.cpf || '', 'PF') :
                               currentUser.userType === 'PJ' ? formatCpfCnpj(currentUser.cnpj || '', 'PJ') : '';
                 dropdownUserDoc.textContent = docStr;
                 dropdownUserDoc.style.display = docStr ? 'block' : 'none';
 
-                // Mostrar itens do menu
                 menuChangePhoto.style.display = 'flex';
                 menuLogout.style.display = 'flex';
 
-                // Documento no bottom menu
                 if (docStr) {
                     profileDoc.textContent = currentUser.userType === 'PF' ? `CPF: ${docStr}` : `CNPJ: ${docStr}`;
                     profileDoc.style.display = 'block';
@@ -6150,31 +6328,29 @@
             renderContacts();
             updateCategoryTabs();
             updateBrandTabs();
+            renderPromotionBadgesOnly();
         }
 
-        // ========== CLIQUE NO BOTÃO DE PERFIL ==========
         function handleProfileBtnClick() {
             const user = auth.currentUser;
             if (user) {
                 if (!currentUser) {
-                    currentUser = {
-                        uid: user.uid,
-                        email: user.email,
-                        name: user.displayName || 'Usuário',
-                        photoURL: user.photoURL || DEFAULT_USER_AVATAR,
-                        userType: null,
-                        isAdmin: false,
-                        telefone: ''
-                    };
-                    updateProfileUIUser();
+                    database.ref(`users/${user.uid}`).once('value').then((snap) => {
+                        if (snap.exists()) {
+                            loadUserData(user.uid);
+                            toggleProfileDropdown();
+                        } else {
+                            openCompleteProfileModal(user);
+                        }
+                    });
+                } else {
+                    toggleProfileDropdown();
                 }
-                toggleProfileDropdown();
             } else {
                 openLoginModal();
             }
         }
 
-        // ========== DROPDOWN PERFIL ==========
         function toggleProfileDropdown() {
             const dropdown = document.getElementById('profileDropdown');
             if (!dropdown) return;
@@ -6272,7 +6448,6 @@
             }
         }
 
-        // Buscar dados do CNPJ via Brasil API
         async function fetchCnpjData() {
             const cnpj = document.getElementById('registerCnpj').value.replace(/\D/g, '');
             if (cnpj.length !== 14) { showToast('Digite um CNPJ válido com 14 dígitos', 'error'); return; }
@@ -6318,7 +6493,6 @@
             }
         }
 
-        // ========== DO LOGIN ==========
         function doLogin() {
             const email = document.getElementById('loginEmail').value.trim();
             const password = document.getElementById('loginPassword').value;
@@ -6337,7 +6511,6 @@
                 });
         }
 
-        // ========== DO REGISTER ==========
         function doRegister() {
             const name = document.getElementById('registerName').value.trim();
             const email = document.getElementById('registerEmail').value.trim();
@@ -6382,25 +6555,9 @@
             auth.createUserWithEmailAndPassword(email, password)
                 .then((result) => {
                     const user = result.user;
-                    const userData = {
-                        email: email,
-                        name: name,
-                        photoURL: DEFAULT_USER_AVATAR,
-                        userType: userType,
-                        telefone: telefone,
-                        cpf: userType === 'PF' ? cpf : '',
-                        cnpj: userType === 'PJ' ? cnpj : '',
-                        companyData: userType === 'PJ' ? cnpjData : null,
-                        isAdmin: false,
-                        createdAt: Date.now(),
-                        lastAccess: Date.now()
-                    };
-                    return database.ref(`users/${user.uid}`).set(userData);
-                })
-                .then(() => {
                     hideLoading();
                     closeRegisterModal();
-                    showToast('Conta criada com sucesso!');
+                    openCompleteProfileModal(user, { name, telefone, userType, cpf, cnpj, companyData: cnpjData });
                 })
                 .catch((err) => {
                     hideLoading();
@@ -6408,7 +6565,6 @@
                 });
         }
 
-        // ========== LOGIN / REGISTER COM GOOGLE ==========
         function loginWithGoogle() {
             const provider = new firebase.auth.GoogleAuthProvider();
             provider.setCustomParameters({ prompt: 'select_account' });
@@ -6456,10 +6612,12 @@
         }
 
         // ========== COMPLETE PROFILE MODAL ==========
-        let pendingGoogleUser = null;
+        let pendingUser = null;
+        let pendingExtraData = null;
 
-        function openCompleteProfileModal(user) {
-            pendingGoogleUser = user;
+        function openCompleteProfileModal(user, extraData = null) {
+            pendingUser = user;
+            pendingExtraData = extraData;
             let modal = document.getElementById('completeProfileModal');
             if (!modal) {
                 modal = document.createElement('div');
@@ -6471,9 +6629,9 @@
                                 <div class="modal-header"><h2>Complete seu Cadastro</h2></div>
                                 <div class="modal-body">
                                     <div class="product-form">
-                                        <p style="color:#ccc;margin-bottom:15px;">Você entrou com o Google. Agora precisamos saber seu tipo de cliente.</p>
-                                        <div class="form-group"><label>Nome</label><input type="text" id="completeName" value="${user.displayName || ''}"></div>
-                                        <div class="form-group"><label>E-mail</label><input type="text" id="completeEmail" value="${user.email || ''}" disabled></div>
+                                        <p style="color:#ccc;margin-bottom:15px;">Preencha os dados abaixo para finalizar seu cadastro.</p>
+                                        <div class="form-group"><label>Nome <span style="color:#ff6b00;">*</span></label><input type="text" id="completeName" placeholder="Seu nome"></div>
+                                        <div class="form-group"><label>E-mail</label><input type="text" id="completeEmail" disabled></div>
                                         <div class="form-group"><label>Telefone (WhatsApp) <span style="color:#ff6b00;">*</span></label><input type="tel" id="completePhone" placeholder="Apenas números" oninput="this.value=this.value.replace(/\\D/g,'')"></div>
                                         <div class="form-group"><label>Tipo de Cliente <span style="color:#ff6b00;">*</span></label>
                                             <select id="completeUserType" onchange="toggleCompleteDocFields()">
@@ -6494,7 +6652,7 @@
                                                 <div id="completeCnpjResult" style="margin-top:10px;font-size:0.9rem;color:#ccc;"></div>
                                             </div>
                                         </div>
-                                        <button class="btn btn-primary" style="width:100%;" onclick="completeGoogleProfile()"><i class="fas fa-save"></i> Salvar e Continuar</button>
+                                        <button class="btn btn-primary" style="width:100%;" onclick="completeProfile()"><i class="fas fa-save"></i> Salvar e Continuar</button>
                                         <div id="completeError" style="color:#dc3545;margin-top:10px;text-align:center;"></div>
                                     </div>
                                 </div>
@@ -6502,25 +6660,51 @@
                         `;
                 document.body.appendChild(modal);
             }
-            document.getElementById('completeName').value = user.displayName || '';
+
+            document.getElementById('completeName').value = extraData?.name || user.displayName || '';
             document.getElementById('completeEmail').value = user.email || '';
-            document.getElementById('completePhone').value = '';
-            document.getElementById('completeUserType').value = '';
-            document.getElementById('completeDocFields').style.display = 'none';
-            document.getElementById('completeCpf').value = '';
-            document.getElementById('completeCnpj').value = '';
-            document.getElementById('completeCnpjResult').innerHTML = '';
-            document.getElementById('completeError').textContent = '';
+            document.getElementById('completePhone').value = extraData?.telefone || '';
+            if (extraData?.userType) {
+                document.getElementById('completeUserType').value = extraData.userType;
+                toggleCompleteDocFields();
+                if (extraData.userType === 'PF') {
+                    document.getElementById('completeCpf').value = extraData.cpf || '';
+                } else if (extraData.userType === 'PJ') {
+                    document.getElementById('completeCnpj').value = extraData.cnpj || '';
+                    if (extraData.companyData) {
+                        document.getElementById('completeCnpjResult').innerHTML = `
+                                    <div style="background:#222;padding:12px;border-radius:8px;border:1px solid #28a745;">
+                                        <p><strong>Razão Social:</strong> ${escapeHtml(extraData.companyData.razao_social || '')}</p>
+                                        <p><strong>Nome Fantasia:</strong> ${escapeHtml(extraData.companyData.nome_fantasia || '')}</p>
+                                        <p><strong>Situação:</strong> ✅ ATIVA</p>
+                                    </div>
+                                `;
+                        window._completeCnpjData = extraData.companyData;
+                        completeCnpjValidated = true;
+                    }
+                }
+            } else {
+                document.getElementById('completeUserType').value = '';
+                document.getElementById('completeDocFields').style.display = 'none';
+            }
+
             modal.classList.add('active');
             closeLoginModal();
             closeRegisterModal();
             closeProfileDropdown();
+            const closeBtn = modal.querySelector('.modal-close');
+            closeBtn.onclick = function() {
+                closeCompleteProfileModal();
+                auth.signOut();
+                showToast('Cadastro cancelado');
+            };
         }
 
         function closeCompleteProfileModal() {
             const modal = document.getElementById('completeProfileModal');
             if (modal) modal.classList.remove('active');
-            pendingGoogleUser = null;
+            pendingUser = null;
+            pendingExtraData = null;
         }
 
         function toggleCompleteDocFields() {
@@ -6586,8 +6770,8 @@
             }
         }
 
-        function completeGoogleProfile() {
-            const user = pendingGoogleUser;
+        function completeProfile() {
+            const user = pendingUser;
             if (!user) { showToast('Erro: usuário não encontrado', 'error'); return; }
             const name = document.getElementById('completeName').value.trim();
             const telefone = document.getElementById('completePhone').value.replace(/\D/g, '');
@@ -6646,7 +6830,6 @@
                 });
         }
 
-        // ========== LOGOUT ==========
         function logoutUser() {
             if (confirm('Deseja sair?')) {
                 auth.signOut();
@@ -6872,12 +7055,7 @@
                 const uid = user.uid;
                 if (user.email === 'cim@gmail.com') {
                     database.ref(`users/${uid}`).once('value').then((snapshot) => {
-                        if (snapshot.exists()) {
-                            database.ref(`users/${uid}/lastAccess`).set(Date.now());
-                            isAdmin = true;
-                            isAdminUser = true;
-                            loadUserData(uid);
-                        } else {
+                        if (!snapshot.exists()) {
                             const adminData = {
                                 email: user.email,
                                 name: 'Admin CIM',
@@ -6893,6 +7071,11 @@
                                 isAdminUser = true;
                                 loadUserData(uid);
                             });
+                        } else {
+                            isAdmin = true;
+                            isAdminUser = true;
+                            database.ref(`users/${uid}/lastAccess`).set(Date.now());
+                            loadUserData(uid);
                         }
                     });
                 } else {
@@ -6907,19 +7090,8 @@
                             if (user.providerData && user.providerData[0]?.providerId === 'google.com') {
                                 openCompleteProfileModal(user);
                             } else {
-                                const basicData = {
-                                    email: user.email || '',
-                                    name: user.displayName || user.email || 'Usuário',
-                                    photoURL: user.photoURL || DEFAULT_USER_AVATAR,
-                                    userType: null,
-                                    isAdmin: false,
-                                    telefone: '',
-                                    createdAt: Date.now(),
-                                    lastAccess: Date.now()
-                                };
-                                database.ref(`users/${uid}`).set(basicData).then(() => {
-                                    loadUserData(uid);
-                                });
+                                showToast('Complete seu cadastro', 'info');
+                                openCompleteProfileModal(user);
                             }
                         }
                     });
@@ -6973,6 +7145,7 @@
                 filterProducts();
                 updateProductCategorySelect();
                 updateProductBrandSelect();
+                renderPromotionBadgesOnly();
             });
 
             database.ref('contactInfo').on('value', (snapshot) => {
@@ -6991,8 +7164,10 @@
                 updatePriceDisplay();
             });
 
-            // Verificar expiração a cada 30 segundos
+            // Verificação de expiração a cada 30 segundos
             setInterval(() => verificarExpiracao(), 30000);
+            // Atualiza badges a cada minuto (para casos de promoções que expiraram)
+            setInterval(() => renderPromotionBadgesOnly(), 60000);
         }
 
         // ========== INICIALIZAR ==========
@@ -7095,7 +7270,7 @@
         window.fetchCompleteCnpjData = fetchCompleteCnpjData;
         window.toggleRegisterDocFields = toggleRegisterDocFields;
         window.toggleCompleteDocFields = toggleCompleteDocFields;
-        window.completeGoogleProfile = completeGoogleProfile;
+        window.completeProfile = completeProfile;
         window.closeCompleteProfileModal = closeCompleteProfileModal;
         window.onSearchFocus = onSearchFocus;
         window.onSearchBlur = onSearchBlur;
@@ -7114,7 +7289,8 @@
         console.log('🚀 CIM - Sistema carregado com sucesso!');
         console.log('📌 Administrador: cim@gmail.com');
         console.log('🔐 Autenticação Google configurada.');
-        console.log('🔥 Promoções ativas: aguardando dados...');
+        console.log('🔥 Promoções ativas (sem cronômetro visível).');
+        console.log('📥 Importação com filtro opcional pela coluna H (A e B).');
     </script>
 </body>
 </html>
