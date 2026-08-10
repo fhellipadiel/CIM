@@ -1606,25 +1606,8 @@
         .price-hidden .product-price {
             display: none;
         }
-        .btn-login-trigger {
-            background: #ff6b00;
-            color: #000;
-            border: none;
-            border-radius: 6px;
-            padding: 8px 12px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: 0.3s;
-            width: 100%;
-            text-align: center;
-            font-size: 0.85rem;
-        }
-        .btn-login-trigger:hover {
-            background: #e05e00;
-            transform: scale(1.02);
-        }
 
-        /* ===== NOVO ESTILO PARA LINK DE LOGIN ===== */
+        /* Estilo do link de login - apenas texto branco, sem sublinhado */
         .login-prompt {
             display: block;
             width: 100%;
@@ -1635,7 +1618,7 @@
             border: none;
             cursor: pointer;
             font-size: 0.85rem;
-            text-decoration: underline;
+            text-decoration: none;
             padding: 4px 0;
             transition: color 0.2s;
         }
@@ -1649,7 +1632,7 @@
             border: none;
             cursor: pointer;
             font-size: 0.95rem;
-            text-decoration: underline;
+            text-decoration: none;
             padding: 8px 12px;
             transition: color 0.2s;
         }
@@ -4906,8 +4889,9 @@
             }
 
             const img = product.image || DEFAULT_PLACEHOLDER_IMAGE;
+            // Link de login para visitantes (sem emoji, sem sublinhado)
             const loginPrompt = (!currentUser && !pricesHidden) ?
-                `<div class="login-prompt" onclick="openLoginModal()">🔑 Entrar para ver preços</div>` :
+                `<button class="login-prompt" onclick="openLoginModal()">Entrar</button>` :
                 '';
 
             card.innerHTML = `
@@ -5982,10 +5966,10 @@
                     `<div class="modal-price-label"><i class="fas ${icon}"></i> Preço ${label}</div><div>${priceHtml}</div>`;
                 document.getElementById('modalAddButton').style.display = 'block';
             } else {
-                // Visitante: exibe link para login em vez do preço
+                // Visitante: exibe link para login em vez do preço (sem emoji, sem sublinhado)
                 if (!pricesHidden) {
                     priceDisplay =
-                        `<button class="login-prompt-modal" onclick="openLoginModal()">🔑 Entrar para ver preços</button>`;
+                        `<button class="login-prompt-modal" onclick="openLoginModal()">Entrar</button>`;
                     document.getElementById('modalAddButton').style.display = 'none';
                 } else {
                     priceDisplay = '';
