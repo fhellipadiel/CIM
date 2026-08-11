@@ -510,7 +510,7 @@
             display: flex;
             align-items: center;
             gap: 6px;
-            background: transparent; /* removido fundo */
+            background: transparent;
             border-radius: 0;
             border: none;
             padding: 4px 0;
@@ -549,7 +549,7 @@
             margin: 8px 0 4px;
             letter-spacing: 1px;
             opacity: 0.8;
-            display: none; /* oculto por padrão, será exibido via JS se houver marcas */
+            display: none;
         }
         .brand-title.visible {
             display: block;
@@ -1608,7 +1608,7 @@
             margin-right: 6px;
         }
         .product-price .price-value.promocional {
-            color: #ffffff; /* alterado de #E60000 para branco */
+            color: #ffffff;
             font-size: 1.3rem;
         }
         .price-hidden .product-price {
@@ -1970,7 +1970,7 @@
             margin-right: 10px;
         }
         .modal-price-value.promocional {
-            color: #ffffff; /* branco */
+            color: #ffffff;
             font-size: 2.2rem;
         }
         .modal-price-hidden {
@@ -2759,14 +2759,25 @@
             color: #ccc;
             display: flex;
             justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 4px;
         }
-        .click-history-item .click-date {
-            color: #888;
-            font-size: 0.75rem;
+        .click-history-item .click-user {
+            font-weight: 500;
+            color: #ff6b00;
+            font-size: 0.8rem;
         }
         .click-history-item .click-product {
             color: #fff;
             font-weight: 500;
+            flex: 1;
+            min-width: 100px;
+        }
+        .click-history-item .click-date {
+            color: #888;
+            font-size: 0.75rem;
+            white-space: nowrap;
         }
 
         /* ========== METAS BATIDAS ========== */
@@ -3047,6 +3058,49 @@
         #importFormatSelect {
             display: none;
         }
+
+        /* ========== ESTILOS NOVOS ========== */
+        .no-price-product-item {
+            background: #222;
+            border-radius: 8px;
+            padding: 8px 12px;
+            margin-bottom: 6px;
+            border-left: 3px solid #ff6b00;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .no-price-product-item .np-name {
+            color: #fff;
+            font-weight: 500;
+        }
+        .no-price-product-item .np-info {
+            color: #aaa;
+            font-size: 0.8rem;
+        }
+        .no-price-count {
+            background: #ff6b00;
+            color: #000;
+            padding: 2px 12px;
+            border-radius: 30px;
+            font-weight: bold;
+        }
+        .admin-session-item .session-hide-options {
+            font-size: 0.7rem;
+            color: #aaa;
+            display: flex;
+            gap: 8px;
+            margin-left: 10px;
+        }
+        .admin-session-item .session-hide-options label {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            cursor: pointer;
+        }
+        .admin-session-item .session-hide-options input[type="checkbox"] {
+            accent-color: #ff6b00;
+        }
     </style>
 </head>
 <body>
@@ -3206,6 +3260,9 @@
                     <button class="admin-btn primary" onclick="openAdminUsersModal()"><i class="fas fa-users-cog"></i> Usuários</button>
                     <button class="admin-btn promo" onclick="openPromocoesModal()"><i class="fas fa-percent"></i> Promoções</button>
                     <button class="admin-btn outline" onclick="logoutAdmin()"><i class="fas fa-sign-out-alt"></i> Sair</button>
+                    <!-- NOVOS BOTÕES -->
+                    <button class="admin-btn warning" onclick="openNoPriceModal()"><i class="fas fa-exclamation-triangle"></i> Sem Preço</button>
+                    <button class="admin-btn info" onclick="openSetMetaModal()"><i class="fas fa-bullseye"></i> Definir Meta</button>
                 </div>
             </div>
 
@@ -3577,6 +3634,14 @@
                         </div>
                     </div>
                     <div class="form-group"><label>Nome da Sessão <span style="color:#ff6b00;">*</span></label><input type="text" id="sessionName" placeholder="Ex: Freios, Motor, Suspensão"></div>
+                    <!-- Campos para ocultar preços -->
+                    <div class="form-group">
+                        <label>Ocultar preços para:</label>
+                        <div style="display:flex;gap:20px;margin-top:6px;">
+                            <label><input type="checkbox" id="sessionHidePF"> PF</label>
+                            <label><input type="checkbox" id="sessionHidePJ"> PJ</label>
+                        </div>
+                    </div>
                     <div style="display:flex;gap:10px;margin-top:20px;">
                         <button class="btn btn-outline" style="flex:1;" onclick="closeSessionModal()">Cancelar</button>
                         <button class="btn btn-primary" style="flex:1;" onclick="saveSession()"><i class="fas fa-save"></i> Salvar Sessão</button>
@@ -3737,6 +3802,8 @@
                             <option value="sessao">Sessão</option>
                             <option value="categoria">Categoria</option>
                             <option value="produto">Produto Específico</option>
+                            <option value="todas_sessoes">Todas as Sessões</option>
+                            <option value="todas_categorias">Todas as Categorias</option>
                         </select>
                     </div>
                     <div class="form-group"><label>Selecione o alvo <span style="color:#ff6b00;">*</span></label>
@@ -3759,6 +3826,37 @@
                         <button class="btn btn-outline" style="flex:1;" onclick="closeNovaPromocaoModal()">Cancelar</button>
                         <button class="btn btn-primary" style="flex:1;" onclick="salvarPromocao()"><i class="fas fa-save"></i> Salvar Promoção</button>
                     </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== MODAL PRODUTOS SEM PREÇO ========== -->
+    <div class="modal" id="noPriceModal">
+        <div class="modal-content large">
+            <button class="modal-close" onclick="closeNoPriceModal()"><i class="fas fa-times"></i></button>
+            <div class="modal-header"><h2><i class="fas fa-exclamation-triangle"></i> Produtos sem Preço</h2></div>
+            <div class="modal-body">
+                <p style="color:#ccc;margin-bottom:12px;">Lista de produtos com preço PF ou PJ igual a R$ 0,00.</p>
+                <div id="noPriceList" style="max-height:400px;overflow-y:auto;"></div>
+                <div style="margin-top:15px;text-align:right;color:#ff6b00;" id="noPriceCount"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== MODAL DEFINIR META ========== -->
+    <div class="modal" id="setMetaModal">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeSetMetaModal()"><i class="fas fa-times"></i></button>
+            <div class="modal-header"><h2><i class="fas fa-bullseye"></i> Definir Meta em Massa</h2></div>
+            <div class="modal-body">
+                <p style="color:#ccc;margin-bottom:12px;">Defina uma meta de cliques para todos os produtos. A meta atual será substituída.</p>
+                <div class="form-group"><label>Nova Meta (cliques)</label>
+                    <input type="number" id="metaMassValue" min="0" step="1" placeholder="Ex: 100">
+                </div>
+                <div style="display:flex;gap:10px;margin-top:20px;">
+                    <button class="btn btn-outline" style="flex:1;" onclick="closeSetMetaModal()">Cancelar</button>
+                    <button class="btn btn-primary" style="flex:1;" onclick="applyMetaMass()"><i class="fas fa-check"></i> Aplicar</button>
                 </div>
             </div>
         </div>
@@ -3838,6 +3936,11 @@
         let brandClicks = {};
         let promocoes = {};
         let editingPromocaoId = null;
+        // Novas variáveis
+        let sessionHidePF = {};
+        let sessionHidePJ = {};
+        let categoryHidePF = {};
+        let categoryHidePJ = {};
 
         // ========== SISTEMA DE USUÁRIOS ==========
         let currentUser = null;
@@ -3884,7 +3987,6 @@
         const profileDoc = document.getElementById('profileDoc');
         const dropdownUserDoc = document.getElementById('dropdownUserDoc');
 
-        // Título das marcas
         const brandTitle = document.getElementById('brandTitle');
 
         // ========== UTILITÁRIOS ==========
@@ -4040,9 +4142,26 @@
             if (pricesHidden) return 0;
             if (currentUser && currentUser.userType) {
                 const type = currentUser.userType;
+                // Verifica ocultação por sessão/categoria
+                if (shouldHidePriceForItem(item, type)) return 0;
                 return item.prices?.[type] || 0;
             }
             return 0;
+        }
+
+        function shouldHidePriceForItem(item, userType) {
+            // Verifica se a sessão ou categoria do produto tem ocultação para este tipo
+            if (item.sessionId && sessions[item.sessionId]) {
+                const sess = sessions[item.sessionId];
+                if (userType === 'PF' && sess.hidePF) return true;
+                if (userType === 'PJ' && sess.hidePJ) return true;
+            }
+            if (item.category) {
+                // Podemos armazenar ocultação por categoria no objeto categoriesHide
+                if (userType === 'PF' && categoryHidePF[item.category]) return true;
+                if (userType === 'PJ' && categoryHidePJ[item.category]) return true;
+            }
+            return false;
         }
 
         function getPriceDisplay(item) {
@@ -4549,10 +4668,13 @@
                 const status = p.ativa ? '🟢 Ativa' : '🔴 Inativa';
                 const cliente = p.tipoCliente === 'ambos' ? 'Ambos' : p.tipoCliente;
                 const expira = p.dataExpiracao ? formatDateTime(p.dataExpiracao) : '—';
+                let alvoDisplay = p.alvoNome;
+                if (p.tipo === 'todas_sessoes') alvoDisplay = 'Todas as Sessões';
+                else if (p.tipo === 'todas_categorias') alvoDisplay = 'Todas as Categorias';
                 html += `
                             <div class="admin-session-item" style="border-left:4px solid ${p.ativa ? '#28a745' : '#dc3545'};">
                                 <div style="flex:1;">
-                                    <div><strong>${escapeHtml(p.alvoNome)}</strong> (${p.tipo})</div>
+                                    <div><strong>${escapeHtml(alvoDisplay)}</strong> (${p.tipo})</div>
                                     <div style="font-size:0.85rem;color:#aaa;">${p.descontoPercentual}% para ${cliente} | Expira: ${expira}</div>
                                     <div style="font-size:0.8rem;color:${p.ativa ? '#28a745' : '#dc3545'};">${status}</div>
                                 </div>
@@ -4611,6 +4733,8 @@
             } else if (tipo === 'produto') {
                 itens = products.map(p => ({ id: p.id, nome: p.name }));
                 itens.sort((a, b) => (a.nome || '').localeCompare(b.nome || ''));
+            } else if (tipo === 'todas_sessoes' || tipo === 'todas_categorias') {
+                itens = [{ id: '__all__', nome: 'Aplicar a todos' }];
             }
             select.innerHTML = '';
             itens.forEach(item => {
@@ -4641,10 +4765,17 @@
             const dataExpiracao = new Date(expiracao).getTime();
             if (dataExpiracao < Date.now()) { showToast('A data deve ser futura ou igual ao agora', 'error'); return; }
 
+            let finalAlvoId = alvoId;
+            let finalAlvoNome = alvoNome;
+            if (tipo === 'todas_sessoes') { finalAlvoId = '__all_sessoes__';
+                finalAlvoNome = 'Todas as Sessões'; }
+            if (tipo === 'todas_categorias') { finalAlvoId = '__all_categorias__';
+                finalAlvoNome = 'Todas as Categorias'; }
+
             const data = {
                 tipo,
-                alvoId,
-                alvoNome,
+                alvoId: finalAlvoId,
+                alvoNome: finalAlvoNome,
                 tipoCliente,
                 descontoPercentual: desconto,
                 dataExpiracao,
@@ -4692,7 +4823,7 @@
             });
         }
 
-        // ========== RENDERIZAÇÃO APENAS DOS BADGES (SEM CRONÔMETRO) ==========
+        // ========== RENDERIZAÇÃO APENAS DOS BADGES ==========
         function renderPromotionBadgesOnly() {
             const now = Date.now();
             // Sessões
@@ -4703,7 +4834,12 @@
                 if (oldBadge) oldBadge.remove();
                 for (let id in promocoes) {
                     const promo = promocoes[id];
-                    if (promo.ativa && promo.tipo === 'sessao' && promo.alvoId === sessionId && promo.dataExpiracao > now) {
+                    if (!promo.ativa) continue;
+                    if (promo.dataExpiracao && promo.dataExpiracao < now) continue;
+                    let match = false;
+                    if (promo.tipo === 'sessao' && promo.alvoId === sessionId) match = true;
+                    if (promo.tipo === 'todas_sessoes') match = true;
+                    if (match) {
                         const badge = document.createElement('div');
                         badge.className = 'session-promo-badge';
                         badge.textContent = `${promo.descontoPercentual}%`;
@@ -4721,7 +4857,12 @@
                 if (oldBadge) oldBadge.remove();
                 for (let id in promocoes) {
                     const promo = promocoes[id];
-                    if (promo.ativa && promo.tipo === 'categoria' && promo.alvoId === cat && promo.dataExpiracao > now) {
+                    if (!promo.ativa) continue;
+                    if (promo.dataExpiracao && promo.dataExpiracao < now) continue;
+                    let match = false;
+                    if (promo.tipo === 'categoria' && promo.alvoId === cat) match = true;
+                    if (promo.tipo === 'todas_categorias') match = true;
+                    if (match) {
                         const badge = document.createElement('span');
                         badge.className = 'category-promo-badge';
                         badge.textContent = `${promo.descontoPercentual}%`;
@@ -4744,6 +4885,8 @@
                 if (promo.tipo === 'produto' && promo.alvoId === product.id) match = true;
                 else if (promo.tipo === 'categoria' && promo.alvoId === product.category) match = true;
                 else if (promo.tipo === 'sessao' && promo.alvoId === product.sessionId) match = true;
+                else if (promo.tipo === 'todas_sessoes' && product.sessionId) match = true;
+                else if (promo.tipo === 'todas_categorias' && product.category) match = true;
                 if (match) {
                     const cliente = promo.tipoCliente;
                     const userType = currentUser ? currentUser.userType : null;
@@ -4822,13 +4965,13 @@
             let priceDisplay = '';
             const showPrice = !pricesHidden;
             const userType = currentUser ? currentUser.userType : null;
+            const hideForUser = shouldHidePriceForItem(product, userType);
 
             if (isAdmin) {
                 const pf = precoOriginalPF.toFixed(2);
                 const pj = precoOriginalPJ.toFixed(2);
                 const showPF = !pricesHidden || (pricesHidden !== 'PF' && pricesHidden !== 'both');
                 const showPJ = !pricesHidden || (pricesHidden !== 'PJ' && pricesHidden !== 'both');
-
                 let html = '';
                 if (showPF) {
                     let priceHtml = `<div class="price-value">R$ ${pf}</div>`;
@@ -4857,13 +5000,17 @@
                 const precoPromo = userType === 'PF' ? precoPromoPF : precoPromoPJ;
                 const label = userType === 'PF' ? 'Pessoa Física' : 'Pessoa Jurídica';
                 const icon = userType === 'PF' ? 'fa-user' : 'fa-building';
-                let priceHtml = `<div class="price-value">R$ ${precoOriginal.toFixed(2)}</div>`;
-                if (isPromo && precoPromo > 0) {
-                    priceHtml =
-                        `<span class="price-value original">R$ ${precoOriginal.toFixed(2)}</span> <span class="price-value promocional">R$ ${precoPromo.toFixed(2)}</span>`;
+                if (hideForUser) {
+                    priceDisplay = `<div class="product-price"><div class="price-label"><i class="fas ${icon}"></i> Preço oculto</div><div class="price-value">---</div></div>`;
+                } else {
+                    let priceHtml = `<div class="price-value">R$ ${precoOriginal.toFixed(2)}</div>`;
+                    if (isPromo && precoPromo > 0) {
+                        priceHtml =
+                            `<span class="price-value original">R$ ${precoOriginal.toFixed(2)}</span> <span class="price-value promocional">R$ ${precoPromo.toFixed(2)}</span>`;
+                    }
+                    priceDisplay =
+                        `<div class="product-price"><div class="price-label"><i class="fas ${icon}"></i> Preço ${label}</div>${priceHtml}</div>`;
                 }
-                priceDisplay =
-                    `<div class="product-price"><div class="price-label"><i class="fas ${icon}"></i> Preço ${label}</div>${priceHtml}</div>`;
             } else {
                 priceDisplay = '';
             }
@@ -4923,6 +5070,12 @@
         function loadSessions() {
             database.ref('sessions').on('value', (snapshot) => {
                 sessions = snapshot.val() || {};
+                // Carregar configurações de ocultação
+                Object.keys(sessions).forEach(id => {
+                    const s = sessions[id];
+                    if (s.hidePF === undefined) s.hidePF = false;
+                    if (s.hidePJ === undefined) s.hidePJ = false;
+                });
                 updateSessionsCarousel();
                 updateSessionsList();
                 updateProductSessionSelect();
@@ -4997,7 +5150,10 @@
                 sessionName: sessions[sessionId].name || 'Desconhecida',
                 timestamp: Date.now(),
                 date: new Date().toLocaleDateString('pt-BR'),
-                time: new Date().toLocaleTimeString('pt-BR')
+                time: new Date().toLocaleTimeString('pt-BR'),
+                userId: currentUser ? currentUser.uid : 'visitante',
+                userName: currentUser ? (currentUser.name || currentUser.email || 'Usuário') : 'Visitante',
+                userType: currentUser ? (currentUser.userType || '') : ''
             };
             database.ref('clickLogs').push(logEntry);
             setTimeout(() => updateSessionsCarousel(), 100);
@@ -5015,9 +5171,15 @@
             }
             let html = '';
             sessionArray.forEach((s, idx) => {
+                const hidePF = s.hidePF ? '✔ PF' : '';
+                const hidePJ = s.hidePJ ? '✔ PJ' : '';
                 html += `<div class="admin-session-item">
                             <img src="${s.image || DEFAULT_SESSION_IMAGE}" onerror="this.src='${DEFAULT_SESSION_IMAGE}'">
                             <span class="session-name">${escapeHtml(s.name)}</span>
+                            <div class="session-hide-options">
+                                <label><input type="checkbox" ${s.hidePF ? 'checked' : ''} onchange="toggleSessionHide('${s.id}', 'PF', this.checked)"> PF</label>
+                                <label><input type="checkbox" ${s.hidePJ ? 'checked' : ''} onchange="toggleSessionHide('${s.id}', 'PJ', this.checked)"> PJ</label>
+                            </div>
                             <div class="session-actions">
                                 ${idx > 0 ? `<button class="move-up" onclick="moveSession('${s.id}', -1)"><i class="fas fa-chevron-up"></i></button>` : ''}
                                 ${idx < sessionArray.length - 1 ? `<button class="move-down" onclick="moveSession('${s.id}', 1)"><i class="fas fa-chevron-down"></i></button>` : ''}
@@ -5027,6 +5189,11 @@
                         </div>`;
             });
             container.innerHTML = html;
+        }
+
+        function toggleSessionHide(sessionId, type, checked) {
+            const field = type === 'PF' ? 'hidePF' : 'hidePJ';
+            database.ref(`sessions/${sessionId}/${field}`).set(checked);
         }
 
         function moveSession(id, direction) {
@@ -5058,6 +5225,8 @@
             document.getElementById('sessionImagePreview').style.display = 'none';
             document.getElementById('sessionImageUploadArea').style.display = 'block';
             document.getElementById('sessionImageInput').value = '';
+            document.getElementById('sessionHidePF').checked = false;
+            document.getElementById('sessionHidePJ').checked = false;
             currentSessionImage = null;
             document.getElementById('sessionModal').classList.add('active');
             const input = document.getElementById('sessionImageInput');
@@ -5082,6 +5251,8 @@
             editingSessionId = id;
             document.getElementById('sessionModalTitle').textContent = 'Editar Sessão';
             document.getElementById('sessionName').value = s.name || '';
+            document.getElementById('sessionHidePF').checked = s.hidePF || false;
+            document.getElementById('sessionHidePJ').checked = s.hidePJ || false;
             if (s.image && s.image !== DEFAULT_SESSION_IMAGE) {
                 document.getElementById('previewSessionImage').src = s.image;
                 document.getElementById('sessionImagePreview').style.display = 'block';
@@ -5118,13 +5289,16 @@
             const name = document.getElementById('sessionName').value.trim();
             if (!name) { showToast('Nome obrigatório', 'error'); return; }
             const image = currentSessionImage || DEFAULT_SESSION_IMAGE;
-            const data = { name, image, order: Date.now() };
+            const hidePF = document.getElementById('sessionHidePF').checked;
+            const hidePJ = document.getElementById('sessionHidePJ').checked;
+            const data = { name, image, order: Date.now(), hidePF, hidePJ };
             if (editingSessionId) {
                 database.ref(`sessions/${editingSessionId}`).update(data).then(() => { showToast('Atualizada');
                     closeSessionModal(); });
             } else {
                 const newId = database.ref().child('sessions').push().key;
-                database.ref(`sessions/${newId}`).set({ id: newId, ...data }).then(() => { showToast('Adicionada');
+                data.id = newId;
+                database.ref(`sessions/${newId}`).set(data).then(() => { showToast('Adicionada');
                     closeSessionModal(); });
             }
         }
@@ -5138,22 +5312,17 @@
                 updateBrandTabs();
                 updateProductBrandSelect();
                 updateBrandsList();
-                // Controla exibição do título
                 const hasBrands = Object.keys(brands).length > 0;
                 brandTitle.classList.toggle('visible', hasBrands);
-                // Pausa/retoma animação conforme interação
                 setupBrandMarqueeInteraction();
             });
         }
 
-        // Interação com o carrossel de marcas (pausa ao hover/arraste)
         function setupBrandMarqueeInteraction() {
             const track = document.getElementById('brandTabs');
             if (!track) return;
-            // Pausa ao passar o mouse
             track.addEventListener('mouseenter', () => { track.classList.add('paused'); });
             track.addEventListener('mouseleave', () => { track.classList.remove('paused'); });
-            // Pausa durante arraste (touch/mouse)
             let isDragging = false;
             track.addEventListener('mousedown', () => { isDragging = true;
                 track.classList.add('paused'); });
@@ -5354,6 +5523,8 @@
             ordered.forEach(c => {
                 const isActive = selectedCategory === c;
                 const clicks = categoryClicks[c] || 0;
+                const hidePF = categoryHidePF[c] ? '✔' : '';
+                const hidePJ = categoryHidePJ[c] ? '✔' : '';
                 html += `<div class="category-tab ${isActive ? 'active' : ''} ${isAdmin ? 'sortable' : ''}" data-category="${c}" onclick="selectCategory('${c}')">`;
                 html += `<span class="cat-label">${escapeHtml(c)}</span>`;
                 if (isAdmin) {
@@ -5362,6 +5533,7 @@
                     `<span class="cat-edit-icon" onclick="event.stopPropagation(); editCategory('${c}')"><i class="fas fa-pencil-alt"></i></span>`;
                     html +=
                         `<button class="cat-delete-btn" onclick="event.stopPropagation(); deleteCategory('${c}')"><i class="fas fa-times"></i></button>`;
+                    // Opções de ocultação (serão adicionadas em modal separado, mas podemos deixar inline)
                 }
                 html += `</div>`;
             });
@@ -5429,6 +5601,11 @@
             });
             const newOrder = categoryOrder.filter(c => c !== categoryName);
             updates['settings/categoryOrder'] = newOrder;
+            // Remove ocultações
+            delete categoryHidePF[categoryName];
+            delete categoryHidePJ[categoryName];
+            updates['categoryHidePF'] = categoryHidePF;
+            updates['categoryHidePJ'] = categoryHidePJ;
             database.ref().update(updates).then(() => {
                 showToast('Categoria removida');
                 products.forEach(p => { if (p.category === categoryName) p.category = ''; });
@@ -5449,6 +5626,13 @@
             });
             const newOrder = categoryOrder.map(c => c === oldName ? newName : c);
             updates['settings/categoryOrder'] = newOrder;
+            // Atualiza ocultações
+            if (categoryHidePF[oldName]) { categoryHidePF[newName] = categoryHidePF[oldName];
+                delete categoryHidePF[oldName]; }
+            if (categoryHidePJ[oldName]) { categoryHidePJ[newName] = categoryHidePJ[oldName];
+                delete categoryHidePJ[oldName]; }
+            updates['categoryHidePF'] = categoryHidePF;
+            updates['categoryHidePJ'] = categoryHidePJ;
             database.ref().update(updates).then(() => {
                 showToast(`Categoria renomeada para "${newName}"`);
                 products.forEach(p => { if (p.category === oldName) p.category = newName; });
@@ -5489,6 +5673,7 @@
                         database.ref('settings/categoryOrder').set(newOrder);
                     }
                 });
+                // Suporte a touch para mobile (mas pediram para funcionar no computador, já funciona)
             });
         }
 
@@ -5820,7 +6005,10 @@
                 productName: product.name,
                 timestamp: Date.now(),
                 date: new Date().toLocaleDateString('pt-BR'),
-                time: new Date().toLocaleTimeString('pt-BR')
+                time: new Date().toLocaleTimeString('pt-BR'),
+                userId: currentUser ? currentUser.uid : 'visitante',
+                userName: currentUser ? (currentUser.name || currentUser.email || 'Usuário') : 'Visitante',
+                userType: currentUser ? (currentUser.userType || '') : ''
             };
             database.ref('clickLogs').push(logEntry);
             const meta = product.metaClicks || 0;
@@ -5886,7 +6074,7 @@
 
         // ========== HISTÓRICO DE CLIQUES ==========
         function loadClickHistory() {
-            database.ref('clickLogs').orderByChild('timestamp').limitToLast(200).on('value', (snapshot) => {
+            database.ref('clickLogs').orderByChild('timestamp').limitToLast(500).on('value', (snapshot) => {
                 const data = snapshot.val();
                 if (data) { clickHistory = Object.values(data);
                     clickHistory.reverse(); } else { clickHistory = []; }
@@ -5899,12 +6087,17 @@
             if (clickHistory.length === 0) {
                 list.innerHTML = '<div style="color:#888;padding:20px;text-align:center;">Nenhum clique registrado ainda.</div>';
             } else {
-                list.innerHTML = clickHistory.map(log => `
-                            <div class="click-history-item">
-                                <span class="click-product">${escapeHtml(log.productName || 'Produto')}</span>
-                                <span class="click-date">${log.date || ''} ${log.time || ''}</span>
-                            </div>
-                        `).join('');
+                list.innerHTML = clickHistory.map(log => {
+                    const user = log.userName || 'Visitante';
+                    const tipo = log.userType ? ` (${log.userType})` : '';
+                    return `
+                                <div class="click-history-item">
+                                    <span class="click-product">${escapeHtml(log.productName || 'Produto')}</span>
+                                    <span class="click-user">${escapeHtml(user)}${tipo}</span>
+                                    <span class="click-date">${log.date || ''} ${log.time || ''}</span>
+                                </div>
+                            `;
+                }).join('');
             }
             document.getElementById('clickHistoryModal').classList.add('active');
         }
@@ -5917,6 +6110,52 @@
                 showToast('Histórico limpo');
                 clickHistory = [];
                 openClickHistoryModal();
+            });
+        }
+
+        // ========== NOVAS FUNÇÕES: PRODUTOS SEM PREÇO ==========
+        function openNoPriceModal() {
+            if (!isAdmin) return;
+            const list = document.getElementById('noPriceList');
+            const count = document.getElementById('noPriceCount');
+            const noPrice = products.filter(p => (p.prices?.PF || 0) === 0 || (p.prices?.PJ || 0) === 0);
+            if (noPrice.length === 0) {
+                list.innerHTML = '<div style="color:#888;padding:10px;">Nenhum produto com preço zero.</div>';
+                count.textContent = '';
+            } else {
+                list.innerHTML = noPrice.map(p => `
+                            <div class="no-price-product-item">
+                                <span class="np-name">${escapeHtml(p.name)}</span>
+                                <span class="np-info">PF: R$ ${(p.prices?.PF || 0).toFixed(2)} | PJ: R$ ${(p.prices?.PJ || 0).toFixed(2)}</span>
+                            </div>
+                        `).join('');
+                count.textContent = `Total: ${noPrice.length} produto(s)`;
+            }
+            document.getElementById('noPriceModal').classList.add('active');
+        }
+
+        function closeNoPriceModal() { document.getElementById('noPriceModal').classList.remove('active'); }
+
+        // ========== NOVAS FUNÇÕES: DEFINIR META EM MASSA ==========
+        function openSetMetaModal() {
+            if (!isAdmin) return;
+            document.getElementById('metaMassValue').value = '';
+            document.getElementById('setMetaModal').classList.add('active');
+        }
+
+        function closeSetMetaModal() { document.getElementById('setMetaModal').classList.remove('active'); }
+
+        function applyMetaMass() {
+            const meta = parseInt(document.getElementById('metaMassValue').value);
+            if (isNaN(meta) || meta < 0) { showToast('Digite um número válido', 'error'); return; }
+            if (!confirm(`Definir meta de ${meta} cliques para todos os ${products.length} produtos?`)) return;
+            const updates = {};
+            products.forEach(p => {
+                updates[`products/${p.id}/metaClicks`] = meta;
+            });
+            database.ref().update(updates).then(() => {
+                showToast(`Meta definida para ${meta} em todos os produtos`);
+                closeSetMetaModal();
             });
         }
 
@@ -5948,6 +6187,7 @@
             const precoPromoPF = calcularPrecoComDesconto(precoOriginalPF, desconto);
             const precoPromoPJ = calcularPrecoComDesconto(precoOriginalPJ, desconto);
             const isPromo = promo && (precoPromoPF > 0 || precoPromoPJ > 0);
+            const hideForUser = shouldHidePriceForItem(product, userType);
 
             if (isAdmin) {
                 const pf = precoOriginalPF.toFixed(2);
@@ -5985,13 +6225,18 @@
                 const precoPromo = userType === 'PF' ? precoPromoPF : precoPromoPJ;
                 const label = userType === 'PF' ? 'PF' : 'PJ';
                 const icon = userType === 'PF' ? 'fa-user' : 'fa-building';
-                let priceHtml = `R$ ${precoOriginal.toFixed(2)}`;
-                if (isPromo && precoPromo > 0) {
-                    priceHtml =
-                        `<span class="modal-price-value original">R$ ${precoOriginal.toFixed(2)}</span> <span class="modal-price-value promocional">R$ ${precoPromo.toFixed(2)}</span>`;
+                if (hideForUser) {
+                    priceDisplay =
+                    `<div class="modal-price-label"><i class="fas ${icon}"></i> Preço oculto</div><div>---</div>`;
+                } else {
+                    let priceHtml = `R$ ${precoOriginal.toFixed(2)}`;
+                    if (isPromo && precoPromo > 0) {
+                        priceHtml =
+                            `<span class="modal-price-value original">R$ ${precoOriginal.toFixed(2)}</span> <span class="modal-price-value promocional">R$ ${precoPromo.toFixed(2)}</span>`;
+                    }
+                    priceDisplay =
+                        `<div class="modal-price-label"><i class="fas ${icon}"></i> Preço ${label}</div><div>${priceHtml}</div>`;
                 }
-                priceDisplay =
-                    `<div class="modal-price-label"><i class="fas ${icon}"></i> Preço ${label}</div><div>${priceHtml}</div>`;
                 document.getElementById('modalAddButton').style.display = 'block';
             } else {
                 if (!pricesHidden) {
@@ -7181,6 +7426,16 @@
                 updateBrandTabs();
             });
 
+            // Carregar ocultações de categoria
+            database.ref('categoryHidePF').on('value', (snapshot) => {
+                categoryHidePF = snapshot.val() || {};
+                updateCategoryTabs();
+            });
+            database.ref('categoryHidePJ').on('value', (snapshot) => {
+                categoryHidePJ = snapshot.val() || {};
+                updateCategoryTabs();
+            });
+
             database.ref('products').on('value', (snapshot) => {
                 products = snapshot.val() ? Object.values(snapshot.val()) : [];
                 updateCategoryTabs();
@@ -7336,14 +7591,22 @@
         window.togglePromocao = togglePromocao;
         window.editarPromocao = editarPromocao;
         window.excluirPromocao = excluirPromocao;
+        // Novas funções
+        window.openNoPriceModal = openNoPriceModal;
+        window.closeNoPriceModal = closeNoPriceModal;
+        window.openSetMetaModal = openSetMetaModal;
+        window.closeSetMetaModal = closeSetMetaModal;
+        window.applyMetaMass = applyMetaMass;
+        window.toggleSessionHide = toggleSessionHide;
 
         console.log('🚀 CIM - Sistema carregado com sucesso!');
         console.log('📌 Administrador: cim@gmail.com');
         console.log('🔐 Autenticação Google configurada.');
-        console.log('🔥 Promoções ativas (sem cronômetro visível).');
-        console.log('📥 Importação com filtro opcional pela coluna H (A e B).');
-        console.log('🔄 Carrossel de marcas com interação (pausa ao hover/arraste).');
-        console.log('⬆️ Botão voltar ao topo aparece ao rolar.');
+        console.log('🔥 Promoções com opções "Todas as sessões" e "Todas as categorias".');
+        console.log('📊 Histórico de cliques com identificação de usuário.');
+        console.log('🕵️ Produtos sem preço e definição de meta em massa adicionados.');
+        console.log('👁️ Ocultação de preços por sessão e categoria (PF/PJ).');
+        console.log('🔄 Arrastar categorias funcionando no computador.');
     </script>
 </body>
 </html>
