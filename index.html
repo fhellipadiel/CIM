@@ -3263,6 +3263,7 @@
                     <!-- NOVOS BOTÕES -->
                     <button class="admin-btn warning" onclick="openNoPriceModal()"><i class="fas fa-exclamation-triangle"></i> Sem Preço</button>
                     <button class="admin-btn info" onclick="openSetMetaModal()"><i class="fas fa-bullseye"></i> Definir Meta</button>
+                    <button class="admin-btn success" onclick="openCreateClientModal()"><i class="fas fa-user-plus"></i> Criar Cliente</button>
                 </div>
             </div>
 
@@ -3428,6 +3429,68 @@
                     <button class="users-tab" onclick="switchUsersTab('PJ')" id="usersTabPJ">Pessoa Jurídica</button>
                 </div>
                 <div id="usersListContainer"></div>
+                <hr style="border-color:#333;margin:20px 0;">
+                <button class="admin-btn success" style="width:100%;" onclick="openCreateClientModal()"><i class="fas fa-user-plus"></i> Criar Novo Cliente</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- CREATE CLIENT MODAL (ADMIN) -->
+    <div class="modal" id="createClientModal">
+        <div class="modal-content large">
+            <button class="modal-close" onclick="closeCreateClientModal()"><i class="fas fa-times"></i></button>
+            <div class="modal-header"><h2><i class="fas fa-user-plus"></i> Criar Cliente</h2></div>
+            <div class="modal-body">
+                <p style="color:#ccc;margin-bottom:16px;">Preencha os dados abaixo. Uma senha temporária será gerada e o cliente será forçado a redefinir no primeiro login.</p>
+                <div class="product-form">
+                    <div class="form-group"><label>Nome <span style="color:#ff6b00;">*</span></label><input type="text" id="createClientName" placeholder="Nome completo"></div>
+                    <div class="form-group"><label>E-mail <span style="color:#ff6b00;">*</span></label><input type="email" id="createClientEmail" placeholder="exemplo@email.com"></div>
+                    <div class="form-group"><label>Telefone (WhatsApp) <span style="color:#ff6b00;">*</span></label><input type="tel" id="createClientPhone" placeholder="Apenas números" oninput="this.value=this.value.replace(/\D/g,'')"></div>
+                    <div class="form-group"><label>Tipo de Cliente <span style="color:#ff6b00;">*</span></label>
+                        <select id="createClientType" onchange="toggleCreateClientDocFields()">
+                            <option value="PF">Pessoa Física (CPF)</option>
+                            <option value="PJ">Pessoa Jurídica (CNPJ)</option>
+                        </select>
+                    </div>
+                    <div id="createClientDocFields">
+                        <div class="form-group" id="createClientCpfGroup">
+                            <label>CPF <span style="color:#ff6b00;">*</span></label>
+                            <input type="text" id="createClientCpf" placeholder="Apenas números" maxlength="11" oninput="this.value=this.value.replace(/\D/g,'')">
+                        </div>
+                        <div class="form-group" id="createClientCnpjGroup" style="display:none;">
+                            <label>CNPJ <span style="color:#ff6b00;">*</span></label>
+                            <input type="text" id="createClientCnpj" placeholder="Apenas números" maxlength="14" oninput="this.value=this.value.replace(/\D/g,'')">
+                            <button class="admin-btn info" style="margin-top:8px;" onclick="fetchCnpjDataCreate()"><i class="fas fa-search"></i> Buscar dados do CNPJ</button>
+                            <div id="createCnpjResult" style="margin-top:10px;font-size:0.9rem;color:#ccc;"></div>
+                        </div>
+                    </div>
+                    <div class="form-group"><label>Senha temporária (opcional)</label>
+                        <input type="text" id="createClientPassword" placeholder="Deixe em branco para gerar automaticamente">
+                        <small style="color:#888;">Mínimo 6 caracteres. Se deixar em branco, uma senha aleatória será gerada.</small>
+                    </div>
+                    <div style="display:flex;gap:10px;margin-top:20px;">
+                        <button class="btn btn-outline" style="flex:1;" onclick="closeCreateClientModal()">Cancelar</button>
+                        <button class="btn btn-primary" style="flex:1;" onclick="createClientAccount()"><i class="fas fa-save"></i> Criar Cliente</button>
+                    </div>
+                    <div id="createClientError" style="color:#dc3545;margin-top:10px;text-align:center;"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- FORCE PASSWORD RESET MODAL -->
+    <div class="modal" id="forceResetModal">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeForceResetModal()"><i class="fas fa-times"></i></button>
+            <div class="modal-header"><h2>🔒 Redefinir Senha Obrigatória</h2></div>
+            <div class="modal-body">
+                <p style="color:#ccc;margin-bottom:16px;">Esta é a sua primeira vez acessando. Por favor, defina uma nova senha para segurança.</p>
+                <div class="product-form">
+                    <div class="form-group"><label>Nova Senha <span style="color:#ff6b00;">*</span></label><input type="password" id="forceNewPassword" placeholder="Mínimo 6 caracteres"></div>
+                    <div class="form-group"><label>Confirmar Senha <span style="color:#ff6b00;">*</span></label><input type="password" id="forceConfirmPassword" placeholder="Digite novamente"></div>
+                    <button class="btn btn-primary" style="width:100%;" onclick="forceResetPassword()"><i class="fas fa-save"></i> Redefinir Senha</button>
+                    <div id="forceResetError" style="color:#dc3545;margin-top:10px;text-align:center;"></div>
+                </div>
             </div>
         </div>
     </div>
@@ -3634,7 +3697,6 @@
                         </div>
                     </div>
                     <div class="form-group"><label>Nome da Sessão <span style="color:#ff6b00;">*</span></label><input type="text" id="sessionName" placeholder="Ex: Freios, Motor, Suspensão"></div>
-                    <!-- Campos para ocultar preços -->
                     <div class="form-group">
                         <label>Ocultar preços para:</label>
                         <div style="display:flex;gap:20px;margin-top:6px;">
@@ -3936,7 +3998,6 @@
         let brandClicks = {};
         let promocoes = {};
         let editingPromocaoId = null;
-        // Novas variáveis
         let sessionHidePF = {};
         let sessionHidePJ = {};
         let categoryHidePF = {};
@@ -4089,6 +4150,11 @@
             try { return new Date(ts).toLocaleString('pt-BR'); } catch (e) { return '—'; }
         }
 
+        // ========== FUNÇÃO AUXILIAR PARA VERIFICAR SE O CNPJ ESTÁ ATIVO (ReceitaWS) ==========
+        function isCnpjAtivoReceita(data) {
+            return data.situacao === 'ATIVA';
+        }
+
         // ========== CARRINHO ==========
         function saveCart() { try { localStorage.setItem('cim_cart', JSON.stringify(cart)); } catch (e) {} }
 
@@ -4142,7 +4208,6 @@
             if (pricesHidden) return 0;
             if (currentUser && currentUser.userType) {
                 const type = currentUser.userType;
-                // Verifica ocultação por sessão/categoria
                 if (shouldHidePriceForItem(item, type)) return 0;
                 return item.prices?.[type] || 0;
             }
@@ -4150,14 +4215,12 @@
         }
 
         function shouldHidePriceForItem(item, userType) {
-            // Verifica se a sessão ou categoria do produto tem ocultação para este tipo
             if (item.sessionId && sessions[item.sessionId]) {
                 const sess = sessions[item.sessionId];
                 if (userType === 'PF' && sess.hidePF) return true;
                 if (userType === 'PJ' && sess.hidePJ) return true;
             }
             if (item.category) {
-                // Podemos armazenar ocultação por categoria no objeto categoriesHide
                 if (userType === 'PF' && categoryHidePF[item.category]) return true;
                 if (userType === 'PJ' && categoryHidePJ[item.category]) return true;
             }
@@ -4826,7 +4889,6 @@
         // ========== RENDERIZAÇÃO APENAS DOS BADGES ==========
         function renderPromotionBadgesOnly() {
             const now = Date.now();
-            // Sessões
             document.querySelectorAll('.session-item').forEach(item => {
                 const sessionId = item.getAttribute('data-session-id');
                 if (!sessionId) return;
@@ -4849,7 +4911,6 @@
                 }
             });
 
-            // Categorias
             document.querySelectorAll('.category-tab').forEach(tab => {
                 const cat = tab.getAttribute('data-category');
                 if (!cat || cat === '') return;
@@ -5070,7 +5131,6 @@
         function loadSessions() {
             database.ref('sessions').on('value', (snapshot) => {
                 sessions = snapshot.val() || {};
-                // Carregar configurações de ocultação
                 Object.keys(sessions).forEach(id => {
                     const s = sessions[id];
                     if (s.hidePF === undefined) s.hidePF = false;
@@ -5523,8 +5583,6 @@
             ordered.forEach(c => {
                 const isActive = selectedCategory === c;
                 const clicks = categoryClicks[c] || 0;
-                const hidePF = categoryHidePF[c] ? '✔' : '';
-                const hidePJ = categoryHidePJ[c] ? '✔' : '';
                 html += `<div class="category-tab ${isActive ? 'active' : ''} ${isAdmin ? 'sortable' : ''}" data-category="${c}" onclick="selectCategory('${c}')">`;
                 html += `<span class="cat-label">${escapeHtml(c)}</span>`;
                 if (isAdmin) {
@@ -5533,7 +5591,6 @@
                     `<span class="cat-edit-icon" onclick="event.stopPropagation(); editCategory('${c}')"><i class="fas fa-pencil-alt"></i></span>`;
                     html +=
                         `<button class="cat-delete-btn" onclick="event.stopPropagation(); deleteCategory('${c}')"><i class="fas fa-times"></i></button>`;
-                    // Opções de ocultação (serão adicionadas em modal separado, mas podemos deixar inline)
                 }
                 html += `</div>`;
             });
@@ -5601,7 +5658,6 @@
             });
             const newOrder = categoryOrder.filter(c => c !== categoryName);
             updates['settings/categoryOrder'] = newOrder;
-            // Remove ocultações
             delete categoryHidePF[categoryName];
             delete categoryHidePJ[categoryName];
             updates['categoryHidePF'] = categoryHidePF;
@@ -5626,7 +5682,6 @@
             });
             const newOrder = categoryOrder.map(c => c === oldName ? newName : c);
             updates['settings/categoryOrder'] = newOrder;
-            // Atualiza ocultações
             if (categoryHidePF[oldName]) { categoryHidePF[newName] = categoryHidePF[oldName];
                 delete categoryHidePF[oldName]; }
             if (categoryHidePJ[oldName]) { categoryHidePJ[newName] = categoryHidePJ[oldName];
@@ -5673,7 +5728,6 @@
                         database.ref('settings/categoryOrder').set(newOrder);
                     }
                 });
-                // Suporte a touch para mobile (mas pediram para funcionar no computador, já funciona)
             });
         }
 
@@ -6327,7 +6381,7 @@
                 showToast('Aplicado!'); });
         }
 
-        // ========== IMPORT NAMES (COM FILTRO OPCIONAL PELA COLUNA H) ==========
+        // ========== IMPORT NAMES ==========
         function openImportNamesModal() {
             document.getElementById('importNamesModal').classList.add('active');
             document.getElementById('importPreview').style.display = 'none';
@@ -6461,7 +6515,7 @@
             } catch (e) { showToast('Erro ao apagar', 'error'); }
         }
 
-        // ========== PRICES HIDDEN (admin) ==========
+        // ========== PRICES HIDDEN ==========
         function togglePricesVisibility() {
             if (!isAdmin) return;
             if (pricesHidden === false) {
@@ -6497,6 +6551,98 @@
             updateCart();
         }
 
+        // ========== FUNÇÕES DE VALIDAÇÃO DE CNPJ (ReceitaWS) ==========
+        // Verifica se o CNPJ está ATIVO na ReceitaWS
+        function isCnpjAtivoReceita(data) {
+            return data.situacao === 'ATIVA';
+        }
+
+        // Função para o cadastro do cliente (register)
+        async function fetchCnpjData() {
+            const cnpj = document.getElementById('registerCnpj').value.replace(/\D/g, '');
+            if (cnpj.length !== 14) { showToast('Digite um CNPJ válido com 14 dígitos', 'error'); return; }
+            showLoading('Buscando dados do CNPJ (ReceitaWS)...');
+            try {
+                const resp = await fetch(`https://receitaws.com.br/v1/cnpj/${cnpj}`);
+                if (!resp.ok) throw new Error('CNPJ não encontrado');
+                const data = await resp.json();
+
+                const ativo = isCnpjAtivoReceita(data);
+                const statusMsg = ativo ? '✅ ATIVA' : '❌ ' + (data.situacao || 'INATIVA');
+
+                document.getElementById('cnpjDataResult').innerHTML = `
+                    <div style="background:#222;padding:12px;border-radius:8px;border:1px solid ${ativo ? '#28a745' : '#dc3545'};">
+                        <p><strong>Razão Social:</strong> ${escapeHtml(data.nome || '')}</p>
+                        <p><strong>Nome Fantasia:</strong> ${escapeHtml(data.fantasia || '')}</p>
+                        <p><strong>Situação Cadastral:</strong> <span style="color:${ativo ? '#28a745' : '#dc3545'};font-weight:600;">${statusMsg}</span></p>
+                        <p><strong>Endereço:</strong> ${escapeHtml(data.logradouro || '')}, ${escapeHtml(data.numero || '')} - ${escapeHtml(data.bairro || '')}, ${escapeHtml(data.municipio || '')} - ${escapeHtml(data.uf || '')}</p>
+                    </div>
+                `;
+
+                if (ativo) {
+                    if (data.fantasia) document.getElementById('registerName').value = data.fantasia;
+                    else if (data.nome) document.getElementById('registerName').value = data.nome;
+                    cnpjData = data;
+                    cnpjValidated = true;
+                    cnpjStatus = 'ATIVA';
+                    showToast('CNPJ validado com sucesso');
+                } else {
+                    cnpjValidated = false;
+                    cnpjStatus = data.situacao || 'INATIVA';
+                    showToast('Empresa com situação cadastral inválida. Não é possível criar conta.', 'error');
+                }
+                hideLoading();
+            } catch (e) {
+                hideLoading();
+                showToast('Erro ao buscar CNPJ: ' + e.message, 'error');
+                document.getElementById('cnpjDataResult').innerHTML = `<div style="color:#dc3545;padding:8px;">${e.message}</div>`;
+                cnpjValidated = false;
+                cnpjStatus = '';
+                cnpjData = null;
+            }
+        }
+
+        // Função para o modal de criação de cliente (admin)
+        async function fetchCnpjDataCreate() {
+            const cnpj = document.getElementById('createClientCnpj').value.replace(/\D/g, '');
+            if (cnpj.length !== 14) { showToast('Digite um CNPJ válido com 14 dígitos', 'error'); return; }
+            showLoading('Buscando dados do CNPJ (ReceitaWS)...');
+            try {
+                const resp = await fetch(`https://receitaws.com.br/v1/cnpj/${cnpj}`);
+                if (!resp.ok) throw new Error('CNPJ não encontrado');
+                const data = await resp.json();
+
+                const ativo = isCnpjAtivoReceita(data);
+                const statusMsg = ativo ? '✅ ATIVA' : '❌ ' + (data.situacao || 'INATIVA');
+
+                document.getElementById('createCnpjResult').innerHTML = `
+                    <div style="background:#222;padding:12px;border-radius:8px;border:1px solid ${ativo ? '#28a745' : '#dc3545'};">
+                        <p><strong>Razão Social:</strong> ${escapeHtml(data.nome || '')}</p>
+                        <p><strong>Nome Fantasia:</strong> ${escapeHtml(data.fantasia || '')}</p>
+                        <p><strong>Situação Cadastral:</strong> <span style="color:${ativo ? '#28a745' : '#dc3545'};font-weight:600;">${statusMsg}</span></p>
+                        <p><strong>Endereço:</strong> ${escapeHtml(data.logradouro || '')}, ${escapeHtml(data.numero || '')} - ${escapeHtml(data.bairro || '')}, ${escapeHtml(data.municipio || '')} - ${escapeHtml(data.uf || '')}</p>
+                    </div>
+                `;
+
+                if (ativo) {
+                    if (data.fantasia) document.getElementById('createClientName').value = data.fantasia;
+                    else if (data.nome) document.getElementById('createClientName').value = data.nome;
+                    window._createCnpjData = data;
+                    createCnpjValidated = true;
+                    showToast('CNPJ validado');
+                } else {
+                    createCnpjValidated = false;
+                    showToast('Empresa com situação cadastral inválida.', 'error');
+                }
+                hideLoading();
+            } catch (e) {
+                hideLoading();
+                showToast('Erro ao buscar CNPJ: ' + e.message, 'error');
+                document.getElementById('createCnpjResult').innerHTML = `<div style="color:#dc3545;padding:8px;">${e.message}</div>`;
+                createCnpjValidated = false;
+            }
+        }
+
         // ========== SISTEMA DE USUÁRIOS ==========
 
         function loadUserData(uid) {
@@ -6515,7 +6661,8 @@
                     isAdmin: data.isAdmin || false,
                     createdAt: data.createdAt || null,
                     lastAccess: data.lastAccess || null,
-                    telefone: data.telefone || ''
+                    telefone: data.telefone || '',
+                    mustChangePassword: data.mustChangePassword || false
                 };
                 currentUserPhoto = data.photoURL || DEFAULT_USER_AVATAR;
                 isAdminUser = currentUser.isAdmin || false;
@@ -6525,6 +6672,11 @@
                 filterProducts();
                 updateCart();
                 renderPromotionBadgesOnly();
+
+                // Verificar se precisa trocar a senha
+                if (currentUser.mustChangePassword) {
+                    openForceResetModal();
+                }
             });
         }
 
@@ -6672,6 +6824,175 @@
             e.target.value = '';
         });
 
+        // ========== FORÇAR REDEFINIÇÃO DE SENHA ==========
+        function openForceResetModal() {
+            document.getElementById('forceNewPassword').value = '';
+            document.getElementById('forceConfirmPassword').value = '';
+            document.getElementById('forceResetError').textContent = '';
+            document.getElementById('forceResetModal').classList.add('active');
+        }
+
+        function closeForceResetModal() {
+            document.getElementById('forceResetModal').classList.remove('active');
+        }
+
+        async function forceResetPassword() {
+            const newPass = document.getElementById('forceNewPassword').value;
+            const confirmPass = document.getElementById('forceConfirmPassword').value;
+            if (newPass.length < 6) {
+                document.getElementById('forceResetError').textContent = 'A senha deve ter no mínimo 6 caracteres.';
+                return;
+            }
+            if (newPass !== confirmPass) {
+                document.getElementById('forceResetError').textContent = 'As senhas não coincidem.';
+                return;
+            }
+            try {
+                showLoading('Alterando senha...');
+                const user = auth.currentUser;
+                if (!user) throw new Error('Usuário não autenticado');
+                await user.updatePassword(newPass);
+                // Remover flag mustChangePassword
+                await database.ref(`users/${user.uid}/mustChangePassword`).remove();
+                // Atualizar currentUser
+                if (currentUser) currentUser.mustChangePassword = false;
+                hideLoading();
+                closeForceResetModal();
+                showToast('Senha alterada com sucesso!');
+                updateProfileUIUser();
+            } catch (e) {
+                hideLoading();
+                document.getElementById('forceResetError').textContent = 'Erro ao alterar senha: ' + e.message;
+            }
+        }
+
+        // ========== FUNÇÃO PARA CRIAR CLIENTE PELO ADMIN ==========
+        let createCnpjValidated = false;
+
+        function openCreateClientModal() {
+            if (!isAdmin) { showToast('Apenas administradores', 'error'); return; }
+            document.getElementById('createClientName').value = '';
+            document.getElementById('createClientEmail').value = '';
+            document.getElementById('createClientPhone').value = '';
+            document.getElementById('createClientType').value = 'PF';
+            document.getElementById('createClientCpf').value = '';
+            document.getElementById('createClientCnpj').value = '';
+            document.getElementById('createClientPassword').value = '';
+            document.getElementById('createCnpjResult').innerHTML = '';
+            createCnpjValidated = false;
+            toggleCreateClientDocFields();
+            document.getElementById('createClientModal').classList.add('active');
+        }
+
+        function closeCreateClientModal() {
+            document.getElementById('createClientModal').classList.remove('active');
+        }
+
+        function toggleCreateClientDocFields() {
+            const type = document.getElementById('createClientType').value;
+            const cpfGroup = document.getElementById('createClientCpfGroup');
+            const cnpjGroup = document.getElementById('createClientCnpjGroup');
+            if (type === 'PF') {
+                cpfGroup.style.display = 'block';
+                cnpjGroup.style.display = 'none';
+                document.getElementById('createCnpjResult').innerHTML = '';
+                createCnpjValidated = false;
+            } else {
+                cpfGroup.style.display = 'none';
+                cnpjGroup.style.display = 'block';
+                document.getElementById('createCnpjResult').innerHTML = '';
+                createCnpjValidated = false;
+            }
+        }
+
+        async function createClientAccount() {
+            if (!isAdmin) { showToast('Acesso negado', 'error'); return; }
+            const name = document.getElementById('createClientName').value.trim();
+            const email = document.getElementById('createClientEmail').value.trim();
+            const telefone = document.getElementById('createClientPhone').value.replace(/\D/g, '');
+            const type = document.getElementById('createClientType').value;
+            let cpf = document.getElementById('createClientCpf').value.replace(/\D/g, '');
+            let cnpj = document.getElementById('createClientCnpj').value.replace(/\D/g, '');
+            let password = document.getElementById('createClientPassword').value.trim();
+
+            if (!name || !email || !telefone || !type) {
+                document.getElementById('createClientError').textContent = 'Preencha todos os campos obrigatórios.';
+                return;
+            }
+            if (telefone.length < 10) {
+                document.getElementById('createClientError').textContent = 'Telefone inválido (mínimo 10 dígitos).';
+                return;
+            }
+            if (type === 'PF' && cpf.length !== 11) {
+                document.getElementById('createClientError').textContent = 'CPF deve ter 11 dígitos.';
+                return;
+            }
+            if (type === 'PJ') {
+                if (cnpj.length !== 14) {
+                    document.getElementById('createClientError').textContent = 'CNPJ deve ter 14 dígitos.';
+                    return;
+                }
+                if (!createCnpjValidated) {
+                    document.getElementById('createClientError').textContent = 'Valide o CNPJ clicando em "Buscar dados do CNPJ".';
+                    return;
+                }
+            }
+
+            // Gerar senha automática se não preenchida
+            if (!password || password.length < 6) {
+                password = Math.random().toString(36).slice(-8) + 'A1!';
+                document.getElementById('createClientPassword').value = password;
+                // Mostrar a senha para o admin copiar
+                showToast(`Senha gerada: ${password}`, 'info');
+            }
+
+            // Verificar se o e-mail já existe
+            try {
+                const methods = await auth.fetchSignInMethodsForEmail(email);
+                if (methods.length > 0) {
+                    document.getElementById('createClientError').textContent = 'Este e-mail já está em uso.';
+                    return;
+                }
+            } catch (e) {
+                document.getElementById('createClientError').textContent = 'Erro ao verificar e-mail: ' + e.message;
+                return;
+            }
+
+            showLoading('Criando conta do cliente...');
+            try {
+                // Criar usuário no Firebase Auth
+                const cred = await auth.createUserWithEmailAndPassword(email, password);
+                const user = cred.user;
+                // Salvar dados com mustChangePassword = true
+                const userData = {
+                    email: email,
+                    name: name,
+                    photoURL: DEFAULT_USER_AVATAR,
+                    telefone: telefone,
+                    userType: type,
+                    cpf: type === 'PF' ? cpf : '',
+                    cnpj: type === 'PJ' ? cnpj : '',
+                    companyData: type === 'PJ' ? (window._createCnpjData || null) : null,
+                    isAdmin: false,
+                    mustChangePassword: true,
+                    createdAt: Date.now(),
+                    lastAccess: Date.now()
+                };
+                await database.ref(`users/${user.uid}`).set(userData);
+                // Deslogar o admin? Não, manter logado.
+                hideLoading();
+                closeCreateClientModal();
+                showToast(`Cliente ${name} criado com sucesso! Senha: ${password}`, 'success');
+                // Atualizar lista de usuários se estiver aberta
+                if (document.getElementById('adminUsersModal').classList.contains('active')) {
+                    loadUsersList();
+                }
+            } catch (e) {
+                hideLoading();
+                document.getElementById('createClientError').textContent = 'Erro ao criar conta: ' + e.message;
+            }
+        }
+
         // ========== LOGIN / CADASTRO ==========
         function openLoginModal() {
             document.getElementById('loginModal').classList.add('active');
@@ -6730,51 +7051,6 @@
                 cnpjData = null;
             } else {
                 fields.style.display = 'none';
-                cnpjValidated = false;
-                cnpjStatus = '';
-                cnpjData = null;
-            }
-        }
-
-        async function fetchCnpjData() {
-            const cnpj = document.getElementById('registerCnpj').value.replace(/\D/g, '');
-            if (cnpj.length !== 14) { showToast('Digite um CNPJ válido com 14 dígitos', 'error'); return; }
-            showLoading('Buscando dados do CNPJ...');
-            try {
-                const resp = await fetch(`https://brasilapi.com.br/api/cnpj/v1/${cnpj}`);
-                if (!resp.ok) throw new Error('CNPJ não encontrado');
-                const data = await resp.json();
-                const status = data.situacao_cadastral || '';
-                const statusMsg = status === 'ATIVA' ? '✅ ATIVA' : '❌ ' + (status || 'INATIVA');
-                const isActive = status === 'ATIVA';
-
-                document.getElementById('cnpjDataResult').innerHTML = `
-                            <div style="background:#222;padding:12px;border-radius:8px;border:1px solid ${isActive ? '#28a745' : '#dc3545'};">
-                                <p><strong>Razão Social:</strong> ${escapeHtml(data.razao_social || '')}</p>
-                                <p><strong>Nome Fantasia:</strong> ${escapeHtml(data.nome_fantasia || '')}</p>
-                                <p><strong>Situação Cadastral:</strong> <span style="color:${isActive ? '#28a745' : '#dc3545'};font-weight:600;">${statusMsg}</span></p>
-                                <p><strong>Endereço:</strong> ${escapeHtml(data.logradouro || '')}, ${escapeHtml(data.numero || '')} - ${escapeHtml(data.bairro || '')}, ${escapeHtml(data.municipio || '')} - ${escapeHtml(data.uf || '')}</p>
-                            </div>
-                        `;
-
-                if (isActive) {
-                    if (data.nome_fantasia) document.getElementById('registerName').value = data.nome_fantasia;
-                    else if (data.razao_social) document.getElementById('registerName').value = data.razao_social;
-                    cnpjData = data;
-                    cnpjValidated = true;
-                    cnpjStatus = 'ATIVA';
-                    showToast('CNPJ validado com sucesso');
-                } else {
-                    cnpjValidated = false;
-                    cnpjStatus = status || 'INATIVA';
-                    showToast('Empresa com situação cadastral inválida. Não é possível criar conta.', 'error');
-                }
-                hideLoading();
-            } catch (e) {
-                hideLoading();
-                showToast('Erro ao buscar CNPJ: ' + e.message, 'error');
-                document.getElementById('cnpjDataResult').innerHTML =
-                    `<div style="color:#dc3545;padding:8px;">${e.message}</div>`;
                 cnpjValidated = false;
                 cnpjStatus = '';
                 cnpjData = null;
@@ -6962,8 +7238,8 @@
                     if (extraData.companyData) {
                         document.getElementById('completeCnpjResult').innerHTML = `
                                     <div style="background:#222;padding:12px;border-radius:8px;border:1px solid #28a745;">
-                                        <p><strong>Razão Social:</strong> ${escapeHtml(extraData.companyData.razao_social || '')}</p>
-                                        <p><strong>Nome Fantasia:</strong> ${escapeHtml(extraData.companyData.nome_fantasia || '')}</p>
+                                        <p><strong>Razão Social:</strong> ${escapeHtml(extraData.companyData.nome || '')}</p>
+                                        <p><strong>Nome Fantasia:</strong> ${escapeHtml(extraData.companyData.fantasia || '')}</p>
                                         <p><strong>Situação:</strong> ✅ ATIVA</p>
                                     </div>
                                 `;
@@ -7020,27 +7296,27 @@
         async function fetchCompleteCnpjData() {
             const cnpj = document.getElementById('completeCnpj').value.replace(/\D/g, '');
             if (cnpj.length !== 14) { showToast('Digite um CNPJ válido com 14 dígitos', 'error'); return; }
-            showLoading('Buscando dados do CNPJ...');
+            showLoading('Buscando dados do CNPJ (ReceitaWS)...');
             try {
-                const resp = await fetch(`https://brasilapi.com.br/api/cnpj/v1/${cnpj}`);
+                const resp = await fetch(`https://receitaws.com.br/v1/cnpj/${cnpj}`);
                 if (!resp.ok) throw new Error('CNPJ não encontrado');
                 const data = await resp.json();
-                const status = data.situacao_cadastral || '';
-                const statusMsg = status === 'ATIVA' ? '✅ ATIVA' : '❌ ' + (status || 'INATIVA');
-                const isActive = status === 'ATIVA';
+
+                const ativo = isCnpjAtivoReceita(data);
+                const statusMsg = ativo ? '✅ ATIVA' : '❌ ' + (data.situacao || 'INATIVA');
 
                 document.getElementById('completeCnpjResult').innerHTML = `
-                            <div style="background:#222;padding:12px;border-radius:8px;border:1px solid ${isActive ? '#28a745' : '#dc3545'};">
-                                <p><strong>Razão Social:</strong> ${escapeHtml(data.razao_social || '')}</p>
-                                <p><strong>Nome Fantasia:</strong> ${escapeHtml(data.nome_fantasia || '')}</p>
-                                <p><strong>Situação Cadastral:</strong> <span style="color:${isActive ? '#28a745' : '#dc3545'};font-weight:600;">${statusMsg}</span></p>
-                                <p><strong>Endereço:</strong> ${escapeHtml(data.logradouro || '')}, ${escapeHtml(data.numero || '')} - ${escapeHtml(data.bairro || '')}, ${escapeHtml(data.municipio || '')} - ${escapeHtml(data.uf || '')}</p>
-                            </div>
-                        `;
+                    <div style="background:#222;padding:12px;border-radius:8px;border:1px solid ${ativo ? '#28a745' : '#dc3545'};">
+                        <p><strong>Razão Social:</strong> ${escapeHtml(data.nome || '')}</p>
+                        <p><strong>Nome Fantasia:</strong> ${escapeHtml(data.fantasia || '')}</p>
+                        <p><strong>Situação Cadastral:</strong> <span style="color:${ativo ? '#28a745' : '#dc3545'};font-weight:600;">${statusMsg}</span></p>
+                        <p><strong>Endereço:</strong> ${escapeHtml(data.logradouro || '')}, ${escapeHtml(data.numero || '')} - ${escapeHtml(data.bairro || '')}, ${escapeHtml(data.municipio || '')} - ${escapeHtml(data.uf || '')}</p>
+                    </div>
+                `;
 
-                if (isActive) {
-                    if (data.nome_fantasia) document.getElementById('completeName').value = data.nome_fantasia;
-                    else if (data.razao_social) document.getElementById('completeName').value = data.razao_social;
+                if (ativo) {
+                    if (data.fantasia) document.getElementById('completeName').value = data.fantasia;
+                    else if (data.nome) document.getElementById('completeName').value = data.nome;
                     window._completeCnpjData = data;
                     completeCnpjValidated = true;
                     showToast('CNPJ validado');
@@ -7052,8 +7328,7 @@
             } catch (e) {
                 hideLoading();
                 showToast('Erro ao buscar CNPJ: ' + e.message, 'error');
-                document.getElementById('completeCnpjResult').innerHTML =
-                    `<div style="color:#dc3545;padding:8px;">${e.message}</div>`;
+                document.getElementById('completeCnpjResult').innerHTML = `<div style="color:#dc3545;padding:8px;">${e.message}</div>`;
                 completeCnpjValidated = false;
             }
         }
@@ -7102,6 +7377,7 @@
                 cnpj: userType === 'PJ' ? cnpj : '',
                 companyData: userType === 'PJ' ? (window._completeCnpjData || null) : null,
                 isAdmin: false,
+                mustChangePassword: false,
                 createdAt: Date.now(),
                 lastAccess: Date.now()
             };
@@ -7165,10 +7441,10 @@
                 companyDiv.style.display = 'block';
                 const d = currentUser.companyData;
                 companyInfo.innerHTML = `
-                            <p><strong>Razão Social:</strong> ${escapeHtml(d.razao_social || '')}</p>
-                            <p><strong>Nome Fantasia:</strong> ${escapeHtml(d.nome_fantasia || '')}</p>
+                            <p><strong>Razão Social:</strong> ${escapeHtml(d.nome || '')}</p>
+                            <p><strong>Nome Fantasia:</strong> ${escapeHtml(d.fantasia || '')}</p>
                             <p><strong>Endereço:</strong> ${escapeHtml(d.logradouro || '')}, ${escapeHtml(d.numero || '')} - ${escapeHtml(d.bairro || '')}, ${escapeHtml(d.municipio || '')} - ${escapeHtml(d.uf || '')}</p>
-                            <p><strong>Telefone:</strong> ${escapeHtml(d.ddd_telefone_1 || '')}</p>
+                            <p><strong>Telefone:</strong> ${escapeHtml(d.telefone || '')}</p>
                         `;
             } else {
                 companyDiv.style.display = 'none';
@@ -7289,7 +7565,7 @@
                     const d = u.companyData;
                     companyInfo = `
                                 <div style="font-size:0.7rem;color:#aaa;margin-top:2px;">
-                                    ${escapeHtml(d.razao_social || '')} | ${escapeHtml(d.nome_fantasia || '')} | ${escapeHtml(d.logradouro || '')}, ${escapeHtml(d.numero || '')} - ${escapeHtml(d.bairro || '')}, ${escapeHtml(d.municipio || '')} - ${escapeHtml(d.uf || '')}
+                                    ${escapeHtml(d.nome || '')} | ${escapeHtml(d.fantasia || '')} | ${escapeHtml(d.logradouro || '')}, ${escapeHtml(d.numero || '')} - ${escapeHtml(d.bairro || '')}, ${escapeHtml(d.municipio || '')} - ${escapeHtml(d.uf || '')}
                                 </div>
                             `;
                 }
@@ -7352,7 +7628,8 @@
                                 isAdmin: true,
                                 telefone: '5511986866888',
                                 createdAt: Date.now(),
-                                lastAccess: Date.now()
+                                lastAccess: Date.now(),
+                                mustChangePassword: false
                             };
                             database.ref(`users/${uid}`).set(adminData).then(() => {
                                 isAdmin = true;
@@ -7426,7 +7703,6 @@
                 updateBrandTabs();
             });
 
-            // Carregar ocultações de categoria
             database.ref('categoryHidePF').on('value', (snapshot) => {
                 categoryHidePF = snapshot.val() || {};
                 updateCategoryTabs();
@@ -7591,13 +7867,19 @@
         window.togglePromocao = togglePromocao;
         window.editarPromocao = editarPromocao;
         window.excluirPromocao = excluirPromocao;
-        // Novas funções
         window.openNoPriceModal = openNoPriceModal;
         window.closeNoPriceModal = closeNoPriceModal;
         window.openSetMetaModal = openSetMetaModal;
         window.closeSetMetaModal = closeSetMetaModal;
         window.applyMetaMass = applyMetaMass;
         window.toggleSessionHide = toggleSessionHide;
+        // Novas funções
+        window.openCreateClientModal = openCreateClientModal;
+        window.closeCreateClientModal = closeCreateClientModal;
+        window.createClientAccount = createClientAccount;
+        window.fetchCnpjDataCreate = fetchCnpjDataCreate;
+        window.forceResetPassword = forceResetPassword;
+        window.closeForceResetModal = closeForceResetModal;
 
         console.log('🚀 CIM - Sistema carregado com sucesso!');
         console.log('📌 Administrador: cim@gmail.com');
@@ -7607,6 +7889,8 @@
         console.log('🕵️ Produtos sem preço e definição de meta em massa adicionados.');
         console.log('👁️ Ocultação de preços por sessão e categoria (PF/PJ).');
         console.log('🔄 Arrastar categorias funcionando no computador.');
+        console.log('✅ Validação de CNPJ agora usando ReceitaWS (mais estável).');
+        console.log('👤 Admin pode criar clientes com senha temporária e forçar redefinição.');
     </script>
 </body>
 </html>
