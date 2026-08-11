@@ -218,10 +218,10 @@
             color: #000;
         }
 
-        /* ====== BOTÃO PERFIL ====== */
+        /* ====== BOTÃO PERFIL (sem fundo) ====== */
         .profile-btn {
-            background: #222;
-            border: 1px solid #333;
+            background: transparent !important;
+            border: none !important;
             border-radius: 50%;
             width: 40px;
             height: 40px;
@@ -229,14 +229,13 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            transition: all 0.3s ease;
+            transition: transform 0.3s ease;
             flex-shrink: 0;
             overflow: hidden;
             position: relative;
         }
         .profile-btn:hover {
-            border-color: #ff6b00;
-            transform: scale(1.05);
+            transform: scale(1.1);
         }
         .profile-btn img {
             width: 100%;
@@ -246,7 +245,7 @@
         }
         .profile-btn .default-icon {
             color: #ff6b00;
-            font-size: 1.2rem;
+            font-size: 1.4rem;
         }
         .profile-btn .status-dot {
             position: absolute;
@@ -264,34 +263,35 @@
             background: #666;
         }
 
-        /* ====== MENU TOGGLE ====== */
+        /* ====== MENU TOGGLE (sem fundo) ====== */
         .menu-toggle {
-            background: #222;
-            border: 1px solid #333;
+            background: transparent !important;
+            border: none !important;
             border-radius: 50px;
             padding: 8px 14px;
             cursor: pointer;
             display: flex;
             align-items: center;
             gap: 6px;
-            transition: all 0.3s ease;
+            transition: transform 0.3s ease;
             flex-shrink: 0;
         }
         .menu-toggle:hover {
-            background: #ff6b00;
-            border-color: #ff6b00;
-        }
-        .menu-toggle:hover i,
-        .menu-toggle:hover span {
-            color: #000;
+            transform: scale(1.05);
         }
         .menu-toggle i {
             color: #ff6b00;
-            font-size: 1.1rem;
+            font-size: 1.4rem;
         }
         .menu-toggle span {
             color: #fff;
             font-weight: 500;
+            display: none;
+        }
+        @media (min-width: 768px) {
+            .menu-toggle span {
+                display: inline;
+            }
         }
 
         /* ========== DROPDOWN PERFIL ========== */
@@ -443,7 +443,7 @@
             border: 2px solid #000;
         }
 
-        /* ========== VOLTAR AO TOPO ========== */
+        /* ========== VOLTAR AO TOPO (aparece ao rolar) ========== */
         .back-to-top {
             position: fixed;
             bottom: 30px;
@@ -458,7 +458,7 @@
             justify-content: center;
             box-shadow: 0 4px 15px rgba(255, 107, 0, 0.4);
             cursor: pointer;
-            transition: opacity 0.3s, transform 0.3s;
+            transition: opacity 0.3s, transform 0.3s, box-shadow 0.3s;
             border: none;
             color: #000;
             font-size: 1.5rem;
@@ -472,7 +472,7 @@
             transform: translateY(0);
         }
         .back-to-top:hover {
-            transform: scale(1.1);
+            transform: scale(1.1) translateY(0);
             box-shadow: 0 6px 25px rgba(255, 107, 0, 0.6);
         }
 
@@ -492,17 +492,46 @@
             margin-bottom: 8px;
         }
 
-        /* ========== ÁREA FIXA (CATEGORIAS) ========== */
+        /* ========== ÁREA FIXA (CATEGORIAS) - SEM FUNDO ========== */
         .sticky-category-bar {
             position: sticky;
             top: 70px;
             z-index: 500;
-            background: #000000;
+            background: transparent;
             padding: 4px 0 8px;
             margin: 0 -10px;
             padding-left: 10px;
             padding-right: 10px;
             border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .tabs-carousel-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            background: transparent; /* removido fundo */
+            border-radius: 0;
+            border: none;
+            padding: 4px 0;
+        }
+        .tabs-carousel-wrapper .tabs-scroll {
+            display: flex;
+            overflow-x: auto;
+            scroll-behavior: smooth;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+            flex: 1;
+            padding: 6px 4px;
+            gap: 6px;
+            cursor: grab;
+        }
+        .tabs-carousel-wrapper .tabs-scroll:active {
+            cursor: grabbing;
+        }
+        .tabs-carousel-wrapper .tabs-scroll::-webkit-scrollbar {
+            display: none;
         }
 
         /* ========== ÁREA NORMAL (MARCAS) - NOVO LAYOUT ========== */
@@ -511,11 +540,26 @@
             padding: 6px 0 12px;
         }
 
+        /* Título das marcas */
+        .brand-title {
+            text-align: center;
+            font-size: 1rem;
+            font-weight: 500;
+            color: #ffffff;
+            margin: 8px 0 4px;
+            letter-spacing: 1px;
+            opacity: 0.8;
+            display: none; /* oculto por padrão, será exibido via JS se houver marcas */
+        }
+        .brand-title.visible {
+            display: block;
+        }
+
         /* ========== CARROSSEL DE MARCAS (CONTÍNUO) ========== */
         .brand-marquee-wrapper {
             position: relative;
             overflow: hidden;
-            padding: 20px 0;
+            padding: 10px 0;
             margin: 0 -10px;
         }
         .brand-marquee-wrapper .gradient-left {
@@ -549,6 +593,10 @@
             animation: brandScroll 40s linear infinite;
             align-items: center;
             gap: 80px;
+            transition: animation-play-state 0.3s;
+        }
+        .brand-marquee-track.paused {
+            animation-play-state: paused;
         }
         .brand-marquee-track:hover {
             animation-play-state: paused;
@@ -610,36 +658,6 @@
             line-height: 1.2;
         }
         .brand-marquee-item .brand-clicks {
-            display: none;
-        }
-
-        /* ========== CAROUSEL DE ABAS (CATEGORIAS) ========== */
-        .tabs-carousel-wrapper {
-            position: relative;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            background: rgba(17, 17, 17, 0.95);
-            border-radius: 12px;
-            border: 1px solid #333;
-            padding: 4px 0;
-        }
-        .tabs-carousel-wrapper .tabs-scroll {
-            display: flex;
-            overflow-x: auto;
-            scroll-behavior: smooth;
-            -webkit-overflow-scrolling: touch;
-            scrollbar-width: none;
-            -ms-overflow-style: none;
-            flex: 1;
-            padding: 6px 4px;
-            gap: 6px;
-            cursor: grab;
-        }
-        .tabs-carousel-wrapper .tabs-scroll:active {
-            cursor: grabbing;
-        }
-        .tabs-carousel-wrapper .tabs-scroll::-webkit-scrollbar {
             display: none;
         }
 
@@ -1125,7 +1143,6 @@
             color: #ff6b00;
         }
 
-        /* Badge de promoção na sessão - topo do círculo */
         .session-item .session-promo-badge {
             position: absolute;
             top: -8px;
@@ -1142,10 +1159,6 @@
             z-index: 5;
             line-height: 1.2;
             box-shadow: 0 2px 6px rgba(0,0,0,0.5);
-        }
-
-        .session-promo-countdown {
-            display: none !important;
         }
 
         .session-clicks {
@@ -1298,7 +1311,6 @@
             display: inline-block;
         }
 
-        /* Badge de promoção na categoria */
         .category-promo-badge {
             background: #E60000;
             color: #fff;
@@ -1314,9 +1326,6 @@
         }
         .category-promo-badge i {
             font-size: 0.5rem;
-        }
-        .category-promo-countdown {
-            display: none !important;
         }
 
         /* ========== BANNERS DE PROMOÇÃO - OCULTOS ========== */
@@ -1479,7 +1488,6 @@
             border-color: #E60000;
         }
 
-        /* Faixa diagonal para promoção - agora do lado esquerdo */
         .product-card .promo-ribbon {
             position: absolute;
             top: 12px;
@@ -1600,14 +1608,13 @@
             margin-right: 6px;
         }
         .product-price .price-value.promocional {
-            color: #E60000;
+            color: #ffffff; /* alterado de #E60000 para branco */
             font-size: 1.3rem;
         }
         .price-hidden .product-price {
             display: none;
         }
 
-        /* Estilo do link de login - apenas texto branco, sem sublinhado */
         .login-prompt {
             display: block;
             width: 100%;
@@ -1863,8 +1870,8 @@
             max-width: 680px;
         }
         .modal-content.fullscreen-modal {
-            max-width: 90vw;
-            max-height: 90vh;
+            max-width: 92vw;
+            max-height: 92vh;
             background: transparent;
             border: none;
             border-radius: 0;
@@ -1888,7 +1895,7 @@
         }
         .fullscreen-image-container img {
             max-width: 100%;
-            max-height: 80vh;
+            max-height: 92vh;
             object-fit: contain;
             border-radius: 10px;
             box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
@@ -1963,7 +1970,7 @@
             margin-right: 10px;
         }
         .modal-price-value.promocional {
-            color: #E60000;
+            color: #ffffff; /* branco */
             font-size: 2.2rem;
         }
         .modal-price-hidden {
@@ -3065,7 +3072,7 @@
                     <img src="https://i.ibb.co/6J5qZ9K/default-avatar.png" alt="Perfil" id="profileBtnImage" style="display:none;">
                     <i class="fas fa-user default-icon" id="profileBtnIcon"></i>
                     <span class="status-dot offline" id="profileStatusDot"></span>
-                    <!-- Dropdown (somente para quem já está logado) -->
+                    <!-- Dropdown -->
                     <div class="profile-dropdown" id="profileDropdown">
                         <div id="dropdownLogged" style="display:none;">
                             <div class="dropdown-avatar-section">
@@ -3084,7 +3091,6 @@
                             <button class="dropdown-item" onclick="event.stopPropagation(); document.getElementById('dropdownAvatarInput').click()"><i class="fas fa-camera"></i> Mudar Foto de Perfil</button>
                             <button class="dropdown-item" onclick="logoutUser()"><i class="fas fa-sign-out-alt"></i> Sair da Conta</button>
                         </div>
-                        <!-- Admin extra -->
                         <div id="dropdownAdmin" style="display:none;">
                             <div class="dropdown-divider"></div>
                             <button class="dropdown-item" onclick="openAdminUsersModal()"><i class="fas fa-users-cog"></i> Gerenciar Usuários</button>
@@ -3163,7 +3169,7 @@
             <div id="contactsList"></div>
         </div>
 
-        <!-- ===== NOVOS ITENS DO MENU: ALTERAR FOTO E SAIR ===== -->
+        <!-- Itens do menu: Alterar foto e Sair -->
         <div id="menuChangePhoto" class="menu-item" style="display:none;" onclick="document.getElementById('dropdownAvatarInput').click()">
             <i class="fas fa-camera"></i>
             <div class="item-content">
@@ -3176,7 +3182,6 @@
                 <div class="item-label">Sair da Conta</div>
             </div>
         </div>
-        <!-- ===== FIM NOVOS ITENS ===== -->
     </div>
 
     <!-- ==================== CONTEÚDO PRINCIPAL ==================== -->
@@ -3216,15 +3221,16 @@
             </div>
         </div>
 
-        <!-- ÁREA FIXA: CATEGORIAS -->
+        <!-- ÁREA FIXA: CATEGORIAS (sem fundo) -->
         <div class="sticky-category-bar" id="stickyCategoryBar">
             <div class="tabs-carousel-wrapper">
                 <div class="tabs-scroll" id="categoryTabs"></div>
             </div>
         </div>
 
-        <!-- ÁREA NORMAL: MARCAS (NOVO LAYOUT) -->
+        <!-- ÁREA NORMAL: MARCAS (com título) -->
         <div class="brand-filters-area" id="brandFiltersArea">
+            <div class="brand-title" id="brandTitle">Navegue pelas marcas</div>
             <div class="brand-marquee-wrapper">
                 <div class="gradient-left"></div>
                 <div class="gradient-right"></div>
@@ -3323,7 +3329,7 @@
         </div>
     </div>
 
-    <!-- USER PROFILE MODAL (para cliente logado) -->
+    <!-- USER PROFILE MODAL -->
     <div class="modal" id="userProfileModal">
         <div class="modal-content">
             <button class="modal-close" onclick="closeUserProfileModal()"><i class="fas fa-times"></i></button>
@@ -3707,7 +3713,7 @@
         </div>
     </div>
 
-    <!-- ========== PROMOÇÕES MODAL ========== -->
+    <!-- PROMOÇÕES MODAL -->
     <div class="modal" id="promocoesModal">
         <div class="modal-content large">
             <button class="modal-close" onclick="closePromocoesModal()"><i class="fas fa-times"></i></button>
@@ -3873,15 +3879,13 @@
         const hoursValue = document.getElementById('hoursValue');
         const backToTop = document.getElementById('backToTop');
 
-        // Novos elementos do menu
         const menuChangePhoto = document.getElementById('menuChangePhoto');
         const menuLogout = document.getElementById('menuLogout');
         const profileDoc = document.getElementById('profileDoc');
         const dropdownUserDoc = document.getElementById('dropdownUserDoc');
 
-        // Banners de promoção - não usamos mais
-        const sessionPromoBanner = document.getElementById('sessionPromoBanner');
-        const categoryPromoBanner = document.getElementById('categoryPromoBanner');
+        // Título das marcas
+        const brandTitle = document.getElementById('brandTitle');
 
         // ========== UTILITÁRIOS ==========
         function showToast(msg, type = 'success') {
@@ -4810,7 +4814,6 @@
 
             card.className = `product-card ${product.featured ? 'featured' : ''} ${product.soldOut ? 'sold-out' : ''} ${isPromo ? 'promocao' : ''}`;
 
-            // Faixa diagonal - mostra apenas o percentual
             let ribbonHtml = '';
             if (isPromo && desconto > 0) {
                 ribbonHtml = `<div class="promo-ribbon">-${desconto}% OFF</div>`;
@@ -4846,7 +4849,7 @@
                     `<div class="product-price" style="${showPF ? 'margin-top:5px;' : ''}"><div class="price-label"><i class="fas fa-building"></i> PJ</div>${priceHtml}</div>`;
                 }
                 if (!showPF && !showPJ) {
-                    html = ''; // não mostra nada quando oculto
+                    html = '';
                 }
                 priceDisplay = html;
             } else if (showPrice && userType) {
@@ -4862,7 +4865,6 @@
                 priceDisplay =
                     `<div class="product-price"><div class="price-label"><i class="fas ${icon}"></i> Preço ${label}</div>${priceHtml}</div>`;
             } else {
-                // Visitante: não exibe preço (será mostrado o link na ação)
                 priceDisplay = '';
             }
 
@@ -4889,7 +4891,6 @@
             }
 
             const img = product.image || DEFAULT_PLACEHOLDER_IMAGE;
-            // Link de login para visitantes (sem emoji, sem sublinhado)
             const loginPrompt = (!currentUser && !pricesHidden) ?
                 `<button class="login-prompt" onclick="openLoginModal()">Entrar</button>` :
                 '';
@@ -5137,7 +5138,32 @@
                 updateBrandTabs();
                 updateProductBrandSelect();
                 updateBrandsList();
+                // Controla exibição do título
+                const hasBrands = Object.keys(brands).length > 0;
+                brandTitle.classList.toggle('visible', hasBrands);
+                // Pausa/retoma animação conforme interação
+                setupBrandMarqueeInteraction();
             });
+        }
+
+        // Interação com o carrossel de marcas (pausa ao hover/arraste)
+        function setupBrandMarqueeInteraction() {
+            const track = document.getElementById('brandTabs');
+            if (!track) return;
+            // Pausa ao passar o mouse
+            track.addEventListener('mouseenter', () => { track.classList.add('paused'); });
+            track.addEventListener('mouseleave', () => { track.classList.remove('paused'); });
+            // Pausa durante arraste (touch/mouse)
+            let isDragging = false;
+            track.addEventListener('mousedown', () => { isDragging = true;
+                track.classList.add('paused'); });
+            track.addEventListener('mouseup', () => { if (isDragging) { isDragging = false;
+                    track.classList.remove('paused'); } });
+            track.addEventListener('mouseleave', () => { if (isDragging) { isDragging = false;
+                    track.classList.remove('paused'); } });
+            track.addEventListener('touchstart', () => { track.classList.add('paused'); });
+            track.addEventListener('touchend', () => { track.classList.remove('paused'); });
+            track.addEventListener('touchcancel', () => { track.classList.remove('paused'); });
         }
 
         function updateBrandTabs() {
@@ -5147,8 +5173,10 @@
 
             if (brandArray.length === 0) {
                 brandTabs.innerHTML = '';
+                brandTitle.classList.remove('visible');
                 return;
             }
+            brandTitle.classList.add('visible');
 
             const doubled = [...brandArray, ...brandArray];
             let html = '';
@@ -5948,7 +5976,7 @@
                         `<span class="modal-price-value original">R$ ${pj}</span> <span class="modal-price-value promocional">R$ ${precoPromoPJ.toFixed(2)}</span>`;
                     html = `<div class="modal-price-label"><i class="fas fa-building"></i> PJ</div><div>${pjHtml}</div>`;
                 } else {
-                    html = ''; // não mostra nada quando oculto
+                    html = '';
                 }
                 priceDisplay = html;
                 document.getElementById('modalAddButton').style.display = 'block';
@@ -5966,7 +5994,6 @@
                     `<div class="modal-price-label"><i class="fas ${icon}"></i> Preço ${label}</div><div>${priceHtml}</div>`;
                 document.getElementById('modalAddButton').style.display = 'block';
             } else {
-                // Visitante: exibe link para login em vez do preço (sem emoji, sem sublinhado)
                 if (!pricesHidden) {
                     priceDisplay =
                         `<button class="login-prompt-modal" onclick="openLoginModal()">Entrar</button>`;
@@ -6075,11 +6102,11 @@
                     const cols = line.split(/[,;]/).map(c => c.replace(/["']/g, '').trim());
                     if (cols.length < 1) return;
                     const name = cols[0];
-                    if (!name) return; // nome obrigatório
+                    if (!name) return;
                     if (filterH) {
                         const hVal = cols[7] ? cols[7].toUpperCase().trim() : '';
                         if (hVal !== 'A' && hVal !== 'B') {
-                            return; // ignora linha
+                            return;
                         }
                     }
                     const pricePF = cols[1] ? parseFloat(cols[1].replace(',', '.')) || 0 : 0;
@@ -7184,6 +7211,16 @@
             setInterval(() => renderPromotionBadgesOnly(), 60000);
         }
 
+        // ========== CONTROLE DO BOTÃO VOLTAR AO TOPO ==========
+        window.addEventListener('scroll', function() {
+            const btn = document.getElementById('backToTop');
+            if (window.scrollY > 300) {
+                btn.classList.add('visible');
+            } else {
+                btn.classList.remove('visible');
+            }
+        });
+
         // ========== INICIALIZAR ==========
         loadData();
 
@@ -7305,6 +7342,8 @@
         console.log('🔐 Autenticação Google configurada.');
         console.log('🔥 Promoções ativas (sem cronômetro visível).');
         console.log('📥 Importação com filtro opcional pela coluna H (A e B).');
+        console.log('🔄 Carrossel de marcas com interação (pausa ao hover/arraste).');
+        console.log('⬆️ Botão voltar ao topo aparece ao rolar.');
     </script>
 </body>
 </html>
