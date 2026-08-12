@@ -198,7 +198,7 @@
         let modoCriarConta = false;
         let tipoPessoa = 'fisica';
         let galleryImages = [];
-        let modoGoogleCadastro = false; // Indica pré-cadastro via Google
+        let modoGoogleCadastro = false;
 
         // Efeito de digitação
         const textoCompleto = "Olá, seja bem-vindo ao catálogo CIM Global Parts";
@@ -215,7 +215,7 @@
         window.onload = function() {
             carregarGaleria();
             setTimeout(digitarTexto, 600);
-            // Remove redirecionamento automático. Deixamos a lógica nos pontos específicos.
+            // Redirecionamento automático removido – agora só redireciona após ações
         };
 
         // ========== GALERIA ==========
@@ -279,7 +279,7 @@
         function alternarModo(event) {
             event.preventDefault();
             modoCriarConta = !modoCriarConta;
-            modoGoogleCadastro = false; // reset
+            modoGoogleCadastro = false;
 
             const btnPrincipal = document.getElementById('btn-principal');
             const linkModo = document.getElementById('link-modo');
@@ -302,7 +302,6 @@
                     textoGoogle.innerText = "Entre com o Google";
                     tipoContainer.classList.add('hidden');
                     renderizarCamposLogin();
-                    // Garante que o campo senha reapareça
                     const inputs = document.querySelectorAll('#campos-dinamicos input');
                     if (inputs.length >= 2) {
                         const senha = inputs[inputs.length - 1];
@@ -326,7 +325,9 @@
                 btnJuridica.className = "py-3 px-4 rounded-full border border-neutral-700 bg-[#1e1e1e] text-white text-sm font-medium transition-all focus:outline-none";
                 btnFisica.className = "py-3 px-4 rounded-full border border-neutral-800 bg-transparent text-neutral-400 text-sm font-medium transition-all focus:outline-none";
             }
-            // Se estiver no modo de cadastro Google, mantém os valores preenchidos
+            // Sempre recria os campos com o tipo selecionado
+            renderizarCamposCadastro();
+            // Se estiver em modo Google cadastro, preenche email e nome/razao novamente
             if (modoGoogleCadastro) {
                 const user = auth.currentUser;
                 if (user) {
@@ -341,8 +342,6 @@
                         if (razaoInput && user.displayName) razaoInput.value = user.displayName;
                     }
                 }
-            } else {
-                renderizarCamposCadastro();
             }
         }
 
@@ -535,7 +534,7 @@
                     const user = result.user;
                     database.ref(`users/${user.uid}`).once('value').then(snapshot => {
                         if (snapshot.exists()) {
-                            // Já cadastrado → redireciona para cim.html
+                            // Já cadastrado → redireciona sempre
                             showModal('Google Auth', 'Login com Google realizado com sucesso.');
                             document.getElementById('modalEntrada').dataset.redirect = 'cim.html';
                         } else {
@@ -543,7 +542,14 @@
                                 // Fluxo de CADASTRO com Google → pré-cadastro
                                 modoGoogleCadastro = true;
 
-                                // Preenche e-mail e nome (se disponível) nos campos atuais
+                                // Garante que o container de tipo esteja visível
+                                const tipoContainer = document.getElementById('tipo-cadastro-container');
+                                tipoContainer.classList.remove('hidden');
+
+                                // Recria os campos com o tipo atual (fisica ou juridica)
+                                renderizarCamposCadastro();
+
+                                // Preenche e-mail e nome/razao (se disponível)
                                 const inputs = document.querySelectorAll('#campos-dinamicos input');
                                 const emailInput = inputs[inputs.length - 2];
                                 if (emailInput) emailInput.value = user.email || '';
@@ -566,24 +572,8 @@
                                 // Muda texto do botão principal
                                 document.getElementById('btn-principal').innerText = 'Concluir cadastro';
 
-                                // Garante que os campos de tipo de conta estejam visíveis
-                                const tipoContainer = document.getElementById('tipo-cadastro-container');
-                                if (tipoContainer.classList.contains('hidden')) {
-                                    tipoContainer.classList.remove('hidden');
-                                    // Recria os campos para garantir que estejam corretos
-                                    renderizarCamposCadastro();
-                                    // Reaplica os valores preenchidos (email e nome) após recriação
-                                    const novosInputs = document.querySelectorAll('#campos-dinamicos input');
-                                    const novoEmail = novosInputs[novosInputs.length - 2];
-                                    if (novoEmail) novoEmail.value = user.email || '';
-                                    if (tipoPessoa === 'fisica' && user.displayName) {
-                                        const novoNome = novosInputs[0];
-                                        if (novoNome) novoNome.value = user.displayName;
-                                    }
-                                }
-
                                 showModal('Google Auth', 'Complete seu cadastro preenchendo os dados abaixo.');
-                                // Remove redirecionamento automático (o modal não deve redirecionar)
+                                // Remove redirecionamento automático
                                 document.getElementById('modalEntrada').dataset.redirect = '';
                             } else {
                                 // Fluxo de ENTRAR com Google, mas conta não existe
@@ -601,7 +591,6 @@
             const inputs = document.querySelectorAll('#campos-dinamicos input');
             let valido = true;
             inputs.forEach(input => {
-                // Se for o campo senha e estiver oculto (modoGoogleCadastro), não valida
                 if (input === inputs[inputs.length - 1] && modoGoogleCadastro) return;
                 if (!input.value.trim() && !input.disabled) {
                     input.classList.add('input-error');
@@ -619,8 +608,8 @@
                 await salvarDadosUsuario(user.uid);
                 showModal('Cadastro concluído', 'Conta criada com sucesso!');
                 document.getElementById('modalEntrada').dataset.redirect = 'cim.html';
-                modoGoogleCadastro = false; // reseta
-                // Restaura interface (opcional)
+                modoGoogleCadastro = false;
+                // Restaura interface
                 const senhaInput = document.querySelectorAll('#campos-dinamicos input');
                 if (senhaInput.length) {
                     senhaInput[senhaInput.length - 1].style.display = '';
@@ -724,7 +713,7 @@
 
         // Inicialização
         renderizarCamposLogin();
-        // REMOVEMOS o onAuthStateChanged que redirecionava automaticamente
+        // Não redireciona automaticamente – aguarda ações do usuário
     </script>
 </body>
 </html>
