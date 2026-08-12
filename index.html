@@ -215,9 +215,7 @@
         window.onload = function() {
             carregarGaleria();
             setTimeout(digitarTexto, 600);
-            auth.onAuthStateChanged(user => {
-                if (user) window.location.href = 'cim.html';
-            });
+            // Remove redirecionamento automático. Deixamos a lógica nos pontos específicos.
         };
 
         // ========== GALERIA ==========
@@ -537,7 +535,7 @@
                     const user = result.user;
                     database.ref(`users/${user.uid}`).once('value').then(snapshot => {
                         if (snapshot.exists()) {
-                            // Já cadastrado → redireciona sempre
+                            // Já cadastrado → redireciona para cim.html
                             showModal('Google Auth', 'Login com Google realizado com sucesso.');
                             document.getElementById('modalEntrada').dataset.redirect = 'cim.html';
                         } else {
@@ -726,9 +724,7 @@
 
         // Inicialização
         renderizarCamposLogin();
-        auth.onAuthStateChanged(user => {
-            if (user) window.location.href = 'cim.html';
-        });
+        // REMOVEMOS o onAuthStateChanged que redirecionava automaticamente
     </script>
 </body>
 </html>
