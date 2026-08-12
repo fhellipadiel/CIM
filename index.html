@@ -358,71 +358,72 @@
             } catch (err) { console.error(err); }
         }
 
-        // ===== FUNÇÃO CORRIGIDA DE CONSULTA CNPJ =====
+        // ===== FUNÇÃO CORRIGIDA E ROBUSTA DE CONSULTA CNPJ =====
         async function consultarCNPJ(cnpj) {
             const statusIcon = document.getElementById('cnpj-status-icon');
             const cnpjMsg = document.getElementById('cnpj-msg');
             if (!statusIcon || !cnpjMsg) return;
 
-            // Limpa status anterior e mostra carregando
             statusIcon.innerHTML = `<span class="text-xs text-neutral-400 animate-pulse">verificando...</span>`;
             cnpjMsg.innerText = "";
             cnpjMsg.className = "text-xs mt-1 px-3 text-left font-medium";
 
+            // Função auxiliar para preencher campos
+            function preencherCampos(data) {
+                document.getElementById('empresa-nome').value = data.razao_social || data.nome_fantasia || data.nome || '';
+                document.getElementById('empresa-cep').value = data.cep || '';
+                document.getElementById('empresa-logradouro').value = data.logradouro || data.street || '';
+                document.getElementById('empresa-bairro').value = data.bairro || data.neighborhood || '';
+                document.getElementById('empresa-cidade').value = data.municipio || data.city || '';
+                document.getElementById('empresa-uf').value = data.uf || data.state || '';
+                document.getElementById('empresa-numero').value = data.numero || '';
+            }
+
             try {
+                // Tentativa 1: BrasilAPI
                 const response = await fetch(`https://brasilapi.com.br/api/cnpj/v1/${cnpj}`);
-                console.log('Status da resposta:', response.status);
+                console.log('Status BrasilAPI:', response.status);
 
                 if (!response.ok) {
-                    // Se a API retornar 404, CNPJ não encontrado
-                    if (response.status === 404) {
-                        throw new Error('CNPJ não encontrado na base da Receita Federal.');
-                    } else {
-                        throw new Error(`Erro na consulta: ${response.status} - ${response.statusText}`);
-                    }
+                    throw new Error(`BrasilAPI retornou ${response.status} - ${response.statusText}`);
                 }
 
                 const data = await response.json();
-                console.log('Dados do CNPJ recebidos:', data);
+                console.log('Dados BrasilAPI:', data);
 
-                // Verifica se a situação cadastral é ativa (1)
-                const situacao = data.situacao_cadastral;
-                const ativa = (situacao === 1);
-
-                if (ativa) {
+                if (data.situacao_cadastral === 1) {
                     statusIcon.innerHTML = `<svg class="w-5 h-5 text-green-500" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg>`;
-                    cnpjMsg.innerText = "";
-                    cnpjMsg.className = "text-xs mt-1 px-3 text-left font-medium";
-
-                    // Preenche os campos
-                    const razaoSocial = data.razao_social || data.nome_fantasia || '';
-                    if (document.getElementById('empresa-nome')) document.getElementById('empresa-nome').value = razaoSocial;
-
-                    // Endereço
-                    const cep = data.cep || '';
-                    const logradouro = data.logradouro || '';
-                    const bairro = data.bairro || '';
-                    const municipio = data.municipio || '';
-                    const uf = data.uf || '';
-                    const numero = data.numero || '';
-
-                    if (document.getElementById('empresa-cep')) document.getElementById('empresa-cep').value = cep;
-                    if (document.getElementById('empresa-logradouro')) document.getElementById('empresa-logradouro').value = logradouro;
-                    if (document.getElementById('empresa-bairro')) document.getElementById('empresa-bairro').value = bairro;
-                    if (document.getElementById('empresa-cidade')) document.getElementById('empresa-cidade').value = municipio;
-                    if (document.getElementById('empresa-uf')) document.getElementById('empresa-uf').value = uf;
-                    if (document.getElementById('empresa-numero')) document.getElementById('empresa-numero').value = numero;
-
+                    cnpjMsg.innerText = "CNPJ válido e ativo";
+                    cnpjMsg.className = "text-xs text-green-500 mt-1 px-3 text-left font-medium";
+                    preencherCampos(data);
                 } else {
                     statusIcon.innerHTML = `<svg class="w-5 h-5 text-red-500" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"></path></svg>`;
-                    cnpjMsg.innerText = "CNPJ inativo ou com situação irregular.";
+                    const desc = data.descricao_situacao_cadastral || 'Situação irregular';
+                    cnpjMsg.innerText = `CNPJ com situação: ${desc}`;
                     cnpjMsg.className = "text-xs text-red-500 mt-1 px-3 text-left font-medium";
                 }
             } catch (error) {
-                console.error('Erro na consulta CNPJ:', error);
-                statusIcon.innerHTML = `<svg class="w-5 h-5 text-red-500" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"></path></svg>`;
-                cnpjMsg.innerText = error.message || "Erro na consulta. Verifique o CNPJ e tente novamente.";
-                cnpjMsg.className = "text-xs text-red-500 mt-1 px-3 text-left font-medium";
+                console.error('Erro na BrasilAPI, tentando fallback:', error);
+                // Tentativa 2: ReceitaWS (fallback)
+                try {
+                    const response2 = await fetch(`https://www.receitaws.com.br/v1/cnpj/${cnpj}`);
+                    if (!response2.ok) throw new Error('ReceitaWS retornou erro');
+                    const data2 = await response2.json();
+                    console.log('Dados ReceitaWS:', data2);
+
+                    if (data2.status === 'OK') {
+                        statusIcon.innerHTML = `<svg class="w-5 h-5 text-green-500" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg>`;
+                        cnpjMsg.innerText = "CNPJ válido e ativo";
+                        cnpjMsg.className = "text-xs text-green-500 mt-1 px-3 text-left font-medium";
+                        preencherCampos(data2);
+                    } else {
+                        throw new Error('CNPJ inativo ou inválido');
+                    }
+                } catch (fallbackError) {
+                    statusIcon.innerHTML = `<svg class="w-5 h-5 text-red-500" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"></path></svg>`;
+                    cnpjMsg.innerText = error.message || 'Erro na consulta. Verifique o CNPJ e tente novamente.';
+                    cnpjMsg.className = "text-xs text-red-500 mt-1 px-3 text-left font-medium";
+                }
             }
         }
 
@@ -507,7 +508,6 @@
                     <input type="email" placeholder="E-mail" required class="w-full bg-[#1e1e1e] text-white placeholder-neutral-500 px-6 py-4 rounded-full border-0 outline-none focus:ring-2 focus:ring-neutral-400 transition-all text-[16px]">
                     <input type="password" placeholder="Senha" required class="w-full bg-[#1e1e1e] text-white placeholder-neutral-500 px-6 py-4 rounded-full border-0 outline-none focus:ring-2 focus:ring-neutral-400 transition-all text-[16px]">
                 `;
-                // Adiciona o event listener para o CNPJ
                 const cnpjInput = document.getElementById('input-cnpj');
                 if (cnpjInput) {
                     cnpjInput.addEventListener('input', function() {
@@ -516,7 +516,6 @@
                 }
             }
 
-            // Se estiver em modo Google, oculta senha e ajusta botão
             if (modoGoogleCadastro) {
                 const inputs = container.querySelectorAll('input');
                 if (inputs.length >= 2) {
@@ -557,7 +556,6 @@
                                 const tipoContainer = document.getElementById('tipo-cadastro-container');
                                 tipoContainer.classList.remove('hidden');
                                 renderizarCamposCadastro();
-                                // Preenche e-mail e nome/razao
                                 const inputs = document.querySelectorAll('#campos-dinamicos input');
                                 const emailInput = inputs[inputs.length - 2];
                                 if (emailInput) emailInput.value = user.email || '';
