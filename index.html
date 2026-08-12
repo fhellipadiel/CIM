@@ -198,6 +198,7 @@
         let modoCriarConta = false;
         let tipoPessoa = 'fisica';
         let galleryImages = [];
+        let modoGoogleCadastro = false; // Indica pré-cadastro via Google
 
         // Efeito de digitação
         const textoCompleto = "Olá, seja bem-vindo ao catálogo CIM Global Parts";
@@ -280,11 +281,14 @@
         function alternarModo(event) {
             event.preventDefault();
             modoCriarConta = !modoCriarConta;
+            modoGoogleCadastro = false; // reset
+
             const btnPrincipal = document.getElementById('btn-principal');
             const linkModo = document.getElementById('link-modo');
             const textoGoogle = document.getElementById('texto-botao-google');
             const tipoContainer = document.getElementById('tipo-cadastro-container');
             const formContainer = document.getElementById('form-container');
+
             formContainer.style.opacity = '0';
             formContainer.style.transform = 'translateY(10px)';
             setTimeout(() => {
@@ -300,6 +304,13 @@
                     textoGoogle.innerText = "Entre com o Google";
                     tipoContainer.classList.add('hidden');
                     renderizarCamposLogin();
+                    // Garante que o campo senha reapareça
+                    const inputs = document.querySelectorAll('#campos-dinamicos input');
+                    if (inputs.length >= 2) {
+                        const senha = inputs[inputs.length - 1];
+                        senha.style.display = '';
+                        senha.required = true;
+                    }
                 }
                 formContainer.style.opacity = '1';
                 formContainer.style.transform = 'translateY(0)';
@@ -317,7 +328,24 @@
                 btnJuridica.className = "py-3 px-4 rounded-full border border-neutral-700 bg-[#1e1e1e] text-white text-sm font-medium transition-all focus:outline-none";
                 btnFisica.className = "py-3 px-4 rounded-full border border-neutral-800 bg-transparent text-neutral-400 text-sm font-medium transition-all focus:outline-none";
             }
-            renderizarCamposCadastro();
+            // Se estiver no modo de cadastro Google, mantém os valores preenchidos
+            if (modoGoogleCadastro) {
+                const user = auth.currentUser;
+                if (user) {
+                    const inputs = document.querySelectorAll('#campos-dinamicos input');
+                    const emailInput = inputs[inputs.length - 2];
+                    if (emailInput) emailInput.value = user.email || '';
+                    if (tipo === 'fisica') {
+                        const nomeInput = inputs[0];
+                        if (nomeInput && user.displayName) nomeInput.value = user.displayName;
+                    } else {
+                        const razaoInput = document.getElementById('empresa-nome');
+                        if (razaoInput && user.displayName) razaoInput.value = user.displayName;
+                    }
+                }
+            } else {
+                renderizarCamposCadastro();
+            }
         }
 
         // Máscaras e consultas
@@ -474,14 +502,109 @@
                     <input type="password" placeholder="Senha" required class="w-full bg-[#1e1e1e] text-white placeholder-neutral-500 px-6 py-4 rounded-full border-0 outline-none focus:ring-2 focus:ring-neutral-400 transition-all text-[16px]">
                 `;
             }
+            // Se estiver em modo Google cadastro, oculta senha e ajusta botão
+            if (modoGoogleCadastro) {
+                const inputs = container.querySelectorAll('input');
+                if (inputs.length >= 2) {
+                    const senha = inputs[inputs.length - 1];
+                    senha.style.display = 'none';
+                    senha.required = false;
+                }
+                document.getElementById('btn-principal').innerText = 'Concluir cadastro';
+                // Preenche email e nome novamente (já que recriamos os campos)
+                const user = auth.currentUser;
+                if (user) {
+                    const emailInput = container.querySelector('input[type="email"]');
+                    if (emailInput) emailInput.value = user.email || '';
+                    if (tipoPessoa === 'fisica') {
+                        const nomeInput = container.querySelector('input[placeholder="Nome completo"]');
+                        if (nomeInput && user.displayName) nomeInput.value = user.displayName;
+                    } else {
+                        const razaoInput = document.getElementById('empresa-nome');
+                        if (razaoInput && user.displayName) razaoInput.value = user.displayName;
+                    }
+                }
+            }
         }
 
-        // Ações com Firebase
+        // ========== AÇÕES COM FIREBASE ==========
+
+        // Login com Google
+        function acaoGoogle() {
+            const provider = new firebase.auth.GoogleAuthProvider();
+            auth.signInWithPopup(provider)
+                .then(result => {
+                    const user = result.user;
+                    database.ref(`users/${user.uid}`).once('value').then(snapshot => {
+                        if (snapshot.exists()) {
+                            // Já cadastrado → redireciona sempre
+                            showModal('Google Auth', 'Login com Google realizado com sucesso.');
+                            document.getElementById('modalEntrada').dataset.redirect = 'cim.html';
+                        } else {
+                            if (modoCriarConta) {
+                                // Fluxo de CADASTRO com Google → pré-cadastro
+                                modoGoogleCadastro = true;
+
+                                // Preenche e-mail e nome (se disponível) nos campos atuais
+                                const inputs = document.querySelectorAll('#campos-dinamicos input');
+                                const emailInput = inputs[inputs.length - 2];
+                                if (emailInput) emailInput.value = user.email || '';
+
+                                if (tipoPessoa === 'fisica') {
+                                    const nomeInput = inputs[0];
+                                    if (nomeInput && user.displayName) nomeInput.value = user.displayName;
+                                } else {
+                                    const razaoInput = document.getElementById('empresa-nome');
+                                    if (razaoInput && user.displayName) razaoInput.value = user.displayName;
+                                }
+
+                                // Oculta o campo de senha (último input)
+                                const senhaInput = inputs[inputs.length - 1];
+                                if (senhaInput) {
+                                    senhaInput.style.display = 'none';
+                                    senhaInput.required = false;
+                                }
+
+                                // Muda texto do botão principal
+                                document.getElementById('btn-principal').innerText = 'Concluir cadastro';
+
+                                // Garante que os campos de tipo de conta estejam visíveis
+                                const tipoContainer = document.getElementById('tipo-cadastro-container');
+                                if (tipoContainer.classList.contains('hidden')) {
+                                    tipoContainer.classList.remove('hidden');
+                                    // Recria os campos para garantir que estejam corretos
+                                    renderizarCamposCadastro();
+                                    // Reaplica os valores preenchidos (email e nome) após recriação
+                                    const novosInputs = document.querySelectorAll('#campos-dinamicos input');
+                                    const novoEmail = novosInputs[novosInputs.length - 2];
+                                    if (novoEmail) novoEmail.value = user.email || '';
+                                    if (tipoPessoa === 'fisica' && user.displayName) {
+                                        const novoNome = novosInputs[0];
+                                        if (novoNome) novoNome.value = user.displayName;
+                                    }
+                                }
+
+                                showModal('Google Auth', 'Complete seu cadastro preenchendo os dados abaixo.');
+                                // Remove redirecionamento automático (o modal não deve redirecionar)
+                                document.getElementById('modalEntrada').dataset.redirect = '';
+                            } else {
+                                // Fluxo de ENTRAR com Google, mas conta não existe
+                                showModal('Atenção', 'Nenhuma conta encontrada para este e‑mail. Por favor, crie uma conta clicando em "Não tenho cadastro".');
+                            }
+                        }
+                    });
+                })
+                .catch(error => showModal('Erro', error.message));
+        }
+
+        // Submissão do formulário
         async function realizarAcao(event) {
             event.preventDefault();
             const inputs = document.querySelectorAll('#campos-dinamicos input');
             let valido = true;
             inputs.forEach(input => {
+                // Se for o campo senha e estiver oculto (modoGoogleCadastro), não valida
+                if (input === inputs[inputs.length - 1] && modoGoogleCadastro) return;
                 if (!input.value.trim() && !input.disabled) {
                     input.classList.add('input-error');
                     valido = false;
@@ -491,6 +614,25 @@
             });
             if (!valido) { showModal('Atenção', 'Preencha todos os campos obrigatórios.'); return; }
 
+            // ====== Cadastro via Google (pré-cadastro) ======
+            if (modoGoogleCadastro) {
+                const user = auth.currentUser;
+                if (!user) { showModal('Erro', 'Usuário não autenticado.'); return; }
+                await salvarDadosUsuario(user.uid);
+                showModal('Cadastro concluído', 'Conta criada com sucesso!');
+                document.getElementById('modalEntrada').dataset.redirect = 'cim.html';
+                modoGoogleCadastro = false; // reseta
+                // Restaura interface (opcional)
+                const senhaInput = document.querySelectorAll('#campos-dinamicos input');
+                if (senhaInput.length) {
+                    senhaInput[senhaInput.length - 1].style.display = '';
+                    senhaInput[senhaInput.length - 1].required = true;
+                }
+                document.getElementById('btn-principal').innerText = modoCriarConta ? 'Crie uma conta' : 'Entre';
+                return;
+            }
+
+            // ====== Login / Cadastro tradicional (e‑mail/senha) ======
             const allInputs = document.querySelectorAll('#campos-dinamicos input');
             const emailInput = allInputs[allInputs.length - 2];
             const passwordInput = allInputs[allInputs.length - 1];
@@ -509,7 +651,7 @@
             } else {
                 try {
                     await auth.signInWithEmailAndPassword(email, password);
-                    showModal('Login Realizado', 'Autenticação via e-mail concluída com sucesso.');
+                    showModal('Login Realizado', 'Autenticação via e‑mail concluída com sucesso.');
                     document.getElementById('modalEntrada').dataset.redirect = 'cim.html';
                 } catch (error) {
                     showModal('Erro', error.message);
@@ -517,6 +659,7 @@
             }
         }
 
+        // Salvar dados do usuário no Realtime Database
         async function salvarDadosUsuario(uid) {
             const inputs = document.querySelectorAll('#campos-dinamicos input');
             const dados = {
@@ -549,24 +692,6 @@
                 dados.uf = document.getElementById('empresa-uf').value;
             }
             await database.ref(`users/${uid}`).update(dados);
-        }
-
-        function acaoGoogle() {
-            const provider = new firebase.auth.GoogleAuthProvider();
-            auth.signInWithPopup(provider)
-                .then(result => {
-                    const user = result.user;
-                    database.ref(`users/${user.uid}`).once('value').then(snapshot => {
-                        if (!snapshot.exists()) {
-                            showModal('Google Auth', 'Login com Google realizado. Complete seu cadastro no sistema.');
-                            document.getElementById('modalEntrada').dataset.redirect = 'cim.html';
-                        } else {
-                            showModal('Google Auth', 'Login com Google realizado com sucesso.');
-                            document.getElementById('modalEntrada').dataset.redirect = 'cim.html';
-                        }
-                    });
-                })
-                .catch(error => showModal('Erro', error.message));
         }
 
         // Modal
