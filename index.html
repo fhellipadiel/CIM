@@ -358,65 +358,65 @@
             } catch (err) { console.error(err); }
         }
 
-        // ===== FUNÇÃO CORRIGIDA DE CONSULTA CNPJ =====
+        // ========== FUNÇÃO CONSULTAR CNPJ REEESCRITA EXTREMAMENTE ==========
         async function consultarCNPJ(cnpj) {
             const statusIcon = document.getElementById('cnpj-status-icon');
             const cnpjMsg = document.getElementById('cnpj-msg');
             if (!statusIcon || !cnpjMsg) return;
 
-            // Limpa status anterior
-            statusIcon.innerHTML = `<span class="text-xs text-neutral-400 animate-pulse">verificando...</span>`;
-            cnpjMsg.innerText = "";
-            cnpjMsg.className = "text-xs mt-1 px-3 text-left font-medium";
-
-            // Função auxiliar para preencher os campos com os dados da API
-            function preencherCampos(data) {
-                // Mapeia os campos com diferentes nomes que as APIs podem usar
-                const razao = data.razao_social || data.nome_fantasia || data.nome || '';
-                const cep = data.cep || '';
-                const logradouro = data.logradouro || data.street || '';
-                const bairro = data.bairro || data.neighborhood || '';
-                const cidade = data.municipio || data.city || '';
-                const uf = data.uf || data.state || '';
-                const numero = data.numero || '';
-
-                document.getElementById('empresa-nome').value = razao;
-                document.getElementById('empresa-cep').value = cep;
-                document.getElementById('empresa-logradouro').value = logradouro;
-                document.getElementById('empresa-bairro').value = bairro;
-                document.getElementById('empresa-cidade').value = cidade;
-                document.getElementById('empresa-uf').value = uf;
-                document.getElementById('empresa-numero').value = numero;
-                console.log('Campos preenchidos com sucesso:', { razao, cep, logradouro, bairro, cidade, uf, numero });
-            }
+            // Limpa e mostra carregando
+            statusIcon.innerHTML = `<span class="text-xs text-neutral-400 animate-pulse">⏳</span>`;
+            cnpjMsg.innerText = "Consultando...";
+            cnpjMsg.className = "text-xs text-neutral-400 mt-1 px-3 text-left font-medium";
 
             try {
-                // Tentativa 1: BrasilAPI
+                // Chama a BrasilAPI
                 const response = await fetch(`https://brasilapi.com.br/api/cnpj/v1/${cnpj}`);
-                console.log('BrasilAPI - status:', response.status);
+                console.log('✅ BrasilAPI status:', response.status);
 
                 if (!response.ok) {
-                    throw new Error(`BrasilAPI retornou ${response.status}`);
+                    throw new Error(`HTTP ${response.status} - ${response.statusText}`);
                 }
 
                 const data = await response.json();
-                console.log('Dados BrasilAPI:', data);
+                console.log('📦 Dados recebidos da BrasilAPI:', data);
 
                 // Verifica se a situação é ativa (1 ou "1")
                 const situacao = Number(data.situacao_cadastral);
-                if (situacao === 1) {
-                    // Ativo: ícone verde e preenche campos
+                const ativo = (situacao === 1);
+
+                if (ativo) {
+                    // SUCESSO: CNPJ ativo
                     statusIcon.innerHTML = `<svg class="w-5 h-5 text-green-500" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg>`;
-                    cnpjMsg.innerText = "CNPJ ativo";
+                    cnpjMsg.innerText = "✅ CNPJ ativo";
                     cnpjMsg.className = "text-xs text-green-500 mt-1 px-3 text-left font-medium";
-                    preencherCampos(data);
+
+                    // Preenche os campos
+                    const empresaNome = document.getElementById('empresa-nome');
+                    const empresaCep = document.getElementById('empresa-cep');
+                    const empresaLogradouro = document.getElementById('empresa-logradouro');
+                    const empresaBairro = document.getElementById('empresa-bairro');
+                    const empresaCidade = document.getElementById('empresa-cidade');
+                    const empresaUf = document.getElementById('empresa-uf');
+                    const empresaNumero = document.getElementById('empresa-numero');
+
+                    if (empresaNome) empresaNome.value = data.razao_social || data.nome_fantasia || '';
+                    if (empresaCep) empresaCep.value = data.cep || '';
+                    if (empresaLogradouro) empresaLogradouro.value = data.logradouro || '';
+                    if (empresaBairro) empresaBairro.value = data.bairro || '';
+                    if (empresaCidade) empresaCidade.value = data.municipio || '';
+                    if (empresaUf) empresaUf.value = data.uf || '';
+                    if (empresaNumero) empresaNumero.value = data.numero || '';
+
+                    console.log('✅ Campos preenchidos com sucesso');
                 } else {
-                    // Inativo: ícone vermelho e mensagem descritiva
-                    const desc = data.descricao_situacao_cadastral || 'Situação irregular';
+                    // INATIVO
+                    const descricao = data.descricao_situacao_cadastral || 'Situação irregular';
                     statusIcon.innerHTML = `<svg class="w-5 h-5 text-red-500" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"></path></svg>`;
-                    cnpjMsg.innerText = `CNPJ com situação: ${desc}`;
+                    cnpjMsg.innerText = `❌ CNPJ inativo: ${descricao}`;
                     cnpjMsg.className = "text-xs text-red-500 mt-1 px-3 text-left font-medium";
-                    // Limpa campos (opcional)
+
+                    // Limpa campos (opcional, mas evita dados inconsistentes)
                     document.getElementById('empresa-nome').value = '';
                     document.getElementById('empresa-cep').value = '';
                     document.getElementById('empresa-logradouro').value = '';
@@ -426,41 +426,18 @@
                     document.getElementById('empresa-numero').value = '';
                 }
             } catch (error) {
-                console.error('Erro na BrasilAPI, tentando fallback ReceitaWS:', error);
-                // Fallback: ReceitaWS
-                try {
-                    const response2 = await fetch(`https://www.receitaws.com.br/v1/cnpj/${cnpj}`);
-                    console.log('ReceitaWS - status:', response2.status);
-                    if (!response2.ok) throw new Error('ReceitaWS retornou erro');
-
-                    const data2 = await response2.json();
-                    console.log('Dados ReceitaWS:', data2);
-
-                    if (data2.status === 'OK') {
-                        statusIcon.innerHTML = `<svg class="w-5 h-5 text-green-500" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg>`;
-                        cnpjMsg.innerText = "CNPJ ativo";
-                        cnpjMsg.className = "text-xs text-green-500 mt-1 px-3 text-left font-medium";
-                        preencherCampos(data2);
-                    } else {
-                        // Inativo ou erro
-                        statusIcon.innerHTML = `<svg class="w-5 h-5 text-red-500" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"></path></svg>`;
-                        cnpjMsg.innerText = "CNPJ inativo ou inválido.";
-                        cnpjMsg.className = "text-xs text-red-500 mt-1 px-3 text-left font-medium";
-                        // Limpa campos
-                        document.getElementById('empresa-nome').value = '';
-                        document.getElementById('empresa-cep').value = '';
-                        document.getElementById('empresa-logradouro').value = '';
-                        document.getElementById('empresa-bairro').value = '';
-                        document.getElementById('empresa-cidade').value = '';
-                        document.getElementById('empresa-uf').value = '';
-                        document.getElementById('empresa-numero').value = '';
-                    }
-                } catch (fallbackError) {
-                    console.error('Ambas as APIs falharam:', fallbackError);
-                    statusIcon.innerHTML = `<svg class="w-5 h-5 text-red-500" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"></path></svg>`;
-                    cnpjMsg.innerText = "Erro na consulta. Verifique o CNPJ e tente novamente.";
-                    cnpjMsg.className = "text-xs text-red-500 mt-1 px-3 text-left font-medium";
-                }
+                console.error('❌ Erro na consulta:', error);
+                statusIcon.innerHTML = `<svg class="w-5 h-5 text-red-500" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"></path></svg>`;
+                cnpjMsg.innerText = `⚠️ Erro: ${error.message}`;
+                cnpjMsg.className = "text-xs text-red-500 mt-1 px-3 text-left font-medium";
+                // Limpa campos
+                document.getElementById('empresa-nome').value = '';
+                document.getElementById('empresa-cep').value = '';
+                document.getElementById('empresa-logradouro').value = '';
+                document.getElementById('empresa-bairro').value = '';
+                document.getElementById('empresa-cidade').value = '';
+                document.getElementById('empresa-uf').value = '';
+                document.getElementById('empresa-numero').value = '';
             }
         }
 
