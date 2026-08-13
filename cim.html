@@ -2008,7 +2008,7 @@
             border-radius: 10px;
             padding: 10px 14px;
             display: flex;
-            align-items: center;
+            align-items: flex-start;
             gap: 12px;
             border: 1px solid #333;
             margin-bottom: 8px;
@@ -2041,6 +2041,7 @@
         }
         .user-list-item .user-data {
             flex: 1;
+            min-width: 0;
         }
         .user-list-item .user-data .user-name {
             color: #fff;
@@ -2054,6 +2055,7 @@
         .user-list-item .user-data .user-doc {
             color: #ff6b00;
             font-size: 0.75rem;
+            font-weight: 500;
         }
         .user-list-item .user-data .user-phone {
             color: #aaa;
@@ -2070,11 +2072,29 @@
             color: #ff6b00;
             width: 14px;
         }
+        .user-list-item .user-data .user-details {
+            display: none;
+            margin-top: 10px;
+            padding: 10px;
+            background: #1a1a1a;
+            border-radius: 8px;
+            border: 1px solid #333;
+            font-size: 0.85rem;
+            color: #ccc;
+            line-height: 1.8;
+        }
+        .user-list-item .user-data .user-details.show {
+            display: block;
+        }
+        .user-list-item .user-data .user-details strong {
+            color: #ff6b00;
+        }
         .user-list-item .user-actions {
             display: flex;
             gap: 4px;
             align-items: center;
             flex-wrap: wrap;
+            flex-shrink: 0;
         }
         .user-list-item .user-actions .whatsapp-btn {
             background: #25d366;
@@ -3445,7 +3465,7 @@
                     <button class="admin-btn warning" onclick="openNoPriceModal()"><i class="fas fa-exclamation-triangle"></i> Sem Preço</button>
                     <button class="admin-btn info" onclick="openSetMetaModal()"><i class="fas fa-bullseye"></i> Definir Meta</button>
                     <button class="admin-btn success" onclick="openCreateClientModal()"><i class="fas fa-user-plus"></i> Criar Cliente</button>
-                    <button class="admin-btn primary" onclick="openGalleryManager()"><i class="fas fa-images"></i> Galeria</button> <!-- NOVO -->
+                    <button class="admin-btn primary" onclick="openGalleryManager()"><i class="fas fa-images"></i> Galeria</button>
                 </div>
             </div>
 
@@ -3499,7 +3519,7 @@
 
     <!-- ==================== MODAIS ==================== -->
 
-    <!-- GALERIA MANAGER MODAL (NOVO) -->
+    <!-- GALERIA MANAGER MODAL -->
     <div class="modal" id="galleryManagerModal">
         <div class="modal-content large">
             <button class="modal-close" onclick="closeGalleryManager()"><i class="fas fa-times"></i></button>
@@ -3523,8 +3543,7 @@
         </div>
     </div>
 
-    <!-- Os demais modais (login, register, etc.) foram removidos, pois o login é feito no index.html -->
-    <!-- ========== MODAL FORCE RESET ========== -->
+    <!-- FORCE RESET MODAL -->
     <div class="modal" id="forceResetModal">
         <div class="modal-content">
             <button class="modal-close" onclick="closeForceResetModal()"><i class="fas fa-times"></i></button>
@@ -3970,7 +3989,7 @@
         </div>
     </div>
 
-    <!-- ADMIN USERS MODAL (sem alterações) -->
+    <!-- ADMIN USERS MODAL -->
     <div class="modal" id="adminUsersModal">
         <div class="modal-content large">
             <button class="modal-close" onclick="closeAdminUsersModal()"><i class="fas fa-times"></i></button>
@@ -4252,6 +4271,24 @@
         function formatDateTime(ts) {
             if (!ts) return '—';
             try { return new Date(ts).toLocaleString('pt-BR'); } catch (e) { return '—'; }
+        }
+
+        // ========== FUNÇÕES DO USUÁRIO ==========
+        function toggleUserData(uid) {
+            const element = document.getElementById(`user-details-${uid}`);
+            if (element) {
+                element.classList.toggle('show');
+                const btn = document.querySelector(`[data-toggle-user="${uid}"]`);
+                if (btn) {
+                    if (element.classList.contains('show')) {
+                        btn.innerHTML = '<i class="fas fa-eye-slash"></i>';
+                        btn.title = 'Ocultar dados';
+                    } else {
+                        btn.innerHTML = '<i class="fas fa-eye"></i>';
+                        btn.title = 'Mostrar dados';
+                    }
+                }
+            }
         }
 
         // ========== CARRINHO ==========
@@ -6725,11 +6762,11 @@
                     userType: data.userType || null,
                     cpf: data.cpf || '',
                     cnpj: data.cnpj || '',
+                    telefone: data.telefone || '',
                     companyData: data.companyData || null,
                     isAdmin: data.isAdmin || false,
                     createdAt: data.createdAt || null,
                     lastAccess: data.lastAccess || null,
-                    telefone: data.telefone || '',
                     mustChangePassword: data.mustChangePassword || false
                 };
                 currentUserPhoto = data.photoURL || DEFAULT_USER_AVATAR;
@@ -7086,23 +7123,21 @@
                     '';
                 const doc = u.userType === 'PF' ? formatCpfCnpj(u.cpf || '', 'PF') : formatCpfCnpj(u.cnpj || '', 'PJ');
                 const phone = u.telefone || '';
+                const phoneFormatted = phone ? formatCpfCnpj(phone, 'PF') : '—';
                 const phoneLink = phone ? `https://wa.me/55${phone}` : '#';
-                const phoneDisplay = phone ? formatCpfCnpj(phone, 'PF') : '—';
-                let companyInfo = '';
-                if (u.userType === 'PJ' && u.companyData) {
-                    const d = u.companyData;
-                    companyInfo = `
-                                <div style="font-size:0.7rem;color:#aaa;margin-top:2px;">
-                                    ${escapeHtml(d.nome || '')} | ${escapeHtml(d.fantasia || '')} | ${escapeHtml(d.logradouro || '')}, ${escapeHtml(d.numero || '')} - ${escapeHtml(d.bairro || '')}, ${escapeHtml(d.municipio || '')} - ${escapeHtml(d.uf || '')}
-                                </div>
-                            `;
-                }
-                const datesInfo = `
-                            <div class="user-dates">
-                                <i class="fas fa-calendar-plus"></i> Criado em: ${formatDateTime(u.createdAt)}<br>
-                                <i class="fas fa-clock"></i> Último acesso: ${formatDateTime(u.lastAccess)}
-                            </div>
-                        `;
+                
+                const hiddenData = {
+                    email: u.email || '',
+                    cep: u.cep || '—',
+                    logradouro: u.logradouro || '—',
+                    numero: u.numero || '—',
+                    complemento: u.complemento || '—',
+                    bairro: u.bairro || '—',
+                    cidade: u.cidade || '—',
+                    uf: u.uf || '—',
+                    inscricao_estadual: u.inscricao_estadual || '—'
+                };
+                
                 const now = Date.now();
                 const lastAccess = u.lastAccess || 0;
                 const isOnline = (now - lastAccess) < 5 * 60 * 1000;
@@ -7110,22 +7145,37 @@
                 const statusText = isOnline ? 'Online' : 'Offline';
 
                 html += `
-                            <div class="user-list-item">
+                            <div class="user-list-item" data-uid="${u.uid}">
                                 <div class="user-avatar">
                                     ${avatar}
                                     <div class="default-avatar" style="${avatar ? 'display:none;' : 'display:flex;'}"><i class="fas fa-user"></i></div>
                                 </div>
                                 <div class="user-data">
                                     <div class="user-name">${escapeHtml(u.name || 'Sem nome')}</div>
-                                    <div class="user-email">${escapeHtml(u.email || '')}</div>
                                     <div class="user-doc">${doc}</div>
-                                    <div class="user-phone"><i class="fas fa-phone"></i> ${phoneDisplay}</div>
-                                    ${companyInfo}
-                                    ${datesInfo}
+                                    <div class="user-phone"><i class="fas fa-phone"></i> ${phoneFormatted}</div>
+                                    <div class="user-dates">
+                                        <i class="fas fa-calendar-plus"></i> Criado em: ${formatDateTime(u.createdAt)}<br>
+                                        <i class="fas fa-clock"></i> Último acesso: ${formatDateTime(u.lastAccess)}
+                                    </div>
                                     <span class="user-status ${statusClass}">${statusText}</span>
+                                    <div id="user-details-${u.uid}" class="user-details">
+                                        <div><strong>E-mail:</strong> ${escapeHtml(hiddenData.email)}</div>
+                                        <div><strong>CEP:</strong> ${escapeHtml(hiddenData.cep)}</div>
+                                        <div><strong>Logradouro:</strong> ${escapeHtml(hiddenData.logradouro)}</div>
+                                        <div><strong>Número:</strong> ${escapeHtml(hiddenData.numero)}</div>
+                                        <div><strong>Complemento:</strong> ${escapeHtml(hiddenData.complemento)}</div>
+                                        <div><strong>Bairro:</strong> ${escapeHtml(hiddenData.bairro)}</div>
+                                        <div><strong>Cidade:</strong> ${escapeHtml(hiddenData.cidade)}</div>
+                                        <div><strong>UF:</strong> ${escapeHtml(hiddenData.uf)}</div>
+                                        ${u.userType === 'PJ' ? `<div><strong>Inscrição Estadual:</strong> ${escapeHtml(hiddenData.inscricao_estadual)}</div>` : ''}
+                                    </div>
                                 </div>
                                 <div class="user-actions">
                                     ${phone ? `<a href="${phoneLink}" target="_blank" class="whatsapp-btn" title="WhatsApp"><i class="fab fa-whatsapp"></i></a>` : ''}
+                                    <button class="admin-action-btn" onclick="toggleUserData('${u.uid}')" data-toggle-user="${u.uid}" title="Mostrar dados">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
                                     ${!u.isAdmin ? `
                                         <button class="admin-action-btn" onclick="changeUserType('${u.uid}')" title="Alterar tipo (PF/PJ)"><i class="fas fa-exchange-alt"></i></button>
                                         <button class="admin-action-btn promo" onclick="applyPromoToUser('${u.uid}')" title="Aplicar promoção"><i class="fas fa-percent"></i></button>
@@ -7136,6 +7186,24 @@
                         `;
             });
             container.innerHTML = html;
+        }
+
+        // ========== FUNÇÃO PARA ALTERNAR VISIBILIDADE DOS DADOS ==========
+        function toggleUserData(uid) {
+            const element = document.getElementById(`user-details-${uid}`);
+            if (element) {
+                element.classList.toggle('show');
+                const btn = document.querySelector(`[data-toggle-user="${uid}"]`);
+                if (btn) {
+                    if (element.classList.contains('show')) {
+                        btn.innerHTML = '<i class="fas fa-eye-slash"></i>';
+                        btn.title = 'Ocultar dados';
+                    } else {
+                        btn.innerHTML = '<i class="fas fa-eye"></i>';
+                        btn.title = 'Mostrar dados';
+                    }
+                }
+            }
         }
 
         function deleteUser(uid) {
@@ -7189,7 +7257,7 @@
             });
         }
 
-        // ========== GERENCIADOR DE GALERIA (NOVO) ==========
+        // ========== GERENCIADOR DE GALERIA ==========
         let galleryImagesCache = [];
 
         function openGalleryManager() {
@@ -7280,19 +7348,22 @@
         // ========== REDIRECIONAMENTO DE AUTENTICAÇÃO ==========
         function logoutUser() {
             if (confirm('Deseja sair?')) {
+                showLoading('Saindo...');
                 auth.signOut().then(() => {
+                    hideLoading();
+                    // Limpar dados do usuário
                     currentUser = null;
                     currentUserPhoto = null;
                     isAdminUser = false;
                     isAdmin = false;
-                    updateProfileUIUser();
-                    updatePriceDisplay();
-                    filterProducts();
+                    cart = [];
                     updateCart();
-                    showToast('Até logo!');
-                    closeProfileDropdown();
-                    closeBottomMenu();
+                    clearCartStorage();
+                    // Redirecionar para o index
                     window.location.href = 'index.html';
+                }).catch((error) => {
+                    hideLoading();
+                    showToast('Erro ao sair: ' + error.message, 'error');
                 });
             }
         }
@@ -7305,6 +7376,7 @@
         auth.onAuthStateChanged((user) => {
             if (user) {
                 const uid = user.uid;
+                // Verificar se é o admin
                 if (user.email === 'cim@gmail.com') {
                     database.ref(`users/${uid}`).once('value').then((snapshot) => {
                         if (!snapshot.exists()) {
@@ -7332,6 +7404,7 @@
                         }
                     });
                 } else {
+                    // Usuário normal
                     database.ref(`users/${uid}`).once('value').then((snapshot) => {
                         if (snapshot.exists()) {
                             const data = snapshot.val();
@@ -7340,31 +7413,45 @@
                             database.ref(`users/${uid}/lastAccess`).set(Date.now());
                             loadUserData(uid);
                         } else {
+                            // Usuário existe no Firebase Auth mas não no Realtime Database
                             if (user.providerData && user.providerData[0]?.providerId === 'google.com') {
+                                showToast('Complete seu cadastro', 'info');
                                 window.location.href = 'index.html?complete=true';
                             } else {
                                 showToast('Complete seu cadastro', 'info');
                                 window.location.href = 'index.html?complete=true';
                             }
                         }
+                    }).catch(() => {
+                        showToast('Erro ao carregar dados do usuário', 'error');
+                        window.location.href = 'index.html';
                     });
                 }
             } else {
+                // Usuário NÃO está logado - REDIRECIONAR PARA INDEX
                 currentUser = null;
                 currentUserPhoto = null;
                 isAdmin = false;
                 isAdminUser = false;
+                
+                // Atualizar UI
                 updateProfileUIUser();
                 updatePriceDisplay();
                 filterProducts();
                 updateCart();
+                
+                // Ocultar elementos admin
                 adminBar.style.display = 'none';
                 document.body.classList.remove('admin-mode');
                 document.getElementById('editProfileBadge').style.display = 'none';
                 document.getElementById('adminContactsActions').style.display = 'none';
                 instagramEditIcon.style.display = 'none';
                 closeProfileDropdown();
-                window.location.href = 'index.html';
+                
+                // Redirecionar para a página de login
+                if (window.location.pathname.includes('cim.html')) {
+                    window.location.href = 'index.html';
+                }
             }
         });
 
@@ -7508,14 +7595,6 @@
         window.openClickHistoryModal = openClickHistoryModal;
         window.closeClickHistoryModal = closeClickHistoryModal;
         window.clearClickHistory = clearClickHistory;
-        window.openLoginModal = openLoginModal;
-        window.closeLoginModal = closeLoginModal;
-        window.doLogin = doLogin;
-        window.openRegisterModal = openRegisterModal;
-        window.closeRegisterModal = closeRegisterModal;
-        window.doRegister = doRegister;
-        window.loginWithGoogle = loginWithGoogle;
-        window.registerWithGoogle = registerWithGoogle;
         window.logoutUser = logoutUser;
         window.logoutAdmin = logoutAdmin;
         window.handleProfileBtnClick = handleProfileBtnClick;
@@ -7526,6 +7605,7 @@
         window.deleteUser = deleteUser;
         window.changeUserType = changeUserType;
         window.applyPromoToUser = applyPromoToUser;
+        window.toggleUserData = toggleUserData;
         window.openPromocoesModal = openPromocoesModal;
         window.closePromocoesModal = closePromocoesModal;
         window.openNovaPromocaoModal = openNovaPromocaoModal;
@@ -7571,6 +7651,11 @@
         console.log('Botões para alterar tipo de usuário e aplicar promoção personalizada.');
         console.log('Emojis removidos do sistema.');
         console.log('Gerenciador de galeria adicionado (fotos do login).');
+        console.log('Telefone adicionado no cadastro e visualização no admin.');
+        console.log('Dados do cliente ocultos com botão "Mostrar" para revelar.');
+        console.log('Ícone do WhatsApp para cada cliente.');
+        console.log('CNPJ salva corretamente com Razão Social.');
+        console.log('Correção de logout: redireciona para index.html');
     </script>
 </body>
 </html>
