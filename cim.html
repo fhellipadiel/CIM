@@ -714,8 +714,12 @@
         }
 
         @keyframes brandScroll {
-            0% { transform: translateX(0); }
-            100% { transform: translateX(-50%); }
+            0% {
+                transform: translateX(0);
+            }
+            100% {
+                transform: translateX(-50%);
+            }
         }
         .brand-marquee-track {
             display: flex;
@@ -911,7 +915,7 @@
             font-size: 0.8rem;
             font-weight: 700;
             z-index: 15;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.4);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.4);
             text-align: center;
             width: 120px;
             letter-spacing: 1px;
@@ -1559,6 +1563,143 @@
             font-size: 0.7rem;
             color: #ff6b00;
             margin-left: auto;
+        }
+
+        /* ========== HISTÓRICO DE IMPORTAÇÃO ========== */
+        .import-history-container {
+            margin-top: 20px;
+            border-top: 1px solid #333;
+            padding-top: 20px;
+        }
+        .import-history-container h3 {
+            color: #fff;
+            font-size: 1.1rem;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .import-history-container h3 i {
+            color: #ff6b00;
+        }
+
+        #importHistoryList {
+            max-height: 400px;
+            overflow-y: auto;
+            padding: 5px;
+            scrollbar-width: thin;
+            scrollbar-color: #ff6b00 #222;
+        }
+        #importHistoryList::-webkit-scrollbar {
+            width: 6px;
+        }
+        #importHistoryList::-webkit-scrollbar-track {
+            background: #222;
+            border-radius: 10px;
+        }
+        #importHistoryList::-webkit-scrollbar-thumb {
+            background: #ff6b00;
+            border-radius: 10px;
+        }
+
+        .import-history-item {
+            background: #1a1a1a;
+            border-radius: 10px;
+            padding: 12px 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border: 1px solid #333;
+            margin-bottom: 10px;
+            transition: all 0.3s ease;
+        }
+        .import-history-item:hover {
+            border-color: #ff6b00;
+            background: #222;
+        }
+        .import-history-item .import-info {
+            flex: 1;
+            min-width: 0;
+        }
+        .import-history-item .import-info .import-file-name {
+            font-weight: 600;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .import-history-item .import-info .import-file-name i {
+            color: #ff6b00;
+        }
+        .import-history-item .import-info .import-stats {
+            font-size: 0.85rem;
+            color: #aaa;
+            margin-top: 4px;
+        }
+        .import-history-item .import-info .import-stats .stat-added {
+            color: #28a745;
+        }
+        .import-history-item .import-info .import-stats .stat-updated {
+            color: #ffc107;
+        }
+        .import-history-item .import-info .import-stats .stat-skipped {
+            color: #888;
+        }
+        .import-history-item .import-info .import-stats .stat-linked {
+            color: #ff6b00;
+        }
+        .import-history-item .import-info .import-date {
+            font-size: 0.75rem;
+            color: #666;
+            margin-top: 2px;
+        }
+        .import-history-item .import-actions {
+            display: flex;
+            gap: 6px;
+            flex-shrink: 0;
+        }
+        .import-history-item .import-actions .admin-btn {
+            padding: 4px 12px;
+            font-size: 0.75rem;
+            border-radius: 6px;
+        }
+        .import-history-item .import-actions .admin-btn.danger {
+            background: #dc3545;
+            color: #fff;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .import-history-item .import-actions .admin-btn.danger:hover {
+            background: #c82333;
+            transform: scale(1.05);
+        }
+
+        /* ========== TABS DE IMPORTAÇÃO ========== */
+        .import-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #333;
+            padding-bottom: 10px;
+        }
+        .import-tab {
+            padding: 8px 20px;
+            background: transparent;
+            border: none;
+            border-bottom: 2px solid transparent;
+            color: #888;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+        }
+        .import-tab.active {
+            color: #ff6b00;
+            border-bottom-color: #ff6b00;
+        }
+        .import-tab:hover {
+            color: #fff;
         }
 
         /* ========== CARRINHO PANEL ========== */
@@ -2477,7 +2618,8 @@
                 font-size: 0.8rem;
             }
 
-            #sessionPromoBanner, #categoryPromoBanner {
+            #sessionPromoBanner,
+            #categoryPromoBanner {
                 display: none !important;
             }
             .product-card .promo-ribbon {
@@ -3074,7 +3216,7 @@
             white-space: nowrap;
             z-index: 5;
             line-height: 1.2;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.5);
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.5);
         }
 
         .session-clicks {
@@ -3212,7 +3354,8 @@
         }
 
         /* ========== BANNERS DE PROMOÇÃO - OCULTOS ========== */
-        #sessionPromoBanner, #categoryPromoBanner {
+        #sessionPromoBanner,
+        #categoryPromoBanner {
             display: none !important;
         }
 
@@ -3590,43 +3733,61 @@
     <div class="modal" id="importNamesModal">
         <div class="modal-content large">
             <button class="modal-close" onclick="closeImportNamesModal()"><i class="fas fa-times"></i></button>
-            <div class="modal-header"><h2>Importar Peças do Arquivo .CSV</h2></div>
+            <div class="modal-header"><h2><i class="fas fa-file-import"></i> Gerenciar Importações</h2></div>
             <div class="modal-body">
-                <div class="form-group">
-                    <p style="color:#cccccc;font-size:0.9rem;margin-bottom:12px;">
-                        <strong>Formato esperado (separador: vírgula ou ponto-e-vírgula):</strong><br>
-                        <strong>Coluna A:</strong> Nome da peça (obrigatório)<br>
-                        <strong>Coluna B:</strong> Preço PF (opcional)<br>
-                        <strong>Coluna C:</strong> Preço PJ (opcional)<br>
-                        <strong>Coluna D:</strong> Categoria (opcional)<br>
-                        <strong>Coluna E:</strong> Código (opcional)<br>
-                        <strong>Coluna F:</strong> Marca (opcional)<br>
-                        <strong>Coluna G:</strong> Link da foto (opcional)<br>
-                        <strong>Coluna H:</strong> Filtro (opcional) – usado apenas se a opção abaixo estiver marcada.
-                    </p>
-                    <div class="checkbox-group">
-                        <input type="checkbox" id="filterByColH">
-                        <label for="filterByColH">Filtrar pela coluna H (apenas A e B)</label>
-                    </div>
-                    <p style="color:#ff6b00;font-size:0.85rem;"><i class="fas fa-info-circle"></i> Linhas com nome em branco serão ignoradas.</p>
+                <!-- Tabs -->
+                <div class="import-tabs">
+                    <button class="import-tab active" onclick="switchImportTab('import')" id="importTabImport"><i class="fas fa-upload"></i> Importar</button>
+                    <button class="import-tab" onclick="switchImportTab('history')" id="importTabHistory"><i class="fas fa-history"></i> Histórico</button>
                 </div>
-                <div class="import-area" id="importArea" onclick="document.getElementById('csvFileInput').click()">
-                    <i class="fas fa-file-csv"></i>
-                    <p>Clique para selecionar o arquivo .CSV</p>
-                    <small>Arquivo com separador vírgula ou ponto-e-vírgula</small>
-                    <input type="file" id="csvFileInput" accept=".csv,.txt" style="display: none;">
-                </div>
-                <div id="importPreview" style="display: none;">
-                    <h3 style="color:#ff6b00;margin:20px 0 10px;">Pré-visualização:</h3>
-                    <div class="import-preview" id="importPreviewList"></div>
-                    <p style="color:#cccccc;margin:10px 0;" id="importCount"></p>
-                    <div class="checkbox-group" style="margin:20px 0;">
-                        <input type="checkbox" id="confirmImport">
-                        <label for="confirmImport">Confirmo que quero importar estas peças</label>
+
+                <!-- Aba Importar -->
+                <div id="importTabContent">
+                    <div class="form-group">
+                        <p style="color:#cccccc;font-size:0.9rem;margin-bottom:12px;">
+                            <strong>Formato esperado (separador: vírgula ou ponto-e-vírgula):</strong><br>
+                            <strong>Coluna A:</strong> Nome da peça (obrigatório)<br>
+                            <strong>Coluna B:</strong> Preço PF (opcional)<br>
+                            <strong>Coluna C:</strong> Preço PJ (opcional)<br>
+                            <strong>Coluna D:</strong> Categoria (opcional)<br>
+                            <strong>Coluna E:</strong> Código (opcional)<br>
+                            <strong>Coluna F:</strong> Marca (opcional)<br>
+                            <strong>Coluna G:</strong> Link da foto (opcional)<br>
+                            <strong>Coluna H:</strong> Filtro (opcional) – usado apenas se a opção abaixo estiver marcada.
+                        </p>
+                        <div class="checkbox-group">
+                            <input type="checkbox" id="filterByColH">
+                            <label for="filterByColH">Filtrar pela coluna H (apenas A e B)</label>
+                        </div>
+                        <p style="color:#ff6b00;font-size:0.85rem;"><i class="fas fa-info-circle"></i> Linhas com nome em branco serão ignoradas.</p>
+                        <p style="color:#28a745;font-size:0.85rem;margin-top:8px;"><i class="fas fa-check-circle"></i> Importação inteligente: peças existentes serão atualizadas ou ignoradas.</p>
                     </div>
-                    <div style="display:flex;gap:10px;">
-                        <button class="btn btn-outline" style="flex:1;" onclick="closeImportNamesModal()">Cancelar</button>
-                        <button class="btn btn-primary" style="flex:1;" onclick="importNames()" id="importButton" disabled><i class="fas fa-file-import"></i> Importar Peças</button>
+                    <div class="import-area" id="importArea" onclick="document.getElementById('csvFileInput').click()">
+                        <i class="fas fa-file-csv"></i>
+                        <p>Clique para selecionar o arquivo .CSV</p>
+                        <small>Arquivo com separador vírgula ou ponto-e-vírgula</small>
+                        <input type="file" id="csvFileInput" accept=".csv,.txt" style="display: none;">
+                    </div>
+                    <div id="importPreview" style="display: none;">
+                        <h3 style="color:#ff6b00;margin:20px 0 10px;">Pré-visualização:</h3>
+                        <div class="import-preview" id="importPreviewList"></div>
+                        <p style="color:#cccccc;margin:10px 0;" id="importCount"></p>
+                        <div class="checkbox-group" style="margin:20px 0;">
+                            <input type="checkbox" id="confirmImport">
+                            <label for="confirmImport">Confirmo que quero importar estas peças</label>
+                        </div>
+                        <div style="display:flex;gap:10px;">
+                            <button class="btn btn-outline" style="flex:1;" onclick="closeImportNamesModal()">Cancelar</button>
+                            <button class="btn btn-primary" style="flex:1;" onclick="importNames()" id="importButton" disabled><i class="fas fa-file-import"></i> Importar Peças</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Aba Histórico -->
+                <div id="historyTabContent" style="display:none;">
+                    <div class="import-history-container">
+                        <h3><i class="fas fa-clock"></i> Arquivos Importados</h3>
+                        <div id="importHistoryList"></div>
                     </div>
                 </div>
             </div>
@@ -4047,11 +4208,6 @@
         </div>
     </div>
 
-    <!-- FORCE PASSWORD RESET MODAL -->
-    <div class="modal" id="forceResetModal">
-        <!-- já está acima -->
-    </div>
-
     <!-- ==================== CARRINHO PANEL ==================== -->
     <div class="cart-panel" id="cartPanel">
         <div class="cart-header">
@@ -4135,6 +4291,7 @@
         let currentUser = null;
         let currentUserPhoto = null;
         let isAdminUser = false;
+        let importCurrentTab = 'import';
 
         // ========== DOM REFS ==========
         const productsGrid = document.getElementById('productsGrid');
@@ -4182,7 +4339,7 @@
             setTimeout(() => {
                 toast.style.animation = 'toastOut 0.3s ease';
                 setTimeout(() => document.body.removeChild(toast), 300);
-            }, 2000);
+            }, 3000);
         }
 
         function showLoading(msg = 'Enviando...') {
@@ -6410,6 +6567,320 @@
             });
         }
 
+        // ========== FUNÇÕES DE IMPORTAÇÃO COM HISTÓRICO ==========
+
+        function switchImportTab(tab) {
+            importCurrentTab = tab;
+            document.getElementById('importTabImport').classList.toggle('active', tab === 'import');
+            document.getElementById('importTabHistory').classList.toggle('active', tab === 'history');
+            document.getElementById('importTabContent').style.display = tab === 'import' ? 'block' : 'none';
+            document.getElementById('historyTabContent').style.display = tab === 'history' ? 'block' : 'none';
+            if (tab === 'history') {
+                renderImportHistory();
+            }
+        }
+
+        function renderImportHistory() {
+            const container = document.getElementById('importHistoryList');
+            if (!container) return;
+
+            database.ref('importHistory').orderByChild('timestamp').limitToLast(50).on('value', (snapshot) => {
+                const history = [];
+                snapshot.forEach(child => {
+                    history.push({ id: child.key, ...child.val() });
+                });
+                history.reverse();
+
+                if (history.length === 0) {
+                    container.innerHTML = `
+                                <div style="text-align:center;padding:30px;color:#888;">
+                                    <i class="fas fa-file-import" style="font-size:2rem;color:#ff6b00;opacity:0.5;"></i>
+                                    <p>Nenhum arquivo importado ainda</p>
+                                </div>
+                            `;
+                    return;
+                }
+
+                container.innerHTML = history.map(item => `
+                            <div class="import-history-item" style="border-left: 3px solid ${item.newItems > 0 ? '#28a745' : '#ffc107'};">
+                                <div class="import-info">
+                                    <div class="import-file-name">
+                                        <i class="fas fa-file-csv"></i>
+                                        <strong>${escapeHtml(item.fileName)}</strong>
+                                        <span style="font-size:0.7rem;background:#333;padding:2px 10px;border-radius:12px;color:#aaa;">
+                                            ${item.date || ''} ${item.time || ''}
+                                        </span>
+                                    </div>
+                                    <div class="import-stats">
+                                        <span class="stat-added">+${item.newItems || 0}</span> adicionadas, 
+                                        <span class="stat-updated">${item.updatedItems || 0}</span> atualizadas, 
+                                        <span class="stat-skipped">${item.skippedItems || 0}</span> ignoradas
+                                        ${item.addedProductIds ? `| <span class="stat-linked">${item.addedProductIds.length}</span> peças vinculadas` : ''}
+                                        <div style="font-size:0.75rem;color:#666;margin-top:2px;">
+                                            <i class="fas fa-user"></i> ${escapeHtml(item.userName || 'Admin')}
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="import-actions">
+                                    <button onclick="deleteImportHistory('${item.id}')" class="admin-btn danger" style="padding:4px 12px;font-size:0.75rem;">
+                                        <i class="fas fa-trash"></i> Excluir
+                                    </button>
+                                </div>
+                            </div>
+                        `).join('');
+            });
+        }
+
+        async function deleteImportHistory(historyId) {
+            // Verificar se o registro existe
+            const snapshot = await database.ref(`importHistory/${historyId}`).once('value');
+            const history = snapshot.val();
+
+            if (!history) {
+                showToast('Registro não encontrado', 'error');
+                return;
+            }
+
+            // Confirmar com o admin
+            const confirmMsg = `Tem certeza que deseja excluir o arquivo "${history.fileName}"?\n\n` +
+                `Isso irá remover:\n` +
+                `- ${history.newItems} peças adicionadas por este arquivo\n` +
+                `- As peças atualizadas serão mantidas\n\n` +
+                `Esta ação é irreversível!`;
+
+            if (!confirm(confirmMsg)) return;
+
+            showLoading('Excluindo arquivo e peças...');
+
+            try {
+                // 1. Remover as peças que foram ADICIONADAS neste arquivo
+                const addedIds = history.addedProductIds || [];
+                if (addedIds.length > 0) {
+                    const deleteUpdates = {};
+                    addedIds.forEach(id => {
+                        deleteUpdates[`products/${id}`] = null;
+                    });
+                    await database.ref().update(deleteUpdates);
+                }
+
+                // 2. Remover a marcação "importedFrom" das peças ATUALIZADAS
+                const updatedIds = history.updatedProductIds || [];
+                if (updatedIds.length > 0) {
+                    const clearUpdates = {};
+                    updatedIds.forEach(id => {
+                        clearUpdates[`products/${id}/importedFrom`] = null;
+                    });
+                    await database.ref().update(clearUpdates);
+                }
+
+                // 3. Remover o registro do histórico
+                await database.ref(`importHistory/${historyId}`).remove();
+
+                hideLoading();
+                showToast(`Arquivo "${history.fileName}" excluído com sucesso!\n${addedIds.length} peças removidas.`);
+
+                // Atualizar a lista
+                renderImportHistory();
+
+            } catch (error) {
+                hideLoading();
+                showToast('Erro ao excluir: ' + error.message, 'error');
+            }
+        }
+
+        function openImportNamesModal() {
+            document.getElementById('importNamesModal').classList.add('active');
+            document.getElementById('importPreview').style.display = 'none';
+            document.getElementById('csvFileInput').value = '';
+            document.getElementById('confirmImport').checked = false;
+            document.getElementById('importButton').disabled = true;
+            document.getElementById('filterByColH').checked = false;
+            
+            // Resetar para a aba Importar
+            switchImportTab('import');
+
+            const input = document.getElementById('csvFileInput');
+            input.onchange = async (e) => {
+                const file = e.target.files[0];
+                if (!file) return;
+                const text = await file.text();
+                const lines = text.split('\n').filter(l => l.trim() !== '');
+                const items = [];
+                const filterH = document.getElementById('filterByColH').checked;
+                lines.forEach(line => {
+                    const cols = line.split(/[,;]/).map(c => c.replace(/["']/g, '').trim());
+                    if (cols.length < 1) return;
+                    const name = cols[0];
+                    if (!name) return;
+                    if (filterH) {
+                        const hVal = cols[7] ? cols[7].toUpperCase().trim() : '';
+                        if (hVal !== 'A' && hVal !== 'B') {
+                            return;
+                        }
+                    }
+                    const pricePF = cols[1] ? parseFloat(cols[1].replace(',', '.')) || 0 : 0;
+                    const pricePJ = cols[2] ? parseFloat(cols[2].replace(',', '.')) || 0 : 0;
+                    const category = cols[3] ? cols[3].trim() : '';
+                    const codigo = cols[4] ? cols[4].trim() : '';
+                    const brand = cols[5] ? cols[5].trim() : '';
+                    const image = cols[6] ? cols[6].trim() : '';
+                    items.push({ name, pricePF, pricePJ, category, codigo, brand, image });
+                });
+                if (items.length === 0) { showToast('Nenhuma peça válida para importar', 'error'); return; }
+                const preview = document.getElementById('importPreviewList');
+                preview.innerHTML = items.slice(0, 10).map(item => {
+                    const hasPF = item.pricePF > 0;
+                    const hasPJ = item.pricePJ > 0;
+                    let icon = 'fa-tag',
+                        text = 'Sem preço';
+                    if (hasPF && hasPJ) { icon = 'fa-users';
+                        text = 'PF+PJ'; } else if (hasPF) { icon = 'fa-user';
+                        text = 'Só PF'; } else if (hasPJ) { icon = 'fa-building';
+                        text = 'Só PJ'; }
+                    const cat = item.category ? ` [${item.category}]` : '';
+                    const br = item.brand ? ` (${item.brand})` : '';
+                    const cod = item.codigo ? ` Cód:${item.codigo}` : '';
+                    const img = item.image ? ` 📷` : '';
+                    return `<div class="import-preview-item"><i class="fas ${icon}"></i> ${escapeHtml(item.name)}${cat}${br}${cod}${img}<span class="price-badge">${text}</span></div>`;
+                }).join('');
+                if (items.length > 10) preview.innerHTML +=
+                    `<div class="import-preview-item">... e mais ${items.length - 10} peças</div>`;
+                document.getElementById('importCount').innerHTML = `<strong>${items.length}</strong> peças encontradas`;
+                document.getElementById('importPreview').style.display = 'block';
+                window.importItemsList = items;
+                window.importFileName = file.name;
+            };
+            document.getElementById('confirmImport').onchange = (e) => {
+                document.getElementById('importButton').disabled = !e.target.checked;
+            };
+            document.getElementById('filterByColH').onchange = function() {
+                const inputFile = document.getElementById('csvFileInput');
+                if (inputFile.files && inputFile.files.length > 0) {
+                    inputFile.dispatchEvent(new Event('change'));
+                }
+            };
+        }
+
+        function closeImportNamesModal() { document.getElementById('importNamesModal').classList.remove('active'); }
+
+        async function importNames() {
+            const items = window.importItemsList;
+            if (!items || items.length === 0) return;
+
+            // Buscar produtos existentes
+            const snapshot = await database.ref('products').once('value');
+            const productsMap = {};
+            snapshot.forEach(child => {
+                const p = child.val();
+                const key = `${p.name}|${p.category || ''}`;
+                productsMap[key] = { id: child.key, ...p };
+            });
+
+            const updates = {};
+            let added = 0,
+                updated = 0,
+                skipped = 0;
+            const addedProductIds = [];
+            const updatedProductIds = [];
+
+            items.forEach(item => {
+                const key = `${item.name}|${item.category || ''}`;
+                const existing = productsMap[key];
+
+                if (existing) {
+                    // Verifica se houve alterações
+                    const hasChanges =
+                        existing.prices?.PF !== item.pricePF ||
+                        existing.prices?.PJ !== item.pricePJ ||
+                        existing.brand !== item.brand ||
+                        existing.codigo !== item.codigo ||
+                        existing.image !== item.image;
+
+                    if (hasChanges) {
+                        // Atualiza o produto existente
+                        if (item.pricePF !== undefined) updates[`products/${existing.id}/prices/PF`] = item.pricePF;
+                        if (item.pricePJ !== undefined) updates[`products/${existing.id}/prices/PJ`] = item.pricePJ;
+                        if (item.brand) updates[`products/${existing.id}/brand`] = item.brand;
+                        if (item.codigo) updates[`products/${existing.id}/codigo`] = item.codigo;
+                        if (item.image) updates[`products/${existing.id}/image`] = item.image;
+                        updated++;
+                        updatedProductIds.push(existing.id);
+                    } else {
+                        skipped++;
+                    }
+                } else {
+                    // Adiciona novo produto
+                    const id = database.ref().child('products').push().key;
+                    updates[`products/${id}`] = {
+                        id,
+                        name: item.name,
+                        category: item.category || '',
+                        brand: item.brand || '',
+                        codigo: item.codigo || '',
+                        description: '',
+                        image: item.image || DEFAULT_PLACEHOLDER_IMAGE,
+                        featured: false,
+                        pinned: false,
+                        soldOut: false,
+                        sessionId: null,
+                        clicks: 0,
+                        metaClicks: 0,
+                        prices: { PF: item.pricePF || 0, PJ: item.pricePJ || 0 },
+                        importedFrom: null // Será preenchido após salvar
+                    };
+                    added++;
+                    addedProductIds.push(id);
+                }
+            });
+
+            // Salvar alterações
+            await database.ref().update(updates);
+
+            // Salvar histórico com os IDs das peças
+            const historyEntry = {
+                fileName: window.importFileName || 'arquivo.csv',
+                timestamp: Date.now(),
+                date: new Date().toLocaleDateString('pt-BR'),
+                time: new Date().toLocaleTimeString('pt-BR'),
+                totalItems: items.length,
+                newItems: added,
+                updatedItems: updated,
+                skippedItems: skipped,
+                userId: currentUser?.uid || 'unknown',
+                userName: currentUser?.name || 'Admin',
+                addedProductIds: addedProductIds,
+                updatedProductIds: updatedProductIds
+            };
+
+            const historyRef = await database.ref('importHistory').push(historyEntry);
+
+            // Marcar as peças com o ID do histórico
+            if (addedProductIds.length > 0) {
+                const markUpdates = {};
+                addedProductIds.forEach(id => {
+                    markUpdates[`products/${id}/importedFrom`] = historyRef.key;
+                });
+                await database.ref().update(markUpdates);
+            }
+
+            // Atualizar também as peças atualizadas
+            if (updatedProductIds.length > 0) {
+                const markUpdates = {};
+                updatedProductIds.forEach(id => {
+                    markUpdates[`products/${id}/importedFrom`] = historyRef.key;
+                });
+                await database.ref().update(markUpdates);
+            }
+
+            showToast(`Importação concluída: ${added} adicionadas, ${updated} atualizadas, ${skipped} ignoradas`);
+            closeImportNamesModal();
+
+            // Atualizar a lista se estiver visível
+            if (document.getElementById('historyTabContent').style.display !== 'none') {
+                renderImportHistory();
+            }
+        }
+
         // ========== DETALHES DO PRODUTO ==========
         function showDetails(id) {
             const product = products.find(p => p.id === id);
@@ -6576,108 +7047,6 @@
             if (Object.keys(updates).length === 0) { showToast('Nenhuma alteração', 'info'); return; }
             database.ref().update(updates).then(() => { closeBulkPriceModal();
                 showToast('Aplicado!'); });
-        }
-
-        // ========== IMPORT NAMES ==========
-        function openImportNamesModal() {
-            document.getElementById('importNamesModal').classList.add('active');
-            document.getElementById('importPreview').style.display = 'none';
-            document.getElementById('csvFileInput').value = '';
-            document.getElementById('confirmImport').checked = false;
-            document.getElementById('importButton').disabled = true;
-            document.getElementById('filterByColH').checked = false;
-            const input = document.getElementById('csvFileInput');
-            input.onchange = async (e) => {
-                const file = e.target.files[0];
-                if (!file) return;
-                const text = await file.text();
-                const lines = text.split('\n').filter(l => l.trim() !== '');
-                const items = [];
-                const filterH = document.getElementById('filterByColH').checked;
-                lines.forEach(line => {
-                    const cols = line.split(/[,;]/).map(c => c.replace(/["']/g, '').trim());
-                    if (cols.length < 1) return;
-                    const name = cols[0];
-                    if (!name) return;
-                    if (filterH) {
-                        const hVal = cols[7] ? cols[7].toUpperCase().trim() : '';
-                        if (hVal !== 'A' && hVal !== 'B') {
-                            return;
-                        }
-                    }
-                    const pricePF = cols[1] ? parseFloat(cols[1].replace(',', '.')) || 0 : 0;
-                    const pricePJ = cols[2] ? parseFloat(cols[2].replace(',', '.')) || 0 : 0;
-                    const category = cols[3] ? cols[3].trim() : '';
-                    const codigo = cols[4] ? cols[4].trim() : '';
-                    const brand = cols[5] ? cols[5].trim() : '';
-                    const image = cols[6] ? cols[6].trim() : '';
-                    items.push({ name, pricePF, pricePJ, category, codigo, brand, image });
-                });
-                if (items.length === 0) { showToast('Nenhuma peça válida para importar', 'error'); return; }
-                const preview = document.getElementById('importPreviewList');
-                preview.innerHTML = items.slice(0, 10).map(item => {
-                    const hasPF = item.pricePF > 0;
-                    const hasPJ = item.pricePJ > 0;
-                    let icon = 'fa-tag',
-                        text = 'Sem preço';
-                    if (hasPF && hasPJ) { icon = 'fa-users';
-                        text = 'PF+PJ'; } else if (hasPF) { icon = 'fa-user';
-                        text = 'Só PF'; } else if (hasPJ) { icon = 'fa-building';
-                        text = 'Só PJ'; }
-                    const cat = item.category ? ` [${item.category}]` : '';
-                    const br = item.brand ? ` (${item.brand})` : '';
-                    const cod = item.codigo ? ` Cód:${item.codigo}` : '';
-                    const img = item.image ? ` 📷` : '';
-                    return `<div class="import-preview-item"><i class="fas ${icon}"></i> ${escapeHtml(item.name)}${cat}${br}${cod}${img}<span class="price-badge">${text}</span></div>`;
-                }).join('');
-                if (items.length > 10) preview.innerHTML +=
-                    `<div class="import-preview-item">... e mais ${items.length - 10} peças</div>`;
-                document.getElementById('importCount').innerHTML = `<strong>${items.length}</strong> peças encontradas`;
-                document.getElementById('importPreview').style.display = 'block';
-                window.importItemsList = items;
-            };
-            document.getElementById('confirmImport').onchange = (e) => {
-                document.getElementById('importButton').disabled = !e.target.checked;
-            };
-            document.getElementById('filterByColH').onchange = function() {
-                const inputFile = document.getElementById('csvFileInput');
-                if (inputFile.files && inputFile.files.length > 0) {
-                    inputFile.dispatchEvent(new Event('change'));
-                }
-            };
-        }
-
-        function closeImportNamesModal() { document.getElementById('importNamesModal').classList.remove('active'); }
-
-        function importNames() {
-            const items = window.importItemsList;
-            if (!items || items.length === 0) return;
-            const updates = {};
-            let count = 0;
-            items.forEach(item => {
-                const id = database.ref().child('products').push().key;
-                const prices = { PF: item.pricePF, PJ: item.pricePJ };
-                const image = item.image || DEFAULT_PLACEHOLDER_IMAGE;
-                updates[`products/${id}`] = {
-                    id,
-                    name: item.name,
-                    category: item.category || '',
-                    brand: item.brand || '',
-                    codigo: item.codigo || '',
-                    description: '',
-                    image: image,
-                    featured: false,
-                    pinned: false,
-                    soldOut: false,
-                    sessionId: null,
-                    clicks: 0,
-                    metaClicks: 0,
-                    prices
-                };
-                count++;
-            });
-            database.ref().update(updates).then(() => { closeImportNamesModal();
-                showToast(`${count} peças importadas`); });
         }
 
         // ========== DELETE ALL ==========
@@ -7632,6 +8001,9 @@
         window.adicionarImagemGaleria = adicionarImagemGaleria;
         window.uploadImagemGaleria = uploadImagemGaleria;
         window.removerImagemGaleria = removerImagemGaleria;
+        window.switchImportTab = switchImportTab;
+        window.deleteImportHistory = deleteImportHistory;
+        window.renderImportHistory = renderImportHistory;
 
         console.log('CIM - Sistema carregado com sucesso!');
         console.log('Administrador: cim@gmail.com');
@@ -7656,6 +8028,8 @@
         console.log('Ícone do WhatsApp para cada cliente.');
         console.log('CNPJ salva corretamente com Razão Social.');
         console.log('Correção de logout: redireciona para index.html');
+        console.log('HISTÓRICO DE IMPORTAÇÃO: arquivos com listagem e exclusão com remoção de peças vinculadas.');
+        console.log('IMPORTAÇÃO INTELIGENTE: verifica duplicatas por nome+categoria, atualiza ou ignora.');
     </script>
 </body>
 </html>
