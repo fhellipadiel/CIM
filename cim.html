@@ -96,13 +96,13 @@
             display: none;
         }
 
-        /* ====== BUSCA ====== */
+        /* ====== BUSCA - SEM BORDAS BRANCAS ====== */
         .search-header {
             display: flex;
             align-items: center;
-            background: #222;
+            background: #1a1a1a;
             border-radius: 50px;
-            border: 1px solid transparent;
+            border: none;
             transition: all 0.3s ease;
             overflow: hidden;
             flex: 1;
@@ -113,10 +113,9 @@
         }
         .search-header.expanded {
             background: #111;
-            border-color: rgba(255, 255, 255, 0.2);
         }
         .search-header.focused {
-            border-color: rgba(255, 255, 255, 0.3);
+            background: #0a0a0a;
             max-width: 100%;
         }
         .search-header .search-icon-btn {
@@ -829,28 +828,27 @@
             transform: none;
         }
 
-        /* ========== PRODUTOS ========== */
+        /* ========== PRODUTOS - SEM BORDAS ========== */
         .product-card {
             background: rgba(17, 17, 17, 0.95);
             border-radius: 16px;
             overflow: hidden;
             transition: all 0.3s ease;
-            border: 1px solid #ff6b00;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+            border: none;
+            box-shadow: none;
             position: relative;
             display: flex;
             flex-direction: column;
             opacity: 0;
             transform: translateY(20px);
-            transition: opacity 0.6s ease, transform 0.6s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+            transition: opacity 0.6s ease, transform 0.6s ease, box-shadow 0.3s ease;
         }
         .product-card.visible {
             opacity: 1;
             transform: translateY(0);
         }
         .product-card.featured {
-            border: 2px solid #ff6b00;
-            box-shadow: 0 10px 30px rgba(255, 107, 0, 0.2);
+            box-shadow: 0 0 30px rgba(255, 107, 0, 0.15);
             transform: translateY(-3px);
         }
         .product-card.featured::before {
@@ -897,11 +895,10 @@
         }
         .product-card:hover {
             transform: translateY(-5px);
-            box-shadow: 0 15px 30px rgba(255, 107, 0, 0.15);
-            border-color: #ff6b00;
+            box-shadow: 0 15px 30px rgba(255, 107, 0, 0.08);
         }
         .product-card.promocao {
-            border-color: #E60000;
+            background: rgba(17, 17, 17, 0.95);
         }
 
         .product-card .promo-ribbon {
@@ -927,7 +924,7 @@
             height: 150px;
             overflow: hidden;
             position: relative;
-            background: #222;
+            background: #1a1a1a;
             cursor: pointer;
         }
         .product-image img {
@@ -995,10 +992,10 @@
         .product-price {
             margin-bottom: 12px;
             padding: 8px;
-            background: #222;
+            background: #1a1a1a;
             border-radius: 8px;
             text-align: center;
-            border: 1px solid #333;
+            border: 1px solid #2a2a2a;
         }
         .product-price .price-label {
             color: #999;
@@ -1145,16 +1142,16 @@
             flex-wrap: wrap;
         }
         .product-clicks-info .clicks-badge {
-            background: #333;
+            background: #1a1a1a;
             padding: 2px 8px;
             border-radius: 12px;
-            border: 1px solid #ff6b00;
+            border: 1px solid #333;
         }
         .product-clicks-info .meta-badge {
-            background: #222;
+            background: #1a1a1a;
             padding: 2px 8px;
             border-radius: 12px;
-            border: 1px solid #555;
+            border: 1px solid #333;
         }
         .product-clicks-info .meta-badge.reached {
             border-color: #ff6b00;
@@ -1319,7 +1316,7 @@
             font-size: 0.95rem;
         }
         .modal-price-box {
-            background: #222;
+            background: #1a1a1a;
             padding: 20px;
             border-radius: 12px;
             margin-bottom: 20px;
@@ -1447,11 +1444,11 @@
             text-align: center;
             cursor: pointer;
             transition: all 0.3s ease;
-            background: #222;
+            background: #1a1a1a;
             margin-bottom: 15px;
         }
         .image-upload-area:hover {
-            background: #333;
+            background: #2a2a2a;
             border-color: #e05e00;
         }
         .image-upload-area i {
@@ -1510,11 +1507,11 @@
             text-align: center;
             cursor: pointer;
             transition: all 0.3s ease;
-            background: #222;
+            background: #1a1a1a;
             margin: 20px 0;
         }
         .import-area:hover {
-            background: #333;
+            background: #2a2a2a;
             border-color: #e05e00;
         }
         .import-area i {
@@ -1532,7 +1529,7 @@
             font-size: 0.8rem;
         }
         .import-preview {
-            background: #222;
+            background: #1a1a1a;
             border-radius: 8px;
             padding: 15px;
             margin-top: 15px;
@@ -1776,7 +1773,7 @@
             gap: 12px;
             padding: 10px;
             border-bottom: 1px solid #333;
-            background: #222;
+            background: #1a1a1a;
             border-radius: 10px;
             margin-bottom: 8px;
             align-items: center;
@@ -2063,7 +2060,7 @@
 
         /* ========== ADMIN SESSIONS LIST ========== */
         .admin-session-item {
-            background: #222;
+            background: #1a1a1a;
             border-radius: 10px;
             padding: 10px 14px;
             display: flex;
@@ -2145,7 +2142,7 @@
             border-color: #ff6b00;
         }
         .user-list-item {
-            background: #222;
+            background: #1a1a1a;
             border-radius: 10px;
             padding: 10px 14px;
             display: flex;
@@ -2305,7 +2302,7 @@
         .click-history-list {
             max-height: 300px;
             overflow-y: auto;
-            background: #222;
+            background: #1a1a1a;
             border-radius: 8px;
             padding: 10px;
         }
@@ -2359,7 +2356,7 @@
         .meta-achievements-list {
             max-height: 400px;
             overflow-y: auto;
-            background: #222;
+            background: #1a1a1a;
             border-radius: 8px;
             padding: 10px;
         }
@@ -2637,7 +2634,7 @@
 
         /* ========== ESTILOS NOVOS ========== */
         .no-price-product-item {
-            background: #222;
+            background: #1a1a1a;
             border-radius: 8px;
             padding: 8px 12px;
             margin-bottom: 6px;
@@ -2784,7 +2781,7 @@
             border-radius: 50%;
             overflow: hidden;
             flex-shrink: 0;
-            background: #222;
+            background: #1a1a1a;
             position: relative;
             border: none;
         }
@@ -2878,7 +2875,7 @@
             cursor: text;
         }
         .bottom-menu .menu-item .item-value[contenteditable="true"]:focus {
-            background: #222;
+            background: #1a1a1a;
             border-bottom-color: #fff;
         }
         .bottom-menu .menu-item a {
@@ -2895,7 +2892,7 @@
         }
         .bottom-menu .menu-item .admin-edit-icon {
             color: #ff6b00;
-            background: #222;
+            background: #1a1a1a;
             border: 1px solid #333;
             width: 30px;
             height: 30px;
@@ -2949,7 +2946,7 @@
             border-radius: 50%;
             overflow: hidden;
             flex-shrink: 0;
-            background: #222;
+            background: #1a1a1a;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -2984,7 +2981,7 @@
             align-items: center;
         }
         .bottom-menu .admin-contact-btn {
-            background: #222;
+            background: #1a1a1a;
             border: 1px solid #333;
             color: #ff6b00;
             padding: 4px 10px;
@@ -3165,7 +3162,7 @@
             height: 100%;
             border-radius: 50%;
             overflow: hidden;
-            background: #222;
+            background: #1a1a1a;
             border: 2px solid #444;
             display: flex;
             align-items: center;
@@ -3415,7 +3412,7 @@
             padding: 4px 12px;
             border-radius: 20px;
             transition: all 0.3s ease;
-            background: #222;
+            background: #1a1a1a;
         }
         .clear-search:hover {
             background: #ff6b00;
@@ -3444,6 +3441,62 @@
             to {
                 opacity: 1;
                 transform: translateY(0);
+            }
+        }
+
+        /* ========== OPÇÕES DE IMPORTAÇÃO ========== */
+        .import-options-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 15px;
+            margin: 10px 0 15px;
+        }
+        .import-options-row .form-group {
+            margin-bottom: 0;
+        }
+        .import-options-row select {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid #333;
+            border-radius: 8px;
+            background: #1a1a1a;
+            color: #fff;
+            font-size: 0.9rem;
+        }
+        .import-options-row select:focus {
+            border-color: #ff6b00;
+            outline: none;
+        }
+        .import-options-row label {
+            font-size: 0.8rem;
+            color: #999;
+            display: block;
+            margin-bottom: 4px;
+        }
+        .import-options-row .select-wrapper {
+            position: relative;
+        }
+        .import-options-row .select-wrapper::after {
+            content: '\f078';
+            font-family: 'Font Awesome 6 Free';
+            font-weight: 900;
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #666;
+            font-size: 0.7rem;
+            pointer-events: none;
+        }
+        .import-options-row .select-wrapper select {
+            appearance: none;
+            -webkit-appearance: none;
+            padding-right: 30px;
+        }
+        @media (max-width: 600px) {
+            .import-options-row {
+                grid-template-columns: 1fr;
+                gap: 10px;
             }
         }
     </style>
@@ -3762,6 +3815,38 @@
                         <p style="color:#ff6b00;font-size:0.85rem;"><i class="fas fa-info-circle"></i> Linhas com nome em branco serão ignoradas.</p>
                         <p style="color:#28a745;font-size:0.85rem;margin-top:8px;"><i class="fas fa-check-circle"></i> Importação inteligente: peças existentes serão atualizadas ou ignoradas.</p>
                     </div>
+
+                    <!-- NOVAS OPÇÕES DE ORGANIZAÇÃO -->
+                    <div class="import-options-row">
+                        <div class="form-group">
+                            <label>Organizar por Sessão</label>
+                            <div class="select-wrapper">
+                                <select id="importSessionSelect">
+                                    <option value="">-- Nenhuma --</option>
+                                    <!-- Preenchido via JS -->
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>Organizar por Categoria</label>
+                            <div class="select-wrapper">
+                                <select id="importCategorySelect">
+                                    <option value="">-- Nenhuma --</option>
+                                    <!-- Preenchido via JS -->
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>Organizar por Marca</label>
+                            <div class="select-wrapper">
+                                <select id="importBrandSelect">
+                                    <option value="">-- Nenhuma --</option>
+                                    <!-- Preenchido via JS -->
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
                     <div class="import-area" id="importArea" onclick="document.getElementById('csvFileInput').click()">
                         <i class="fas fa-file-csv"></i>
                         <p>Clique para selecionar o arquivo .CSV</p>
@@ -6632,7 +6717,6 @@
         }
 
         async function deleteImportHistory(historyId) {
-            // Verificar se o registro existe
             const snapshot = await database.ref(`importHistory/${historyId}`).once('value');
             const history = snapshot.val();
 
@@ -6641,7 +6725,6 @@
                 return;
             }
 
-            // Confirmar com o admin
             const confirmMsg = `Tem certeza que deseja excluir o arquivo "${history.fileName}"?\n\n` +
                 `Isso irá remover:\n` +
                 `- ${history.newItems} peças adicionadas por este arquivo\n` +
@@ -6653,7 +6736,6 @@
             showLoading('Excluindo arquivo e peças...');
 
             try {
-                // 1. Remover as peças que foram ADICIONADAS neste arquivo
                 const addedIds = history.addedProductIds || [];
                 if (addedIds.length > 0) {
                     const deleteUpdates = {};
@@ -6663,7 +6745,6 @@
                     await database.ref().update(deleteUpdates);
                 }
 
-                // 2. Remover a marcação "importedFrom" das peças ATUALIZADAS
                 const updatedIds = history.updatedProductIds || [];
                 if (updatedIds.length > 0) {
                     const clearUpdates = {};
@@ -6673,13 +6754,10 @@
                     await database.ref().update(clearUpdates);
                 }
 
-                // 3. Remover o registro do histórico
                 await database.ref(`importHistory/${historyId}`).remove();
 
                 hideLoading();
                 showToast(`Arquivo "${history.fileName}" excluído com sucesso!\n${addedIds.length} peças removidas.`);
-
-                // Atualizar a lista
                 renderImportHistory();
 
             } catch (error) {
@@ -6688,7 +6766,59 @@
             }
         }
 
+        // Função para popular os selects de organização na importação
+        function updateImportOrganizationSelects() {
+            // Sessões
+            const sessionSelect = document.getElementById('importSessionSelect');
+            if (sessionSelect) {
+                const current = sessionSelect.value;
+                sessionSelect.innerHTML = '<option value="">-- Nenhuma --</option>';
+                const sessionArray = Object.keys(sessions).map(id => ({ id, ...sessions[id] }));
+                sessionArray.sort((a, b) => (a.order || 0) - (b.order || 0));
+                sessionArray.forEach(s => {
+                    const opt = document.createElement('option');
+                    opt.value = s.id;
+                    opt.textContent = s.name;
+                    sessionSelect.appendChild(opt);
+                });
+                if (current && sessions[current]) sessionSelect.value = current;
+            }
+
+            // Categorias
+            const categorySelect = document.getElementById('importCategorySelect');
+            if (categorySelect) {
+                const current = categorySelect.value;
+                categorySelect.innerHTML = '<option value="">-- Nenhuma --</option>';
+                const cats = [...new Set(products.map(p => p.category).filter(c => c && c.trim() !== ''))];
+                cats.sort().forEach(c => {
+                    const opt = document.createElement('option');
+                    opt.value = c;
+                    opt.textContent = c;
+                    categorySelect.appendChild(opt);
+                });
+                if (current && cats.includes(current)) categorySelect.value = current;
+            }
+
+            // Marcas
+            const brandSelect = document.getElementById('importBrandSelect');
+            if (brandSelect) {
+                const current = brandSelect.value;
+                brandSelect.innerHTML = '<option value="">-- Nenhuma --</option>';
+                const brandList = Object.keys(brands).map(id => brands[id].name).filter(b => b && b.trim() !== '');
+                brandList.sort().forEach(b => {
+                    const opt = document.createElement('option');
+                    opt.value = b;
+                    opt.textContent = b;
+                    brandSelect.appendChild(opt);
+                });
+                if (current && brandList.includes(current)) brandSelect.value = current;
+            }
+        }
+
         function openImportNamesModal() {
+            // Atualizar os selects com os dados atuais
+            updateImportOrganizationSelects();
+
             document.getElementById('importNamesModal').classList.add('active');
             document.getElementById('importPreview').style.display = 'none';
             document.getElementById('csvFileInput').value = '';
@@ -6696,7 +6826,6 @@
             document.getElementById('importButton').disabled = true;
             document.getElementById('filterByColH').checked = false;
             
-            // Resetar para a aba Importar
             switchImportTab('import');
 
             const input = document.getElementById('csvFileInput');
@@ -6767,6 +6896,11 @@
             const items = window.importItemsList;
             if (!items || items.length === 0) return;
 
+            // Pegar as opções de organização
+            const sessionId = document.getElementById('importSessionSelect').value || null;
+            const category = document.getElementById('importCategorySelect').value || null;
+            const brand = document.getElementById('importBrandSelect').value || null;
+
             // Buscar produtos existentes
             const snapshot = await database.ref('products').once('value');
             const productsMap = {};
@@ -6788,7 +6922,6 @@
                 const existing = productsMap[key];
 
                 if (existing) {
-                    // Verifica se houve alterações
                     const hasChanges =
                         existing.prices?.PF !== item.pricePF ||
                         existing.prices?.PJ !== item.pricePJ ||
@@ -6797,7 +6930,6 @@
                         existing.image !== item.image;
 
                     if (hasChanges) {
-                        // Atualiza o produto existente
                         if (item.pricePF !== undefined) updates[`products/${existing.id}/prices/PF`] = item.pricePF;
                         if (item.pricePJ !== undefined) updates[`products/${existing.id}/prices/PJ`] = item.pricePJ;
                         if (item.brand) updates[`products/${existing.id}/brand`] = item.brand;
@@ -6809,25 +6941,25 @@
                         skipped++;
                     }
                 } else {
-                    // Adiciona novo produto
                     const id = database.ref().child('products').push().key;
-                    updates[`products/${id}`] = {
+                    const productData = {
                         id,
                         name: item.name,
-                        category: item.category || '',
-                        brand: item.brand || '',
+                        category: category || item.category || '',
+                        brand: brand || item.brand || '',
                         codigo: item.codigo || '',
                         description: '',
                         image: item.image || DEFAULT_PLACEHOLDER_IMAGE,
                         featured: false,
                         pinned: false,
                         soldOut: false,
-                        sessionId: null,
+                        sessionId: sessionId,
                         clicks: 0,
                         metaClicks: 0,
                         prices: { PF: item.pricePF || 0, PJ: item.pricePJ || 0 },
-                        importedFrom: null // Será preenchido após salvar
+                        importedFrom: null
                     };
+                    updates[`products/${id}`] = productData;
                     added++;
                     addedProductIds.push(id);
                 }
@@ -6836,7 +6968,7 @@
             // Salvar alterações
             await database.ref().update(updates);
 
-            // Salvar histórico com os IDs das peças
+            // Salvar histórico
             const historyEntry = {
                 fileName: window.importFileName || 'arquivo.csv',
                 timestamp: Date.now(),
@@ -6849,7 +6981,12 @@
                 userId: currentUser?.uid || 'unknown',
                 userName: currentUser?.name || 'Admin',
                 addedProductIds: addedProductIds,
-                updatedProductIds: updatedProductIds
+                updatedProductIds: updatedProductIds,
+                organization: {
+                    sessionId: sessionId,
+                    category: category,
+                    brand: brand
+                }
             };
 
             const historyRef = await database.ref('importHistory').push(historyEntry);
@@ -6863,7 +7000,6 @@
                 await database.ref().update(markUpdates);
             }
 
-            // Atualizar também as peças atualizadas
             if (updatedProductIds.length > 0) {
                 const markUpdates = {};
                 updatedProductIds.forEach(id => {
@@ -6875,7 +7011,6 @@
             showToast(`Importação concluída: ${added} adicionadas, ${updated} atualizadas, ${skipped} ignoradas`);
             closeImportNamesModal();
 
-            // Atualizar a lista se estiver visível
             if (document.getElementById('historyTabContent').style.display !== 'none') {
                 renderImportHistory();
             }
@@ -7253,7 +7388,7 @@
                             loadUserData(user.uid);
                             toggleProfileDropdown();
                         } else {
-                            openCompleteProfileModal(user);
+                            window.location.href = 'index.html?complete=true';
                         }
                     });
                 } else {
@@ -7720,7 +7855,6 @@
                 showLoading('Saindo...');
                 auth.signOut().then(() => {
                     hideLoading();
-                    // Limpar dados do usuário
                     currentUser = null;
                     currentUserPhoto = null;
                     isAdminUser = false;
@@ -7728,7 +7862,6 @@
                     cart = [];
                     updateCart();
                     clearCartStorage();
-                    // Redirecionar para o index
                     window.location.href = 'index.html';
                 }).catch((error) => {
                     hideLoading();
@@ -7745,7 +7878,6 @@
         auth.onAuthStateChanged((user) => {
             if (user) {
                 const uid = user.uid;
-                // Verificar se é o admin
                 if (user.email === 'cim@gmail.com') {
                     database.ref(`users/${uid}`).once('value').then((snapshot) => {
                         if (!snapshot.exists()) {
@@ -7773,7 +7905,6 @@
                         }
                     });
                 } else {
-                    // Usuário normal
                     database.ref(`users/${uid}`).once('value').then((snapshot) => {
                         if (snapshot.exists()) {
                             const data = snapshot.val();
@@ -7782,7 +7913,6 @@
                             database.ref(`users/${uid}/lastAccess`).set(Date.now());
                             loadUserData(uid);
                         } else {
-                            // Usuário existe no Firebase Auth mas não no Realtime Database
                             if (user.providerData && user.providerData[0]?.providerId === 'google.com') {
                                 showToast('Complete seu cadastro', 'info');
                                 window.location.href = 'index.html?complete=true';
@@ -7797,19 +7927,16 @@
                     });
                 }
             } else {
-                // Usuário NÃO está logado - REDIRECIONAR PARA INDEX
                 currentUser = null;
                 currentUserPhoto = null;
                 isAdmin = false;
                 isAdminUser = false;
                 
-                // Atualizar UI
                 updateProfileUIUser();
                 updatePriceDisplay();
                 filterProducts();
                 updateCart();
                 
-                // Ocultar elementos admin
                 adminBar.style.display = 'none';
                 document.body.classList.remove('admin-mode');
                 document.getElementById('editProfileBadge').style.display = 'none';
@@ -7817,7 +7944,6 @@
                 instagramEditIcon.style.display = 'none';
                 closeProfileDropdown();
                 
-                // Redirecionar para a página de login
                 if (window.location.pathname.includes('cim.html')) {
                     window.location.href = 'index.html';
                 }
@@ -8030,6 +8156,7 @@
         console.log('Correção de logout: redireciona para index.html');
         console.log('HISTÓRICO DE IMPORTAÇÃO: arquivos com listagem e exclusão com remoção de peças vinculadas.');
         console.log('IMPORTAÇÃO INTELIGENTE: verifica duplicatas por nome+categoria, atualiza ou ignora.');
+        console.log('IMPORTAÇÃO COM ORGANIZAÇÃO: opção de definir Sessão, Categoria e Marca para todas as peças importadas.');
     </script>
 </body>
 </html>
