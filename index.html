@@ -503,12 +503,10 @@
         function alternarModo(event) {
             event.preventDefault();
             
-            // Se estiver no fluxo de cadastro Google, cancela
             if (modoGoogleCadastro) {
                 modoGoogleCadastro = false;
                 modoCriarConta = false;
                 
-                // Mostra campo de senha novamente
                 const inputs = document.querySelectorAll('#campos-dinamicos input');
                 const senhaInput = inputs[inputs.length - 1];
                 if (senhaInput) {
@@ -565,11 +563,9 @@
             const btnFisica = document.getElementById('btn-fisica');
             const btnJuridica = document.getElementById('btn-juridica');
             
-            // Remove todas as classes de estilo dos botões
             btnFisica.className = "py-3 px-4 rounded-full border text-sm font-medium transition-all focus:outline-none";
             btnJuridica.className = "py-3 px-4 rounded-full border text-sm font-medium transition-all focus:outline-none";
             
-            // Aplica as classes corretas baseado no tipo selecionado
             if (tipo === 'fisica') {
                 btnFisica.classList.add('tipo-btn-ativo');
                 btnJuridica.classList.add('tipo-btn-inativo');
@@ -578,42 +574,46 @@
                 btnFisica.classList.add('tipo-btn-inativo');
             }
             
-            // Se estiver no modo Google cadastro, re-renderiza os campos mantendo os dados
+            // Salva os valores atuais antes de re-renderizar
+            const inputsAtuais = document.querySelectorAll('#campos-dinamicos input');
+            const valoresAtuais = [];
+            inputsAtuais.forEach(input => {
+                valoresAtuais.push(input.value);
+            });
+            
+            renderizarCamposCadastro();
+            
+            // Restaura os valores (exceto CNPJ e campos que não devem ser preenchidos pelo Google)
+            const novosInputs = document.querySelectorAll('#campos-dinamicos input');
+            novosInputs.forEach((input, index) => {
+                if (index < valoresAtuais.length && valoresAtuais[index]) {
+                    // Não preenche CNPJ com dados do Google
+                    if (input.id === 'input-cnpj') {
+                        return; // Pula o CNPJ
+                    }
+                    input.value = valoresAtuais[index];
+                }
+            });
+            
+            // Preenche apenas e-mail com dados do Google (se disponível)
             if (modoGoogleCadastro) {
                 const user = auth.currentUser;
-                // Salva os valores atuais antes de re-renderizar
-                const inputsAtuais = document.querySelectorAll('#campos-dinamicos input');
-                const valoresAtuais = [];
-                inputsAtuais.forEach(input => {
-                    valoresAtuais.push(input.value);
-                });
-                
-                renderizarCamposCadastro();
-                
-                // Restaura os valores
-                const novosInputs = document.querySelectorAll('#campos-dinamicos input');
-                novosInputs.forEach((input, index) => {
-                    if (index < valoresAtuais.length && valoresAtuais[index]) {
-                        input.value = valoresAtuais[index];
-                    }
-                });
-                
-                // Preenche com dados do Google se disponível
                 if (user) {
                     const emailInput = document.querySelector('#campos-dinamicos input[type="email"]');
                     if (emailInput) emailInput.value = user.email || '';
                     
+                    // Só preenche nome se for PF
                     if (tipo === 'fisica') {
                         const nomeInput = document.querySelector('#campos-dinamicos input[placeholder="Nome completo"]');
-                        if (nomeInput && user.displayName) nomeInput.value = user.displayName;
-                    } else {
-                        const razaoInput = document.getElementById('empresa-nome');
-                        if (razaoInput && user.displayName) razaoInput.value = user.displayName;
+                        if (nomeInput && user.displayName) {
+                            // Só preenche se o campo estiver vazio
+                            if (!nomeInput.value) {
+                                nomeInput.value = user.displayName;
+                            }
+                        }
                     }
+                    // Para PJ, NÃO preenche nada com o nome do Google
                 }
-            } else {
-                // Modo normal: re-renderiza os campos
-                renderizarCamposCadastro();
             }
         }
 
@@ -677,7 +677,6 @@
                 `;
             }
             
-            // Se estiver no modo Google cadastro, esconde a senha
             if (modoGoogleCadastro) {
                 const inputs = container.querySelectorAll('input');
                 if (inputs.length >= 2) {
@@ -686,6 +685,22 @@
                     senha.required = false;
                 }
                 document.getElementById('btn-principal').innerText = 'Concluir Cadastro';
+                
+                // Preenche apenas o e-mail com dados do Google
+                const user = auth.currentUser;
+                if (user) {
+                    const emailInput = container.querySelector('input[type="email"]');
+                    if (emailInput) emailInput.value = user.email || '';
+                    
+                    // Só preenche nome se for PF
+                    if (tipoPessoa === 'fisica') {
+                        const nomeInput = container.querySelector('input[placeholder="Nome completo"]');
+                        if (nomeInput && user.displayName && !nomeInput.value) {
+                            nomeInput.value = user.displayName;
+                        }
+                    }
+                    // Para PJ, NÃO preenche nenhum campo com o nome do Google
+                }
             }
         }
 
@@ -736,7 +751,6 @@
 
         // ========== AÇÕES COM FIREBASE ==========
 
-        // Login com Google
         function acaoGoogle() {
             const provider = new firebase.auth.GoogleAuthProvider();
             
@@ -755,24 +769,27 @@
                                     'cim.html'
                                 );
                             } else {
-                                // Inicia cadastro Google
                                 modoGoogleCadastro = true;
                                 modoCriarConta = true;
                                 
-                                // Mostra container de tipo
                                 const tipoContainer = document.getElementById('tipo-cadastro-container');
                                 tipoContainer.classList.remove('hidden');
                                 
-                                // Garante que o tipo padrão é PF
                                 tipoPessoa = 'fisica';
                                 atualizarBotoesTipo();
                                 
                                 renderizarCamposCadastro();
                                 
-                                // Preenche dados do Google
+                                // Preenche apenas e-mail com dados do Google
                                 const inputs = document.querySelectorAll('#campos-dinamicos input');
                                 const emailInput = inputs[inputs.length - 2];
                                 if (emailInput) emailInput.value = user.email || '';
+                                
+                                // Preenche nome apenas se for PF
+                                if (user.displayName && tipoPessoa === 'fisica') {
+                                    const nomeInput = inputs[0];
+                                    if (nomeInput) nomeInput.value = user.displayName;
+                                }
                                 
                                 const senhaInput = inputs[inputs.length - 1];
                                 if (senhaInput) {
@@ -782,12 +799,6 @@
                                 
                                 document.getElementById('btn-principal').innerText = 'Concluir Cadastro';
                                 document.getElementById('link-modo').innerText = 'Já tenho cadastro';
-                                
-                                // Preenche nome se for PF
-                                if (user.displayName && tipoPessoa === 'fisica') {
-                                    const nomeInput = inputs[0];
-                                    if (nomeInput) nomeInput.value = user.displayName;
-                                }
                                 
                                 showModal(
                                     'Cadastro em andamento',
@@ -827,7 +838,6 @@
             }
         }
 
-        // Submissão do formulário
         async function realizarAcao(event) {
             event.preventDefault();
             const inputs = document.querySelectorAll('#campos-dinamicos input');
@@ -916,7 +926,6 @@
             }
         }
 
-        // Salvar dados do usuário no Realtime Database
         async function salvarDadosUsuario(uid) {
             const inputs = document.querySelectorAll('#campos-dinamicos input');
             
@@ -965,7 +974,6 @@
             showModal('Termo de Privacidade', 'Os seus dados estão protegidos e seguros conosco. Nós coletamos apenas as informações necessárias para criar sua conta e garantir a segurança do sistema.');
         }
 
-        // Inicialização
         renderizarCamposLogin();
     </script>
 </body>
