@@ -106,6 +106,29 @@
             font-family: monospace;
             letter-spacing: 1px;
         }
+
+        /* Estilo para campos travados pela API */
+        .campo-travado {
+            background-color: #161616 !important;
+            color: #a3a3a3 !important;
+            cursor: not-allowed !important;
+        }
+
+        .campo-livre {
+            background-color: #1e1e1e !important;
+            color: #ffffff !important;
+        }
+
+        /* Link do modal estilizado */
+        .modal-link {
+            color: #ffffff;
+            text-decoration: underline;
+            text-underline-offset: 2px;
+            cursor: pointer;
+        }
+        .modal-link:hover {
+            color: #cccccc;
+        }
     </style>
 </head>
 <body class="bg-darkBg text-white min-h-screen flex flex-col justify-between font-sans selection:bg-white selection:text-black">
@@ -182,8 +205,10 @@
     <div id="modalEntrada" class="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center opacity-0 pointer-events-none transition-opacity duration-300 z-50">
         <div class="bg-[#121212] border border-neutral-800 p-8 rounded-2xl max-w-sm w-full mx-4 text-center shadow-2xl transform scale-95 transition-transform duration-300" id="modalContent">
             <h3 class="text-xl font-medium text-white mb-2" id="modalTitulo">Acesso Autorizado</h3>
-            <p class="text-neutral-400 text-sm mb-6" id="modalMensagem">Você entrou com sucesso no sistema.</p>
-            <button onclick="fecharModalEntrada()" class="bg-white text-black font-medium w-full py-3 rounded-full hover:bg-neutral-200 transition-colors text-sm">Continuar</button>
+            <p class="text-neutral-400 text-sm mb-4" id="modalMensagem">Você entrou com sucesso no sistema.</p>
+            <div id="modalAcoes" class="flex flex-col gap-2">
+                <button onclick="fecharModalEntrada()" id="modalBtnPrincipal" class="bg-white text-black font-medium w-full py-3 rounded-full hover:bg-neutral-200 transition-colors text-sm">Continuar</button>
+            </div>
         </div>
     </div>
 
@@ -205,6 +230,8 @@
         let tipoPessoa = 'fisica';
         let galleryImages = [];
         let modoGoogleCadastro = false;
+        let consultaCNPJAtual = 0;
+        let modalCallback = null;
 
         // Efeito de digitação
         const textoCompleto = "Olá, seja bem-vindo ao catálogo CIM Global Parts";
@@ -280,7 +307,7 @@
             grid.innerHTML = html;
         }
 
-        // ========== MÁSCARA DE TELEFONE ==========
+        // ========== MÁSCARAS ==========
         function formatarTelefone(input) {
             let v = input.value.replace(/\D/g, "");
             if (v.length > 11) v = v.substring(0, 11);
@@ -298,9 +325,197 @@
             input.value = v;
         }
 
+        function formatarCPF(input) {
+            let v = input.value.replace(/\D/g, "");
+            if (v.length > 11) v = v.substring(0, 11);
+            v = v.replace(/(\d{3})(\d)/, "$1.$2");
+            v = v.replace(/(\d{3})(\d)/, "$1.$2");
+            v = v.replace(/(\d{3})(\d{1,2})$/, "$1-$2");
+            input.value = v;
+        }
+
+        function formatarCEP(input) {
+            let v = input.value.replace(/\D/g, "");
+            if (v.length > 8) v = v.substring(0, 8);
+            v = v.replace(/(\d{5})(\d)/, "$1-$2");
+            input.value = v;
+            if (v.replace(/\D/g, "").length === 8) consultarCEP(v.replace(/\D/g, ""));
+        }
+
+        function formatarCNPJ(input) {
+            let v = input.value.replace(/\D/g, "");
+            if (v.length > 14) v = v.substring(0, 14);
+            v = v.replace(/^(\d{2})(\d)/, "$1.$2");
+            v = v.replace(/^(\d{2})\.(\d{3})(\d)/, "$1.$2.$3");
+            v = v.replace(/\.(\d{3})(\d)/, ".$1/$2");
+            v = v.replace(/(\d{4})(\d)/, "$1-$2");
+            input.value = v;
+            if (v.replace(/\D/g, "").length === 14) consultarCNPJ(v.replace(/\D/g, ""));
+            else limparStatusCNPJ();
+        }
+
+        // ========== CONSULTAS API ==========
+        async function consultarCEP(cep) {
+            try {
+                const response = await fetch(`https://brasilapi.com.br/api/cep/v1/${cep}`);
+                if (!response.ok) throw new Error('CEP não encontrado');
+                const data = await response.json();
+                if (document.getElementById('cep-rua')) document.getElementById('cep-rua').value = data.street || '';
+                if (document.getElementById('cep-bairro')) document.getElementById('cep-bairro').value = data.neighborhood || '';
+                if (document.getElementById('cep-cidade')) document.getElementById('cep-cidade').value = data.city || '';
+                if (document.getElementById('cep-estado')) document.getElementById('cep-estado').value = data.state || '';
+            } catch (err) { console.error(err); }
+        }
+
+        function pausa(ms) {
+            return new Promise(resolve => setTimeout(resolve, ms));
+        }
+
+        function definirCampoEmpresa(id, valor) {
+            const el = document.getElementById(id);
+            if (!el) return;
+            const temValor = valor !== undefined && valor !== null && valor.toString().trim() !== '';
+            if (temValor) {
+                el.value = valor;
+                el.readOnly = true;
+                el.classList.remove('campo-livre');
+                el.classList.add('campo-travado');
+            } else {
+                el.value = '';
+                el.readOnly = false;
+                el.classList.remove('campo-travado');
+                el.classList.add('campo-livre');
+            }
+        }
+
+        function liberarCamposEmpresaManual() {
+            ['empresa-nome', 'empresa-cep', 'empresa-logradouro', 'empresa-bairro', 'empresa-cidade', 'empresa-uf'].forEach(id => {
+                definirCampoEmpresa(id, '');
+            });
+        }
+
+        async function consultarCNPJ(cnpj) {
+            const idConsulta = ++consultaCNPJAtual;
+            const statusIcon = document.getElementById('cnpj-status-icon');
+            const cnpjMsg = document.getElementById('cnpj-msg');
+            statusIcon.innerHTML = `<span class="text-xs text-neutral-400 animate-pulse">verificando...</span>`;
+            cnpjMsg.innerText = "";
+
+            const MAX_TENTATIVAS = 3;
+            let data = null;
+            let naoEncontrado = false;
+
+            for (let tentativa = 1; tentativa <= MAX_TENTATIVAS; tentativa++) {
+                try {
+                    const response = await fetch(`https://brasilapi.com.br/api/cnpj/v1/${cnpj}`);
+
+                    if (idConsulta !== consultaCNPJAtual) return;
+
+                    if (response.status === 404) {
+                        naoEncontrado = true;
+                        break;
+                    }
+
+                    if (!response.ok) {
+                        throw new Error('status ' + response.status);
+                    }
+
+                    data = await response.json();
+                    break;
+                } catch (err) {
+                    if (idConsulta !== consultaCNPJAtual) return;
+                    if (tentativa < MAX_TENTATIVAS) {
+                        await pausa(500 * tentativa);
+                    }
+                }
+            }
+
+            if (idConsulta !== consultaCNPJAtual) return;
+
+            if (naoEncontrado) {
+                statusIcon.innerHTML = `<svg class="w-5 h-5 text-red-500" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"></path></svg>`;
+                cnpjMsg.innerText = "CNPJ não encontrado. Confira o número ou preencha os dados manualmente.";
+                cnpjMsg.className = "text-xs text-red-500 mt-1 px-3 text-left font-medium";
+                liberarCamposEmpresaManual();
+                return;
+            }
+
+            if (!data) {
+                statusIcon.innerHTML = `<svg class="w-5 h-5 text-red-500" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"></path></svg>`;
+                cnpjMsg.innerText = "Não foi possível verificar o CNPJ agora. Você pode preencher os dados manualmente ou digitar o número novamente.";
+                cnpjMsg.className = "text-xs text-red-500 mt-1 px-3 text-left font-medium";
+                liberarCamposEmpresaManual();
+                return;
+            }
+
+            const situacao = data.descricao_situacao_cadastral || data.situacao_cadastral;
+            const ativa = situacao && situacao.toString().toUpperCase().includes('ATIVA');
+
+            if (ativa) {
+                statusIcon.innerHTML = `<svg class="w-5 h-5 text-green-500" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg>`;
+                cnpjMsg.innerText = "";
+                definirCampoEmpresa('empresa-nome', data.razao_social || data.nome_fantasia);
+                definirCampoEmpresa('empresa-cep', data.cep);
+                definirCampoEmpresa('empresa-logradouro', data.logradouro);
+                definirCampoEmpresa('empresa-bairro', data.bairro);
+                definirCampoEmpresa('empresa-cidade', data.municipio);
+                definirCampoEmpresa('empresa-uf', data.uf);
+                if (document.getElementById('empresa-numero') && data.numero) {
+                    document.getElementById('empresa-numero').value = data.numero;
+                }
+            } else {
+                statusIcon.innerHTML = `<svg class="w-5 h-5 text-red-500" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"></path></svg>`;
+                cnpjMsg.innerText = "CNPJ inativo";
+                cnpjMsg.className = "text-xs text-red-500 mt-1 px-3 text-left font-medium";
+                liberarCamposEmpresaManual();
+            }
+        }
+
+        function limparStatusCNPJ() {
+            const statusIcon = document.getElementById('cnpj-status-icon');
+            const cnpjMsg = document.getElementById('cnpj-msg');
+            if (statusIcon) statusIcon.innerHTML = '';
+            if (cnpjMsg) cnpjMsg.innerText = '';
+        }
+
+        function toggleSemNumero(checkbox, inputId) {
+            const inputNum = document.getElementById(inputId);
+            if (checkbox.checked) {
+                inputNum.value = 'S/N';
+                inputNum.disabled = true;
+                inputNum.classList.add('opacity-50');
+                inputNum.classList.remove('input-error');
+            } else {
+                inputNum.value = '';
+                inputNum.disabled = false;
+                inputNum.classList.remove('opacity-50');
+            }
+        }
+
         // ========== FORMULÁRIO ==========
         function alternarModo(event) {
             event.preventDefault();
+            
+            // Se estiver no fluxo de cadastro Google, cancela
+            if (modoGoogleCadastro) {
+                modoGoogleCadastro = false;
+                modoCriarConta = false;
+                
+                // Mostra campo de senha novamente
+                const inputs = document.querySelectorAll('#campos-dinamicos input');
+                const senhaInput = inputs[inputs.length - 1];
+                if (senhaInput) {
+                    senhaInput.style.display = '';
+                    senhaInput.required = true;
+                }
+                
+                document.getElementById('btn-principal').innerText = 'Entre';
+                document.getElementById('link-modo').innerText = 'Não tenho cadastro';
+                document.getElementById('tipo-cadastro-container').classList.add('hidden');
+                renderizarCamposLogin();
+                return;
+            }
+            
             modoCriarConta = !modoCriarConta;
             modoGoogleCadastro = false;
 
@@ -367,191 +582,6 @@
             }
         }
 
-        // Máscaras e consultas
-        function formatarCPF(input) {
-            let v = input.value.replace(/\D/g, "");
-            if (v.length > 11) v = v.substring(0, 11);
-            v = v.replace(/(\d{3})(\d)/, "$1.$2");
-            v = v.replace(/(\d{3})(\d)/, "$1.$2");
-            v = v.replace(/(\d{3})(\d{1,2})$/, "$1-$2");
-            input.value = v;
-        }
-
-        function formatarCEP(input) {
-            let v = input.value.replace(/\D/g, "");
-            if (v.length > 8) v = v.substring(0, 8);
-            v = v.replace(/(\d{5})(\d)/, "$1-$2");
-            input.value = v;
-            if (v.replace(/\D/g, "").length === 8) consultarCEP(v.replace(/\D/g, ""));
-        }
-
-        function formatarCNPJ(input) {
-            let v = input.value.replace(/\D/g, "");
-            if (v.length > 14) v = v.substring(0, 14);
-            v = v.replace(/^(\d{2})(\d)/, "$1.$2");
-            v = v.replace(/^(\d{2})\.(\d{3})(\d)/, "$1.$2.$3");
-            v = v.replace(/\.(\d{3})(\d)/, ".$1/$2");
-            v = v.replace(/(\d{4})(\d)/, "$1-$2");
-            input.value = v;
-            if (v.replace(/\D/g, "").length === 14) consultarCNPJ(v.replace(/\D/g, ""));
-            else limparStatusCNPJ();
-        }
-
-        async function consultarCEP(cep) {
-            try {
-                const response = await fetch(`https://brasilapi.com.br/api/cep/v1/${cep}`);
-                if (!response.ok) throw new Error('CEP não encontrado');
-                const data = await response.json();
-                if (document.getElementById('cep-rua')) document.getElementById('cep-rua').value = data.street || '';
-                if (document.getElementById('cep-bairro')) document.getElementById('cep-bairro').value = data.neighborhood || '';
-                if (document.getElementById('cep-cidade')) document.getElementById('cep-cidade').value = data.city || '';
-                if (document.getElementById('cep-estado')) document.getElementById('cep-estado').value = data.state || '';
-            } catch (err) { console.error(err); }
-        }
-
-        // Controla qual consulta é a "mais recente" — evita que uma resposta antiga (de uma
-        // tentativa anterior/lenta) sobrescreva o resultado de uma consulta mais nova.
-        let consultaCNPJAtual = 0;
-
-        function pausa(ms) {
-            return new Promise(resolve => setTimeout(resolve, ms));
-        }
-
-        // Classes de estilo para campo travado (preenchido pela API) e campo liberado (editável)
-        const CLASSES_CAMPO_TRAVADO = ['bg-[#161616]', 'text-neutral-400', 'cursor-not-allowed'];
-        const CLASSES_CAMPO_LIVRE = ['bg-[#1e1e1e]', 'text-white', 'placeholder-neutral-500', 'focus:ring-2', 'focus:ring-neutral-400'];
-
-        // Preenche um campo da empresa: se a API trouxe valor, trava o campo (readonly);
-        // se a API não trouxe nada, libera o campo para o usuário digitar manualmente.
-        function definirCampoEmpresa(id, valor) {
-            const el = document.getElementById(id);
-            if (!el) return;
-            const temValor = valor !== undefined && valor !== null && valor.toString().trim() !== '';
-            if (temValor) {
-                el.value = valor;
-                el.readOnly = true;
-                el.classList.remove(...CLASSES_CAMPO_LIVRE);
-                el.classList.add(...CLASSES_CAMPO_TRAVADO);
-            } else {
-                el.value = '';
-                el.readOnly = false;
-                el.classList.remove(...CLASSES_CAMPO_TRAVADO);
-                el.classList.add(...CLASSES_CAMPO_LIVRE);
-            }
-        }
-
-        // Libera todos os campos da empresa para preenchimento manual (usado quando a
-        // consulta falha completamente ou o CNPJ está inativo/inválido)
-        function liberarCamposEmpresaManual() {
-            ['empresa-nome', 'empresa-cep', 'empresa-logradouro', 'empresa-bairro', 'empresa-cidade', 'empresa-uf'].forEach(id => {
-                definirCampoEmpresa(id, '');
-            });
-        }
-
-        async function consultarCNPJ(cnpj) {
-            const idConsulta = ++consultaCNPJAtual;
-            const statusIcon = document.getElementById('cnpj-status-icon');
-            const cnpjMsg = document.getElementById('cnpj-msg');
-            statusIcon.innerHTML = `<span class="text-xs text-neutral-400 animate-pulse">verificando...</span>`;
-            cnpjMsg.innerText = "";
-
-            const MAX_TENTATIVAS = 3;
-            let data = null;
-            let naoEncontrado = false;
-
-            for (let tentativa = 1; tentativa <= MAX_TENTATIVAS; tentativa++) {
-                try {
-                    const response = await fetch(`https://brasilapi.com.br/api/cnpj/v1/${cnpj}`);
-
-                    // Se enquanto isso o usuário já digitou outro CNPJ, essa resposta é
-                    // obsoleta — descarta e não mexe mais na tela.
-                    if (idConsulta !== consultaCNPJAtual) return;
-
-                    if (response.status === 404) {
-                        naoEncontrado = true;
-                        break; // CNPJ realmente não existe, não adianta tentar de novo
-                    }
-
-                    if (!response.ok) {
-                        // Erro temporário (ex: 429/500) — tenta de novo com espera crescente
-                        throw new Error('status ' + response.status);
-                    }
-
-                    data = await response.json();
-                    break;
-                } catch (err) {
-                    if (idConsulta !== consultaCNPJAtual) return;
-                    if (tentativa < MAX_TENTATIVAS) {
-                        await pausa(500 * tentativa);
-                    }
-                }
-            }
-
-            if (idConsulta !== consultaCNPJAtual) return; // consulta obsoleta, ignora resultado
-
-            if (naoEncontrado) {
-                statusIcon.innerHTML = `<svg class="w-5 h-5 text-red-500" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"></path></svg>`;
-                cnpjMsg.innerText = "CNPJ não encontrado. Confira o número ou preencha os dados manualmente.";
-                cnpjMsg.className = "text-xs text-red-500 mt-1 px-3 text-left font-medium";
-                liberarCamposEmpresaManual();
-                return;
-            }
-
-            if (!data) {
-                // Todas as tentativas falharam por instabilidade da API — não travamos os
-                // campos e deixamos o usuário preencher manualmente, sem precisar recarregar a página.
-                statusIcon.innerHTML = `<svg class="w-5 h-5 text-red-500" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"></path></svg>`;
-                cnpjMsg.innerText = "Não foi possível verificar o CNPJ agora. Você pode preencher os dados manualmente ou digitar o número novamente.";
-                cnpjMsg.className = "text-xs text-red-500 mt-1 px-3 text-left font-medium";
-                liberarCamposEmpresaManual();
-                return;
-            }
-
-            const situacao = data.descricao_situacao_cadastral || data.situacao_cadastral;
-            const ativa = situacao && situacao.toString().toUpperCase().includes('ATIVA');
-
-            if (ativa) {
-                statusIcon.innerHTML = `<svg class="w-5 h-5 text-green-500" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg>`;
-                cnpjMsg.innerText = "";
-                definirCampoEmpresa('empresa-nome', data.razao_social || data.nome_fantasia);
-                definirCampoEmpresa('empresa-cep', data.cep);
-                definirCampoEmpresa('empresa-logradouro', data.logradouro);
-                definirCampoEmpresa('empresa-bairro', data.bairro);
-                definirCampoEmpresa('empresa-cidade', data.municipio);
-                definirCampoEmpresa('empresa-uf', data.uf);
-                if (document.getElementById('empresa-numero') && data.numero) {
-                    document.getElementById('empresa-numero').value = data.numero;
-                }
-            } else {
-                statusIcon.innerHTML = `<svg class="w-5 h-5 text-red-500" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"></path></svg>`;
-                cnpjMsg.innerText = "CNPJ inativo";
-                cnpjMsg.className = "text-xs text-red-500 mt-1 px-3 text-left font-medium";
-                liberarCamposEmpresaManual();
-            }
-        }
-
-        function limparStatusCNPJ() {
-            const statusIcon = document.getElementById('cnpj-status-icon');
-            const cnpjMsg = document.getElementById('cnpj-msg');
-            if (statusIcon) statusIcon.innerHTML = '';
-            if (cnpjMsg) cnpjMsg.innerText = '';
-        }
-
-        function toggleSemNumero(checkbox, inputId) {
-            const inputNum = document.getElementById(inputId);
-            if (checkbox.checked) {
-                inputNum.value = 'S/N';
-                inputNum.disabled = true;
-                inputNum.classList.add('opacity-50');
-                inputNum.classList.remove('input-error');
-            } else {
-                inputNum.value = '';
-                inputNum.disabled = false;
-                inputNum.classList.remove('opacity-50');
-            }
-        }
-
-        // Renderização de campos
         function renderizarCamposLogin() {
             document.getElementById('campos-dinamicos').innerHTML = `
                 <input type="email" placeholder="E-mail" required class="w-full bg-[#1e1e1e] text-white placeholder-neutral-500 px-6 py-4 rounded-full border-0 outline-none focus:ring-2 focus:ring-neutral-400 transition-all text-[16px]">
@@ -618,7 +648,7 @@
                     senha.style.display = 'none';
                     senha.required = false;
                 }
-                document.getElementById('btn-principal').innerText = 'Concluir cadastro';
+                document.getElementById('btn-principal').innerText = 'Concluir Cadastro';
                 const user = auth.currentUser;
                 if (user) {
                     const emailInput = container.querySelector('input[type="email"]');
@@ -634,61 +664,130 @@
             }
         }
 
+        // ========== MODAL ==========
+        function showModal(titulo, mensagem, botaoTexto = 'Continuar', redirectUrl = '', callback = null) {
+            document.getElementById('modalTitulo').innerText = titulo;
+            document.getElementById('modalMensagem').innerHTML = mensagem;
+            
+            const btn = document.getElementById('modalBtnPrincipal');
+            if (botaoTexto) {
+                btn.innerText = botaoTexto;
+            }
+            
+            // Armazena URL de redirecionamento e callback
+            document.getElementById('modalEntrada').dataset.redirect = redirectUrl || '';
+            modalCallback = callback;
+            
+            abrirModal();
+        }
+
+        function abrirModal() {
+            const modal = document.getElementById('modalEntrada');
+            const content = document.getElementById('modalContent');
+            modal.classList.remove('opacity-0', 'pointer-events-none');
+            content.classList.remove('scale-95');
+            content.classList.add('scale-100');
+        }
+
+        function fecharModalEntrada() {
+            const modal = document.getElementById('modalEntrada');
+            const content = document.getElementById('modalContent');
+            
+            modal.classList.add('opacity-0', 'pointer-events-none');
+            content.classList.remove('scale-100');
+            content.classList.add('scale-95');
+            
+            const redirect = modal.dataset.redirect;
+            if (redirect) {
+                window.location.href = redirect;
+                return;
+            }
+            
+            // Executa callback se existir
+            if (modalCallback) {
+                const cb = modalCallback;
+                modalCallback = null;
+                cb();
+            }
+        }
+
         // ========== AÇÕES COM FIREBASE ==========
 
         // Login com Google
         function acaoGoogle() {
             const provider = new firebase.auth.GoogleAuthProvider();
+            
             auth.signInWithPopup(provider)
                 .then(result => {
                     const user = result.user;
-                    database.ref(`users/${user.uid}`).once('value').then(snapshot => {
-                        if (snapshot.exists()) {
-                            showModal('Google Auth', 'Login com Google realizado com sucesso.');
-                            document.getElementById('modalEntrada').dataset.redirect = 'cim.html';
-                        } else {
-                            if (modoCriarConta) {
+                    
+                    // Verifica se o usuário já existe no banco
+                    database.ref(`users/${user.uid}`).once('value')
+                        .then(snapshot => {
+                            if (snapshot.exists()) {
+                                // CONTA EXISTE - LOGIN
+                                const nome = user.displayName || 'Usuário';
+                                showModal(
+                                    'Bem-vindo de volta',
+                                    `Olá ${nome}, seu login foi realizado com sucesso.`,
+                                    'Continuar',
+                                    'cim.html'
+                                );
+                            } else {
+                                // CONTA NÃO EXISTE - INICIA CADASTRO
                                 modoGoogleCadastro = true;
+                                modoCriarConta = true;
+                                
+                                // Mostra o container de tipo de conta
+                                const tipoContainer = document.getElementById('tipo-cadastro-container');
+                                tipoContainer.classList.remove('hidden');
+                                
+                                // Renderiza campos de cadastro
+                                renderizarCamposCadastro();
+                                
+                                // Preenche com dados do Google
                                 const inputs = document.querySelectorAll('#campos-dinamicos input');
                                 const emailInput = inputs[inputs.length - 2];
                                 if (emailInput) emailInput.value = user.email || '';
-
-                                if (tipoPessoa === 'fisica') {
-                                    const nomeInput = inputs[0];
-                                    if (nomeInput && user.displayName) nomeInput.value = user.displayName;
-                                } else {
-                                    const razaoInput = document.getElementById('empresa-nome');
-                                    if (razaoInput && user.displayName) razaoInput.value = user.displayName;
-                                }
-
+                                
+                                // Esconde campo de senha
                                 const senhaInput = inputs[inputs.length - 1];
                                 if (senhaInput) {
                                     senhaInput.style.display = 'none';
                                     senhaInput.required = false;
                                 }
-
-                                document.getElementById('btn-principal').innerText = 'Concluir cadastro';
-                                const tipoContainer = document.getElementById('tipo-cadastro-container');
-                                if (tipoContainer.classList.contains('hidden')) {
-                                    tipoContainer.classList.remove('hidden');
-                                    renderizarCamposCadastro();
-                                    const novosInputs = document.querySelectorAll('#campos-dinamicos input');
-                                    const novoEmail = novosInputs[novosInputs.length - 2];
-                                    if (novoEmail) novoEmail.value = user.email || '';
-                                    if (tipoPessoa === 'fisica' && user.displayName) {
-                                        const novoNome = novosInputs[0];
-                                        if (novoNome) novoNome.value = user.displayName;
-                                    }
+                                
+                                // Atualiza botão e link
+                                document.getElementById('btn-principal').innerText = 'Concluir Cadastro';
+                                document.getElementById('link-modo').innerText = 'Já tenho cadastro';
+                                
+                                // Se tiver nome, preenche (PF)
+                                if (user.displayName && tipoPessoa === 'fisica') {
+                                    const nomeInput = inputs[0];
+                                    if (nomeInput) nomeInput.value = user.displayName;
                                 }
-                                showModal('Google Auth', 'Complete seu cadastro preenchendo os dados abaixo.');
-                                document.getElementById('modalEntrada').dataset.redirect = '';
-                            } else {
-                                showModal('Atenção', 'Nenhuma conta encontrada para este e‑mail. Por favor, crie uma conta clicando em "Não tenho cadastro".');
+                                
+                                showModal(
+                                    'Cadastro em andamento',
+                                    `Olá ${user.displayName || 'Usuário'}, complete os dados abaixo para finalizar seu cadastro.`,
+                                    'Ok'
+                                );
                             }
-                        }
-                    });
+                        })
+                        .catch(error => {
+                            showModal('Erro', 'Não foi possível verificar seus dados. Tente novamente.');
+                        });
                 })
-                .catch(error => showModal('Erro', error.message));
+                .catch(error => {
+                    // Tratamento específico para erros do Google
+                    if (error.code === 'auth/popup-closed-by-user') {
+                        showModal('Operação cancelada', 'A janela de autenticação foi fechada. Tente novamente.');
+                    } else if (error.code === 'auth/popup-blocked') {
+                        showModal('Permissão necessária', 'Por favor, permita pop-ups para usar a autenticação com Google.');
+                    } else {
+                        showModal('Erro', error.message);
+                    }
+                });
         }
 
         // Submissão do formulário
@@ -711,8 +810,7 @@
                 const user = auth.currentUser;
                 if (!user) { showModal('Erro', 'Usuário não autenticado.'); return; }
                 await salvarDadosUsuario(user.uid);
-                showModal('Cadastro concluído', 'Conta criada com sucesso!');
-                document.getElementById('modalEntrada').dataset.redirect = 'cim.html';
+                showModal('Cadastro concluído', 'Sua conta foi criada com sucesso!', 'Continuar', 'cim.html');
                 modoGoogleCadastro = false;
                 const senhaInput = document.querySelectorAll('#campos-dinamicos input');
                 if (senhaInput.length) {
@@ -733,18 +831,52 @@
                 try {
                     const userCredential = await auth.createUserWithEmailAndPassword(email, password);
                     await salvarDadosUsuario(userCredential.user.uid);
-                    showModal('Conta Criada', `Sua conta (${tipoPessoa === 'fisica' ? 'Pessoa Física' : 'Pessoa Jurídica'}) foi criada com sucesso!`);
-                    document.getElementById('modalEntrada').dataset.redirect = 'cim.html';
+                    showModal('Conta Criada', `Sua conta (${tipoPessoa === 'fisica' ? 'Pessoa Física' : 'Pessoa Jurídica'}) foi criada com sucesso!`, 'Continuar', 'cim.html');
                 } catch (error) {
-                    showModal('Erro', error.message);
+                    if (error.code === 'auth/email-already-in-use') {
+                        showModal(
+                            'E-mail já cadastrado',
+                            'Este e-mail já possui uma conta ativa. Deseja fazer login?',
+                            'Fazer Login',
+                            '',
+                            () => {
+                                // Alterna para modo login
+                                modoCriarConta = false;
+                                document.getElementById('btn-principal').innerText = 'Entre';
+                                document.getElementById('link-modo').innerText = 'Não tenho cadastro';
+                                document.getElementById('tipo-cadastro-container').classList.add('hidden');
+                                renderizarCamposLogin();
+                            }
+                        );
+                    } else {
+                        showModal('Erro', error.message);
+                    }
                 }
             } else {
                 try {
                     await auth.signInWithEmailAndPassword(email, password);
-                    showModal('Login Realizado', 'Autenticação via e‑mail concluída com sucesso.');
-                    document.getElementById('modalEntrada').dataset.redirect = 'cim.html';
+                    showModal('Login Realizado', 'Autenticação via e-mail concluída com sucesso.', 'Continuar', 'cim.html');
                 } catch (error) {
-                    showModal('Erro', error.message);
+                    if (error.code === 'auth/user-not-found') {
+                        showModal(
+                            'Usuário não encontrado',
+                            'Nenhuma conta encontrada para este e-mail. Deseja criar uma conta?',
+                            'Criar conta',
+                            '',
+                            () => {
+                                // Alterna para modo cadastro
+                                modoCriarConta = true;
+                                document.getElementById('btn-principal').innerText = 'Crie uma conta';
+                                document.getElementById('link-modo').innerText = 'Já tenho cadastro';
+                                document.getElementById('tipo-cadastro-container').classList.remove('hidden');
+                                renderizarCamposCadastro();
+                            }
+                        );
+                    } else if (error.code === 'auth/wrong-password') {
+                        showModal('Senha incorreta', 'A senha informada está incorreta. Tente novamente.');
+                    } else {
+                        showModal('Erro', error.message);
+                    }
                 }
             }
         }
@@ -794,34 +926,9 @@
             await database.ref(`users/${uid}`).update(dados);
         }
 
-        // Modal
-        function showModal(titulo, mensagem) {
-            document.getElementById('modalTitulo').innerText = titulo;
-            document.getElementById('modalMensagem').innerText = mensagem;
-            abrirModal();
-        }
-
         function abrirTermos(event) {
             event.preventDefault();
-            showModal('Termo de Privacidade', 'Os seus dados estão protegidos e seguros conosco.');
-        }
-
-        function abrirModal() {
-            const modal = document.getElementById('modalEntrada');
-            const content = document.getElementById('modalContent');
-            modal.classList.remove('opacity-0', 'pointer-events-none');
-            content.classList.remove('scale-95');
-            content.classList.add('scale-100');
-        }
-
-        function fecharModalEntrada() {
-            const modal = document.getElementById('modalEntrada');
-            const content = document.getElementById('modalContent');
-            modal.classList.add('opacity-0', 'pointer-events-none');
-            content.classList.remove('scale-100');
-            content.classList.add('scale-95');
-            const redirect = modal.dataset.redirect;
-            if (redirect) window.location.href = redirect;
+            showModal('Termo de Privacidade', 'Os seus dados estão protegidos e seguros conosco. Nós coletamos apenas as informações necessárias para criar sua conta e garantir a segurança do sistema.');
         }
 
         // Inicialização
