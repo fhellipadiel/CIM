@@ -97,7 +97,7 @@
         .gallery-col {
             display: flex;
             flex-direction: column;
-            gap: 0.375rem; /* 1.5 * 0.25rem */
+            gap: 0.375rem;
             width: 33.333%;
         }
 
@@ -119,15 +119,22 @@
             color: #ffffff !important;
         }
 
-        /* Link do modal estilizado */
-        .modal-link {
-            color: #ffffff;
-            text-decoration: underline;
-            text-underline-offset: 2px;
-            cursor: pointer;
+        /* Botões de tipo de conta ativo/inativo */
+        .tipo-btn-ativo {
+            border-color: #52525b !important;
+            background-color: #1e1e1e !important;
+            color: #ffffff !important;
         }
-        .modal-link:hover {
-            color: #cccccc;
+
+        .tipo-btn-inativo {
+            border-color: #262626 !important;
+            background-color: transparent !important;
+            color: #a3a3a3 !important;
+        }
+
+        .tipo-btn-inativo:hover {
+            border-color: #404040 !important;
+            color: #d4d4d4 !important;
         }
     </style>
 </head>
@@ -155,10 +162,10 @@
             <div id="tipo-cadastro-container" class="hidden flex flex-col gap-3 mb-1">
                 <span class="text-xs text-neutral-400 font-medium text-left px-1">Selecione o tipo de conta:</span>
                 <div class="grid grid-cols-2 gap-3">
-                    <button type="button" onclick="selecionarTipo('fisica')" id="btn-fisica" class="py-3 px-4 rounded-full border border-neutral-700 bg-[#1e1e1e] text-white text-sm font-medium transition-all focus:outline-none">
+                    <button type="button" onclick="selecionarTipo('fisica')" id="btn-fisica" class="py-3 px-4 rounded-full border text-sm font-medium transition-all focus:outline-none tipo-btn-ativo">
                         Pessoa Física
                     </button>
-                    <button type="button" onclick="selecionarTipo('juridica')" id="btn-juridica" class="py-3 px-4 rounded-full border border-neutral-800 bg-transparent text-neutral-400 text-sm font-medium transition-all focus:outline-none">
+                    <button type="button" onclick="selecionarTipo('juridica')" id="btn-juridica" class="py-3 px-4 rounded-full border text-sm font-medium transition-all focus:outline-none tipo-btn-inativo">
                         Pessoa Jurídica
                     </button>
                 </div>
@@ -554,23 +561,50 @@
 
         function selecionarTipo(tipo) {
             tipoPessoa = tipo;
+            
             const btnFisica = document.getElementById('btn-fisica');
             const btnJuridica = document.getElementById('btn-juridica');
+            
+            // Remove todas as classes de estilo dos botões
+            btnFisica.className = "py-3 px-4 rounded-full border text-sm font-medium transition-all focus:outline-none";
+            btnJuridica.className = "py-3 px-4 rounded-full border text-sm font-medium transition-all focus:outline-none";
+            
+            // Aplica as classes corretas baseado no tipo selecionado
             if (tipo === 'fisica') {
-                btnFisica.className = "py-3 px-4 rounded-full border border-neutral-700 bg-[#1e1e1e] text-white text-sm font-medium transition-all focus:outline-none";
-                btnJuridica.className = "py-3 px-4 rounded-full border border-neutral-800 bg-transparent text-neutral-400 text-sm font-medium transition-all focus:outline-none";
+                btnFisica.classList.add('tipo-btn-ativo');
+                btnJuridica.classList.add('tipo-btn-inativo');
             } else {
-                btnJuridica.className = "py-3 px-4 rounded-full border border-neutral-700 bg-[#1e1e1e] text-white text-sm font-medium transition-all focus:outline-none";
-                btnFisica.className = "py-3 px-4 rounded-full border border-neutral-800 bg-transparent text-neutral-400 text-sm font-medium transition-all focus:outline-none";
+                btnJuridica.classList.add('tipo-btn-ativo');
+                btnFisica.classList.add('tipo-btn-inativo');
             }
+            
+            // Se estiver no modo Google cadastro, re-renderiza os campos mantendo os dados
             if (modoGoogleCadastro) {
                 const user = auth.currentUser;
+                // Salva os valores atuais antes de re-renderizar
+                const inputsAtuais = document.querySelectorAll('#campos-dinamicos input');
+                const valoresAtuais = [];
+                inputsAtuais.forEach(input => {
+                    valoresAtuais.push(input.value);
+                });
+                
+                renderizarCamposCadastro();
+                
+                // Restaura os valores
+                const novosInputs = document.querySelectorAll('#campos-dinamicos input');
+                novosInputs.forEach((input, index) => {
+                    if (index < valoresAtuais.length && valoresAtuais[index]) {
+                        input.value = valoresAtuais[index];
+                    }
+                });
+                
+                // Preenche com dados do Google se disponível
                 if (user) {
-                    const inputs = document.querySelectorAll('#campos-dinamicos input');
-                    const emailInput = inputs[inputs.length - 2];
+                    const emailInput = document.querySelector('#campos-dinamicos input[type="email"]');
                     if (emailInput) emailInput.value = user.email || '';
+                    
                     if (tipo === 'fisica') {
-                        const nomeInput = inputs[0];
+                        const nomeInput = document.querySelector('#campos-dinamicos input[placeholder="Nome completo"]');
                         if (nomeInput && user.displayName) nomeInput.value = user.displayName;
                     } else {
                         const razaoInput = document.getElementById('empresa-nome');
@@ -578,6 +612,7 @@
                     }
                 }
             } else {
+                // Modo normal: re-renderiza os campos
                 renderizarCamposCadastro();
             }
         }
@@ -641,6 +676,8 @@
                     <input type="password" placeholder="Senha" required class="w-full bg-[#1e1e1e] text-white placeholder-neutral-500 px-6 py-4 rounded-full border-0 outline-none focus:ring-2 focus:ring-neutral-400 transition-all text-[16px]">
                 `;
             }
+            
+            // Se estiver no modo Google cadastro, esconde a senha
             if (modoGoogleCadastro) {
                 const inputs = container.querySelectorAll('input');
                 if (inputs.length >= 2) {
@@ -649,18 +686,6 @@
                     senha.required = false;
                 }
                 document.getElementById('btn-principal').innerText = 'Concluir Cadastro';
-                const user = auth.currentUser;
-                if (user) {
-                    const emailInput = container.querySelector('input[type="email"]');
-                    if (emailInput) emailInput.value = user.email || '';
-                    if (tipoPessoa === 'fisica') {
-                        const nomeInput = container.querySelector('input[placeholder="Nome completo"]');
-                        if (nomeInput && user.displayName) nomeInput.value = user.displayName;
-                    } else {
-                        const razaoInput = document.getElementById('empresa-nome');
-                        if (razaoInput && user.displayName) razaoInput.value = user.displayName;
-                    }
-                }
             }
         }
 
@@ -674,7 +699,6 @@
                 btn.innerText = botaoTexto;
             }
             
-            // Armazena URL de redirecionamento e callback
             document.getElementById('modalEntrada').dataset.redirect = redirectUrl || '';
             modalCallback = callback;
             
@@ -703,7 +727,6 @@
                 return;
             }
             
-            // Executa callback se existir
             if (modalCallback) {
                 const cb = modalCallback;
                 modalCallback = null;
@@ -721,11 +744,9 @@
                 .then(result => {
                     const user = result.user;
                     
-                    // Verifica se o usuário já existe no banco
                     database.ref(`users/${user.uid}`).once('value')
                         .then(snapshot => {
                             if (snapshot.exists()) {
-                                // CONTA EXISTE - LOGIN
                                 const nome = user.displayName || 'Usuário';
                                 showModal(
                                     'Bem-vindo de volta',
@@ -734,34 +755,35 @@
                                     'cim.html'
                                 );
                             } else {
-                                // CONTA NÃO EXISTE - INICIA CADASTRO
+                                // Inicia cadastro Google
                                 modoGoogleCadastro = true;
                                 modoCriarConta = true;
                                 
-                                // Mostra o container de tipo de conta
+                                // Mostra container de tipo
                                 const tipoContainer = document.getElementById('tipo-cadastro-container');
                                 tipoContainer.classList.remove('hidden');
                                 
-                                // Renderiza campos de cadastro
+                                // Garante que o tipo padrão é PF
+                                tipoPessoa = 'fisica';
+                                atualizarBotoesTipo();
+                                
                                 renderizarCamposCadastro();
                                 
-                                // Preenche com dados do Google
+                                // Preenche dados do Google
                                 const inputs = document.querySelectorAll('#campos-dinamicos input');
                                 const emailInput = inputs[inputs.length - 2];
                                 if (emailInput) emailInput.value = user.email || '';
                                 
-                                // Esconde campo de senha
                                 const senhaInput = inputs[inputs.length - 1];
                                 if (senhaInput) {
                                     senhaInput.style.display = 'none';
                                     senhaInput.required = false;
                                 }
                                 
-                                // Atualiza botão e link
                                 document.getElementById('btn-principal').innerText = 'Concluir Cadastro';
                                 document.getElementById('link-modo').innerText = 'Já tenho cadastro';
                                 
-                                // Se tiver nome, preenche (PF)
+                                // Preenche nome se for PF
                                 if (user.displayName && tipoPessoa === 'fisica') {
                                     const nomeInput = inputs[0];
                                     if (nomeInput) nomeInput.value = user.displayName;
@@ -779,7 +801,6 @@
                         });
                 })
                 .catch(error => {
-                    // Tratamento específico para erros do Google
                     if (error.code === 'auth/popup-closed-by-user') {
                         showModal('Operação cancelada', 'A janela de autenticação foi fechada. Tente novamente.');
                     } else if (error.code === 'auth/popup-blocked') {
@@ -788,6 +809,22 @@
                         showModal('Erro', error.message);
                     }
                 });
+        }
+
+        function atualizarBotoesTipo() {
+            const btnFisica = document.getElementById('btn-fisica');
+            const btnJuridica = document.getElementById('btn-juridica');
+            
+            btnFisica.className = "py-3 px-4 rounded-full border text-sm font-medium transition-all focus:outline-none";
+            btnJuridica.className = "py-3 px-4 rounded-full border text-sm font-medium transition-all focus:outline-none";
+            
+            if (tipoPessoa === 'fisica') {
+                btnFisica.classList.add('tipo-btn-ativo');
+                btnJuridica.classList.add('tipo-btn-inativo');
+            } else {
+                btnJuridica.classList.add('tipo-btn-ativo');
+                btnFisica.classList.add('tipo-btn-inativo');
+            }
         }
 
         // Submissão do formulário
@@ -840,7 +877,6 @@
                             'Fazer Login',
                             '',
                             () => {
-                                // Alterna para modo login
                                 modoCriarConta = false;
                                 document.getElementById('btn-principal').innerText = 'Entre';
                                 document.getElementById('link-modo').innerText = 'Não tenho cadastro';
@@ -864,7 +900,6 @@
                             'Criar conta',
                             '',
                             () => {
-                                // Alterna para modo cadastro
                                 modoCriarConta = true;
                                 document.getElementById('btn-principal').innerText = 'Crie uma conta';
                                 document.getElementById('link-modo').innerText = 'Já tenho cadastro';
@@ -885,7 +920,6 @@
         async function salvarDadosUsuario(uid) {
             const inputs = document.querySelectorAll('#campos-dinamicos input');
             
-            // Encontrar o campo de telefone (deve ser o terceiro para PF ou o quarto para PJ)
             let telefoneIndex = tipoPessoa === 'fisica' ? 2 : 3;
             const telefoneRaw = inputs[telefoneIndex]?.value || '';
             const telefone = telefoneRaw.replace(/\D/g, '');
