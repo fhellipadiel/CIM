@@ -38,6 +38,31 @@
             font-size: 16px !important;
         }
 
+        /* ========== SESSION GATE (verificação de login) ========== */
+        #sessionGate {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #000000;
+            z-index: 99999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            gap: 15px;
+        }
+        #sessionGate i {
+            font-size: 3rem;
+            color: #ff6b00;
+            animation: spin 1s linear infinite;
+        }
+        #sessionGate span {
+            color: #fff;
+            font-size: 1rem;
+        }
+
         /* ========== HEADER FIXO ========== */
         .header {
             background-color: rgba(0, 0, 0, 0.4) !important;
@@ -595,12 +620,12 @@
 
         .brand-title {
             text-align: center;
-            font-size: 1rem;
-            font-weight: 500;
+            font-size: 1.25rem;
+            font-weight: 700;
             color: #ffffff;
-            margin: 8px 0 4px;
-            letter-spacing: 1px;
-            opacity: 0.8;
+            margin: 10px 0 8px;
+            letter-spacing: 0.3px;
+            opacity: 1;
             display: none;
         }
         .brand-title.visible {
@@ -930,40 +955,6 @@
         }
         .price-hidden .product-price {
             display: none;
-        }
-
-        .login-prompt {
-            display: block;
-            width: 100%;
-            text-align: center;
-            margin-top: 6px;
-            color: #ffffff;
-            background: #333;
-            border: none;
-            cursor: pointer;
-            font-size: 0.85rem;
-            text-decoration: none;
-            padding: 8px 0;
-            transition: all 0.3s ease;
-            border-radius: 30px;
-        }
-        .login-prompt:hover {
-            background: #444;
-            color: #fff;
-        }
-        .login-prompt-modal {
-            display: inline-block;
-            color: #ffffff;
-            background: transparent;
-            border: none;
-            cursor: pointer;
-            font-size: 0.95rem;
-            text-decoration: none;
-            padding: 8px 12px;
-            transition: color 0.2s;
-        }
-        .login-prompt-modal:hover {
-            color: #ff6b00;
         }
 
         .product-actions .action-row .btn {
@@ -2204,6 +2195,12 @@
     </style>
 </head>
 <body>
+    <!-- ==================== GATE DE SESSÃO (bloqueia acesso sem login) ==================== -->
+    <div id="sessionGate">
+        <i class="fas fa-spinner"></i>
+        <span>Verificando sua sessão...</span>
+    </div>
+
     <!-- ==================== HEADER ==================== -->
     <header class="header">
         <div class="header-container">
@@ -2471,6 +2468,7 @@
         let categoryHidePJ = {};
         let currentUser = null;
         let currentUserPhoto = null;
+        let dataLoaded = false;
 
         // ========== DOM REFS ==========
         const productsGrid = document.getElementById('productsGrid');
@@ -2505,6 +2503,7 @@
         const profileDoc = document.getElementById('profileDoc');
         const dropdownUserDoc = document.getElementById('dropdownUserDoc');
         const brandTitle = document.getElementById('brandTitle');
+        const sessionGate = document.getElementById('sessionGate');
 
         // ========== UTILITÁRIOS ==========
         function showToast(msg, type = 'success') {
@@ -2632,12 +2631,15 @@
             if (cart.length === 0) {
                 cartItems.innerHTML = '<div class="empty-cart"><i class="fas fa-shopping-basket"></i><p>Seu carrinho está vazio</p></div>';
             } else {
-                cartItems.innerHTML = cart.map(item => `
+                cartItems.innerHTML = cart.map(item => {
+                    const price = getPriceForItem(item);
+                    const priceHtml = price > 0 ? `R$ ${price.toFixed(2)}` : '';
+                    return `
                             <div class="cart-item">
                                 <div class="cart-item-image"><img src="${item.image || DEFAULT_PLACEHOLDER_IMAGE}"></div>
                                 <div class="cart-item-info">
                                     <div class="cart-item-name">${escapeHtml(item.name)}</div>
-                                    <div class="cart-item-price">${getPriceDisplay(item)}</div>
+                                    ${priceHtml ? `<div class="cart-item-price">${priceHtml}</div>` : ''}
                                     <div class="cart-item-quantity">
                                         <button class="quantity-btn" onclick="updateQuantity('${item.id}', -1)">-</button>
                                         <span>${item.quantity}</span>
@@ -2645,43 +2647,40 @@
                                     </div>
                                 </div>
                             </div>
-                        `).join('');
+                        `;
+                }).join('');
             }
             const total = cart.reduce((sum, item) => {
                 const price = getPriceForItem(item);
                 return sum + (price * item.quantity);
             }, 0);
-            cartTotal.textContent = pricesHidden ? '---' : `R$ ${total.toFixed(2)}`;
+            cartTotal.textContent = total > 0 ? `R$ ${total.toFixed(2)}` : 'R$ 0,00';
             saveCart();
         }
 
         function getPriceForItem(item) {
-            if (pricesHidden) return 0;
-            if (currentUser && currentUser.userType) {
-                const type = currentUser.userType;
-                if (shouldHidePriceForItem(item, type)) return 0;
-                return item.prices?.[type] || 0;
-            }
-            return 0;
-        }
+            if (!currentUser) return 0;
+            const userType = currentUser.userType;
+            if (!userType) return 0;
 
-        function shouldHidePriceForItem(item, userType) {
+            // Verifica ocultação global
+            if (pricesHidden === 'both') return 0;
+            if (pricesHidden === userType) return 0;
+
+            // Verifica ocultação por sessão
             if (item.sessionId && sessions[item.sessionId]) {
                 const sess = sessions[item.sessionId];
-                if (userType === 'PF' && sess.hidePF) return true;
-                if (userType === 'PJ' && sess.hidePJ) return true;
+                if (userType === 'PF' && sess.hidePF) return 0;
+                if (userType === 'PJ' && sess.hidePJ) return 0;
             }
-            if (item.category) {
-                if (userType === 'PF' && categoryHidePF[item.category]) return true;
-                if (userType === 'PJ' && categoryHidePJ[item.category]) return true;
-            }
-            return false;
-        }
 
-        function getPriceDisplay(item) {
-            if (pricesHidden) return '---';
-            const price = getPriceForItem(item);
-            return price > 0 ? `R$ ${price.toFixed(2)}` : '---';
+            // Verifica ocultação por categoria
+            if (item.category) {
+                if (userType === 'PF' && categoryHidePF[item.category]) return 0;
+                if (userType === 'PJ' && categoryHidePJ[item.category]) return 0;
+            }
+
+            return item.prices?.[userType] || 0;
         }
 
         function removeFromCart(id) { cart = cart.filter(item => item.id !== id);
@@ -2723,9 +2722,9 @@
                 const price = getPriceForItem(item);
                 total += price * item.quantity;
                 msg += `• ${item.quantity}x ${item.name}\n`;
-                if (!pricesHidden && price > 0) msg += `  R$ ${(price * item.quantity).toFixed(2)}\n`;
+                if (price > 0) msg += `  R$ ${(price * item.quantity).toFixed(2)}\n`;
             });
-            if (!pricesHidden) msg += `\n*TOTAL: R$ ${total.toFixed(2)}*\n\n`;
+            if (total > 0) msg += `\n*TOTAL: R$ ${total.toFixed(2)}*\n\n`;
             else msg += `\n*Total a consultar*\n\n`;
             msg += `WhatsApp do cliente: ${contactInfo.whatsapp || 'Não informado'}`;
             window.open(`https://wa.me/${target.replace(/\D/g, '')}?text=${encodeURIComponent(msg)}`, '_blank');
@@ -2917,6 +2916,7 @@
                 promocoes = snapshot.val() || {};
                 verificarExpiracao();
                 renderPromotionBadgesOnly();
+                filterProducts(); // re-renderiza para aplicar descontos
             });
         }
 
@@ -3016,6 +3016,41 @@
         function calcularPrecoComDesconto(preco, descontoPercent) {
             if (!preco || preco <= 0) return 0;
             return preco * (1 - descontoPercent / 100);
+        }
+
+        // ========== FUNÇÃO DE OCULTAÇÃO DE PREÇOS ==========
+        function shouldHidePriceForUser(product, userType) {
+            if (!userType) return true; // sem tipo, oculta
+
+            // 1. Verifica ocultação global
+            if (pricesHidden === 'both') return true;
+            if (pricesHidden === userType) return true;
+
+            // 2. Verifica ocultação por sessão
+            if (product.sessionId && sessions[product.sessionId]) {
+                const sess = sessions[product.sessionId];
+                if (userType === 'PF' && sess.hidePF) return true;
+                if (userType === 'PJ' && sess.hidePJ) return true;
+            }
+
+            // 3. Verifica ocultação por categoria
+            if (product.category) {
+                if (userType === 'PF' && categoryHidePF[product.category]) return true;
+                if (userType === 'PJ' && categoryHidePJ[product.category]) return true;
+            }
+
+            return false;
+        }
+
+        // ========== FUNÇÃO PARA ATUALIZAR EXIBIÇÃO DE PREÇOS ==========
+        function updatePriceDisplay() {
+            // Re-renderiza a lista de produtos e o carrinho
+            filterProducts();
+            updateCart();
+            // Se houver modal aberto, atualiza também
+            if (currentProduct) {
+                showDetails(currentProduct.id);
+            }
         }
 
         // ========== FILTRAR PRODUTOS ==========
@@ -3141,18 +3176,18 @@
             }
 
             let priceDisplay = '';
-            const showPrice = !pricesHidden;
             const userType = currentUser ? currentUser.userType : null;
-            const hideForUser = shouldHidePriceForItem(product, userType);
+            const hideForUser = shouldHidePriceForUser(product, userType);
 
-            if (showPrice && userType) {
+            // Só exibe preço se NÃO estiver oculto e o usuário tiver tipo
+            if (!hideForUser && userType) {
                 const precoOriginal = userType === 'PF' ? precoOriginalPF : precoOriginalPJ;
                 const precoPromo = userType === 'PF' ? precoPromoPF : precoPromoPJ;
                 const label = userType === 'PF' ? 'Pessoa Física' : 'Pessoa Jurídica';
                 const icon = userType === 'PF' ? 'fa-user' : 'fa-building';
-                if (hideForUser) {
-                    priceDisplay = `<div class="product-price"><div class="price-label"><i class="fas ${icon}"></i> Preço oculto</div><div class="price-value">---</div></div>`;
-                } else {
+
+                // Só exibe se o preço for > 0
+                if (precoOriginal > 0) {
                     let priceHtml = `<div class="price-value">R$ ${precoOriginal.toFixed(2)}</div>`;
                     if (isPromo && precoPromo > 0) {
                         priceHtml =
@@ -3161,14 +3196,9 @@
                     priceDisplay =
                         `<div class="product-price"><div class="price-label"><i class="fas ${icon}"></i> Preço ${label}</div>${priceHtml}</div>`;
                 }
-            } else {
-                priceDisplay = '';
             }
 
             const img = product.image || DEFAULT_PLACEHOLDER_IMAGE;
-            const loginPrompt = (!currentUser && !pricesHidden) ?
-                `<button class="login-prompt" onclick="openLoginModal()">Entrar</button>` :
-                '';
 
             card.innerHTML = `
                         ${ribbonHtml}
@@ -3186,7 +3216,6 @@
                                     <button class="btn" onclick="showDetails('${product.id}')"><i class="fas fa-info-circle"></i> Detalhes</button>
                                     <button class="btn" onclick="addToCart('${product.id}')" ${product.soldOut ? 'disabled' : ''}><i class="fas fa-cart-plus"></i> ${product.soldOut ? 'Esgotado' : 'Adicionar'}</button>
                                 </div>
-                                ${loginPrompt}
                             </div>
                         </div>
                     `;
@@ -3208,6 +3237,7 @@
                     filterProducts();
                 }
                 renderPromotionBadgesOnly();
+                updatePriceDisplay(); // re-renderiza preços caso ocultação por sessão tenha mudado
             });
         }
 
@@ -3340,6 +3370,8 @@
         }
 
         // ========== DETALHES DO PRODUTO ==========
+        let currentProduct = null;
+
         function showDetails(id) {
             const product = products.find(p => p.id === id);
             if (!product) return;
@@ -3357,7 +3389,6 @@
             } else codigoContainer.style.display = 'none';
 
             let priceDisplay = '';
-            const showPrice = !pricesHidden;
             const userType = currentUser ? currentUser.userType : null;
             const promo = getPromocaoParaProduto(product);
             const desconto = promo ? promo.descontoPercentual : 0;
@@ -3366,36 +3397,36 @@
             const precoPromoPF = calcularPrecoComDesconto(precoOriginalPF, desconto);
             const precoPromoPJ = calcularPrecoComDesconto(precoOriginalPJ, desconto);
             const isPromo = promo && (precoPromoPF > 0 || precoPromoPJ > 0);
-            const hideForUser = shouldHidePriceForItem(product, userType);
+            const hideForUser = shouldHidePriceForUser(product, userType);
 
-            if (showPrice && userType) {
+            // Verifica se deve mostrar o preço
+            let showPrice = false;
+            let priceHtml = '';
+            if (!hideForUser && userType) {
                 const precoOriginal = userType === 'PF' ? precoOriginalPF : precoOriginalPJ;
                 const precoPromo = userType === 'PF' ? precoPromoPF : precoPromoPJ;
-                const label = userType === 'PF' ? 'PF' : 'PJ';
-                const icon = userType === 'PF' ? 'fa-user' : 'fa-building';
-                if (hideForUser) {
-                    priceDisplay =
-                    `<div class="modal-price-label"><i class="fas ${icon}"></i> Preço oculto</div><div>---</div>`;
-                } else {
-                    let priceHtml = `R$ ${precoOriginal.toFixed(2)}`;
+                if (precoOriginal > 0) {
+                    showPrice = true;
                     if (isPromo && precoPromo > 0) {
                         priceHtml =
                             `<span class="modal-price-value original">R$ ${precoOriginal.toFixed(2)}</span> <span class="modal-price-value promocional">R$ ${precoPromo.toFixed(2)}</span>`;
+                    } else {
+                        priceHtml = `<span class="modal-price-value">R$ ${precoOriginal.toFixed(2)}</span>`;
                     }
-                    priceDisplay =
-                        `<div class="modal-price-label"><i class="fas ${icon}"></i> Preço ${label}</div><div>${priceHtml}</div>`;
-                }
-                document.getElementById('modalAddButton').style.display = 'block';
-            } else {
-                if (!pricesHidden) {
-                    priceDisplay =
-                        `<button class="login-prompt-modal" onclick="openLoginModal()">Entrar</button>`;
-                    document.getElementById('modalAddButton').style.display = 'none';
-                } else {
-                    priceDisplay = '';
-                    document.getElementById('modalAddButton').style.display = 'none';
                 }
             }
+
+            if (showPrice) {
+                const label = userType === 'PF' ? 'PF' : 'PJ';
+                const icon = userType === 'PF' ? 'fa-user' : 'fa-building';
+                priceDisplay =
+                    `<div class="modal-price-label"><i class="fas ${icon}"></i> Preço ${label}</div><div>${priceHtml}</div>`;
+                document.getElementById('modalAddButton').style.display = 'block';
+            } else {
+                priceDisplay = '';
+                document.getElementById('modalAddButton').style.display = 'none';
+            }
+
             document.getElementById('modalPriceBox').innerHTML = priceDisplay;
             document.getElementById('productModal').classList.add('active');
         }
@@ -3625,6 +3656,21 @@
             }
         }
 
+        // ========== GATE DE SESSÃO ==========
+        function unlockPage() {
+            if (sessionGate) sessionGate.remove();
+            if (!dataLoaded) {
+                dataLoaded = true;
+                loadData();
+            }
+        }
+
+        function redirectToLogin() {
+            currentUser = null;
+            currentUserPhoto = null;
+            window.location.replace('index.html');
+        }
+
         // ========== AUTH STATE ==========
         auth.onAuthStateChanged((user) => {
             if (user) {
@@ -3645,43 +3691,29 @@
                             };
                             database.ref(`users/${uid}`).set(adminData).then(() => {
                                 loadUserData(uid);
+                                unlockPage();
                             });
                         } else {
                             database.ref(`users/${uid}/lastAccess`).set(Date.now());
                             loadUserData(uid);
+                            unlockPage();
                         }
-                    });
+                    }).catch(() => { redirectToLogin(); });
                 } else {
                     database.ref(`users/${uid}`).once('value').then((snapshot) => {
                         if (snapshot.exists()) {
-                            const data = snapshot.val();
                             database.ref(`users/${uid}/lastAccess`).set(Date.now());
                             loadUserData(uid);
+                            unlockPage();
                         } else {
-                            if (user.providerData && user.providerData[0]?.providerId === 'google.com') {
-                                showToast('Complete seu cadastro', 'info');
-                                window.location.href = 'index.html?complete=true';
-                            } else {
-                                showToast('Complete seu cadastro', 'info');
-                                window.location.href = 'index.html?complete=true';
-                            }
+                            window.location.replace('index.html?complete=true');
                         }
                     }).catch(() => {
-                        showToast('Erro ao carregar dados do usuário', 'error');
-                        window.location.href = 'index.html';
+                        redirectToLogin();
                     });
                 }
             } else {
-                currentUser = null;
-                currentUserPhoto = null;
-                updateProfileUIUser();
-                updatePriceDisplay();
-                filterProducts();
-                updateCart();
-                closeProfileDropdown();
-                if (window.location.pathname.includes('cim.html')) {
-                    window.location.href = 'index.html';
-                }
+                redirectToLogin();
             }
         });
 
@@ -3710,10 +3742,12 @@
             database.ref('categoryHidePF').on('value', (snapshot) => {
                 categoryHidePF = snapshot.val() || {};
                 updateCategoryTabs();
+                updatePriceDisplay(); // re-renderiza preços
             });
             database.ref('categoryHidePJ').on('value', (snapshot) => {
                 categoryHidePJ = snapshot.val() || {};
                 updateCategoryTabs();
+                updatePriceDisplay(); // re-renderiza preços
             });
 
             database.ref('products').on('value', (snapshot) => {
@@ -3722,6 +3756,7 @@
                 updateBrandTabs();
                 filterProducts();
                 renderPromotionBadgesOnly();
+                updateCart(); // atualiza carrinho caso produtos mudem
             });
 
             database.ref('contactInfo').on('value', (snapshot) => {
@@ -3734,18 +3769,20 @@
                 updateCategoryTabs();
             });
 
+            // ========== LISTENER DE OCULTAÇÃO DE PREÇOS (CORRIGIDO) ==========
             database.ref('settings/pricesHidden').on('value', (snapshot) => {
-                pricesHidden = snapshot.val();
-                if (pricesHidden === undefined || pricesHidden === null) pricesHidden = false;
-                updatePriceDisplay();
+                const val = snapshot.val();
+                if (val === undefined || val === null) {
+                    pricesHidden = false;
+                } else {
+                    pricesHidden = val; // pode ser false, 'PF', 'PJ' ou 'both'
+                }
+                updatePriceDisplay(); // re-renderiza preços e carrinho
             });
 
             setInterval(() => verificarExpiracao(), 30000);
             setInterval(() => renderPromotionBadgesOnly(), 60000);
         }
-
-        // ========== INICIALIZAR ==========
-        loadData();
 
         // ========== EXPOR FUNÇÕES ==========
         window.toggleBottomMenu = toggleBottomMenu;
@@ -3776,8 +3813,8 @@
         window.closeForceResetModal = closeForceResetModal;
 
         console.log('CIM - Loja Virtual carregada com sucesso!');
-        console.log('Apenas interface de cliente. Painel administrativo está separado.');
-        console.log('ORDENAÇÃO DE PRODUTOS: 1º com preço, 2º sem preço, 3º esgotados.');
+        console.log('Correção: preços ocultos não exibem nenhum texto, apenas removem o bloco.');
+        console.log('Acesso exigido: usuário autenticado com cadastro completo no Firebase.');
     </script>
 </body>
 </html>
