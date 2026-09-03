@@ -35,25 +35,6 @@
             z-index: 10;
         }
 
-        /* Animações de rolagem infinita vertical sem cortes */
-        @keyframes scrollUpInfinite {
-            0% { transform: translateY(0); }
-            100% { transform: translateY(-50%); }
-        }
-
-        @keyframes scrollDownInfinite {
-            0% { transform: translateY(-50%); }
-            100% { transform: translateY(0); }
-        }
-
-        .animate-col-up-infinite {
-            animation: scrollUpInfinite 25s linear infinite;
-        }
-
-        .animate-col-down-infinite {
-            animation: scrollDownInfinite 25s linear infinite;
-        }
-
         /* Efeito de cursor piscando */
         .cursor-blink {
             animation: blink 0.8s infinite;
@@ -84,21 +65,6 @@
         /* Estilo para campos vazios com erro */
         .input-error {
             border: 1px solid #ef4444 !important;
-        }
-
-        /* Galeria: cada item ocupa um quadrado perfeito */
-        .gallery-img {
-            width: 100%;
-            aspect-ratio: 1/1;
-            object-fit: cover;
-        }
-
-        /* Container das colunas */
-        .gallery-col {
-            display: flex;
-            flex-direction: column;
-            gap: 0.375rem;
-            width: 33.333%;
         }
 
         /* Máscara de telefone */
@@ -142,10 +108,12 @@
 
     <!-- Container Principal -->
     <header class="w-full">
-        <!-- Banner com galeria animada -->
+        <!-- Banner com imagem única -->
         <div class="relative w-full h-[360px] md:h-[440px] overflow-hidden bg-neutral-900">
-            <div id="galleryGrid" class="absolute inset-0 flex gap-1.5 p-0 transform rotate-6 scale-125 opacity-90 pointer-events-none select-none justify-center">
-                <!-- Injetado via JS -->
+            <div id="galleryGrid" class="absolute inset-0 flex items-center justify-center p-0 pointer-events-none select-none">
+                <img src="https://i.postimg.cc/zfXT6H5c/048CF4DB-78C5-4245-86B0-43E8724842D4.jpg" 
+                     class="w-full h-full object-cover" 
+                     alt="Banner CIM Global Parts">
             </div>
             <div class="absolute inset-0 banner-gradient pointer-events-none"></div>
         </div>
@@ -235,7 +203,6 @@
 
         let modoCriarConta = false;
         let tipoPessoa = 'fisica';
-        let galleryImages = [];
         let modoGoogleCadastro = false;
         let consultaCNPJAtual = 0;
         let modalCallback = null;
@@ -253,66 +220,9 @@
         }
 
         window.onload = function() {
-            carregarGaleria();
+            // Inicia a digitação
             setTimeout(digitarTexto, 600);
         };
-
-        // ========== GALERIA ==========
-        function carregarGaleria() {
-            database.ref('galeria').once('value').then(snapshot => {
-                const data = snapshot.val();
-                if (data && Array.isArray(data) && data.length > 0) {
-                    galleryImages = data.filter(url => url && url.trim() !== '');
-                } else {
-                    galleryImages = [
-                        'https://i.postimg.cc/sDD9HV0Y/IMG-4616.jpg',
-                        'https://i.postimg.cc/dttmNqSG/IMG-4617.jpg',
-                        'https://i.postimg.cc/yYYXpVrF/IMG-4618.jpg',
-                        'https://i.postimg.cc/Hss4vpP8/IMG-4619.jpg',
-                        'https://i.postimg.cc/sDD9HV0Y/IMG-4616.jpg',
-                        'https://i.postimg.cc/dttmNqSG/IMG-4617.jpg'
-                    ];
-                }
-                renderizarGaleria(galleryImages);
-            }).catch(() => {
-                galleryImages = [
-                    'https://i.postimg.cc/sDD9HV0Y/IMG-4616.jpg',
-                    'https://i.postimg.cc/dttmNqSG/IMG-4617.jpg',
-                    'https://i.postimg.cc/yYYXpVrF/IMG-4618.jpg',
-                    'https://i.postimg.cc/Hss4vpP8/IMG-4619.jpg',
-                    'https://i.postimg.cc/sDD9HV0Y/IMG-4616.jpg',
-                    'https://i.postimg.cc/dttmNqSG/IMG-4617.jpg'
-                ];
-                renderizarGaleria(galleryImages);
-            });
-        }
-
-        function renderizarGaleria(imagens) {
-            const grid = document.getElementById('galleryGrid');
-            if (!grid) return;
-            if (!imagens || imagens.length === 0) imagens = ['https://via.placeholder.com/400x400/222222/444444?text=Sem+imagens'];
-
-            const colunas = [[], [], []];
-            imagens.forEach((url, index) => colunas[index % 3].push(url));
-
-            const minPorColuna = 5;
-            colunas.forEach((col, idx) => {
-                while (col.length < minPorColuna) col.push(...[...col]);
-                if (col.length === 0) col.push('https://via.placeholder.com/400x400/222222/444444?text=Sem+imagens');
-            });
-
-            const animacoes = ['animate-col-up-infinite', 'animate-col-down-infinite', 'animate-col-up-infinite'];
-            let html = '';
-            colunas.forEach((col, idx) => {
-                const items = col.map(url => `
-                    <div class="w-full aspect-square bg-neutral-800">
-                        <img src="${url}" class="gallery-img" alt="Galeria ${idx+1}" loading="lazy" onerror="this.src='https://via.placeholder.com/400x400/222222/444444?text=Erro'">
-                    </div>
-                `).join('');
-                html += `<div class="gallery-col ${animacoes[idx]}">${items}</div>`;
-            });
-            grid.innerHTML = html;
-        }
 
         // ========== MÁSCARAS ==========
         function formatarTelefone(input) {
@@ -574,46 +484,37 @@
                 btnFisica.classList.add('tipo-btn-inativo');
             }
             
-            // Salva os valores atuais antes de re-renderizar
-            const inputsAtuais = document.querySelectorAll('#campos-dinamicos input');
-            const valoresAtuais = [];
-            inputsAtuais.forEach(input => {
-                valoresAtuais.push(input.value);
-            });
-            
-            renderizarCamposCadastro();
-            
-            // Restaura os valores (exceto CNPJ e campos que não devem ser preenchidos pelo Google)
-            const novosInputs = document.querySelectorAll('#campos-dinamicos input');
-            novosInputs.forEach((input, index) => {
-                if (index < valoresAtuais.length && valoresAtuais[index]) {
-                    // Não preenche CNPJ com dados do Google
-                    if (input.id === 'input-cnpj') {
-                        return; // Pula o CNPJ
-                    }
-                    input.value = valoresAtuais[index];
-                }
-            });
-            
-            // Preenche apenas e-mail com dados do Google (se disponível)
             if (modoGoogleCadastro) {
                 const user = auth.currentUser;
+                const inputsAtuais = document.querySelectorAll('#campos-dinamicos input');
+                const valoresAtuais = [];
+                inputsAtuais.forEach(input => {
+                    valoresAtuais.push(input.value);
+                });
+                
+                renderizarCamposCadastro();
+                
+                const novosInputs = document.querySelectorAll('#campos-dinamicos input');
+                novosInputs.forEach((input, index) => {
+                    if (index < valoresAtuais.length && valoresAtuais[index]) {
+                        input.value = valoresAtuais[index];
+                    }
+                });
+                
                 if (user) {
                     const emailInput = document.querySelector('#campos-dinamicos input[type="email"]');
                     if (emailInput) emailInput.value = user.email || '';
                     
-                    // Só preenche nome se for PF
                     if (tipo === 'fisica') {
                         const nomeInput = document.querySelector('#campos-dinamicos input[placeholder="Nome completo"]');
-                        if (nomeInput && user.displayName) {
-                            // Só preenche se o campo estiver vazio
-                            if (!nomeInput.value) {
-                                nomeInput.value = user.displayName;
-                            }
-                        }
+                        if (nomeInput && user.displayName) nomeInput.value = user.displayName;
+                    } else {
+                        const razaoInput = document.getElementById('empresa-nome');
+                        if (razaoInput && user.displayName) razaoInput.value = user.displayName;
                     }
-                    // Para PJ, NÃO preenche nada com o nome do Google
                 }
+            } else {
+                renderizarCamposCadastro();
             }
         }
 
@@ -685,22 +586,6 @@
                     senha.required = false;
                 }
                 document.getElementById('btn-principal').innerText = 'Concluir Cadastro';
-                
-                // Preenche apenas o e-mail com dados do Google
-                const user = auth.currentUser;
-                if (user) {
-                    const emailInput = container.querySelector('input[type="email"]');
-                    if (emailInput) emailInput.value = user.email || '';
-                    
-                    // Só preenche nome se for PF
-                    if (tipoPessoa === 'fisica') {
-                        const nomeInput = container.querySelector('input[placeholder="Nome completo"]');
-                        if (nomeInput && user.displayName && !nomeInput.value) {
-                            nomeInput.value = user.displayName;
-                        }
-                    }
-                    // Para PJ, NÃO preenche nenhum campo com o nome do Google
-                }
             }
         }
 
@@ -751,6 +636,7 @@
 
         // ========== AÇÕES COM FIREBASE ==========
 
+        // Login com Google
         function acaoGoogle() {
             const provider = new firebase.auth.GoogleAuthProvider();
             
@@ -780,16 +666,9 @@
                                 
                                 renderizarCamposCadastro();
                                 
-                                // Preenche apenas e-mail com dados do Google
                                 const inputs = document.querySelectorAll('#campos-dinamicos input');
                                 const emailInput = inputs[inputs.length - 2];
                                 if (emailInput) emailInput.value = user.email || '';
-                                
-                                // Preenche nome apenas se for PF
-                                if (user.displayName && tipoPessoa === 'fisica') {
-                                    const nomeInput = inputs[0];
-                                    if (nomeInput) nomeInput.value = user.displayName;
-                                }
                                 
                                 const senhaInput = inputs[inputs.length - 1];
                                 if (senhaInput) {
@@ -799,6 +678,11 @@
                                 
                                 document.getElementById('btn-principal').innerText = 'Concluir Cadastro';
                                 document.getElementById('link-modo').innerText = 'Já tenho cadastro';
+                                
+                                if (user.displayName && tipoPessoa === 'fisica') {
+                                    const nomeInput = inputs[0];
+                                    if (nomeInput) nomeInput.value = user.displayName;
+                                }
                                 
                                 showModal(
                                     'Cadastro em andamento',
@@ -838,6 +722,7 @@
             }
         }
 
+        // Submissão do formulário
         async function realizarAcao(event) {
             event.preventDefault();
             const inputs = document.querySelectorAll('#campos-dinamicos input');
@@ -926,6 +811,7 @@
             }
         }
 
+        // Salvar dados do usuário no Realtime Database
         async function salvarDadosUsuario(uid) {
             const inputs = document.querySelectorAll('#campos-dinamicos input');
             
@@ -974,6 +860,7 @@
             showModal('Termo de Privacidade', 'Os seus dados estão protegidos e seguros conosco. Nós coletamos apenas as informações necessárias para criar sua conta e garantir a segurança do sistema.');
         }
 
+        // Inicialização
         renderizarCamposLogin();
     </script>
 </body>
