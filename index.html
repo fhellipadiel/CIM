@@ -31,22 +31,22 @@
     <!-- Dark Overlay for better contrast -->
     <div class="absolute inset-0 bg-black/50 backdrop-blur-[2px]"></div>
 
-    <div class="w-full max-w-md bg-white rounded-3xl shadow-2xl border border-white/20 overflow-hidden transition-all duration-200 relative z-10">
+    <div class="w-full max-w-md bg-white rounded-3xl shadow-2xl border border-white/20 overflow-hidden relative z-10">
         
-        <div id="messageBox" class="hidden mx-8 mt-6 p-4 rounded-xl text-sm flex items-center gap-3 transition-all duration-150">
+        <div id="messageBox" class="hidden mx-8 mt-6 p-4 rounded-xl text-sm flex items-center gap-3">
             <i id="messageIcon" class="fa-solid fa-circle-info text-lg"></i>
             <span id="messageText" class="font-medium"></span>
         </div>
 
         <!-- ==================== LOGIN FORM ==================== -->
-        <form id="loginForm" class="p-8 space-y-5 transition-all duration-150 transform" onsubmit="handleLogin(event)">
+        <form id="loginForm" class="p-8 space-y-5" onsubmit="handleLogin(event)">
             
             <div class="text-center pt-2 pb-2 flex flex-col items-center justify-center">
-                <img src="https://i.postimg.cc/Qx3MhBfb/Preto.png" alt="Logo" class="h-20 w-auto object-contain mb-2 transition-transform duration-150 hover:scale-105" onerror="this.style.display='none'">
+                <img src="https://i.postimg.cc/Qx3MhBfb/Preto.png" alt="Logo" class="h-20 w-auto object-contain mb-2" onerror="this.style.display='none'">
             </div>
 
             <button type="button" onclick="handleGoogleLogin()"
-                class="w-full py-3 px-4 bg-white hover:bg-gray-50 text-gray-700 font-medium border border-gray-200 rounded-full shadow-sm hover:shadow active:scale-[0.98] transition-all duration-100 flex items-center justify-center gap-3 text-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-300">
+                class="w-full py-3 px-4 bg-white hover:bg-gray-50 text-gray-700 font-medium border border-gray-200 rounded-full shadow-sm hover:shadow active:scale-[0.98] transition-all flex items-center justify-center gap-3 text-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-300">
                 <svg class="w-4 h-4" viewBox="0 0 24 24">
                     <path fill="#4285F4" d="M23.745 12.27c-.07-.8-.64-1.55-1.42-1.74H12v4.57h6.61c-.3 1.58-1.57 2.82-3.25 3.3l3.69 2.86c2.16-1.99 3.69-4.94 3.69-8.99z"/>
                     <path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.69-2.86c-1.08.72-2.46 1.22-4.24 1.22-3.26 0-6.02-2.2-7-5.17H1.19v2.96C3.17 21.36 7.24 24 12 24z"/>
@@ -76,7 +76,6 @@
             <div class="space-y-1">
                 <div class="flex items-center justify-between">
                     <label for="password" class="block text-xs font-semibold uppercase tracking-wider text-gray-600">Senha</label>
-                    <!-- link removido -->
                 </div>
                 <div class="relative">
                     <input type="password" id="password" required placeholder="••••••••"
@@ -85,7 +84,7 @@
             </div>
 
             <button type="submit" id="submitBtn"
-                class="w-full mt-2 py-3 px-4 bg-black hover:opacity-90 text-white font-semibold rounded-full shadow-md hover:shadow-lg active:scale-[0.98] transition-all duration-100 flex items-center justify-center gap-2 text-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-black">
+                class="w-full mt-2 py-3 px-4 bg-black hover:opacity-90 text-white font-semibold rounded-full shadow-md hover:shadow-lg active:scale-[0.98] transition-all flex items-center justify-center gap-2 text-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-black">
                 <span>Entrar</span>
                 <i class="fa-solid fa-arrow-right text-xs"></i>
             </button>
@@ -97,7 +96,7 @@
         </form>
 
         <!-- ==================== REGISTER FORM ==================== -->
-        <form id="registerForm" class="hidden p-8 space-y-4 transition-all duration-150 transform max-h-[85vh] overflow-y-auto" onsubmit="handleRegister(event)">
+        <form id="registerForm" class="hidden p-8 space-y-4 max-h-[85vh] overflow-y-auto" onsubmit="handleRegister(event)">
             
             <div class="flex items-center justify-between pb-1">
                 <h2 class="text-base font-bold text-gray-900">Criar Conta</h2>
@@ -107,11 +106,11 @@
             </div>
 
             <div class="text-center pt-1 pb-1 flex flex-col items-center justify-center">
-                <img src="https://i.postimg.cc/Qx3MhBfb/Preto.png" alt="Logo" class="h-16 w-auto object-contain mb-2 transition-transform duration-150 hover:scale-105" onerror="this.style.display='none'">
+                <img src="https://i.postimg.cc/Qx3MhBfb/Preto.png" alt="Logo" class="h-16 w-auto object-contain mb-2" onerror="this.style.display='none'">
             </div>
 
             <button type="button" onclick="handleGoogleLogin()"
-                class="w-full py-3 px-4 bg-white hover:bg-gray-50 text-gray-700 font-medium border border-gray-200 rounded-full shadow-sm hover:shadow active:scale-[0.98] transition-all duration-100 flex items-center justify-center gap-3 text-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-300">
+                class="w-full py-3 px-4 bg-white hover:bg-gray-50 text-gray-700 font-medium border border-gray-200 rounded-full shadow-sm hover:shadow active:scale-[0.98] transition-all flex items-center justify-center gap-3 text-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-300">
                 <svg class="w-4 h-4" viewBox="0 0 24 24">
                     <path fill="#4285F4" d="M23.745 12.27c-.07-.8-.64-1.55-1.42-1.74H12v4.57h6.61c-.3 1.58-1.57 2.82-3.25 3.3l3.69 2.86c2.16-1.99 3.69-4.94 3.69-8.99z"/>
                     <path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.69-2.86c-1.08.72-2.46 1.22-4.24 1.22-3.26 0-6.02-2.2-7-5.17H1.19v2.96C3.17 21.36 7.24 24 12 24z"/>
@@ -128,22 +127,22 @@
             </div>
 
             <!-- Step 1: Person Type Selection -->
-            <div id="personTypeContainer" class="space-y-1 transition-all duration-150">
+            <div id="personTypeContainer" class="space-y-1">
                 <label class="block text-xs font-semibold uppercase tracking-wider text-gray-600">Selecione o Tipo de Cadastro</label>
-                <div id="personTypeGrid" class="grid grid-cols-2 gap-3 transition-all duration-150">
+                <div id="personTypeGrid" class="grid grid-cols-2 gap-3">
                     <button type="button" id="btnFisica" onclick="setPersonType('fisica')"
-                        class="py-3 px-3 border rounded-xl text-xs font-semibold transition-all duration-150 ease-in-out active:scale-95 flex flex-col items-center justify-center gap-2 border-gray-200 bg-gray-50 text-gray-700 hover:bg-gray-100">
+                        class="py-3 px-3 border rounded-xl text-xs font-semibold transition-all active:scale-95 flex flex-col items-center justify-center gap-2 border-gray-200 bg-gray-50 text-gray-700 hover:bg-gray-100">
                         <i class="fa-solid fa-user text-base"></i> Pessoa Física
                     </button>
                     <button type="button" id="btnJuridica" onclick="setPersonType('juridica')"
-                        class="py-3 px-3 border rounded-xl text-xs font-semibold transition-all duration-150 ease-in-out active:scale-95 flex flex-col items-center justify-center gap-2 border-gray-200 bg-gray-50 text-gray-700 hover:bg-gray-100">
+                        class="py-3 px-3 border rounded-xl text-xs font-semibold transition-all active:scale-95 flex flex-col items-center justify-center gap-2 border-gray-200 bg-gray-50 text-gray-700 hover:bg-gray-100">
                         <i class="fa-solid fa-building text-base"></i> Jurídica
                     </button>
                 </div>
             </div>
 
             <!-- Step 2: Form fields (Hidden initially) -->
-            <div id="registerFieldsContainer" class="hidden opacity-0 transform translate-y-2 transition-all duration-150 ease-in-out border-t border-gray-100 pt-3 space-y-3 pr-1">
+            <div id="registerFieldsContainer" class="hidden border-t border-gray-100 pt-3 space-y-3 pr-1">
                 
                 <div class="space-y-1">
                     <label for="regDoc" id="labelDoc" class="block text-xs font-semibold uppercase tracking-wider text-gray-600">CPF</label>
@@ -262,7 +261,7 @@
                 </div>
 
                 <button type="submit" id="registerBtn"
-                    class="w-full mt-2 py-3 px-4 bg-black hover:opacity-90 text-white font-semibold rounded-full shadow-md hover:shadow-lg active:scale-[0.98] transition-all duration-100 flex items-center justify-center gap-2 text-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-black">
+                    class="w-full mt-2 py-3 px-4 bg-black hover:opacity-90 text-white font-semibold rounded-full shadow-md hover:shadow-lg active:scale-[0.98] transition-all flex items-center justify-center gap-2 text-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-black">
                     <span>Finalizar Cadastro</span>
                     <i class="fa-solid fa-arrow-right text-xs"></i>
                 </button>
@@ -290,7 +289,7 @@
         let modoGoogleCadastro = false;
         let usuarioGoogle = null;
 
-        // ===== FUNÇÕES DE MENSAGEM (apenas para erros genéricos) =====
+        // ===== FUNÇÕES DE MENSAGEM =====
         function showMessage(message, type = 'error') {
             const messageBox = document.getElementById('messageBox');
             const messageText = document.getElementById('messageText');
@@ -298,16 +297,16 @@
 
             messageText.textContent = message;
             if (type === 'success') {
-                messageBox.className = 'mx-8 mt-6 p-4 rounded-xl text-sm flex items-center gap-3 bg-emerald-50 border border-emerald-200 text-emerald-800 transition-all duration-150';
+                messageBox.className = 'mx-8 mt-6 p-4 rounded-xl text-sm flex items-center gap-3 bg-emerald-50 border border-emerald-200 text-emerald-800';
                 messageIcon.className = 'fa-solid fa-circle-check text-lg text-emerald-600';
             } else {
-                messageBox.className = 'mx-8 mt-6 p-4 rounded-xl text-sm flex items-center gap-3 bg-rose-50 border border-rose-200 text-rose-800 transition-all duration-150';
+                messageBox.className = 'mx-8 mt-6 p-4 rounded-xl text-sm flex items-center gap-3 bg-rose-50 border border-rose-200 text-rose-800';
                 messageIcon.className = 'fa-solid fa-triangle-exclamation text-lg text-rose-600';
             }
             messageBox.classList.remove('hidden');
         }
 
-        // ===== NAVEGAÇÃO ENTRE VIEWS =====
+        // ===== NAVEGAÇÃO ENTRE VIEWS (Otimizada sem delays lentos) =====
         function switchView(view) {
             const loginForm = document.getElementById('loginForm');
             const registerForm = document.getElementById('registerForm');
@@ -321,28 +320,11 @@
                 document.getElementById('senhaContainer').style.display = '';
                 document.getElementById('regPassword').required = true;
                 resetPersonTypeSelection();
-            }
-
-            if (view === 'register') {
-                loginForm.classList.add('opacity-0', 'scale-95');
-                setTimeout(() => {
-                    loginForm.classList.add('hidden');
-                    registerForm.classList.remove('hidden');
-                    registerForm.classList.add('opacity-0', 'scale-95');
-                    setTimeout(() => {
-                        registerForm.classList.remove('opacity-0', 'scale-95');
-                    }, 10);
-                }, 80);
+                registerForm.classList.add('hidden');
+                loginForm.classList.remove('hidden');
             } else {
-                registerForm.classList.add('opacity-0', 'scale-95');
-                setTimeout(() => {
-                    registerForm.classList.add('hidden');
-                    loginForm.classList.remove('hidden');
-                    loginForm.classList.add('opacity-0', 'scale-95');
-                    setTimeout(() => {
-                        loginForm.classList.remove('opacity-0', 'scale-95');
-                    }, 10);
-                }, 80);
+                loginForm.classList.add('hidden');
+                registerForm.classList.remove('hidden');
             }
         }
 
@@ -364,7 +346,7 @@
             document.getElementById('cepApiFeedback').classList.add('hidden');
 
             if (type === 'fisica') {
-                btnFisica.className = 'py-3 px-3 border-2 rounded-xl text-xs font-semibold transition-all duration-150 ease-in-out flex flex-col items-center justify-center gap-2 border-black bg-white text-black shadow-sm col-span-2 w-full transform scale-100';
+                btnFisica.className = 'py-3 px-3 border-2 rounded-xl text-xs font-semibold flex flex-col items-center justify-center gap-2 border-black bg-white text-black shadow-sm col-span-2 w-full';
                 btnJuridica.classList.add('hidden');
                 
                 labelName.textContent = 'Nome Completo';
@@ -377,7 +359,7 @@
                 juridicaExtraHeader.classList.add('hidden');
                 cepContainer.classList.remove('hidden');
             } else {
-                btnJuridica.className = 'py-3 px-3 border-2 rounded-xl text-xs font-semibold transition-all duration-150 ease-in-out flex flex-col items-center justify-center gap-2 border-black bg-white text-black shadow-sm col-span-2 w-full transform scale-100';
+                btnJuridica.className = 'py-3 px-3 border-2 rounded-xl text-xs font-semibold flex flex-col items-center justify-center gap-2 border-black bg-white text-black shadow-sm col-span-2 w-full';
                 btnFisica.classList.add('hidden');
                 
                 labelName.textContent = 'Razão Social';
@@ -392,19 +374,12 @@
             }
 
             registerFieldsContainer.classList.remove('hidden');
-            void registerFieldsContainer.offsetWidth;
-            setTimeout(() => {
-                registerFieldsContainer.classList.remove('opacity-0', 'translate-y-2');
-            }, 10);
         }
 
         function resetPersonTypeSelection() {
             currentPersonType = '';
             const fieldsContainer = document.getElementById('registerFieldsContainer');
-            fieldsContainer.classList.add('opacity-0', 'translate-y-2');
-            setTimeout(() => {
-                fieldsContainer.classList.add('hidden');
-            }, 80);
+            fieldsContainer.classList.add('hidden');
 
             const btnFisica = document.getElementById('btnFisica');
             const btnJuridica = document.getElementById('btnJuridica');
@@ -412,8 +387,8 @@
             btnFisica.classList.remove('hidden');
             btnJuridica.classList.remove('hidden');
             
-            btnFisica.className = 'py-3 px-3 border rounded-xl text-xs font-semibold transition-all duration-150 ease-in-out active:scale-95 flex flex-col items-center justify-center gap-2 border-gray-200 bg-gray-50 text-gray-700 hover:bg-gray-100';
-            btnJuridica.className = 'py-3 px-3 border rounded-xl text-xs font-semibold transition-all duration-150 ease-in-out active:scale-95 flex flex-col items-center justify-center gap-2 border-gray-200 bg-gray-50 text-gray-700 hover:bg-gray-100';
+            btnFisica.className = 'py-3 px-3 border rounded-xl text-xs font-semibold active:scale-95 flex flex-col items-center justify-center gap-2 border-gray-200 bg-gray-50 text-gray-700 hover:bg-gray-100';
+            btnJuridica.className = 'py-3 px-3 border rounded-xl text-xs font-semibold active:scale-95 flex flex-col items-center justify-center gap-2 border-gray-200 bg-gray-50 text-gray-700 hover:bg-gray-100';
             
             document.getElementById('regName').value = '';
             document.getElementById('regDoc').value = '';
@@ -453,10 +428,9 @@
             }
         }
 
-        // ===== FUNÇÕES DE FORMATAÇÃO E CONSULTA (MANTIDAS) =====
+        // ===== FORMATAÇÃO E CONSULTAS =====
         function formatDocument(input) {
             let value = input.value.replace(/\D/g, '');
-            
             if (currentPersonType === 'fisica') {
                 if (value.length > 11) value = value.slice(0, 11);
                 if (value.length > 9) {
@@ -467,11 +441,8 @@
                     value = value.replace(/^(\d{3})(\d{0,3}).*/, '$1.$2');
                 }
                 input.value = value;
-
                 const rawCpf = value.replace(/\D/g, '');
-                if (rawCpf.length === 11) {
-                    verifyCpfData(rawCpf);
-                }
+                if (rawCpf.length === 11) verifyCpfData(rawCpf);
             } else {
                 if (value.length > 14) value = value.slice(0, 14);
                 if (value.length > 12) {
@@ -484,26 +455,18 @@
                     value = value.replace(/^(\d{2})(\d{0,3}).*/, '$1.$2');
                 }
                 input.value = value;
-
                 const rawCnpj = value.replace(/\D/g, '');
-                if (rawCnpj.length === 14) {
-                    fetchCnpjData(rawCnpj);
-                }
+                if (rawCnpj.length === 14) fetchCnpjData(rawCnpj);
             }
         }
 
         function formatCep(input) {
             let value = input.value.replace(/\D/g, '');
             if (value.length > 8) value = value.slice(0, 8);
-            if (value.length > 5) {
-                value = value.replace(/^(\d{5})(\d{0,3}).*/, '$1-$2');
-            }
+            if (value.length > 5) value = value.replace(/^(\d{5})(\d{0,3}).*/, '$1-$2');
             input.value = value;
-
             const rawCep = value.replace(/\D/g, '');
-            if (rawCep.length === 8) {
-                fetchCepData(rawCep);
-            }
+            if (rawCep.length === 8) fetchCepData(rawCep);
         }
 
         function formatPhone(input) {
@@ -528,8 +491,7 @@
             feedback.classList.add('hidden');
 
             try {
-                const isValidFormat = validateCpfAlgorithm(cpf);
-                if (isValidFormat) {
+                if (validateCpfAlgorithm(cpf)) {
                     feedback.textContent = '✓ CPF válido e verificado com sucesso.';
                     feedback.className = 'text-[11px] text-emerald-600 mt-1 font-medium block';
                 } else {
@@ -645,7 +607,7 @@
             }
         }
 
-        // ===== FUNÇÃO PARA SALVAR DADOS NO FIREBASE =====
+        // ===== SALVAR DADOS NO FIREBASE =====
         async function salvarDadosUsuario(uid) {
             const dados = {
                 email: document.getElementById('regEmail').value.trim(),
@@ -685,7 +647,7 @@
             await database.ref(`users/${uid}`).update(dados);
         }
 
-        // ===== HANDLE LOGIN (E-MAIL/SENHA) =====
+        // ===== LOGIN =====
         async function handleLogin(event) {
             event.preventDefault();
             const email = document.getElementById('email').value.trim();
@@ -701,12 +663,11 @@
             } catch (error) {
                 submitBtn.disabled = false;
                 submitBtn.innerHTML = '<span>Entrar</span><i class="fa-solid fa-arrow-right text-xs"></i>';
-                // Mensagem genérica sem expor detalhes do Firebase
                 showMessage('Erro ao realizar login. Verifique seus dados e tente novamente.', 'error');
             }
         }
 
-        // ===== HANDLE REGISTER (CADASTRO COM E-MAIL/SENHA) =====
+        // ===== CADASTRO =====
         async function handleRegister(event) {
             event.preventDefault();
 
@@ -746,12 +707,11 @@
             } catch (error) {
                 registerBtn.disabled = false;
                 registerBtn.innerHTML = '<span>Finalizar Cadastro</span><i class="fa-solid fa-arrow-right text-xs"></i>';
-                // Mensagem genérica
                 showMessage('Erro ao criar conta. Verifique seus dados e tente novamente.', 'error');
             }
         }
 
-        // ===== HANDLE GOOGLE LOGIN =====
+        // ===== GOOGLE LOGIN =====
         async function handleGoogleLogin() {
             const provider = new firebase.auth.GoogleAuthProvider();
 
@@ -773,7 +733,6 @@
                     document.getElementById('regPassword').required = false;
 
                     switchView('register');
-                    // Não exibe mensagem de sucesso; apenas mostra o formulário para completar o cadastro
                 }
             } catch (error) {
                 if (error.code === 'auth/popup-closed-by-user') {
