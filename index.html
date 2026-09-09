@@ -5,16 +5,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Tela de Login e Cadastro</title>
     
-    <!-- PRÉ-CARREGAMENTO DE ALTA PRIORIDADE PARA A LOGO -->
-    <link rel="preload" as="image" href="https://i.postimg.cc/Qx3MhBfb/Preto.png" fetchpriority="high">
+    <!-- PRE-CARREGAMENTO DA LOGO COM PRIORIDADE MAXIMA NO TOPO DO HEAD -->
+    <link rel="preload" as="image" href="https://i.postimg.cc/Qx3MhBfb/Preto.png" fetchpriority="high" type="image/png">
 
-    <!-- Otimizações de Conexão Prévias -->
+    <!-- Otimizacoes de Conexao Prévias -->
+    <link rel="preconnect" href="https://i.postimg.cc" crossorigin>
     <link rel="preconnect" href="https://cdn.tailwindcss.com" crossorigin>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
     <link rel="preconnect" href="https://www.gstatic.com" crossorigin>
-    <link rel="preconnect" href="https://i.postimg.cc" crossorigin>
 
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -33,9 +33,17 @@
             backface-visibility: hidden;
         }
 
-        /* Efeito de surgimento suave para a imagem de fundo quando estiver carregada */
+        /* Efeito de surgimento suave para a imagem de fundo */
         #bgContainer {
             transition: opacity 0.6s ease-in-out;
+        }
+
+        /* Container de dimensão fixa para evitar salto visual enquanto a logo carrega */
+        .logo-wrapper {
+            min-height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
         /* Impedir zoom automático no Safari/Chrome Mobile ao focar nos campos */
@@ -68,7 +76,7 @@
 </head>
 <body class="h-full bg-gray-900 flex items-center justify-center p-4 overflow-x-hidden relative">
 
-    <!-- Fundo Diferido (Só carrega depois que a estrutura/logo iniciarem) -->
+    <!-- Fundo Diferido (Carrega apos a estrutura/logo) -->
     <div id="bgContainer" class="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-0 pointer-events-none"></div>
 
     <!-- Dark Overlay com Aceleração por Hardware -->
@@ -84,9 +92,16 @@
         <!-- ==================== LOGIN FORM ==================== -->
         <form id="loginForm" class="p-8 space-y-5" onsubmit="handleLogin(event)">
             
-            <div class="text-center pt-2 pb-2 flex flex-col items-center justify-center">
-                <!-- Logo com prioridade máxima e carregamento assíncrono decodificado rápido -->
-                <img src="https://i.postimg.cc/Qx3MhBfb/Preto.png" alt="Logo" width="160" height="80" decoding="sync" fetchpriority="high" class="h-20 w-auto object-contain mb-2" onerror="this.style.display='none'">
+            <div class="text-center pt-2 pb-2 logo-wrapper">
+                <img src="https://i.postimg.cc/Qx3MhBfb/Preto.png" 
+                     alt="Logo" 
+                     width="160" 
+                     height="80" 
+                     loading="eager" 
+                     decoding="sync" 
+                     fetchpriority="high" 
+                     class="h-20 w-auto object-contain mb-2" 
+                     onerror="this.style.display='none'">
             </div>
 
             <button type="button" onclick="handleGoogleLogin()"
@@ -150,7 +165,15 @@
             </div>
 
             <div class="text-center pt-1 pb-1 flex flex-col items-center justify-center">
-                <img src="https://i.postimg.cc/Qx3MhBfb/Preto.png" alt="Logo" width="130" height="65" decoding="async" class="h-16 w-auto object-contain mb-2" onerror="this.style.display='none'">
+                <img src="https://i.postimg.cc/Qx3MhBfb/Preto.png" 
+                     alt="Logo" 
+                     width="130" 
+                     height="65" 
+                     loading="eager"
+                     decoding="sync" 
+                     fetchpriority="high"
+                     class="h-16 w-auto object-contain mb-2" 
+                     onerror="this.style.display='none'">
             </div>
 
             <button type="button" onclick="handleGoogleLogin()"
@@ -314,9 +337,7 @@
     </div>
 
     <script>
-        // CARREGAMENTO ORDENADO DAS IMAGENS:
-        // 1º O logo é priorizado no head.
-        // 2º A imagem de fundo é requisitada após a renderização inicial do formulário.
+        // CARREGAMENTO DAS IMAGENS
         document.addEventListener('DOMContentLoaded', function() {
             const bgUrl = 'https://i.postimg.cc/XvG83Dvg/IMG-5438.jpg';
             const img = new Image();
@@ -344,7 +365,6 @@
 
         let auth, database;
 
-        // Inicialização assíncrona do Firebase para evitar travamento da renderização
         document.addEventListener('DOMContentLoaded', function() {
             if (typeof firebase !== 'undefined') {
                 firebase.initializeApp(firebaseConfig);
@@ -380,7 +400,7 @@
                 messageIcon.className = 'fa-solid fa-circle-check text-lg text-emerald-600';
             } else {
                 messageBox.className = 'mx-8 mt-6 p-4 rounded-xl text-sm flex items-center gap-3 bg-rose-50 border border-rose-200 text-rose-800';
-                messageIcon.className = 'fa-solid fa-triangle-exclamation text-lg text-rose-600';
+                messageIcon.className = 'fa-solid fa-circle-exclamation text-lg text-rose-600';
             }
             messageBox.classList.remove('hidden');
         }
@@ -571,13 +591,13 @@
 
             try {
                 if (validateCpfAlgorithm(cpf)) {
-                    feedback.textContent = '✓ CPF válido e verificado com sucesso.';
+                    feedback.textContent = 'CPF válido e verificado com sucesso.';
                     feedback.className = 'text-[11px] text-emerald-600 mt-1 font-medium block';
                 } else {
                     throw new Error('CPF inválido.');
                 }
             } catch (error) {
-                feedback.textContent = '⚠ CPF inválido ou com dígitos incorretos.';
+                feedback.textContent = 'CPF inválido ou com dígitos incorretos.';
                 feedback.className = 'text-[11px] text-rose-600 mt-1 font-medium block';
             } finally {
                 loadingIndicator.classList.add('hidden');
@@ -624,10 +644,10 @@
                     document.getElementById('regEmail').value = data.email.toLowerCase();
                 }
 
-                feedback.textContent = '✓ CNPJ verificado e dados carregados com sucesso.';
+                feedback.textContent = 'CNPJ verificado e dados carregados com sucesso.';
                 feedback.className = 'text-[11px] text-emerald-600 mt-1 font-medium block';
             } catch (error) {
-                feedback.textContent = '⚠ CNPJ não encontrado ou erro na consulta.';
+                feedback.textContent = 'CNPJ não encontrado ou erro na consulta.';
                 feedback.className = 'text-[11px] text-rose-600 mt-1 font-medium block';
             } finally {
                 loadingIndicator.classList.add('hidden');
@@ -650,10 +670,10 @@
                 document.getElementById('regMunicipio').value = data.city || '';
                 document.getElementById('regUf').value = data.state || '';
 
-                feedback.textContent = '✓ Endereço preenchido automaticamente via CEP.';
+                feedback.textContent = 'Endereço preenchido automaticamente via CEP.';
                 feedback.className = 'text-[11px] text-emerald-600 mt-1 font-medium block';
             } catch (error) {
-                feedback.textContent = '⚠ CEP não encontrado.';
+                feedback.textContent = 'CEP não encontrado.';
                 feedback.className = 'text-[11px] text-rose-600 mt-1 font-medium block';
             } finally {
                 loadingIndicator.classList.add('hidden');
