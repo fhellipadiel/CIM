@@ -13,31 +13,15 @@
 <style>
 /* ============ TOKENS ============ */
 :root{
-  --bg:#000000;
-  --panel:#0a0a0a;
-  --panel-alt:#111111;
-  --panel-hover:#1a1a1a;
-  --border:#222222;
-  --border-soft:#161616;
-  --text:#eef1f4;
-  --text-muted:#8b93a1;
-  --text-dim:#5b6270;
-  --accent:#ff6b35;
-  --accent-dim:#3a1f10;
-  --accent-soft:rgba(255,107,53,.12);
-  --teal:#4fd1c5;
-  --teal-soft:rgba(79,209,197,.12);
-  --danger:#e5484d;
-  --danger-soft:rgba(229,72,77,.12);
-  --warn:#f5a623;
-  --warn-soft:rgba(245,166,35,.12);
-  --ok:#3ecf8e;
-  --ok-soft:rgba(62,207,142,.12);
-  --radius:12px;
-  --radius-sm:8px;
-  --font-head:'Space Grotesk',sans-serif;
-  --font-body:'Inter',sans-serif;
-  --font-mono:'JetBrains Mono',monospace;
+  --bg:#000000; --panel:#0a0a0a; --panel-alt:#111111; --panel-hover:#1a1a1a;
+  --border:#222222; --border-soft:#161616; --text:#eef1f4; --text-muted:#8b93a1; --text-dim:#5b6270;
+  --accent:#ff6b35; --accent-dim:#3a1f10; --accent-soft:rgba(255,107,53,.12);
+  --teal:#ff6b35; --teal-soft:rgba(255,107,53,.12);
+  --danger:#e5484d; --danger-soft:rgba(229,72,77,.12);
+  --warn:#f5a623; --warn-soft:rgba(245,166,35,.12);
+  --ok:#3ecf8e; --ok-soft:rgba(62,207,142,.12);
+  --radius:12px; --radius-sm:8px;
+  --font-head:'Space Grotesk',sans-serif; --font-body:'Inter',sans-serif; --font-mono:'JetBrains Mono',monospace;
 }
 *{margin:0;padding:0;box-sizing:border-box;font-family:var(--font-body)}
 html,body{background:var(--bg);color:var(--text);height:100%;}
@@ -53,186 +37,31 @@ input,select,textarea{font-family:inherit;font-size:14px}
 h1,h2,h3,h4{font-family:var(--font-head)}
 
 /* ============ LOGIN SCREEN ============ */
-#loginScreen{
-  position:fixed;
-  inset:0;
-  background:#000000;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  z-index:5000;
-  overflow:hidden;
-}
-
-/* Neblina laranja na parte inferior */
-#loginScreen::after{
-  content:'';
-  position:absolute;
-  bottom:0;
-  left:0;
-  right:0;
-  height:50%;
-  background:radial-gradient(ellipse at bottom center, rgba(255,107,53,0.25) 0%, rgba(255,107,53,0.08) 40%, transparent 70%);
-  pointer-events:none;
-}
-
-.login-box{
-  width:100%;
-  max-width:400px;
-  background:transparent;
-  padding:20px;
-  position:relative;
-  z-index:1;
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-}
-
-/* Logo grande no centro - sem fundo e sem borda */
-.login-box .lb-logo{
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  margin-bottom:40px;
-}
-
-.login-box .lb-logo .mark{
-  width:160px;
-  height:160px;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  overflow:hidden;
-  background:transparent !important;
-  border:none !important;
-  box-shadow:none !important;
-}
-
-.login-box .lb-logo .mark img{
-  width:100%;
-  height:100%;
-  object-fit:contain;
-}
-
-.login-box .lb-logo .mark i{
-  display:none;
-}
-
-/* Remove texto CIM e Painel Administrativo */
-.login-box .lb-logo span{
-  display:none;
-}
-
-.login-box h1{
-  display:none;
-}
-
-.login-box p{
-  display:none;
-}
-
-/* Campos com bordas arredondadas e fundo transparente preto */
-.field{
-  margin-bottom:14px;
-  width:100%;
-}
-
-.field label{
-  display:block;
-  font-size:.78rem;
-  color:var(--text-muted);
-  margin-bottom:6px;
-  padding-left:4px;
-}
-
-.field input{
-  width:100%;
-  padding:14px 18px;
-  background:rgba(0,0,0,0.6);
-  border:1.5px solid rgba(255,255,255,0.1);
-  border-radius:50px;
-  color:var(--text);
-  font-size:0.95rem;
-  backdrop-filter:blur(10px);
-  transition:all .3s ease;
-}
-
-.field input::placeholder{
-  color:var(--text-dim);
-}
-
-.field input:focus{
-  border-color:var(--accent);
-  background:rgba(0,0,0,0.8);
-  box-shadow:0 0 30px rgba(255,107,53,0.05);
-}
-
-/* Botão Entrar - pílula transparente preta com bordas arredondadas */
-.btn-full{
-  width:100%;
-  padding:14px;
-  background:rgba(0,0,0,0.6);
-  color:var(--text);
-  border:1.5px solid rgba(255,255,255,0.1);
-  border-radius:50px;
-  font-weight:600;
-  font-size:0.95rem;
-  margin-top:8px;
-  transition:all .3s ease;
-  backdrop-filter:blur(10px);
-  letter-spacing:0.5px;
-}
-
-.btn-full:hover{
-  background:rgba(255,107,53,0.15);
-  border-color:var(--accent);
-  color:var(--accent);
-  transform:scale(1.02);
-  box-shadow:0 0 40px rgba(255,107,53,0.08);
-}
-
-.btn-full i{
-  margin-right:8px;
-  color:var(--accent);
-}
-
-.login-error{
-  color:var(--danger);
-  font-size:.8rem;
-  margin-top:12px;
-  text-align:center;
-  min-height:14px;
-}
-
-/* Container do formulário com bordas arredondadas */
-.login-form-container{
-  width:100%;
-  background:rgba(0,0,0,0.4);
-  backdrop-filter:blur(20px);
-  border-radius:30px;
-  padding:35px 30px;
-  border:1px solid rgba(255,255,255,0.06);
-  box-shadow:0 20px 60px rgba(0,0,0,0.5);
-}
+#loginScreen{position:fixed;inset:0;background:#000000;display:flex;align-items:center;justify-content:center;z-index:5000;overflow:hidden;}
+#loginScreen::after{content:'';position:absolute;bottom:0;left:0;right:0;height:50%;background:radial-gradient(ellipse at bottom center, rgba(255,107,53,0.25) 0%, rgba(255,107,53,0.08) 40%, transparent 70%);pointer-events:none;}
+.login-box{width:100%;max-width:400px;background:transparent;padding:20px;position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;}
+.login-box .lb-logo{display:flex;justify-content:center;align-items:center;margin-bottom:40px;}
+.login-box .lb-logo .mark{width:160px;height:160px;display:flex;align-items:center;justify-content:center;overflow:hidden;background:transparent !important;border:none !important;box-shadow:none !important;}
+.login-box .lb-logo .mark img{width:100%;height:100%;object-fit:contain;}
+.login-box .lb-logo .mark i{display:none;}
+.login-box .lb-logo span{display:none;}
+.login-box h1{display:none;}
+.login-box p{display:none;}
+.field{margin-bottom:14px;width:100%;}
+.field label{display:block;font-size:.78rem;color:var(--text-muted);margin-bottom:6px;padding-left:4px;}
+.field input{width:100%;padding:14px 18px;background:rgba(0,0,0,0.6);border:1.5px solid rgba(255,255,255,0.1);border-radius:50px;color:var(--text);font-size:0.95rem;backdrop-filter:blur(10px);transition:all .3s ease;}
+.field input::placeholder{color:var(--text-dim);}
+.field input:focus{border-color:var(--accent);background:rgba(0,0,0,0.8);box-shadow:0 0 30px rgba(255,107,53,0.05);}
+.btn-full{width:100%;padding:14px;background:rgba(0,0,0,0.6);color:var(--text);border:1.5px solid rgba(255,255,255,0.1);border-radius:50px;font-weight:600;font-size:0.95rem;margin-top:8px;transition:all .3s ease;backdrop-filter:blur(10px);letter-spacing:0.5px;}
+.btn-full:hover{background:rgba(255,107,53,0.15);border-color:var(--accent);color:var(--accent);transform:scale(1.02);box-shadow:0 0 40px rgba(255,107,53,0.08);}
+.btn-full i{margin-right:8px;color:var(--accent);}
+.login-error{color:var(--danger);font-size:.8rem;margin-top:12px;text-align:center;min-height:14px;}
+.login-form-container{width:100%;background:rgba(0,0,0,0.4);backdrop-filter:blur(20px);border-radius:30px;padding:35px 30px;border:1px solid rgba(255,255,255,0.06);box-shadow:0 20px 60px rgba(0,0,0,0.5);}
 
 /* ============ SIDEBAR ============ */
-.sidebar{
-  width:250px;
-  flex-shrink:0;
-  background:var(--panel);
-  border-right:1px solid var(--border);
-  height:100vh;
-  position:fixed;
-  top:0;
-  left:0;
-  display:flex;
-  flex-direction:column;
-  z-index:1000;
-  overflow-y:auto;
-}
+.sidebar{width:250px;flex-shrink:0;background:var(--panel);border-right:1px solid var(--border);height:100vh;position:fixed;top:0;left:0;display:flex;flex-direction:column;z-index:1000;overflow-y:auto;}
 .sidebar::-webkit-scrollbar{width:4px;}
 .sidebar::-webkit-scrollbar-thumb{background:var(--accent);border-radius:10px;}
-
 .sb-brand{display:flex;align-items:center;gap:10px;padding:20px 20px 4px;border-bottom:none;}
 .sb-brand .mark{width:34px;height:34px;border-radius:var(--radius-sm);background:var(--accent-soft);display:flex;align-items:center;justify-content:center;font-size:1.05rem;flex-shrink:0;overflow:hidden;}
 .sb-brand .mark img{width:100%;height:100%;object-fit:cover;}
@@ -256,26 +85,8 @@ h1,h2,h3,h4{font-family:var(--font-head)}
 .sb-foot .logout-btn:hover{background:var(--panel-hover);color:var(--danger);}
 
 /* ============ MAIN ============ */
-.main{
-  flex:1;
-  min-width:0;
-  display:flex;
-  flex-direction:column;
-  margin-left:250px;
-}
-.topbar{
-  height:64px;
-  border-bottom:1px solid var(--border);
-  display:flex;
-  align-items:center;
-  gap:16px;
-  padding:0 26px;
-  position:sticky;
-  top:0;
-  background:rgba(0,0,0,.85);
-  backdrop-filter:blur(10px);
-  z-index:100;
-}
+.main{flex:1;min-width:0;display:flex;flex-direction:column;margin-left:250px;}
+.topbar{height:64px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:16px;padding:0 26px;position:sticky;top:0;background:rgba(0,0,0,.85);backdrop-filter:blur(10px);z-index:100;}
 .topbar h2{font-size:1.05rem;font-weight:600;}
 .topbar .crumb{font-size:.75rem;color:var(--text-dim);}
 .topbar-actions{margin-left:auto;display:flex;align-items:center;gap:10px;}
@@ -308,16 +119,15 @@ h1,h2,h3,h4{font-family:var(--font-head)}
 
 /* ============ STAT CARDS ============ */
 .stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:14px;margin-bottom:26px;}
-.stat-card{background:var(--panel);border:1px solid var(--border);border-radius:var(--radius);padding:18px;}
+.stat-card{background:var(--panel);border:1px solid var(--border);border-radius:var(--radius);padding:18px;transition:.15s;cursor:pointer;}
 .stat-card .sc-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px;}
 .stat-card .sc-icon{width:34px;height:34px;border-radius:var(--radius-sm);display:flex;align-items:center;justify-content:center;font-size:.9rem;color:var(--accent);background:transparent !important;}
 .stat-card .sc-val{font-family:var(--font-mono);font-size:1.7rem;font-weight:600;line-height:1;}
 .stat-card .sc-label{color:var(--text-muted);font-size:.78rem;margin-top:6px;}
 .stat-card.c-accent .sc-icon{color:var(--accent);}
-.stat-card.c-teal .sc-icon{color:var(--accent);}
-.stat-card.c-warn .sc-icon{color:var(--accent);}
-.stat-card.c-ok .sc-icon{color:var(--accent);}
-
+.stat-card.c-teal .sc-icon{color:var(--teal);}
+.stat-card.c-warn .sc-icon{color:var(--warn);}
+.stat-card.c-ok .sc-icon{color:var(--ok);}
 .grid-2col{display:grid;grid-template-columns:1.4fr 1fr;gap:16px;}
 @media(max-width:1100px){.grid-2col{grid-template-columns:1fr;}}
 
@@ -337,7 +147,7 @@ th{text-align:left;font-size:.7rem;color:var(--text-dim);letter-spacing:.3px;pad
 td{padding:11px 14px;border-bottom:1px solid var(--border-soft);font-size:.82rem;vertical-align:middle;}
 tbody tr:hover{background:var(--panel-alt);}
 tbody tr:last-child td{border-bottom:none;}
-.td-img{width:36px;height:36px;border-radius:var(--radius-sm);object-fit:cover;background:#111;border:1px solid var(--border);}
+.td-img{width:70px;height:70px;border-radius:var(--radius-sm);object-fit:cover;background:#111;border:1px solid var(--border);}
 .td-name{font-weight:600;}
 .td-sub{color:var(--text-dim);font-size:.72rem;margin-top:2px;}
 .row-actions{display:flex;gap:6px;justify-content:flex-end;}
@@ -346,15 +156,17 @@ tbody tr:last-child td{border-bottom:none;}
 .chip-warn{background:var(--warn-soft);color:var(--warn);}
 .chip-danger{background:var(--danger-soft);color:var(--danger);}
 .chip-mut{background:var(--panel-alt);color:var(--text-muted);border:1px solid var(--border);}
+.chip-google{background:rgba(66,133,244,.12);color:#4285f4;border:1px solid rgba(66,133,244,.25);}
 .mono{font-family:var(--font-mono);}
 
 /* ============ FILTER BAR ============ */
 .filter-bar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:16px;}
 .filter-bar input[type=text],.filter-bar select{background:var(--panel-alt);border:1px solid var(--border);color:var(--text);padding:9px 12px;border-radius:var(--radius-sm);font-size:.82rem;}
 .filter-bar input[type=text]{flex:1;min-width:160px;}
-.tabbar{display:flex;gap:4px;background:var(--panel-alt);padding:4px;border-radius:var(--radius-sm);border:1px solid var(--border);width:fit-content;margin-bottom:16px;}
+.tabbar{display:flex;gap:4px;background:var(--panel-alt);padding:4px;border-radius:var(--radius-sm);border:1px solid var(--border);width:fit-content;margin-bottom:16px;flex-wrap:wrap;}
 .tabbar button{padding:7px 16px;border:none;background:none;color:var(--text-muted);font-size:.8rem;font-weight:600;border-radius:var(--radius-sm);transition:.15s;}
 .tabbar button.active{background:var(--accent);color:#160b05;}
+.tabbar button i{margin-right:5px;font-size:.75rem;}
 
 /* ============ FORMS ============ */
 .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
@@ -409,7 +221,7 @@ tbody tr:last-child td{border-bottom:none;}
 .mini-item .mi-actions{display:flex;gap:5px;}
 .progress-track{height:6px;background:var(--panel-alt);border-radius:10px;overflow:hidden;border:1px solid var(--border);}
 .progress-fill{height:100%;background:var(--accent);border-radius:10px;transition:width .3s;}
-.danger-zone{border:1px solid var(--danger-soft);background:var(--danger-soft);border-radius:var(--radius);padding:18px 20px;}
+.danger-zone{border:1px solid var(--danger-soft);background:var(--danger-soft);border-radius:var(--radius);padding:18px 20px;margin-top:16px;}
 .danger-zone h3{color:var(--danger);font-size:.92rem;margin-bottom:6px;}
 .danger-zone p{color:var(--text-muted);font-size:.8rem;margin-bottom:14px;}
 .gallery-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:10px;}
@@ -423,25 +235,31 @@ tbody tr:last-child td{border-bottom:none;}
 .user-details-box.show{display:block;}
 .user-details-box strong{color:var(--accent);}
 
-/* ============ USER AVATAR ICON ============ */
 .user-avatar-icon{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1rem;flex-shrink:0;}
 .user-avatar-icon i{color:var(--accent);}
+.user-avatar-img{width:36px;height:36px;border-radius:50%;object-fit:cover;flex-shrink:0;}
+.user-avatar-icon.no-photo{background:var(--accent) !important;border:1px solid var(--accent) !important;box-shadow:0 0 12px rgba(255,107,53,.35);}
+.user-avatar-icon.no-photo i{color:#160b05 !important;font-size:1rem;}
 
-/* ============ MOBILE ============ */
+.td-img{cursor:zoom-in;transition:transform .15s,border-color .15s;}
+.td-img:hover{transform:scale(1.05);border-color:var(--accent);}
+.user-avatar-img{cursor:zoom-in;transition:transform .15s,border-color .15s;border:1px solid transparent;}
+.user-avatar-img:hover{transform:scale(1.1);border-color:var(--accent);}
+
+.img-viewer-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.96);z-index:6000;align-items:center;justify-content:center;padding:20px;cursor:zoom-out;}
+.img-viewer-overlay.active{display:flex;animation:fadein .2s ease;}
+.img-viewer-overlay img{max-width:95vw;max-height:92vh;object-fit:contain;border-radius:10px;box-shadow:0 20px 80px rgba(0,0,0,.85);cursor:default;animation:modalin .25s ease;}
+.img-viewer-overlay .close-viewer{position:absolute;top:20px;right:20px;width:46px;height:46px;border-radius:50%;background:rgba(255,107,53,.15);border:1.5px solid var(--accent);color:var(--accent);font-size:1.15rem;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:.2s;}
+.img-viewer-overlay .close-viewer:hover{background:var(--accent);color:#160b05;transform:rotate(90deg);}
+.img-viewer-overlay .viewer-caption{position:absolute;bottom:24px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,.75);border:1px solid var(--border);padding:8px 18px;border-radius:30px;color:var(--text);font-size:.85rem;max-width:80vw;text-align:center;}
+
+#profilePreviewAdm{width:150px;height:150px;border-radius:50%;overflow:hidden;border:2px solid var(--accent);margin-bottom:14px;}
+#profilePreviewAdm img{width:100%;height:100%;object-fit:cover;}
+
 @media(max-width:900px){
-  .sidebar{
-    position:fixed;
-    left:-260px;
-    z-index:1500;
-    transition:left .25s;
-    box-shadow:0 0 40px rgba(0,0,0,.6);
-  }
-  .sidebar.open{
-    left:0;
-  }
-  .main{
-    margin-left:0;
-  }
+  .sidebar{position:fixed;left:-260px;z-index:1500;transition:left .25s;box-shadow:0 0 40px rgba(0,0,0,.6);}
+  .sidebar.open{left:0;}
+  .main{margin-left:0;}
   .mobile-menu-btn{display:flex !important;}
   .stats-grid{grid-template-columns:repeat(2,1fr);}
   .tb-search{width:140px;}
@@ -449,22 +267,24 @@ tbody tr:last-child td{border-bottom:none;}
 .mobile-menu-btn{display:none;width:36px;height:36px;border-radius:var(--radius-sm);background:var(--panel-alt);border:1px solid var(--border);color:var(--text);align-items:center;justify-content:center;}
 
 @media(max-width:480px){
-  .login-box .lb-logo .mark{
-    width:120px;
-    height:120px;
-  }
-  .login-form-container{
-    padding:25px 20px;
-  }
-  .field input{
-    padding:12px 16px;
-    font-size:0.9rem;
-  }
-  .btn-full{
-    padding:12px;
-    font-size:0.9rem;
-  }
+  .login-box .lb-logo .mark{width:120px;height:120px;}
+  .login-form-container{padding:25px 20px;}
+  .field input{padding:12px 16px;font-size:0.9rem;}
+  .btn-full{padding:12px;font-size:0.9rem;}
 }
+
+.user-detail-row td {padding: 0 !important;border-bottom: none !important;background: var(--panel-alt);}
+.user-detail-row .detail-content {padding: 14px 20px;display: flex;flex-wrap: wrap;gap: 14px 30px;font-size: .8rem;color: var(--text-muted);border-top: 1px solid var(--border-soft);border-bottom: 1px solid var(--border-soft);}
+.user-detail-row .detail-content .detail-item {display: flex;flex-direction: column;gap: 2px;min-width: 140px;}
+.user-detail-row .detail-content .detail-item label {font-size: .65rem;text-transform: uppercase;letter-spacing: .5px;color: var(--text-dim);}
+.user-detail-row .detail-content .detail-item span {color: var(--text);font-weight: 500;word-break: break-word;}
+.user-detail-row .detail-content .detail-item .mono {font-family: var(--font-mono);font-weight: 400;}
+.user-detail-row .detail-content .detail-item .empty {color: var(--text-dim);font-style: italic;}
+
+/* ============ CUPOM (código destacado) ============ */
+.coupon-code{font-family:var(--font-mono);font-weight:600;letter-spacing:1.2px;color:var(--accent);background:var(--accent-soft);padding:2px 10px;border-radius:6px;font-size:.78rem;}
+.coupon-usage-bar{display:inline-flex;align-items:center;gap:8px;}
+.coupon-usage-bar .progress-track{width:80px;height:5px;}
 </style>
 </head>
 <body>
@@ -472,23 +292,11 @@ tbody tr:last-child td{border-bottom:none;}
 <!-- ================= LOGIN ================= -->
 <div id="loginScreen">
   <div class="login-box">
-    <div class="lb-logo">
-      <div class="mark" id="loginLogoMark">
-        <!-- A logo será inserida via JavaScript quando carregada do perfil -->
-      </div>
-    </div>
+    <div class="lb-logo"><div class="mark" id="loginLogoMark"></div></div>
     <div class="login-form-container">
-      <div class="field">
-        <label>E-mail</label>
-        <input type="email" id="loginEmail" placeholder="seuemail@cim.com">
-      </div>
-      <div class="field">
-        <label>Senha</label>
-        <input type="password" id="loginPassword" placeholder="••••••••">
-      </div>
-      <button class="btn-full" onclick="doLogin()">
-        <i class="fas fa-arrow-right-to-bracket"></i> Entrar
-      </button>
+      <div class="field"><label>E-mail</label><input type="email" id="loginEmail" placeholder="seuemail@cim.com"></div>
+      <div class="field"><label>Senha</label><input type="password" id="loginPassword" placeholder="********"></div>
+      <button class="btn-full" onclick="doLogin()"><i class="fas fa-arrow-right-to-bracket"></i> Entrar</button>
       <div class="login-error" id="loginError"></div>
     </div>
   </div>
@@ -520,6 +328,7 @@ tbody tr:last-child td{border-bottom:none;}
       <div class="sb-group-label">Comercial</div>
       <div class="sb-item" data-panel="precos"><i class="fas fa-tag"></i> Preços</div>
       <div class="sb-item" data-panel="promocoes"><i class="fas fa-percent"></i> Promoções</div>
+      <div class="sb-item" data-panel="cupons"><i class="fas fa-ticket"></i> Cupons <span class="badge" id="navBadgeCupons">0</span></div>
     </div>
     <div class="sb-group">
       <div class="sb-group-label">Operações</div>
@@ -564,10 +373,16 @@ tbody tr:last-child td{border-bottom:none;}
       <div class="stats-grid">
         <div class="stat-card c-accent"><div class="sc-top"><div class="sc-icon"><i class="fas fa-box"></i></div></div><div class="sc-val" id="statProdutos">0</div><div class="sc-label">Peças cadastradas</div></div>
         <div class="stat-card c-teal"><div class="sc-top"><div class="sc-icon"><i class="fas fa-eye"></i></div></div><div class="sc-val" id="statCliques">0</div><div class="sc-label">Cliques totais</div></div>
-        <div class="stat-card c-warn"><div class="sc-top"><div class="sc-icon"><i class="fas fa-exclamation-triangle"></i></div></div><div class="sc-val" id="statSemPreco">0</div><div class="sc-label">Sem preço definido</div></div>
-        <div class="stat-card c-ok"><div class="sc-top"><div class="sc-icon"><i class="fas fa-percent"></i></div></div><div class="sc-val" id="statPromosAtivas">0</div><div class="sc-label">Promoções ativas</div></div>
+        <div class="stat-card c-accent"><div class="sc-top"><div class="sc-icon"><i class="fas fa-exclamation-triangle"></i></div></div><div class="sc-val" id="statSemPreco">0</div><div class="sc-label">Sem preço definido</div></div>
+        <div class="stat-card c-accent"><div class="sc-top"><div class="sc-icon"><i class="fas fa-percent"></i></div></div><div class="sc-val" id="statPromosAtivas">0</div><div class="sc-label">Promoções ativas</div></div>
+        <div class="stat-card c-accent"><div class="sc-top"><div class="sc-icon"><i class="fas fa-ticket"></i></div></div><div class="sc-val" id="statCupons">0</div><div class="sc-label">Cupons ativos</div></div>
         <div class="stat-card c-accent"><div class="sc-top"><div class="sc-icon"><i class="fas fa-users"></i></div></div><div class="sc-val" id="statUsuarios">0</div><div class="sc-label">Usuários cadastrados</div></div>
         <div class="stat-card c-teal"><div class="sc-top"><div class="sc-icon"><i class="fas fa-ban"></i></div></div><div class="sc-val" id="statEsgotados">0</div><div class="sc-label">Peças esgotadas</div></div>
+      </div>
+      <div class="stats-grid" style="margin-top: 4px;">
+        <div class="stat-card c-teal" data-period="7" onclick="showActiveUsersModal(7)"><div class="sc-top"><div class="sc-icon"><i class="fas fa-user-clock"></i></div></div><div class="sc-val" id="statActive7d">0</div><div class="sc-label">Ativos (7 dias)</div></div>
+        <div class="stat-card c-teal" data-period="30" onclick="showActiveUsersModal(30)"><div class="sc-top"><div class="sc-icon"><i class="fas fa-user-clock"></i></div></div><div class="sc-val" id="statActive30d">0</div><div class="sc-label">Ativos (30 dias)</div></div>
+        <div class="stat-card c-teal" data-period="90" onclick="showActiveUsersModal(90)"><div class="sc-top"><div class="sc-icon"><i class="fas fa-user-clock"></i></div></div><div class="sc-val" id="statActive90d">0</div><div class="sc-label">Ativos (90 dias)</div></div>
       </div>
 
       <div class="grid-2col">
@@ -581,6 +396,7 @@ tbody tr:last-child td{border-bottom:none;}
             <button class="btn btn-ghost" style="justify-content:flex-start" onclick="openProductModal()"><i class="fas fa-plus"></i> Nova peça</button>
             <button class="btn btn-ghost" style="justify-content:flex-start" onclick="switchPanel('importacao')"><i class="fas fa-file-import"></i> Importar CSV</button>
             <button class="btn btn-ghost" style="justify-content:flex-start" onclick="switchPanel('promocoes');openPromoModal()"><i class="fas fa-percent"></i> Nova promoção</button>
+            <button class="btn btn-ghost" style="justify-content:flex-start" onclick="switchPanel('cupons');openCouponModal()"><i class="fas fa-ticket"></i> Novo cupom</button>
             <button class="btn btn-ghost" style="justify-content:flex-start" onclick="switchPanel('precos')"><i class="fas fa-tag"></i> Ajustar preços em massa</button>
             <button class="btn btn-ghost" style="justify-content:flex-start" onclick="openCreateClientModal()"><i class="fas fa-user-plus"></i> Criar cliente</button>
           </div>
@@ -684,6 +500,18 @@ tbody tr:last-child td{border-bottom:none;}
       </table></div></div>
     </section>
 
+    <!-- ============ CUPONS ============ -->
+    <section class="panel" id="panel-cupons">
+      <div class="panel-head">
+        <div><h1>Cupons</h1><p>Códigos de desconto com prazo de validade e limite de uso</p></div>
+        <div class="panel-actions"><button class="btn btn-accent" onclick="openCouponModal()"><i class="fas fa-plus"></i> Novo cupom</button></div>
+      </div>
+      <div class="block"><div class="block-body tight"><table>
+        <thead><tr><th>Código</th><th>Desconto</th><th>Público</th><th>Expira</th><th>Usos</th><th>Status</th><th></th></tr></thead>
+        <tbody id="couponTableBody"></tbody>
+      </table></div></div>
+    </section>
+
     <!-- ============ IMPORTAÇÃO ============ -->
     <section class="panel" id="panel-importacao">
       <div class="panel-head"><div><h1>Importação</h1><p>Importe peças em lote via CSV e gerencie o histórico</p></div></div>
@@ -691,7 +519,6 @@ tbody tr:last-child td{border-bottom:none;}
         <button class="active" data-imptab="novo" onclick="switchImportTab('novo')">Nova importação</button>
         <button data-imptab="hist" onclick="switchImportTab('hist')">Histórico</button>
       </div>
-
       <div id="importTabNovo">
         <div class="block">
           <div class="block-head"><h3>Formato do arquivo</h3></div>
@@ -719,7 +546,6 @@ tbody tr:last-child td{border-bottom:none;}
           </div>
         </div>
       </div>
-
       <div id="importTabHist" style="display:none;">
         <div class="block"><div class="block-body"><div class="mini-list" id="importHistoryListAdm"></div></div></div>
       </div>
@@ -727,11 +553,7 @@ tbody tr:last-child td{border-bottom:none;}
 
     <!-- ============ CLIQUES & METAS ============ -->
     <section class="panel" id="panel-cliques">
-      <div class="panel-head"><div><h1>Cliques &amp; metas</h1><p>Histórico de interações e metas batidas pelos produtos</p></div>
-        <div class="panel-actions">
-          <button class="btn btn-danger" onclick="resetAllClicksAdm()"><i class="fas fa-undo-alt"></i> Resetar todos os cliques</button>
-        </div>
-      </div>
+      <div class="panel-head"><div><h1>Cliques &amp; metas</h1><p>Histórico de interações e metas batidas pelos produtos</p></div></div>
       <div class="tabbar">
         <button class="active" data-cliktab="hist" onclick="switchClickTab('hist')">Histórico de cliques</button>
         <button data-cliktab="metas" onclick="switchClickTab('metas')">Metas batidas</button>
@@ -755,6 +577,10 @@ tbody tr:last-child td{border-bottom:none;}
       <div class="tabbar">
         <button class="active" data-usertab="PF" onclick="switchUsersTabAdm('PF')">Pessoa física</button>
         <button data-usertab="PJ" onclick="switchUsersTabAdm('PJ')">Pessoa jurídica</button>
+        <button data-usertab="online" onclick="switchUsersTabAdm('online')">Online agora</button>
+        <button data-usertab="novos" onclick="switchUsersTabAdm('novos')">Novos clientes</button>
+        <button data-usertab="google" onclick="switchUsersTabAdm('google')"><i class="fab fa-google"></i> Google</button>
+        <button data-usertab="manual" onclick="switchUsersTabAdm('manual')"><i class="fas fa-user-plus"></i> Manual</button>
       </div>
       <div id="usersListAdm"></div>
     </section>
@@ -763,11 +589,16 @@ tbody tr:last-child td{border-bottom:none;}
     <section class="panel" id="panel-perfil">
       <div class="panel-head"><div><h1>Perfil da loja</h1><p>Informações exibidas no menu da loja</p></div></div>
       <div class="block"><div class="block-body">
-        <div class="upload-box" id="profileUploadBoxAdm" onclick="document.getElementById('profileImgInputAdm').click()">
-          <i class="fas fa-cloud-upload-alt"></i><p>Clique para selecionar a foto do perfil</p>
-          <input type="file" id="profileImgInputAdm" accept="image/*" style="display:none;">
+        <div style="display:flex;flex-direction:column;align-items:center;">
+          <div class="upload-preview" id="profilePreviewAdm" style="display:none;width:150px;height:150px;border-radius:50%;overflow:hidden;border:2px solid var(--accent);margin-bottom:14px;">
+            <img id="profilePreviewImgAdm" style="width:100%;height:100%;object-fit:cover;">
+            <div class="chg" onclick="document.getElementById('profileImgInputAdm').click()" style="border-radius:0 0 50% 50%;">Trocar</div>
+          </div>
+          <div class="upload-box" id="profileUploadBoxAdm" onclick="document.getElementById('profileImgInputAdm').click()" style="max-width:250px;">
+            <i class="fas fa-cloud-upload-alt"></i><p>Clique para selecionar a foto do perfil</p>
+            <input type="file" id="profileImgInputAdm" accept="image/*" style="display:none;">
+          </div>
         </div>
-        <div class="upload-preview" id="profilePreviewAdm" style="display:none;"><img id="profilePreviewImgAdm"><div class="chg" onclick="document.getElementById('profileImgInputAdm').click()">Trocar imagem</div></div>
         <div class="form-grid c1">
           <div class="f-group"><label>Nome</label><input type="text" id="profNameAdm"></div>
           <div class="f-group"><label>Subtítulo</label><input type="text" id="profSubAdm"></div>
@@ -794,6 +625,20 @@ tbody tr:last-child td{border-bottom:none;}
         <div class="block-body" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;">
           <div><div class="td-name" id="cfgAdminName">—</div><div class="td-sub" id="cfgAdminEmail">—</div></div>
           <button class="btn btn-ghost" onclick="doLogout()"><i class="fas fa-sign-out-alt"></i> Sair da conta</button>
+        </div>
+      </div>
+      <div class="block" style="margin-top:16px;">
+        <div class="block-head"><h3>Gerenciamento de cliques</h3></div>
+        <div class="block-body">
+          <p style="color:var(--text-muted);font-size:.82rem;margin-bottom:12px;">Zera os contadores de cliques de todas as peças e remove os destaques automáticos. O histórico de cliques e metas batidas não é afetado.</p>
+          <button class="btn btn-danger" id="resetProductClicksBtn" onclick="resetProductClicksAdm()"><i class="fas fa-undo-alt"></i> Resetar cliques das peças</button>
+        </div>
+      </div>
+      <div class="block" style="margin-top:16px;">
+        <div class="block-head"><h3>Reset completo</h3></div>
+        <div class="block-body">
+          <p style="color:var(--text-muted);font-size:.82rem;margin-bottom:12px;">Remove todos os registros de cliques, metas batidas e destaques automáticos. Esta ação é irreversível.</p>
+          <button class="btn btn-danger" onclick="resetAllClicksAdm()"><i class="fas fa-undo-alt"></i> Resetar todos os cliques (completo)</button>
         </div>
       </div>
       <div class="danger-zone">
@@ -871,6 +716,28 @@ tbody tr:last-child td{border-bottom:none;}
   <div class="modal-foot"><button class="btn btn-ghost" onclick="closeModal('modalPromo')">Cancelar</button><button class="btn btn-accent" onclick="salvarPromoAdm()"><i class="fas fa-save"></i> Salvar promoção</button></div>
 </div></div>
 
+<!-- Cupom -->
+<div class="modal-overlay" id="modalCupom"><div class="modal">
+  <div class="modal-head"><h3 id="modalCupomTitle">Novo cupom</h3><button class="modal-close" onclick="closeModal('modalCupom')"><i class="fas fa-times"></i></button></div>
+  <div class="modal-body">
+    <div class="f-group"><label>Código do cupom <span class="req">*</span></label><input type="text" id="cpCodigo" placeholder="Ex: CIM10" maxlength="30" style="text-transform:uppercase;letter-spacing:1px;font-family:var(--font-mono);font-weight:600;"><small>O cliente vai digitar este código no menu da loja.</small></div>
+    <div class="form-grid">
+      <div class="f-group"><label>Desconto (%) <span class="req">*</span></label><input type="number" id="cpDesconto" min="1" max="100" placeholder="Ex: 15"></div>
+      <div class="f-group"><label>Expira em <span class="req">*</span></label><input type="datetime-local" id="cpExpiracao"></div>
+    </div>
+    <div class="f-group"><label>Público-alvo <span class="req">*</span></label><div class="select-wrap"><select id="cpTipoCliente">
+      <option value="PF">Pessoa física (PF)</option>
+      <option value="PJ">Pessoa jurídica (PJ)</option>
+      <option value="ambos" selected>Ambos</option>
+    </select></div></div>
+    <div class="f-group"><label>Limite de pessoas <span class="req">*</span></label><input type="number" id="cpLimite" min="0" value="0"><small>0 = sem limite. Cada pessoa só pode usar o cupom uma vez.</small></div>
+    <div style="padding:12px 14px;background:var(--panel-alt);border:1px solid var(--border);border-radius:8px;font-size:.78rem;color:var(--text-muted);line-height:1.6;">
+      <i class="fas fa-info-circle" style="color:var(--accent);"></i> <strong style="color:var(--text);">Como funciona:</strong> o cupom aplica desconto em <strong style="color:var(--accent);">todas as peças</strong> para o cliente que digitar o código. Se já houver promoção na peça, o maior desconto vence (nunca acumula).
+    </div>
+  </div>
+  <div class="modal-foot"><button class="btn btn-ghost" onclick="closeModal('modalCupom')">Cancelar</button><button class="btn btn-accent" onclick="saveCouponAdm()"><i class="fas fa-save"></i> Salvar cupom</button></div>
+</div></div>
+
 <!-- Contato -->
 <div class="modal-overlay" id="modalContato"><div class="modal">
   <div class="modal-head"><h3 id="modalContatoTitle">Novo contato</h3><button class="modal-close" onclick="closeModal('modalContato')"><i class="fas fa-times"></i></button></div>
@@ -913,6 +780,20 @@ tbody tr:last-child td{border-bottom:none;}
   <div class="modal-foot"><button class="btn btn-ghost" onclick="closeModal('modalDeleteAll')">Cancelar</button><button class="btn btn-danger" id="confirmDeleteAllBtnAdm" disabled onclick="deleteAllDataAdm()"><i class="fas fa-trash-alt"></i> Apagar tudo</button></div>
 </div></div>
 
+<!-- Modal clientes ativos -->
+<div class="modal-overlay" id="modalActiveUsers"><div class="modal large">
+  <div class="modal-head"><h3 id="activeUsersModalTitle">Clientes ativos</h3><button class="modal-close" onclick="closeModal('modalActiveUsers')"><i class="fas fa-times"></i></button></div>
+  <div class="modal-body" id="activeUsersModalBody"><div class="mini-list" id="activeUsersList"></div></div>
+  <div class="modal-foot"><button class="btn btn-ghost" onclick="closeModal('modalActiveUsers')">Fechar</button></div>
+</div></div>
+
+<!-- Visualizador de imagem -->
+<div class="img-viewer-overlay" id="imgViewerOverlay" onclick="closeImageViewer()">
+  <button class="close-viewer" onclick="event.stopPropagation();closeImageViewer()"><i class="fas fa-times"></i></button>
+  <img id="imgViewerImg" src="" alt="" onclick="event.stopPropagation()">
+  <div class="viewer-caption" id="imgViewerCaption"></div>
+</div>
+
 <script>
 /* ================= FIREBASE ================= */
 const firebaseConfig = {
@@ -933,11 +814,11 @@ const DEFAULT_AVATAR = 'https://i.ibb.co/6J5qZ9K/default-avatar.png';
 const DEFAULT_SESSION_IMG = 'https://via.placeholder.com/200x200?text=Sess%C3%A3o';
 
 /* ================= STATE ================= */
-let products=[], sessions={}, brands={}, contacts={}, promocoes={}, categoryOrder=[];
+let products=[], sessions={}, brands={}, contacts={}, promocoes={}, cupons={}, categoryOrder=[];
 let categoryClicks={}, sessionClicks={}, brandClicks={};
 let clickHistory=[], metaAchievements=[], importHistoryCache=[], usersCache=[];
 let pricesHidden=false, currentAdmin=null;
-let editingProductId=null, editingSessionId=null, editingBrandId=null, editingContactId=null, editingPromoId=null;
+let editingProductId=null, editingSessionId=null, editingBrandId=null, editingContactId=null, editingPromoId=null, editingCouponId=null;
 let uploadedProdImg=null, uploadedSesImg=null, uploadedBrImg=null, uploadedCtImg=null, uploadedProfileImg=null;
 let usersTab='PF', importTab='novo';
 let profileData = {};
@@ -951,26 +832,22 @@ function showToast(msg,type='ok'){
   document.body.appendChild(t);
   setTimeout(()=>{ t.style.animation='toastout .25s ease'; setTimeout(()=>t.remove(),250); },2600);
 }
-function showLoading(msg='Processando...'){
-  const ex=document.querySelector('.loading-ov'); if(ex) ex.remove();
-  const ov=document.createElement('div'); ov.className='loading-ov';
-  ov.innerHTML=`<i class="fas fa-spinner"></i><span>${msg}</span>`;
-  document.body.appendChild(ov);
-}
+function showLoading(msg='Processando...'){ const ex=document.querySelector('.loading-ov'); if(ex) ex.remove(); const ov=document.createElement('div'); ov.className='loading-ov'; ov.innerHTML=`<i class="fas fa-spinner"></i><span>${msg}</span>`; document.body.appendChild(ov); }
 function hideLoading(){ const e=document.querySelector('.loading-ov'); if(e) e.remove(); }
 function openModal(id){ document.getElementById(id).classList.add('active'); }
 function closeModal(id){ document.getElementById(id).classList.remove('active'); }
 function fmtDate(ts){ if(!ts) return '—'; try{ return new Date(ts).toLocaleString('pt-BR'); }catch(e){ return '—'; } }
 function fmtTime(ts){ if(!ts) return '—'; try{ return new Date(ts).toLocaleTimeString('pt-BR'); }catch(e){ return '—'; } }
+
+function userHasRealPhoto(u){ if(!u) return false; const photo = u.photoURL; if(!photo) return false; if(typeof photo !== 'string') return false; const trimmed = photo.trim(); if(trimmed === '') return false; if(trimmed === DEFAULT_AVATAR) return false; return true; }
+
 async function compressImage(file,maxW=800,maxH=800,q=.7){
   return new Promise((res,rej)=>{
     const r=new FileReader(); r.readAsDataURL(file);
     r.onload=e=>{ const img=new Image(); img.src=e.target.result;
-      img.onload=()=>{ let w=img.width,h=img.height;
-        if(w>maxW){h=h*maxW/w;w=maxW;} if(h>maxH){w=w*maxH/h;h=maxH;}
+      img.onload=()=>{ let w=img.width,h=img.height; if(w>maxW){h=h*maxW/w;w=maxW;} if(h>maxH){w=w*maxH/h;h=maxH;}
         const c=document.createElement('canvas'); c.width=w;c.height=h;
-        c.getContext('2d').drawImage(img,0,0,w,h);
-        c.toBlob(b=>res(b),file.type,q); };
+        c.getContext('2d').drawImage(img,0,0,w,h); c.toBlob(b=>res(b),file.type,q); };
       img.onerror=rej; }; r.onerror=rej;
   });
 }
@@ -982,8 +859,7 @@ async function uploadImg(file){
     const fd=new FormData(); fd.append('key',IMGBB_API_KEY); fd.append('image',cf);
     const r=await fetch('https://api.imgbb.com/1/upload',{method:'POST',body:fd});
     const d=await r.json(); hideLoading();
-    if(d.success) return d.data.url;
-    showToast('Erro ao enviar imagem','err'); return null;
+    if(d.success) return d.data.url; showToast('Erro ao enviar imagem','err'); return null;
   }catch(e){ hideLoading(); showToast('Erro ao enviar imagem','err'); return null; }
 }
 function setupUpload(inputId,boxId,previewId,previewImgId,setter){
@@ -991,11 +867,7 @@ function setupUpload(inputId,boxId,previewId,previewImgId,setter){
   input.onchange=async(e)=>{
     const file=e.target.files[0]; if(!file) return;
     const reader=new FileReader();
-    reader.onload=ev=>{
-      document.getElementById(previewImgId).src=ev.target.result;
-      document.getElementById(previewId).style.display='block';
-      document.getElementById(boxId).style.display='none';
-    };
+    reader.onload=ev=>{ document.getElementById(previewImgId).src=ev.target.result; document.getElementById(previewId).style.display='block'; document.getElementById(boxId).style.display='none'; };
     reader.readAsDataURL(file);
     const url=await uploadImg(file);
     if(url) setter(url);
@@ -1003,7 +875,22 @@ function setupUpload(inputId,boxId,previewId,previewImgId,setter){
 }
 function resetUpload(boxId,previewId){ document.getElementById(boxId).style.display='block'; document.getElementById(previewId).style.display='none'; }
 
-/* ================= UPDATE BRAND LOGO ================= */
+function openImageViewer(src, caption=''){
+  if(!src) return;
+  document.getElementById('imgViewerImg').src = src;
+  document.getElementById('imgViewerCaption').textContent = caption || '';
+  document.getElementById('imgViewerCaption').style.display = caption ? 'block' : 'none';
+  document.getElementById('imgViewerOverlay').classList.add('active');
+  document.body.style.overflow = 'hidden';
+}
+function closeImageViewer(){
+  const overlay = document.getElementById('imgViewerOverlay');
+  if(!overlay) return;
+  overlay.classList.remove('active'); document.body.style.overflow = '';
+  setTimeout(()=>{ document.getElementById('imgViewerImg').src=''; }, 200);
+}
+document.addEventListener('keydown', e => { if(e.key === 'Escape') closeImageViewer(); });
+
 function updateBrandLogo(photoUrl){
   const brandLogo = document.getElementById('sbBrandLogo');
   const loginLogo = document.getElementById('loginLogoMark');
@@ -1012,7 +899,7 @@ function updateBrandLogo(photoUrl){
     loginLogo.innerHTML = `<img src="${photoUrl}" alt="Logo">`;
   } else {
     brandLogo.innerHTML = `<i class="fas fa-cogs"></i>`;
-    loginLogo.innerHTML = ''; // Remove o ícone de engrenagem
+    loginLogo.innerHTML = '';
   }
 }
 
@@ -1020,19 +907,12 @@ function updateBrandLogo(photoUrl){
 function doLogin(){
   const email=document.getElementById('loginEmail').value.trim();
   const pass=document.getElementById('loginPassword').value;
-  const errEl=document.getElementById('loginError');
-  errEl.textContent='';
+  const errEl=document.getElementById('loginError'); errEl.textContent='';
   if(!email||!pass){ errEl.textContent='Preencha e-mail e senha.'; return; }
   showLoading('Autenticando...');
-  auth.signInWithEmailAndPassword(email,pass).catch(e=>{
-    hideLoading();
-    errEl.textContent='Credenciais inválidas ou usuário não encontrado.';
-  });
+  auth.signInWithEmailAndPassword(email,pass).catch(e=>{ hideLoading(); errEl.textContent='Credenciais inválidas ou usuário não encontrado.'; });
 }
-function doLogout(){
-  if(!confirm('Deseja sair do painel?')) return;
-  auth.signOut();
-}
+function doLogout(){ if(!confirm('Deseja sair do painel?')) return; auth.signOut(); }
 auth.onAuthStateChanged(user=>{
   hideLoading();
   if(user){
@@ -1051,15 +931,11 @@ auth.onAuthStateChanged(user=>{
         auth.signOut();
       }
     });
-  }else{
-    document.getElementById('loginScreen').style.display='flex';
-  }
+  }else{ document.getElementById('loginScreen').style.display='flex'; }
 });
 
 /* ================= NAVIGATION ================= */
-document.querySelectorAll('.sb-item[data-panel]').forEach(item=>{
-  item.addEventListener('click',()=>switchPanel(item.dataset.panel));
-});
+document.querySelectorAll('.sb-item[data-panel]').forEach(item=>{ item.addEventListener('click',()=>switchPanel(item.dataset.panel)); });
 function switchPanel(name){
   document.querySelectorAll('.sb-item[data-panel]').forEach(i=>i.classList.toggle('active',i.dataset.panel===name));
   document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
@@ -1067,6 +943,7 @@ function switchPanel(name){
   const titles={dashboard:['Dashboard','Visão geral do sistema'],produtos:['Produtos','Catálogo de peças mecânicas'],
     categorias:['Categorias','Organização do catálogo'],marcas:['Marcas','Logos e ordenação'],sessoes:['Sessões','Agrupamentos da loja'],
     precos:['Preços','Visibilidade e ajustes em massa'],promocoes:['Promoções','Descontos temporários'],
+    cupons:['Cupons','Códigos de desconto com prazo e limite'],
     importacao:['Importação','Importação em lote via CSV'],cliques:['Cliques & metas','Engajamento dos produtos'],
     usuarios:['Usuários','Clientes cadastrados'],perfil:['Perfil da loja','Identidade exibida ao cliente'],
     contatos:['Contatos','Atendimento via WhatsApp'],config:['Configurações','Ações administrativas']};
@@ -1074,12 +951,7 @@ function switchPanel(name){
   document.getElementById('topbarCrumb').textContent=titles[name][1];
   document.getElementById('sidebar').classList.remove('open');
 }
-function globalSearchHandler(v){
-  if(v.trim()==='') return;
-  switchPanel('produtos');
-  document.getElementById('prodFilterText').value=v;
-  renderProducts();
-}
+function globalSearchHandler(v){ if(v.trim()==='') return; switchPanel('produtos'); document.getElementById('prodFilterText').value=v; renderProducts(); }
 
 /* ================= LOAD DATA ================= */
 function loadAllData(){
@@ -1091,6 +963,7 @@ function loadAllData(){
   database.ref('brands').on('value',snap=>{ brands=snap.val()||{}; renderBrands(); updateSelectPopulators(); });
   database.ref('contacts').on('value',snap=>{ contacts=snap.val()||{}; renderContacts(); });
   database.ref('promocoes').on('value',snap=>{ promocoes=snap.val()||{}; renderPromos(); renderDashboard(); });
+  database.ref('cupons').on('value',snap=>{ cupons=snap.val()||{}; renderCoupons(); renderDashboard(); });
   database.ref('categoryClicks').on('value',snap=>{ categoryClicks=snap.val()||{}; });
   database.ref('sessionClicks').on('value',snap=>{ sessionClicks=snap.val()||{}; });
   database.ref('brandClicks').on('value',snap=>{ brandClicks=snap.val()||{}; });
@@ -1103,60 +976,35 @@ function loadAllData(){
     const d=snap.val(); metaAchievements = d? Object.values(d).reverse() : []; renderMetaAchievements();
   });
   database.ref('profile').on('value',snap=>{
-    const d=snap.val()||{};
-    profileData = d;
+    const d=snap.val()||{}; profileData = d;
     document.getElementById('profNameAdm').value=d.name||'CIM Peças';
     document.getElementById('profSubAdm').value=d.subtitle||'';
     document.getElementById('profMsgAdm').value=d.message||'';
-    if(d.photo){ 
-      document.getElementById('profilePreviewImgAdm').src=d.photo; 
-      document.getElementById('profilePreviewAdm').style.display='block'; 
-      document.getElementById('profileUploadBoxAdm').style.display='none'; 
-      uploadedProfileImg=d.photo;
-      updateBrandLogo(d.photo);
-    } else {
-      updateBrandLogo(null);
-    }
+    if(d.photo){ document.getElementById('profilePreviewImgAdm').src=d.photo; document.getElementById('profilePreviewAdm').style.display='block'; document.getElementById('profileUploadBoxAdm').style.display='none'; uploadedProfileImg=d.photo; updateBrandLogo(d.photo); }
+    else { updateBrandLogo(null); }
   });
   database.ref('users').on('value',snap=>{
-    const d=snap.val()||{}; 
-    usersCache=Object.keys(d).map(uid=>({uid,...d[uid]})); 
-    renderUsers(); 
-    renderDashboard();
-    updateOnlineUsersBadge();
+    const d=snap.val()||{}; usersCache=Object.keys(d).map(uid=>({uid,...d[uid]}));
+    renderUsers(); renderDashboard(); updateOnlineUsersBadge();
   });
   database.ref('importHistory').orderByChild('timestamp').limitToLast(50).on('value',snap=>{
     const list=[]; snap.forEach(c=>list.push({id:c.key,...c.val()})); list.reverse();
     importHistoryCache=list; renderImportHistory();
   });
-  // Monitorar usuários online
   database.ref('.info/connected').on('value', snap => {
-    if (snap.val() === true && currentAdmin) {
-      database.ref(`users/${currentAdmin.uid}/lastAccess`).set(Date.now());
-    }
+    if (snap.val() === true && currentAdmin) { database.ref(`users/${currentAdmin.uid}/lastAccess`).set(Date.now()); }
   });
-  // Atualizar badge de usuários online a cada 30s
   setInterval(updateOnlineUsersBadge, 30000);
   setInterval(checkPromoExpiration,30000);
 }
 
-/* ================= ONLINE USERS BADGE ================= */
 function updateOnlineUsersBadge(){
   const now = Date.now();
-  const onlineUsers = usersCache.filter(u => {
-    if (!u.lastAccess) return false;
-    if (u.isAdmin) return false;
-    return (now - u.lastAccess) < 5 * 60 * 1000;
-  });
+  const onlineUsers = usersCache.filter(u => { if (!u.lastAccess) return false; if (u.isAdmin) return false; return (now - u.lastAccess) < 5 * 60 * 1000; });
   const count = onlineUsers.length;
   const badge = document.getElementById('onlineUsersBadge');
   const countEl = document.getElementById('onlineUsersCount');
-  if (count > 0) {
-    badge.style.display = 'flex';
-    countEl.textContent = count;
-  } else {
-    badge.style.display = 'none';
-  }
+  if (count > 0) { badge.style.display = 'flex'; countEl.textContent = count; } else { badge.style.display = 'none'; }
 }
 
 /* ================= DASHBOARD ================= */
@@ -1170,40 +1018,63 @@ function renderDashboard(){
   const now=Date.now();
   const activePromos=Object.values(promocoes).filter(p=>p.ativa && (!p.dataExpiracao || p.dataExpiracao>now)).length;
   document.getElementById('statPromosAtivas').textContent=activePromos;
+  // Cupons ativos
+  const activeCoupons = Object.values(cupons).filter(c => c.ativo && (!c.expiracao || c.expiracao > now) && (c.limite === 0 || (c.usos||0) < c.limite)).length;
+  document.getElementById('statCupons').textContent = activeCoupons;
+  document.getElementById('navBadgeCupons').textContent = activeCoupons;
   document.getElementById('statUsuarios').textContent=usersCache.length;
   document.getElementById('statEsgotados').textContent=products.filter(p=>p.soldOut).length;
 
-  const top=[...products].sort((a,b)=>(b.clicks||0)-(a.clicks||0)).slice(0,6);
-  document.getElementById('topClickedBody').innerHTML = top.length? top.map(p=>`
-    <tr><td class="td-name">${esc(p.name)}</td><td>${esc(p.category||'—')}</td><td class="mono">${p.clicks||0}</td><td class="mono">${p.metaClicks||0}</td></tr>
-  `).join('') : `<tr><td colspan="4"><div class="empty-state"><i class="fas fa-chart-line"></i><p>Nenhum clique registrado ainda</p></div></td></tr>`;
+  const intervals = [{ id: 'statActive7d', days: 7 },{ id: 'statActive30d', days: 30 },{ id: 'statActive90d', days: 90 }];
+  intervals.forEach(({ id, days }) => {
+    const cutoff = now - days * 24 * 60 * 60 * 1000;
+    const active = usersCache.filter(u => (u.lastAccess || 0) > cutoff && !u.isAdmin);
+    document.getElementById(id).textContent = active.length;
+  });
+
+  const topClicados = products.filter(p => (p.clicks||0) > 0).sort((a,b)=>(b.clicks||0)-(a.clicks||0)).slice(0,6);
+  const body = document.getElementById('topClickedBody');
+  if (topClicados.length === 0) {
+    body.innerHTML = `<tr><td colspan="4"><div class="empty-state"><i class="fas fa-chart-line"></i><p>Nenhum clique registrado ainda</p></div></td></tr>`;
+  } else {
+    body.innerHTML = topClicados.map(p => `<tr><td class="td-name">${esc(p.name)}</td><td>${esc(p.category||'—')}</td><td class="mono">${p.clicks||0}</td><td class="mono">${p.metaClicks||0}</td></tr>`).join('');
+  }
+}
+
+function showActiveUsersModal(days){
+  const now = Date.now(); const cutoff = now - days * 24 * 60 * 60 * 1000;
+  const active = usersCache.filter(u => (u.lastAccess || 0) > cutoff && !u.isAdmin);
+  active.sort((a,b) => (b.lastAccess||0) - (a.lastAccess||0));
+  document.getElementById('activeUsersModalTitle').textContent = `Clientes ativos (últimos ${days} dias) – ${active.length} usuário(s)`;
+  const list = document.getElementById('activeUsersList');
+  if(active.length === 0){ list.innerHTML = `<div class="empty-state"><i class="fas fa-user-slash"></i><p>Nenhum cliente ativo neste período</p></div>`; }
+  else {
+    list.innerHTML = active.map(u => {
+      const avatarHtml = userHasRealPhoto(u) ? `<img src="${u.photoURL}" class="user-avatar-img" title="Clique para ampliar" onclick="openImageViewer(this.src,'${esc(u.name||'')}')">` : `<div class="user-avatar-icon no-photo" title="Sem foto"><i class="fas fa-user"></i></div>`;
+      return `<div class="mini-item">${avatarHtml}<div class="mi-t">${esc(u.name||'Sem nome')} <span style="color:var(--text-dim);font-size:.78rem;">${esc(u.email||'')}</span></div><span class="chip chip-ok">${fmtDate(u.lastAccess)}</span></div>`;
+    }).join('');
+  }
+  openModal('modalActiveUsers');
 }
 
 /* ================= PRODUTOS ================= */
 function updateSelectPopulators(){
-  ['pCategory'].forEach(id=>{
-    const sel=document.getElementById(id); if(!sel) return; const cur=sel.value;
+  ['pCategory'].forEach(id=>{ const sel=document.getElementById(id); if(!sel) return; const cur=sel.value;
     const cats=[...new Set(products.map(p=>p.category).filter(c=>c&&c.trim()!==''))].sort();
     sel.innerHTML='<option value="">Selecione...</option>'+cats.map(c=>`<option value="${esc(c)}">${esc(c)}</option>`).join('')+'<option value="__NEW__">+ Nova categoria...</option>';
-    if(cats.includes(cur)) sel.value=cur;
-  });
-  ['pBrand'].forEach(id=>{
-    const sel=document.getElementById(id); if(!sel) return; const cur=sel.value;
+    if(cats.includes(cur)) sel.value=cur; });
+  ['pBrand'].forEach(id=>{ const sel=document.getElementById(id); if(!sel) return; const cur=sel.value;
     const list=Object.keys(brands).map(k=>brands[k].name).filter(b=>b&&b.trim()!=='').sort();
     sel.innerHTML='<option value="">Selecione...</option>'+list.map(b=>`<option value="${esc(b)}">${esc(b)}</option>`).join('');
-    if(list.includes(cur)) sel.value=cur;
-  });
-  ['pSession'].forEach(id=>{
-    const sel=document.getElementById(id); if(!sel) return; const cur=sel.value;
+    if(list.includes(cur)) sel.value=cur; });
+  ['pSession'].forEach(id=>{ const sel=document.getElementById(id); if(!sel) return; const cur=sel.value;
     const arr=Object.keys(sessions).map(k=>({id:k,...sessions[k]})).sort((a,b)=>(a.order||0)-(b.order||0));
     sel.innerHTML='<option value="">Nenhuma</option>'+arr.map(s=>`<option value="${s.id}">${esc(s.name)}</option>`).join('');
-    if(sessions[cur]) sel.value=cur;
-  });
+    if(sessions[cur]) sel.value=cur; });
   const filterCat=document.getElementById('prodFilterCategory');
   if(filterCat){ const cur=filterCat.value; const cats=[...new Set(products.map(p=>p.category).filter(c=>c&&c.trim()!==''))].sort();
     filterCat.innerHTML='<option value="">Todas categorias</option>'+cats.map(c=>`<option value="${esc(c)}">${esc(c)}</option>`).join('');
     if(cats.includes(cur)) filterCat.value=cur; }
-
   ['impSessionAdm'].forEach(id=>{ const sel=document.getElementById(id); if(!sel) return; const cur=sel.value;
     const arr=Object.keys(sessions).map(k=>({id:k,...sessions[k]})).sort((a,b)=>(a.order||0)-(b.order||0));
     sel.innerHTML='<option value="">— Nenhuma —</option>'+arr.map(s=>`<option value="${s.id}">${esc(s.name)}</option>`).join('');
@@ -1231,13 +1102,11 @@ function renderProducts(){
   const cat=document.getElementById('prodFilterCategory')?.value||'';
   const status=document.getElementById('prodFilterStatus')?.value||'';
   let list=[...products];
-  
   if(text) list=list.filter(p=>[p.name,p.codigo,p.brand,p.category].join(' ').toLowerCase().includes(text));
   if(cat) list=list.filter(p=>p.category===cat);
   if(status==='featured') list=list.filter(p=>p.featured);
   if(status==='soldout') list=list.filter(p=>p.soldOut);
   if(status==='noprice') list=list.filter(p=>(p.prices?.PF||0)===0||(p.prices?.PJ||0)===0);
-  
   list.sort((a,b) => {
     if(a.featured && !b.featured) return -1;
     if(!a.featured && b.featured) return 1;
@@ -1249,18 +1118,16 @@ function renderProducts(){
     if(!aHasPrice && bHasPrice) return 1;
     return (a.name||'').localeCompare(b.name||'');
   });
-  
   const body=document.getElementById('productsTableBody');
   if(list.length===0){ body.innerHTML=`<tr><td colspan="9"><div class="empty-state"><i class="fas fa-box-open"></i><p>Nenhuma peça encontrada</p></div></td></tr>`; return; }
   body.innerHTML=list.map(p=>{
-    const meta=p.metaClicks||0, clicks=p.clicks||0;
-    const pct=meta>0? Math.min(100,Math.round(clicks/meta*100)) : 0;
+    const meta=p.metaClicks||0, clicks=p.clicks||0; const pct=meta>0? Math.min(100,Math.round(clicks/meta*100)) : 0;
     let statusChips='';
     if(p.soldOut) statusChips+='<span class="chip chip-danger">Esgotado</span> ';
     if(p.featured) statusChips+='<span class="chip chip-warn">Destaque</span> ';
     if(!p.soldOut && !p.featured) statusChips='<span class="chip chip-ok">Ativo</span>';
     return `<tr>
-      <td><img class="td-img" src="${p.image||PLACEHOLDER_IMG}" onerror="this.src='${PLACEHOLDER_IMG}'"></td>
+      <td><img class="td-img" src="${p.image||PLACEHOLDER_IMG}" onerror="this.src='${PLACEHOLDER_IMG}'" title="Clique para ampliar" onclick="openImageViewer(this.src,'${esc(p.name)}')"></td>
       <td><div class="td-name">${esc(p.name)}</div><div class="td-sub">${esc(p.codigo||'sem código')}</div></td>
       <td>${esc(p.category||'—')}</td>
       <td>${esc(p.brand||'—')}</td>
@@ -1284,8 +1151,7 @@ function openProductModal(){
   ['pName','pCodigo','pDesc'].forEach(id=>document.getElementById(id).value='');
   document.getElementById('pPricePF').value=''; document.getElementById('pPricePJ').value=''; document.getElementById('pMeta').value=0;
   document.getElementById('pSoldOut').checked=false;
-  resetUpload('prodUploadBox','prodPreview');
-  updateSelectPopulators();
+  resetUpload('prodUploadBox','prodPreview'); updateSelectPopulators();
   setupUpload('prodImgInput','prodUploadBox','prodPreview','prodPreviewImg',url=>uploadedProdImg=url);
   openModal('modalProduto');
 }
@@ -1316,12 +1182,8 @@ function saveProductAdm(){
     clicks:0, metaClicks:parseInt(document.getElementById('pMeta').value)||0,
     prices:{PF:parseFloat(document.getElementById('pPricePF').value)||0, PJ:parseFloat(document.getElementById('pPricePJ').value)||0}
   };
-  if(editingProductId){
-    database.ref(`products/${editingProductId}`).update(data).then(()=>{ showToast('Peça atualizada'); closeModal('modalProduto'); });
-  }else{
-    const id=database.ref().child('products').push().key; data.id=id;
-    database.ref(`products/${id}`).set(data).then(()=>{ showToast('Peça adicionada'); closeModal('modalProduto'); });
-  }
+  if(editingProductId){ database.ref(`products/${editingProductId}`).update(data).then(()=>{ showToast('Peça atualizada'); closeModal('modalProduto'); }); }
+  else { const id=database.ref().child('products').push().key; data.id=id; database.ref(`products/${id}`).set(data).then(()=>{ showToast('Peça adicionada'); closeModal('modalProduto'); }); }
 }
 function toggleFeatureAdm(id){ const p=products.find(x=>x.id===id); if(p) database.ref(`products/${id}/featured`).set(!p.featured); }
 function toggleSoldOutAdm(id){ const p=products.find(x=>x.id===id); if(p) database.ref(`products/${id}/soldOut`).set(!p.soldOut); }
@@ -1349,28 +1211,21 @@ function moveCategoryAdm(categoryName,dir){
   const cats=[...new Set(products.map(p=>p.category).filter(c=>c&&c.trim()!==''))];
   let ordered=[...cats];
   if(categoryOrder.length){ ordered=categoryOrder.filter(c=>cats.includes(c)); const nc=cats.filter(c=>!categoryOrder.includes(c)); ordered=[...ordered,...nc]; }
-  const idx=ordered.indexOf(categoryName);
-  if(idx===-1) return;
-  const newIdx=idx+dir;
-  if(newIdx<0||newIdx>=ordered.length) return;
-  const temp=ordered[idx];
-  ordered[idx]=ordered[newIdx];
-  ordered[newIdx]=temp;
+  const idx=ordered.indexOf(categoryName); if(idx===-1) return;
+  const newIdx=idx+dir; if(newIdx<0||newIdx>=ordered.length) return;
+  const temp=ordered[idx]; ordered[idx]=ordered[newIdx]; ordered[newIdx]=temp;
   database.ref('settings/categoryOrder').set(ordered).then(()=>showToast('Ordem atualizada'));
 }
 function renameCategoryAdm(oldName){
-  const novo=prompt('Novo nome da categoria:',oldName);
-  if(!novo||!novo.trim()||novo.trim()===oldName) return;
-  const newName=novo.trim();
-  const updates={};
+  const novo=prompt('Novo nome da categoria:',oldName); if(!novo||!novo.trim()||novo.trim()===oldName) return;
+  const newName=novo.trim(); const updates={};
   products.forEach(p=>{ if(p.category===oldName) updates[`products/${p.id}/category`]=newName; });
   updates['settings/categoryOrder']=categoryOrder.map(c=>c===oldName?newName:c);
   database.ref().update(updates).then(()=>showToast('Categoria renomeada'));
 }
 function deleteCategoryAdm(name){
   if(!confirm(`Excluir a categoria "${name}"? As peças ficarão sem categoria.`)) return;
-  const updates={};
-  products.forEach(p=>{ if(p.category===name) updates[`products/${p.id}/category`]=''; });
+  const updates={}; products.forEach(p=>{ if(p.category===name) updates[`products/${p.id}/category`]=''; });
   updates['settings/categoryOrder']=categoryOrder.filter(c=>c!==name);
   database.ref().update(updates).then(()=>showToast('Categoria removida'));
 }
@@ -1584,6 +1439,111 @@ function salvarPromoAdm(){
   else { const id=database.ref().child('promocoes').push().key; data.id=id; database.ref(`promocoes/${id}`).set(data).then(()=>{ showToast('Promoção criada'); closeModal('modalPromo'); }); }
 }
 
+/* ================= CUPONS ================= */
+function renderCoupons(){
+  const keys=Object.keys(cupons); const body=document.getElementById('couponTableBody'); const now=Date.now();
+  if(keys.length===0){ body.innerHTML=`<tr><td colspan="7"><div class="empty-state"><i class="fas fa-ticket"></i><p>Nenhum cupom cadastrado ainda</p></div></td></tr>`; return; }
+  const sorted = keys.map(id=>({id,...cupons[id]})).sort((a,b)=>(b.criadoEm||0)-(a.criadoEm||0));
+  body.innerHTML=sorted.map(c=>{
+    const expired = c.expiracao && c.expiracao < now;
+    const limitReached = c.limite > 0 && (c.usos||0) >= c.limite;
+    let status;
+    if(!c.ativo) status = '<span class="chip chip-mut">Inativo</span>';
+    else if(expired) status = '<span class="chip chip-danger">Expirado</span>';
+    else if(limitReached) status = '<span class="chip chip-warn">Limite atingido</span>';
+    else status = '<span class="chip chip-ok">Ativo</span>';
+    const usosTxt = c.limite > 0 ? `${c.usos||0}/${c.limite}` : `${c.usos||0} <span style="color:var(--text-dim);">livre</span>`;
+    const publico = c.tipoCliente === 'ambos' ? 'Ambos' : (c.tipoCliente === 'PF' ? 'Pessoa Física' : 'Pessoa Jurídica');
+    const pct = c.limite > 0 ? Math.min(100, Math.round((c.usos||0)/c.limite*100)) : 0;
+    return `<tr>
+      <td><span class="coupon-code">${esc(c.codigo)}</span></td>
+      <td class="mono" style="font-weight:600;color:var(--accent);">${c.desconto}%</td>
+      <td>${publico}</td>
+      <td class="td-sub">${fmtDate(c.expiracao)}</td>
+      <td>
+        <div class="coupon-usage-bar">
+          <span class="mono" style="font-size:.78rem;">${usosTxt}</span>
+          ${c.limite > 0 ? `<div class="progress-track"><div class="progress-fill" style="width:${pct}%"></div></div>` : ''}
+        </div>
+      </td>
+      <td>${status}</td>
+      <td><div class="row-actions">
+        <button class="btn btn-icon btn-ghost" onclick="toggleCouponAdm('${c.id}')" title="${c.ativo?'Desativar':'Ativar'}"><i class="fas ${c.ativo?'fa-toggle-on':'fa-toggle-off'}"></i></button>
+        <button class="btn btn-icon btn-ghost" onclick="openCouponModal('${c.id}')" title="Editar"><i class="fas fa-pencil"></i></button>
+        <button class="btn btn-icon btn-danger" onclick="deleteCouponAdm('${c.id}')" title="Excluir"><i class="fas fa-trash"></i></button>
+      </div></td>
+    </tr>`;
+  }).join('');
+}
+
+function toggleCouponAdm(id){
+  const c = cupons[id]; if(!c) return;
+  database.ref(`cupons/${id}/ativo`).set(!c.ativo).then(()=>showToast(c.ativo ? 'Cupom desativado' : 'Cupom ativado'));
+}
+
+function deleteCouponAdm(id){
+  const c = cupons[id]; if(!c) return;
+  if(!confirm(`Excluir o cupom "${c.codigo}"? Os clientes que o aplicaram perderão o desconto.`)) return;
+  // Remove dos usuários que aplicaram
+  const usersWithCoupon = usersCache.filter(u => u.cupomAtivo && u.cupomAtivo.cupomId === id);
+  const updates = {};
+  updates[`cupons/${id}`] = null;
+  usersWithCoupon.forEach(u => { updates[`users/${u.uid}/cupomAtivo`] = null; });
+  database.ref().update(updates).then(()=>showToast('Cupom excluído'));
+}
+
+function openCouponModal(editId=null){
+  editingCouponId = editId;
+  document.getElementById('modalCupomTitle').textContent = editId ? 'Editar cupom' : 'Novo cupom';
+  if(editId && cupons[editId]){
+    const c = cupons[editId];
+    document.getElementById('cpCodigo').value = c.codigo || '';
+    document.getElementById('cpDesconto').value = c.desconto || '';
+    document.getElementById('cpTipoCliente').value = c.tipoCliente || 'ambos';
+    document.getElementById('cpLimite').value = c.limite || 0;
+    document.getElementById('cpExpiracao').value = c.expiracao ? new Date(c.expiracao).toISOString().slice(0,16) : '';
+  } else {
+    document.getElementById('cpCodigo').value = '';
+    document.getElementById('cpDesconto').value = '';
+    document.getElementById('cpTipoCliente').value = 'ambos';
+    document.getElementById('cpLimite').value = 0;
+    document.getElementById('cpExpiracao').value = '';
+  }
+  openModal('modalCupom');
+}
+
+function saveCouponAdm(){
+  const codigo = document.getElementById('cpCodigo').value.trim().toUpperCase();
+  const desconto = parseFloat(document.getElementById('cpDesconto').value);
+  const tipoCliente = document.getElementById('cpTipoCliente').value;
+  const limite = parseInt(document.getElementById('cpLimite').value) || 0;
+  const expStr = document.getElementById('cpExpiracao').value;
+
+  if(!codigo){ showToast('Informe o código do cupom','err'); return; }
+  if(codigo.length < 3){ showToast('O código deve ter pelo menos 3 caracteres','err'); return; }
+  if(!desconto || desconto <= 0 || desconto > 100){ showToast('Desconto deve ser entre 1 e 100','err'); return; }
+  if(!expStr){ showToast('Defina a data de expiração','err'); return; }
+  if(limite < 0){ showToast('Limite não pode ser negativo','err'); return; }
+  const expiracao = new Date(expStr).getTime();
+  if(expiracao < Date.now()){ showToast('A data deve ser futura','err'); return; }
+
+  const prev = editingCouponId ? cupons[editingCouponId] : null;
+  const data = {
+    codigo, desconto, tipoCliente, limite, expiracao,
+    ativo: prev ? (prev.ativo !== false) : true,
+    usos: prev ? (prev.usos || 0) : 0,
+    usuariosUsaram: prev ? (prev.usuariosUsaram || {}) : {},
+    criadoEm: prev ? (prev.criadoEm || Date.now()) : Date.now()
+  };
+
+  if(editingCouponId){
+    database.ref(`cupons/${editingCouponId}`).update(data).then(()=>{ showToast('Cupom atualizado'); closeModal('modalCupom'); });
+  } else {
+    const id = database.ref().child('cupons').push().key;
+    database.ref(`cupons/${id}`).set(data).then(()=>{ showToast('Cupom criado'); closeModal('modalCupom'); });
+  }
+}
+
 /* ================= IMPORTAÇÃO ================= */
 function switchImportTab(tab){
   importTab=tab;
@@ -1717,50 +1677,126 @@ function renderMetaAchievements(){
   body.innerHTML=metaAchievements.map(a=>`<tr><td class="td-name">${esc(a.productName)}</td><td class="td-sub">${a.date||''} ${a.time||''}</td></tr>`).join('');
 }
 function clearMetaAchievementsAdm(){ if(confirm('Limpar todos os registros de metas?')) database.ref('metaAchievements').remove().then(()=>showToast('Registros limpos')); }
+
+function resetProductClicksAdm(){
+  if(products.length === 0){ showToast('Nenhum produto cadastrado para resetar', 'err'); return; }
+  if(!confirm('Resetar os cliques de todas as peças? Isso removerá os destaques automáticos, mas manterá o histórico de cliques e metas.')) return;
+  showLoading('Resetando cliques das peças...');
+  try{
+    const updates={};
+    products.forEach(p=>{ updates[`products/${p.id}/clicks`] = 0; updates[`products/${p.id}/featured`] = false; });
+    database.ref().update(updates).then(()=>{ hideLoading(); showToast('Cliques das peças resetados (histórico mantido)'); renderDashboard(); renderProducts(); }).catch(err=>{ hideLoading(); console.error('Erro ao resetar cliques:', err); showToast('Erro ao resetar: '+err.message, 'err'); });
+  } catch(e){ hideLoading(); console.error('Erro inesperado:', e); showToast('Erro inesperado: '+e.message, 'err'); }
+}
 function resetAllClicksAdm(){
-  if(!confirm('Resetar todos os cliques de todas as peças? Isso também remove destaques por meta.')) return;
-  const updates={}; products.forEach(p=>{ updates[`products/${p.id}/clicks`]=0; updates[`products/${p.id}/featured`]=false; });
-  updates['categoryClicks']=null; updates['sessionClicks']=null; updates['brandClicks']=null; updates['clickLogs']=null; updates['metaAchievements']=null;
-  database.ref().update(updates).then(()=>showToast('Todos os cliques foram resetados'));
+  if(!confirm('Resetar TODOS os cliques (incluindo histórico e metas batidas)? Esta ação é irreversível.')) return;
+  showLoading('Resetando tudo...');
+  try{
+    const updates={}; products.forEach(p=>{ updates[`products/${p.id}/clicks`]=0; updates[`products/${p.id}/featured`]=false; });
+    updates['categoryClicks']=null; updates['sessionClicks']=null; updates['brandClicks']=null; updates['clickLogs']=null; updates['metaAchievements']=null;
+    database.ref().update(updates).then(()=>{ hideLoading(); showToast('Todos os cliques e históricos foram resetados'); renderDashboard(); renderProducts(); }).catch(err=>{ hideLoading(); console.error('Erro no reset completo:', err); showToast('Erro: '+err.message, 'err'); });
+  } catch(e){ hideLoading(); console.error('Erro inesperado:', e); showToast('Erro: '+e.message, 'err'); }
 }
 
 /* ================= USUÁRIOS ================= */
-function switchUsersTabAdm(tab){ usersTab=tab; document.querySelectorAll('[data-usertab]').forEach(b=>b.classList.toggle('active',b.dataset.usertab===tab)); renderUsers(); }
+function getUserOrigin(u){
+  if(!u) return 'manual';
+  if(u.authProvider === 'google.com') return 'google.com';
+  if(u.authProvider && u.authProvider !== 'google.com') return 'manual';
+  if(u.photoURL && u.photoURL.includes('googleusercontent')) return 'google.com';
+  if(u.mustChangePassword) return 'manual';
+  return 'manual';
+}
+function sendEmailToUser(uid){
+  const u = usersCache.find(x => x.uid === uid);
+  if(!u || !u.email){ showToast('E-mail não encontrado','err'); return; }
+  const subject = encodeURIComponent('CIM · Contato');
+  const body = encodeURIComponent(`Olá ${u.name||''},\n\n`);
+  window.location.href = `mailto:${u.email}?subject=${subject}&body=${body}`;
+}
+function switchUsersTabAdm(tab){
+  usersTab=tab;
+  document.querySelectorAll('[data-usertab]').forEach(b=>b.classList.toggle('active',b.dataset.usertab===tab));
+  if(tab === 'novos'){ database.ref('settings/lastSeenNewUsers').set(Date.now()); }
+  renderUsers();
+}
+function toggleUserDetails(uid) {
+  const row = document.getElementById(`detail-row-${uid}`);
+  if (!row) return;
+  const isHidden = row.style.display === 'none' || row.style.display === '';
+  row.style.display = isHidden ? 'table-row' : 'none';
+}
 function renderUsers(){
   const list=document.getElementById('usersListAdm');
-  let filtered=usersCache.filter(u=>u.userType===usersTab);
-  const now=Date.now();
-  filtered.sort((a,b) => {
-    const aOnline = (now - (a.lastAccess||0)) < 5*60*1000;
-    const bOnline = (now - (b.lastAccess||0)) < 5*60*1000;
-    if(aOnline && !bOnline) return -1;
-    if(!aOnline && bOnline) return 1;
-    return (b.lastAccess||0) - (a.lastAccess||0);
-  });
-  if(filtered.length===0){ list.innerHTML=`<div class="empty-state"><i class="fas fa-users"></i><p>Nenhum usuário ${usersTab==='PF'?'pessoa física':'pessoa jurídica'} cadastrado</p></div>`; return; }
-  list.innerHTML=`<div class="block"><div class="block-body tight"><table>
-    <thead><tr><th></th><th>Nome</th><th>Documento</th><th>Telefone</th><th>Status</th><th>Último acesso</th><th></th></tr></thead>
-    <tbody>${filtered.map(u=>{
-      const now=Date.now(); const online=(now-(u.lastAccess||0))<5*60*1000;
-      const doc = u.userType==='PF'? (u.cpf||'—') : (u.cnpj||'—');
-      const phone = u.telefone || '—';
-      const lastAccess = u.lastAccess ? `${fmtDate(u.lastAccess)} ${fmtTime(u.lastAccess)}` : '—';
-      const avatarHtml = `<div class="user-avatar-icon"><i class="fas fa-user"></i></div>`;
-      return `<tr>
-        <td>${avatarHtml}</td>
-        <td><div class="td-name">${esc(u.name||'Sem nome')}</div><div class="td-sub">${esc(u.email||'')}</div></td>
-        <td class="mono">${esc(doc)}</td>
-        <td>${phone!=='—'?`<a href="https://wa.me/55${phone}" target="_blank" style="color:var(--ok)"><i class="fab fa-whatsapp"></i> ${esc(phone)}</a>`:'—'}</td>
-        <td><span class="chip ${online?'chip-ok':'chip-mut'}">${online?'Online':'Offline'}</span></td>
-        <td class="td-sub">${lastAccess}</td>
-        <td><div class="row-actions">
-          ${!u.isAdmin?`<button class="btn btn-icon btn-ghost" title="Alterar tipo" onclick="changeUserTypeAdm('${u.uid}')"><i class="fas fa-right-left"></i></button>
+  let filtered=[]; const now=Date.now();
+  if(usersTab==='online'){ filtered = usersCache.filter(u => (now - (u.lastAccess||0)) < 5*60*1000); }
+  else if(usersTab==='novos'){ const lastSeen = window._lastSeenNewUsers || 0; const cutoff = now - 7 * 24 * 60 * 60 * 1000;
+    filtered = usersCache.filter(u => { if(u.isAdmin) return false; const createdAt = u.createdAt || 0; return createdAt > cutoff && createdAt > lastSeen; });
+    filtered.sort((a,b) => (b.createdAt||0) - (a.createdAt||0)); }
+  else if(usersTab==='google'){ filtered = usersCache.filter(u => getUserOrigin(u) === 'google.com' && !u.isAdmin); }
+  else if(usersTab==='manual'){ filtered = usersCache.filter(u => getUserOrigin(u) !== 'google.com' && !u.isAdmin); }
+  else { filtered = usersCache.filter(u => u.userType===usersTab); }
+  filtered.sort((a,b) => { const aOnline = (now - (a.lastAccess||0)) < 5*60*1000; const bOnline = (now - (b.lastAccess||0)) < 5*60*1000;
+    if(aOnline && !bOnline) return -1; if(!aOnline && bOnline) return 1; return (b.lastAccess||0) - (a.lastAccess||0); });
+  if(filtered.length===0){
+    let msg = usersTab==='online' ? 'Nenhum usuário online no momento' :
+               usersTab==='novos' ? 'Nenhum novo cliente nos últimos 7 dias' :
+               usersTab==='google' ? 'Nenhum usuário autenticado via Google' :
+               usersTab==='manual' ? 'Nenhum usuário de cadastro manual' :
+               `Nenhum usuário ${usersTab==='PF'?'pessoa física':'pessoa jurídica'} cadastrado`;
+    list.innerHTML=`<div class="empty-state"><i class="fas fa-users"></i><p>${msg}</p></div>`; return;
+  }
+  let html = `<div class="block"><div class="block-body tight"><table>
+    <thead><tr><th></th><th>Nome</th><th>Documento</th><th>Telefone</th><th>Origem</th><th>Status</th><th>Último acesso</th><th></th></tr></thead><tbody>`;
+  filtered.forEach(u=>{
+    const online=(now-(u.lastAccess||0))<5*60*1000;
+    const doc = u.userType==='PF'? (u.cpf||'—') : (u.cnpj||'—');
+    const phone = u.telefone || '—';
+    const lastAccess = u.lastAccess ? `${fmtDate(u.lastAccess)} ${fmtTime(u.lastAccess)}` : '—';
+    const origin = getUserOrigin(u);
+    const originChip = origin === 'google.com' ? `<span class="chip chip-google"><i class="fab fa-google"></i> Google</span>` : `<span class="chip chip-mut"><i class="fas fa-user-plus"></i> Manual</span>`;
+    const hasPhoto = userHasRealPhoto(u);
+    const avatarHtml = hasPhoto ? `<img src="${u.photoURL}" class="user-avatar-img" title="Clique para ampliar" onclick="openImageViewer(this.src,'${esc(u.name||'')}')">` : `<div class="user-avatar-icon no-photo" title="Sem foto"><i class="fas fa-user"></i></div>`;
+    const address = u.logradouro ? `${u.logradouro}, ${u.numero || 'S/N'}${u.complemento ? ', '+u.complemento : ''}, ${u.bairro || ''}, ${u.cidade || ''}-${u.uf || ''}` : '—';
+    const cep = u.cep ? u.cep.replace(/^(\d{5})(\d{3})$/, '$1-$2') : '—';
+    const nomeFantasia = u.nome_fantasia || '—';
+    const situacao = u.situacao_cadastral || '—';
+    html += `<tr data-uid="${u.uid}">
+      <td>${avatarHtml}</td>
+      <td><div class="td-name" style="cursor:pointer;color:var(--accent);" onclick="toggleUserDetails('${u.uid}')">${esc(u.name||'Sem nome')}</div><div class="td-sub">${esc(u.email||'')}</div></td>
+      <td class="mono">${esc(doc)}</td>
+      <td>${phone!=='—'?`<a href="https://wa.me/55${phone}" target="_blank" style="color:var(--ok)"><i class="fab fa-whatsapp"></i> ${esc(phone)}</a>`:'—'}</td>
+      <td>${originChip}</td>
+      <td><span class="chip ${online?'chip-ok':'chip-mut'}">${online?'Online':'Offline'}</span></td>
+      <td class="td-sub">${lastAccess}</td>
+      <td><div class="row-actions">
+        ${!u.isAdmin?`
+          <button class="btn btn-icon btn-ghost" title="Enviar e-mail" onclick="sendEmailToUser('${u.uid}')" style="color:var(--accent);"><i class="fas fa-envelope"></i></button>
+          <button class="btn btn-icon btn-ghost" title="Alterar tipo" onclick="changeUserTypeAdm('${u.uid}')"><i class="fas fa-right-left"></i></button>
           <button class="btn btn-icon btn-ghost" title="Aplicar promoção" onclick="applyPromoUserAdm('${u.uid}')"><i class="fas fa-percent"></i></button>
-          <button class="btn btn-icon btn-danger" title="Excluir" onclick="deleteUserAdm('${u.uid}')"><i class="fas fa-trash"></i></button>`:'<span class="chip chip-warn">Admin</span>'}
-        </div></td>
-      </tr>`;
-    }).join('')}</tbody></table></div></div>`;
+          <button class="btn btn-icon btn-danger" title="Excluir" onclick="deleteUserAdm('${u.uid}')"><i class="fas fa-trash"></i></button>
+        `:'<span class="chip chip-warn">Admin</span>'}
+      </div></td>
+    </tr>`;
+    html += `<tr id="detail-row-${u.uid}" class="user-detail-row" style="display:none;">
+      <td colspan="8">
+        <div class="detail-content">
+          <div class="detail-item"><label>Endereço completo</label><span>${esc(address)}</span></div>
+          <div class="detail-item"><label>CEP</label><span class="mono">${esc(cep)}</span></div>
+          <div class="detail-item"><label>Origem do cadastro</label><span>${origin==='google.com'?'Autenticação Google':'Cadastro manual'}</span></div>
+          ${u.userType==='PJ' ? `<div class="detail-item"><label>Nome fantasia</label><span>${esc(nomeFantasia)}</span></div><div class="detail-item"><label>Situação cadastral</label><span>${esc(situacao)}</span></div>` : ''}
+          ${u.complemento ? `<div class="detail-item"><label>Complemento</label><span>${esc(u.complemento)}</span></div>` : ''}
+          ${u.bairro ? `<div class="detail-item"><label>Bairro</label><span>${esc(u.bairro)}</span></div>` : ''}
+          ${u.cidade ? `<div class="detail-item"><label>Cidade / UF</label><span>${esc(u.cidade)}${u.uf ? '-'+esc(u.uf) : ''}</span></div>` : ''}
+        </div>
+      </td>
+    </tr>`;
+  });
+  html += `</tbody></table></div></div>`;
+  list.innerHTML = html;
 }
+database.ref('settings/lastSeenNewUsers').on('value', snap => { window._lastSeenNewUsers = snap.val() || 0; if(usersTab === 'novos') renderUsers(); });
+
 function deleteUserAdm(uid){
   if(!confirm('Excluir este usuário permanentemente?')) return;
   if(currentAdmin && uid===currentAdmin.uid){ showToast('Não é possível excluir o próprio usuário','err'); return; }
@@ -1801,26 +1837,18 @@ async function createClientAdm(){
   if(type==='PF'&&cpf.length!==11){ errEl.textContent='CPF deve ter 11 dígitos.'; return; }
   if(type==='PJ'&&cnpj.length!==14){ errEl.textContent='CNPJ deve ter 14 dígitos.'; return; }
   if(!pass||pass.length<6){ pass=Math.random().toString(36).slice(-8)+'A1!'; document.getElementById('ccPass').value=pass; }
-  try{
-    const methods=await auth.fetchSignInMethodsForEmail(email);
-    if(methods.length>0){ errEl.textContent='Este e-mail já está em uso.'; return; }
-  }catch(e){ errEl.textContent='Erro ao verificar e-mail.'; return; }
+  try{ const methods=await auth.fetchSignInMethodsForEmail(email); if(methods.length>0){ errEl.textContent='Este e-mail já está em uso.'; return; } }catch(e){ errEl.textContent='Erro ao verificar e-mail.'; return; }
   showLoading('Criando cliente...');
   try{
     const cred=await auth.createUserWithEmailAndPassword(email,pass);
-    const userData={ email, name, photoURL:DEFAULT_AVATAR, telefone, userType:type, cpf:type==='PF'?cpf:'', cnpj:type==='PJ'?cnpj:'', companyData:null, isAdmin:false, mustChangePassword:true, createdAt:Date.now(), lastAccess:Date.now() };
+    const userData={ email, name, photoURL:'', authProvider:'manual', telefone, userType:type, cpf:type==='PF'?cpf:'', cnpj:type==='PJ'?cnpj:'', companyData:null, isAdmin:false, mustChangePassword:true, createdAt:Date.now(), lastAccess:Date.now() };
     await database.ref(`users/${cred.user.uid}`).set(userData);
-    hideLoading(); closeModal('modalCliente');
-    showToast(`Cliente ${name} criado. Senha: ${pass}`);
-    auth.updateCurrentUser && null;
+    hideLoading(); closeModal('modalCliente'); showToast(`Cliente ${name} criado. Senha: ${pass}`);
   }catch(e){ hideLoading(); errEl.textContent='Erro ao criar conta: '+e.message; }
 }
 
 /* ================= PERFIL / CONTATOS ================= */
-setupUpload('profileImgInputAdm','profileUploadBoxAdm','profilePreviewAdm','profilePreviewImgAdm',url=>{
-  uploadedProfileImg=url;
-  updateBrandLogo(url);
-});
+setupUpload('profileImgInputAdm','profileUploadBoxAdm','profilePreviewAdm','profilePreviewImgAdm',url=>{ uploadedProfileImg=url; updateBrandLogo(url); });
 function saveProfileAdm(){
   const data={ name:document.getElementById('profNameAdm').value.trim()||'CIM Peças', subtitle:document.getElementById('profSubAdm').value.trim(),
     message:document.getElementById('profMsgAdm').value.trim(), photo:uploadedProfileImg||DEFAULT_AVATAR };
