@@ -5,10 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Tela de Login e Cadastro — CIM</title>
 
-    <!-- PRE-CARREGAMENTO DA LOGO -->
     <link rel="preload" as="image" href="https://i.postimg.cc/PrWKgyHX/Branco-PNG.png" fetchpriority="high" type="image/png">
 
-    <!-- Preconnects -->
     <link rel="preconnect" href="https://i.postimg.cc" crossorigin>
     <link rel="preconnect" href="https://cdn.tailwindcss.com" crossorigin>
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -20,7 +18,6 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
-    <!-- Firebase SDKs (compat) -->
     <script defer src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script defer src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
     <script defer src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
@@ -36,6 +33,11 @@
         }
     </script>
     <style>
+        html, body {
+            overflow-x: hidden;
+            max-width: 100vw;
+        }
+
         @keyframes scrollUp {
             0% { transform: translateY(0); }
             100% { transform: translateY(-50%); }
@@ -135,39 +137,64 @@
             0%, 100% { opacity: 0.7; transform: scale(1); }
             50% { opacity: 0.9; transform: scale(1.08); }
         }
+
         .glow-ball {
             position: absolute;
-            bottom: -180px;
-            left: calc(50% - 250px);
-            width: 500px;
-            height: 500px;
+            bottom: -120px;
+            left: calc(50% - 125px);
+            width: 250px;
+            height: 250px;
             background: radial-gradient(circle, rgba(255, 255, 255, 0.18) 0%, rgba(255, 255, 255, 0.08) 35%, rgba(255, 255, 255, 0.02) 60%, transparent 75%);
             border-radius: 50%;
-            filter: blur(40px);
+            filter: blur(30px);
             pointer-events: none;
             animation: pulseBall 6s ease-in-out infinite;
             transition: left 1s cubic-bezier(0.65, 0, 0.35, 1);
             z-index: 1;
             will-change: left;
         }
-        .glow-ball.moved-left { left: -220px; }
+        @media (min-width: 1024px) {
+            .glow-ball {
+                bottom: -180px;
+                left: calc(50% - 250px);
+                width: 500px;
+                height: 500px;
+                filter: blur(40px);
+            }
+        }
+        .glow-ball.moved-left { left: -160px; }
+        @media (min-width: 1024px) {
+            .glow-ball.moved-left { left: -220px; }
+        }
 
         .glow-ball-sm {
             position: absolute;
-            bottom: -120px;
-            left: calc(50% - 140px);
-            width: 280px;
-            height: 280px;
+            bottom: -80px;
+            left: calc(50% - 70px);
+            width: 140px;
+            height: 140px;
             background: radial-gradient(circle, rgba(255, 255, 255, 0.35) 0%, rgba(255, 255, 255, 0.15) 40%, transparent 70%);
             border-radius: 50%;
-            filter: blur(30px);
+            filter: blur(22px);
             pointer-events: none;
             animation: pulseBall 5s ease-in-out infinite;
             transition: left 1s cubic-bezier(0.65, 0, 0.35, 1);
             z-index: 2;
             will-change: left;
         }
-        .glow-ball-sm.moved-left { left: -110px; }
+        @media (min-width: 1024px) {
+            .glow-ball-sm {
+                bottom: -120px;
+                left: calc(50% - 140px);
+                width: 280px;
+                height: 280px;
+                filter: blur(30px);
+            }
+        }
+        .glow-ball-sm.moved-left { left: -80px; }
+        @media (min-width: 1024px) {
+            .glow-ball-sm.moved-left { left: -110px; }
+        }
 
         @keyframes cooldownPulse {
             0%, 100% { opacity: 1; }
@@ -184,21 +211,21 @@
 <body class="h-full bg-darkbg text-white flex overflow-hidden font-sans relative">
 
     <!-- LADO ESQUERDO -->
-    <div class="w-full lg:w-[45%] h-full relative z-20 overflow-y-auto no-scrollbar bg-gradient-to-r from-darkbg via-darkbg/95 to-transparent">
+    <div class="w-full lg:w-[45%] h-full relative z-20 overflow-y-auto overflow-x-hidden no-scrollbar bg-gradient-to-r from-darkbg via-darkbg/95 to-transparent">
         
-        <div id="heroHeader" class="px-6 sm:px-12 lg:px-20 pt-10 pb-4">
-            <div class="max-w-md mx-auto lg:mx-0">
-                <div class="flex justify-start mb-4 anim-fade-left">
+        <div id="heroHeader" class="px-5 sm:px-8 lg:px-20 pt-10 pb-4">
+            <div class="max-w-md mx-auto text-center lg:text-left lg:mx-0">
+                <div class="flex justify-center lg:justify-start mb-4 anim-fade-left">
                     <img src="https://i.postimg.cc/PrWKgyHX/Branco-PNG.png" alt="Logo" class="h-14 w-auto object-contain anim-float" onerror="this.style.display='none'">
                 </div>
-                <h1 class="text-5xl font-bold text-white tracking-tight text-left leading-tight anim-fade-left delay-1">Conecte-se à CIM</h1>
-                <p class="text-sm text-gray-400 mt-3 text-left leading-relaxed anim-fade-left delay-2">
+                <h1 class="text-4xl sm:text-5xl font-bold text-white tracking-tight leading-tight anim-fade-left delay-1">Conecte-se à CIM</h1>
+                <p class="text-sm text-gray-400 mt-3 leading-relaxed anim-fade-left delay-2">
                     Acesse sua <strong class="text-white font-bold">conta</strong> e tenha tudo o que precisa para gerenciar seus <strong class="text-white font-bold">pedidos</strong>, peças e <strong class="text-white font-bold">informações</strong> em um só lugar.
                 </p>
             </div>
         </div>
 
-        <div class="px-6 sm:px-12 lg:px-20 pb-10 relative">
+        <div class="px-5 sm:px-8 lg:px-20 pb-10 relative">
             <div class="w-full max-w-md mx-auto lg:mx-0 relative pt-2">
 
                 <div id="messageBox" class="hidden mb-6 p-4 rounded-2xl text-sm flex items-center gap-3 transition-all duration-150">
@@ -248,7 +275,7 @@
                         <p id="loginCooldownMsg" class="hidden text-[11px] font-medium mt-1"></p>
                     </div>
 
-                    <p class="text-[11px] text-gray-500 leading-relaxed text-left anim-fade-up delay-5">
+                    <p class="text-[11px] text-gray-500 leading-relaxed text-center lg:text-left anim-fade-up delay-5">
                         Ao continuar, você concorda com a 
                         <a href="#" onclick="openPrivacy(event)" class="text-gray-300 underline hover:text-white transition-colors">Política de Privacidade e os Termos</a> 
                         de Serviço da CIM.
@@ -486,7 +513,7 @@
                 <img src="https://picsum.photos/seed/9/600/600" class="w-full aspect-square object-cover rounded-none border border-white/5 shadow-2xl" alt="Gallery 9">
                 <img src="https://picsum.photos/seed/10/600/600" class="w-full aspect-square object-cover rounded-none border border-white/5 shadow-2xl" alt="Gallery 10">
                 <img src="https://picsum.photos/seed/11/600/600" class="w-full aspect-square object-cover rounded-none border border-white/5 shadow-2xl" alt="Gallery 11">
-                <img src="https://picsum.photos/seed/12/600/600" class="w-full aspect-square rounded-none border border-white/5 shadow-2xl" alt="Gallery 12">
+                <img src="https://picsum.photos/seed/12/600/600" class="w-full aspect-square object-cover rounded-none border border-white/5 shadow-2xl" alt="Gallery 12">
             </div>
             
         </div>
@@ -509,9 +536,6 @@
         let auth = null;
         let database = null;
 
-        /* =========================================================
-           ESTADO GLOBAL
-           ========================================================= */
         let currentPersonType = '';
         let currentView = 'login';
         let modoGoogleCadastro = false;
@@ -580,10 +604,10 @@
                 if (remaining <= 0) {
                     stopCooldownTicker(key);
                     if (feedbackEl) {
-                        feedbackEl.textContent = '✓ Você já pode tentar novamente.';
+                        feedbackEl.textContent = 'Você já pode tentar novamente.';
                         feedbackEl.className = 'text-[11px] text-emerald-400 mt-1 font-medium block anim-bounce';
                         setTimeout(() => {
-                            if (feedbackEl.textContent.startsWith('✓')) feedbackEl.classList.add('hidden');
+                            if (feedbackEl.textContent.startsWith('Você já pode')) feedbackEl.classList.add('hidden');
                         }, 4000);
                     }
                     return;
@@ -623,9 +647,9 @@
         }
 
         /* =========================================================
-           MENSAGENS
+           MENSAGENS (apenas erro agora)
            ========================================================= */
-        function showMessage(message, type = 'success') {
+        function showMessage(message, type = 'error') {
             const messageBox = document.getElementById('messageBox');
             const messageText = document.getElementById('messageText');
             const messageIcon = document.getElementById('messageIcon');
@@ -633,19 +657,20 @@
             messageText.textContent = message;
             messageBox.classList.remove('anim-shake', 'anim-bounce');
 
-            if (type === 'success') {
-                messageBox.className = 'mb-6 p-4 rounded-2xl text-sm flex items-center gap-3 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 transition-all duration-300 anim-bounce';
-                messageIcon.className = 'fa-solid fa-circle-check text-lg text-emerald-400';
-            } else {
-                messageBox.className = 'mb-6 p-4 rounded-2xl text-sm flex items-center gap-3 bg-rose-500/10 border border-rose-500/20 text-rose-400 transition-all duration-300 anim-shake';
-                messageIcon.className = 'fa-solid fa-triangle-exclamation text-lg text-rose-400';
-            }
+            // Só existe estilo de erro agora
+            messageBox.className = 'mb-6 p-4 rounded-2xl text-sm flex items-center gap-3 bg-rose-500/10 border border-rose-500/20 text-rose-400 transition-all duration-300 anim-shake';
+            messageIcon.className = 'fa-solid fa-triangle-exclamation text-lg text-rose-400';
+
             messageBox.classList.remove('hidden');
             void messageBox.offsetWidth;
         }
 
+        function hideMessage() {
+            document.getElementById('messageBox').classList.add('hidden');
+        }
+
         /* =========================================================
-           UTILITÁRIOS DE UI
+           UTILITÁRIOS
            ========================================================= */
         function togglePassword(inputId, button) {
             const input = document.getElementById(inputId);
@@ -680,7 +705,7 @@
         }
 
         /* =========================================================
-           NAVEGAÇÃO ENTRE VIEWS (com animação)
+           NAVEGAÇÃO
            ========================================================= */
         function switchView(view) {
             if (currentView === view) return;
@@ -699,9 +724,13 @@
             const outForm = goingToRegister ? loginForm : registerForm;
             const inForm  = goingToRegister ? registerForm : loginForm;
 
+            const isMobile = window.innerWidth < 1024;
+            const slideOut = isMobile ? 'translateY(-20px)' : (goingToRegister ? 'translateX(-40px)' : 'translateX(40px)');
+            const slideIn  = isMobile ? 'translateY(20px)'  : (goingToRegister ? 'translateX(40px)'  : 'translateX(-40px)');
+
             outForm.classList.add('form-transition');
             outForm.style.opacity = '0';
-            outForm.style.transform = goingToRegister ? 'translateX(-40px)' : 'translateX(40px)';
+            outForm.style.transform = slideOut;
 
             if (goingToRegister) {
                 heroHeader.classList.add('form-transition');
@@ -733,16 +762,15 @@
                 inForm.classList.remove('hidden');
                 inForm.classList.add('form-transition');
                 inForm.style.opacity = '0';
-                inForm.style.transform = goingToRegister ? 'translateX(40px)' : 'translateX(-40px)';
+                inForm.style.transform = slideIn;
                 void inForm.offsetWidth;
                 inForm.style.opacity = '1';
-                inForm.style.transform = 'translateX(0)';
+                inForm.style.transform = 'translateX(0) translateY(0)';
             }, 400);
 
             if (goingToRegister) {
                 resetPersonTypeSelection();
             } else {
-                // Se voltou para login, sai do modo Google
                 modoGoogleCadastro = false;
                 usuarioGoogle = null;
                 const senhaContainer = document.getElementById('senhaContainer');
@@ -826,7 +854,6 @@
             document.getElementById('docApiFeedback').classList.add('hidden');
             document.getElementById('cepApiFeedback').classList.add('hidden');
 
-            // Reinicia cooldown se houver
             const cooldownKey = type === 'fisica' ? 'cpf' : 'cnpj';
             if (isBlocked(cooldownKey)) {
                 startCooldownTicker(cooldownKey, document.getElementById('docApiFeedback'));
@@ -944,7 +971,7 @@
         }
 
         /* =========================================================
-           CPF COM COOLDOWN
+           CPF
            ========================================================= */
         async function verifyCpfData(cpf) {
             const loadingIndicator = document.getElementById('docLoading');
@@ -959,14 +986,14 @@
             try {
                 if (validateCpfAlgorithm(cpf)) {
                     registerSuccess(KEY);
-                    feedback.textContent = '✓ CPF válido e verificado com sucesso.';
+                    feedback.textContent = 'CPF válido.';
                     feedback.className = 'text-[11px] text-emerald-400 mt-1 font-medium block anim-bounce';
                 } else {
                     const result = registerError(KEY);
                     if (result.blocked) {
                         startCooldownTicker(KEY, feedback);
                     } else {
-                        feedback.textContent = `⚠ CPF inválido. Tentativa ${COOLDOWN_ATTEMPTS - result.remainingAttempts} de ${COOLDOWN_ATTEMPTS}.`;
+                        feedback.textContent = `CPF inválido. Tentativa ${COOLDOWN_ATTEMPTS - result.remainingAttempts} de ${COOLDOWN_ATTEMPTS}.`;
                         feedback.className = 'text-[11px] text-rose-400 mt-1 font-medium block anim-shake';
                     }
                 }
@@ -976,7 +1003,7 @@
         }
 
         /* =========================================================
-           CNPJ COM COOLDOWN + APIS
+           CNPJ
            ========================================================= */
         async function fetchCnpjData(cnpj) {
             const loadingIndicator = document.getElementById('docLoading');
@@ -1000,7 +1027,7 @@
                 if (result.blocked) {
                     startCooldownTicker(KEY, feedback);
                 } else {
-                    feedback.textContent = `⚠ CNPJ inválido. Tentativa ${COOLDOWN_ATTEMPTS - result.remainingAttempts} de ${COOLDOWN_ATTEMPTS}.`;
+                    feedback.textContent = `CNPJ inválido. Tentativa ${COOLDOWN_ATTEMPTS - result.remainingAttempts} de ${COOLDOWN_ATTEMPTS}.`;
                     feedback.className = 'text-[11px] text-rose-400 mt-1 font-medium block anim-shake';
                 }
                 return;
@@ -1044,7 +1071,7 @@
                         if (result.blocked) {
                             startCooldownTicker(KEY, feedback);
                         } else {
-                            feedback.textContent = `⚠ CNPJ não encontrado na Receita. Tentativa ${COOLDOWN_ATTEMPTS - result.remainingAttempts} de ${COOLDOWN_ATTEMPTS}.`;
+                            feedback.textContent = `CNPJ não encontrado. Tentativa ${COOLDOWN_ATTEMPTS - result.remainingAttempts} de ${COOLDOWN_ATTEMPTS}.`;
                             feedback.className = 'text-[11px] text-rose-400 mt-1 font-medium block anim-shake';
                         }
                         return;
@@ -1062,7 +1089,7 @@
                                 const result = registerError(KEY);
                                 if (result.blocked) startCooldownTicker(KEY, feedback);
                                 else {
-                                    feedback.textContent = `⚠ CNPJ não encontrado. Tentativa ${COOLDOWN_ATTEMPTS - result.remainingAttempts} de ${COOLDOWN_ATTEMPTS}.`;
+                                    feedback.textContent = `CNPJ não encontrado. Tentativa ${COOLDOWN_ATTEMPTS - result.remainingAttempts} de ${COOLDOWN_ATTEMPTS}.`;
                                     feedback.className = 'text-[11px] text-rose-400 mt-1 font-medium block anim-shake';
                                 }
                                 return;
@@ -1091,12 +1118,12 @@
 
                 registerSuccess(KEY);
                 fillFields(data);
-                feedback.textContent = '✓ CNPJ verificado e dados carregados com sucesso.';
+                feedback.textContent = 'CNPJ verificado com sucesso.';
                 feedback.className = 'text-[11px] text-emerald-400 mt-1 font-medium block anim-bounce';
 
             } catch (error) {
                 console.error('[CNPJ] Erro final:', error);
-                feedback.textContent = `⚠ ${error.message}`;
+                feedback.textContent = error.message;
                 feedback.className = 'text-[11px] text-amber-400 mt-1 font-medium block';
             } finally {
                 loadingIndicator.classList.add('hidden');
@@ -1122,10 +1149,10 @@
                 document.getElementById('regMunicipio').value = data.city || '';
                 document.getElementById('regUf').value = data.state || '';
 
-                feedback.textContent = '✓ Endereço preenchido automaticamente via CEP.';
+                feedback.textContent = 'Endereço preenchido via CEP.';
                 feedback.className = 'text-[11px] text-emerald-400 mt-1 font-medium block anim-bounce';
             } catch (error) {
-                feedback.textContent = '⚠ CEP não encontrado.';
+                feedback.textContent = 'CEP não encontrado.';
                 feedback.className = 'text-[11px] text-rose-400 mt-1 font-medium block anim-shake';
             } finally {
                 loadingIndicator.classList.add('hidden');
@@ -1162,7 +1189,7 @@
         }
 
         /* =========================================================
-           FIREBASE: SALVAR DADOS DO USUÁRIO
+           FIREBASE: SALVAR DADOS
            ========================================================= */
         async function salvarDadosUsuario(uid, extraData = {}) {
             if (!database) return;
@@ -1207,13 +1234,13 @@
         }
 
         /* =========================================================
-           LOGIN COM FIREBASE + COOLDOWN
+           LOGIN — SEM MENSAGEM DE SUCESSO
            ========================================================= */
         async function handleLogin(event) {
             event.preventDefault();
 
             if (!auth) {
-                showMessage('Firebase ainda carregando. Aguarde alguns segundos.', 'error');
+                showMessage('Firebase ainda carregando. Aguarde alguns segundos.');
                 return;
             }
 
@@ -1223,30 +1250,28 @@
 
             if (isBlocked(KEY)) {
                 startCooldownTicker(KEY, cooldownMsg);
-                showMessage('Login bloqueado temporariamente por excesso de tentativas.', 'error');
+                showMessage('Login bloqueado temporariamente por excesso de tentativas.');
                 return;
             }
 
             const email = document.getElementById('email').value.trim();
             const password = document.getElementById('password').value.trim();
 
+            hideMessage();
             submitBtn.disabled = true;
             submitBtn.innerHTML = '<i class="fa-solid fa-spinner animate-spin text-sm"></i><span>Entrando...</span>';
 
             try {
                 await auth.signInWithEmailAndPassword(email, password);
-                // Sucesso: limpa cooldown e redireciona
                 registerSuccess(KEY);
                 cooldownMsg.classList.add('hidden');
-                showMessage('Login efetuado com sucesso! Redirecionando...', 'success');
-                setTimeout(() => { window.location.href = 'cim.html'; }, 800);
+                window.location.href = 'cim.html';
             } catch (error) {
                 console.error('[Login] Erro Firebase:', error);
 
                 submitBtn.disabled = false;
                 submitBtn.innerHTML = '<span>Entrar</span><i class="fa-solid fa-arrow-right text-xs"></i>';
 
-                // Mensagem específica por código de erro
                 let msgUser = 'E-mail ou senha incorretos.';
                 if (error.code === 'auth/user-not-found') msgUser = 'Usuário não encontrado.';
                 else if (error.code === 'auth/wrong-password') msgUser = 'Senha incorreta.';
@@ -1257,25 +1282,24 @@
                 const result = registerError(KEY);
                 if (result.blocked) {
                     startCooldownTicker(KEY, cooldownMsg);
-                    showMessage('Muitas tentativas erradas. Login bloqueado temporariamente.', 'error');
+                    showMessage('Muitas tentativas erradas. Login bloqueado temporariamente.');
                 } else {
-                    showMessage(`${msgUser} Tentativa ${COOLDOWN_ATTEMPTS - result.remainingAttempts} de ${COOLDOWN_ATTEMPTS}.`, 'error');
+                    showMessage(`${msgUser} Tentativa ${COOLDOWN_ATTEMPTS - result.remainingAttempts} de ${COOLDOWN_ATTEMPTS}.`);
                 }
             }
         }
 
         /* =========================================================
-           CADASTRO COM FIREBASE
+           CADASTRO — SEM MENSAGEM DE SUCESSO
            ========================================================= */
         async function handleRegister(event) {
             event.preventDefault();
 
             if (!auth || !database) {
-                showMessage('Firebase ainda carregando. Aguarde alguns segundos.', 'error');
+                showMessage('Firebase ainda carregando. Aguarde alguns segundos.');
                 return;
             }
 
-            // MODO GOOGLE: só salva os dados e redireciona
             if (modoGoogleCadastro && usuarioGoogle) {
                 const name = document.getElementById('regName').value.trim();
                 const doc = document.getElementById('regDoc').value.trim();
@@ -1283,15 +1307,16 @@
                 const email = document.getElementById('regEmail').value.trim() || usuarioGoogle.email;
 
                 if (!currentPersonType) {
-                    showMessage('Selecione o tipo de pessoa (Física ou Jurídica).', 'error');
+                    showMessage('Selecione o tipo de pessoa (Física ou Jurídica).');
                     return;
                 }
                 if (!name || !doc || !phone || !email) {
-                    showMessage('Preencha todos os campos obrigatórios corretamente.', 'error');
+                    showMessage('Preencha todos os campos obrigatórios.');
                     return;
                 }
 
                 const registerBtn = document.getElementById('registerBtn');
+                hideMessage();
                 registerBtn.disabled = true;
                 registerBtn.innerHTML = '<i class="fa-solid fa-spinner animate-spin text-sm"></i><span>Salvando...</span>';
 
@@ -1303,18 +1328,16 @@
                     registerSuccess('cnpj');
                     registerSuccess('cpf');
                     registerSuccess('login');
-                    showMessage('Cadastro concluído com sucesso! Redirecionando...', 'success');
-                    setTimeout(() => { window.location.href = 'cim.html'; }, 800);
+                    window.location.href = 'cim.html';
                 } catch (err) {
                     console.error('[Registro Google] Erro:', err);
                     registerBtn.disabled = false;
                     registerBtn.innerHTML = '<span>Finalizar Cadastro</span><i class="fa-solid fa-arrow-right text-xs"></i>';
-                    showMessage('Erro ao salvar dados. Tente novamente.', 'error');
+                    showMessage('Erro ao salvar dados. Tente novamente.');
                 }
                 return;
             }
 
-            // MODO NORMAL: cria conta com e-mail/senha
             const name = document.getElementById('regName').value.trim();
             const doc = document.getElementById('regDoc').value.trim();
             const phone = document.getElementById('regPhone').value.trim();
@@ -1323,21 +1346,21 @@
             const registerBtn = document.getElementById('registerBtn');
 
             if (!currentPersonType) {
-                showMessage('Selecione o tipo de pessoa (Física ou Jurídica).', 'error');
+                showMessage('Selecione o tipo de pessoa (Física ou Jurídica).');
                 return;
             }
             if (!name || !doc || !phone || !email || password.length < 6) {
-                showMessage('Preencha todos os campos obrigatórios. Senha deve ter pelo menos 6 caracteres.', 'error');
+                showMessage('Preencha todos os campos obrigatórios. Senha deve ter pelo menos 6 caracteres.');
                 return;
             }
 
+            hideMessage();
             registerBtn.disabled = true;
             registerBtn.innerHTML = '<i class="fa-solid fa-spinner animate-spin text-sm"></i><span>Cadastrando...</span>';
 
             try {
                 const userCredential = await auth.createUserWithEmailAndPassword(email, password);
 
-                // Atualiza displayName
                 try {
                     await userCredential.user.updateProfile({ displayName: name });
                 } catch (e) { console.warn('Não foi possível atualizar displayName:', e); }
@@ -1348,8 +1371,7 @@
                 registerSuccess('cpf');
                 registerSuccess('login');
 
-                showMessage('Cadastro realizado com sucesso! Redirecionando...', 'success');
-                setTimeout(() => { window.location.href = 'cim.html'; }, 800);
+                window.location.href = 'cim.html';
             } catch (error) {
                 console.error('[Cadastro] Erro Firebase:', error);
                 registerBtn.disabled = false;
@@ -1361,16 +1383,16 @@
                 else if (error.code === 'auth/weak-password') msgUser = 'Senha muito fraca. Use pelo menos 6 caracteres.';
                 else if (error.code === 'auth/network-request-failed') msgUser = 'Falha de conexão. Verifique sua internet.';
 
-                showMessage(msgUser, 'error');
+                showMessage(msgUser);
             }
         }
 
         /* =========================================================
-           GOOGLE LOGIN COM FIREBASE
+           GOOGLE — SEM MENSAGEM DE SUCESSO
            ========================================================= */
         async function handleGoogleLogin() {
             if (!auth || !database) {
-                showMessage('Firebase ainda carregando. Aguarde alguns segundos.', 'error');
+                showMessage('Firebase ainda carregando. Aguarde alguns segundos.');
                 return;
             }
 
@@ -1382,12 +1404,9 @@
 
                 const snapshot = await database.ref(`users/${user.uid}`).once('value');
                 if (snapshot.exists()) {
-                    // Usuário já cadastrado -> entra direto
                     registerSuccess('login');
-                    showMessage('Login com Google realizado! Redirecionando...', 'success');
-                    setTimeout(() => { window.location.href = 'cim.html'; }, 800);
+                    window.location.href = 'cim.html';
                 } else {
-                    // Novo usuário: entra em modo de cadastro com Google
                     modoGoogleCadastro = true;
                     usuarioGoogle = user;
 
@@ -1396,24 +1415,21 @@
 
                     switchView('register');
 
-                    // Pré-preenche email e nome
                     setTimeout(() => {
                         document.getElementById('regEmail').value = user.email || '';
                         document.getElementById('regName').value = user.displayName || '';
                     }, 450);
-
-                    showMessage('Complete seu cadastro para continuar.', 'success');
                 }
             } catch (error) {
                 console.error('[Google] Erro:', error);
                 if (error.code === 'auth/popup-closed-by-user') {
-                    showMessage('Janela de autenticação fechada. Tente novamente.', 'error');
+                    showMessage('Janela de autenticação fechada. Tente novamente.');
                 } else if (error.code === 'auth/popup-blocked') {
-                    showMessage('Permita pop-ups para usar o login com Google.', 'error');
+                    showMessage('Permita pop-ups para usar o login com Google.');
                 } else if (error.code === 'auth/cancelled-popup-request') {
-                    // Silencioso
+                    // silencioso
                 } else {
-                    showMessage('Erro ao autenticar com Google. Tente novamente.', 'error');
+                    showMessage('Erro ao autenticar com Google. Tente novamente.');
                 }
             }
         }
@@ -1422,7 +1438,6 @@
            INICIALIZAÇÃO
            ========================================================= */
         document.addEventListener('DOMContentLoaded', () => {
-            // Inicializa Firebase
             if (typeof firebase !== 'undefined') {
                 if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
                 auth = firebase.auth();
@@ -1439,7 +1454,6 @@
                 });
             }
 
-            // Restaura cooldowns salvos
             restoreCooldowns();
         });
     </script>
