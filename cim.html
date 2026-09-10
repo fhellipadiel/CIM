@@ -652,8 +652,8 @@
         let sessions = {};
         let contacts = {};
         let brands = {};
-        let cupons = {};              // Cupons carregados do Firebase
-        let cupomAtivo = null;        // Cupom aplicado pelo usuário atual
+        let cupons = {};
+        let cupomAtivo = null;
         let profileData = { photo: DEFAULT_PROFILE_IMAGE, name: 'CIM Peças', subtitle: 'Mecânica de confiança', message: 'Sua peça com qualidade e rapidez' };
         let categoryClicks = {};
         let sessionClicks = {};
@@ -863,7 +863,6 @@
             }
             const base = item.prices?.[userType] || 0;
             if (base <= 0) return 0;
-            // Aplica o maior desconto (promoção ou cupom)
             const info = getEffectiveDiscount(item);
             return base * (1 - info.discount / 100);
         }
@@ -1151,16 +1150,23 @@
             return preco * (1 - descontoPercent / 100);
         }
 
-        // ========== CUPONS — LÓGICA PRINCIPAL ==========
+        // ========== CUPONS — LÓGICA PRINCIPAL (CORRIGIDA) ==========
         function loadCupons() {
             database.ref('cupons').on('value', (snapshot) => {
                 cupons = snapshot.val() || {};
-                validateActiveCoupon();
+                // Só valida o cupom ativo depois que a lista foi carregada
+                if (Object.keys(cupons).length > 0 || cupomAtivo) {
+                    validateActiveCoupon();
+                }
             });
         }
 
+        // FIX 1: Não valida enquanto cupons estiver vazio (evita apagar cupom ativo no boot)
         function validateActiveCoupon() {
             if (!cupomAtivo || !currentUser) return;
+            // Se ainda não temos cupons carregados do Firebase, não faça nada
+            if (!cupons || Object.keys(cupons).length === 0) return;
+
             const now = Date.now();
             if (cupomAtivo.expiracao && cupomAtivo.expiracao < now) {
                 removeCouponSilent('Cupom expirado');
@@ -1223,6 +1229,7 @@
             el.className = 'coupon-message';
         }
 
+        // FIX 2: applyCoupon limpa automaticamente cupom ativo "morto"
         async function applyCoupon() {
             const input = document.getElementById('couponInput');
             if (!input) return;
@@ -1230,7 +1237,25 @@
             clearCouponMessage();
             if (!codigo) { showCouponMessage('Digite um código de cupom'); return; }
             if (!currentUser) { showCouponMessage('Você precisa estar logado'); return; }
-            if (cupomAtivo) { showCouponMessage('Você já tem um cupom aplicado. Remova para aplicar outro.'); return; }
+
+            // --- LIMPEZA AUTOMÁTICA DE CUPOM ÓRFÃO ---
+            if (cupomAtivo) {
+                const dbC = cupons[cupomAtivo.cupomId];
+                const morto = !dbC || !dbC.ativo ||
+                              (cupomAtivo.expiracao && cupomAtivo.expiracao < Date.now()) ||
+                              !cupons[cupomAtivo.cupomId];
+                if (morto) {
+                    cupomAtivo = null;
+                    if (currentUser.uid) {
+                        try { await database.ref(`users/${currentUser.uid}/cupomAtivo`).remove(); } catch(e) {}
+                    }
+                    updateCouponUI();
+                    // Continua o fluxo para aplicar o novo cupom
+                } else {
+                    showCouponMessage('Você já tem um cupom aplicado. Remova para aplicar outro.');
+                    return;
+                }
+            }
 
             const now = Date.now();
             const candidates = [];
@@ -1240,7 +1265,6 @@
             });
             if (candidates.length === 0) { showCouponMessage('Cupom inválido'); return; }
 
-            // Ordena: prioriza candidatos válidos e ainda não usados pelo usuário
             candidates.sort((a, b) => {
                 const aUsed = a.usuariosUsaram && a.usuariosUsaram[currentUser.uid];
                 const bUsed = b.usuariosUsaram && b.usuariosUsaram[currentUser.uid];
@@ -1284,11 +1308,19 @@
             }
         }
 
+        // FIX 3: removeCoupon limpa o cupom ativo E permite reutilizar (remove de usuariosUsaram)
         function removeCoupon() {
             if (!cupomAtivo) return;
-            if (!confirm('Remover o cupom aplicado? Você não poderá usá-lo novamente.')) return;
+            if (!confirm('Remover o cupom aplicado? Você poderá usá-lo novamente depois.')) return;
+            const idRemovido = cupomAtivo.cupomId;
             cupomAtivo = null;
-            if (currentUser && currentUser.uid) database.ref(`users/${currentUser.uid}/cupomAtivo`).remove();
+            if (currentUser && currentUser.uid) {
+                database.ref(`users/${currentUser.uid}/cupomAtivo`).remove();
+                // Permite reuso do mesmo cupom (remove da lista de quem já usou)
+                database.ref(`cupons/${idRemovido}/usuariosUsaram/${currentUser.uid}`).remove();
+                // Decrementa contador de usos
+                database.ref(`cupons/${idRemovido}/usos`).transaction(v => Math.max(0, (v || 1) - 1));
+            }
             updateCouponUI();
             filterProducts();
             updateCart();
@@ -1296,7 +1328,6 @@
             showToast('Cupom removido');
         }
 
-        // Retorna o maior desconto entre promoção e cupom aplicado
         function getEffectiveDiscount(product) {
             const promo = getPromocaoParaProduto(product);
             const promoDiscount = promo ? (promo.descontoPercentual || 0) : 0;
@@ -1312,7 +1343,6 @@
             };
         }
 
-        // Verifica expiração a cada 30s
         setInterval(() => {
             if (cupomAtivo && cupomAtivo.expiracao && cupomAtivo.expiracao < Date.now()) {
                 removeCouponSilent('Cupom expirado');
@@ -1425,8 +1455,6 @@
         // ========== CRIAR CARD DE PRODUTO ==========
         function createProductCard(product) {
             const card = document.createElement('div');
-
-            // Desconto efetivo (o maior entre promoção e cupom)
             const discountInfo = getEffectiveDiscount(product);
             const desconto = discountInfo.discount;
             const precoOriginalPF = product.prices?.PF || 0;
@@ -1701,10 +1729,14 @@
                     if (cupomAtivo) {
                         const now = Date.now();
                         const dbCoupon = cupons[cupomAtivo.cupomId];
-                        const invalid = (cupomAtivo.expiracao && cupomAtivo.expiracao < now) || !dbCoupon || !dbCoupon.ativo;
-                        if (invalid) {
-                            database.ref(`users/${uid}/cupomAtivo`).remove();
-                            return;
+                        // FIX 4: só invalida se realmente temos os cupons carregados
+                        const cuponsCarregados = Object.keys(cupons).length > 0;
+                        if (cuponsCarregados) {
+                            const invalid = (cupomAtivo.expiracao && cupomAtivo.expiracao < now) || !dbCoupon || !dbCoupon.ativo;
+                            if (invalid) {
+                                database.ref(`users/${uid}/cupomAtivo`).remove();
+                                return;
+                            }
                         }
                     }
                     updateCouponUI();
@@ -1955,7 +1987,7 @@
         window.removeCoupon = removeCoupon;
 
         console.log('CIM - Loja Virtual carregada com sucesso!');
-        console.log('Sistema de cupons ativo: aplicação global, maior desconto vence.');
+        console.log('Sistema de cupons ativo (CORRIGIDO): limpeza automática de cupom órfão + permite reuso após remoção.');
     </script>
 </body>
 </html>
