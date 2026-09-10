@@ -2,11 +2,29 @@
 <html lang="pt-BR" class="h-full">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tela de Login e Cadastro</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Tela de Login e Cadastro — CIM</title>
+
+    <!-- PRE-CARREGAMENTO DA LOGO -->
+    <link rel="preload" as="image" href="https://i.postimg.cc/PrWKgyHX/Branco-PNG.png" fetchpriority="high" type="image/png">
+
+    <!-- Preconnects -->
+    <link rel="preconnect" href="https://i.postimg.cc" crossorigin>
+    <link rel="preconnect" href="https://cdn.tailwindcss.com" crossorigin>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
+    <link rel="preconnect" href="https://www.gstatic.com" crossorigin>
+
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Firebase SDKs (compat) -->
+    <script defer src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script defer src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script defer src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+
     <script>
         tailwind.config = {
             theme: {
@@ -117,7 +135,6 @@
             0%, 100% { opacity: 0.7; transform: scale(1); }
             50% { opacity: 0.9; transform: scale(1.08); }
         }
-
         .glow-ball {
             position: absolute;
             bottom: -180px;
@@ -152,13 +169,15 @@
         }
         .glow-ball-sm.moved-left { left: -110px; }
 
-        /* ===== Aviso de cooldown ===== */
         @keyframes cooldownPulse {
             0%, 100% { opacity: 1; }
             50% { opacity: 0.6; }
         }
-        .cooldown-active {
-            animation: cooldownPulse 2s ease-in-out infinite;
+        .cooldown-active { animation: cooldownPulse 2s ease-in-out infinite; }
+
+        @media screen and (max-width: 768px) {
+            input[type="text"], input[type="password"], input[type="email"],
+            input[type="number"], select, textarea { font-size: 16px !important; }
         }
     </style>
 </head>
@@ -226,7 +245,6 @@
                                 <i class="fa-regular fa-eye text-base"></i>
                             </button>
                         </div>
-                        <!-- Aviso de cooldown do login -->
                         <p id="loginCooldownMsg" class="hidden text-[11px] font-medium mt-1"></p>
                     </div>
 
@@ -285,20 +303,6 @@
                             <button type="button" id="btnJuridica" onclick="setPersonType('juridica')"
                                 class="card-select py-3 px-3 border border-white/10 rounded-2xl text-xs font-semibold flex flex-col items-center justify-center gap-2 bg-white/5 text-gray-300 hover:bg-white/10 hover:border-white/30">
                                 <i class="fa-solid fa-building text-base"></i> Jurídica
-                            </button>
-                        </div>
-                    </div>
-
-                    <div id="juridicaSubtypeContainer" class="hidden space-y-1 pt-2">
-                        <label class="block text-xs font-semibold uppercase tracking-wider text-gray-400">Selecione o segmento</label>
-                        <div class="grid grid-cols-2 gap-3">
-                            <button type="button" id="btnOficina" onclick="setJuridicaSubtype('oficina')"
-                                class="card-select py-2.5 px-3 border border-white/10 rounded-2xl text-xs font-semibold flex items-center justify-center gap-2 bg-white/5 text-gray-300 hover:bg-white/10 hover:border-white/30">
-                                <i class="fa-solid fa-wrench"></i> Oficina
-                            </button>
-                            <button type="button" id="btnLoja" onclick="setJuridicaSubtype('loja')"
-                                class="card-select py-2.5 px-3 border border-white/10 rounded-2xl text-xs font-semibold flex items-center justify-center gap-2 bg-white/5 text-gray-300 hover:bg-white/10 hover:border-white/30">
-                                <i class="fa-solid fa-store"></i> Loja
                             </button>
                         </div>
                     </div>
@@ -413,7 +417,7 @@
                                 class="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-full text-white text-sm focus:outline-none focus:ring-2 focus:ring-white/50 focus:bg-white/10 input-anim placeholder-gray-500">
                         </div>
 
-                        <div class="space-y-1">
+                        <div class="space-y-1" id="senhaContainer">
                             <label for="regPassword" class="block text-xs font-semibold uppercase tracking-wider text-gray-400">Senha</label>
                             <div class="relative">
                                 <input type="password" id="regPassword" placeholder="••••••••"
@@ -482,28 +486,47 @@
                 <img src="https://picsum.photos/seed/9/600/600" class="w-full aspect-square object-cover rounded-none border border-white/5 shadow-2xl" alt="Gallery 9">
                 <img src="https://picsum.photos/seed/10/600/600" class="w-full aspect-square object-cover rounded-none border border-white/5 shadow-2xl" alt="Gallery 10">
                 <img src="https://picsum.photos/seed/11/600/600" class="w-full aspect-square object-cover rounded-none border border-white/5 shadow-2xl" alt="Gallery 11">
-                <img src="https://picsum.photos/seed/12/600/600" class="w-full aspect-square object-cover rounded-none border border-white/5 shadow-2xl" alt="Gallery 12">
+                <img src="https://picsum.photos/seed/12/600/600" class="w-full aspect-square rounded-none border border-white/5 shadow-2xl" alt="Gallery 12">
             </div>
             
         </div>
     </div>
 
     <script>
-        let currentPersonType = '';
-        let currentJuridicaSubtype = '';
-        let currentView = 'login';
+        /* =========================================================
+           CONFIGURAÇÃO FIREBASE
+           ========================================================= */
+        const firebaseConfig = {
+            apiKey: "AIzaSyBVtlnA85ugvll5hLAvOF8FuM4BGnKEovM",
+            authDomain: "redx-6b53f.firebaseapp.com",
+            databaseURL: "https://redx-6b53f-default-rtdb.firebaseio.com",
+            projectId: "redx-6b53f",
+            storageBucket: "redx-6b53f.firebasestorage.app",
+            messagingSenderId: "194933965008",
+            appId: "1:194933965008:web:ae1dae6df66ea44259ded5"
+        };
+
+        let auth = null;
+        let database = null;
 
         /* =========================================================
-           SISTEMA DE COOLDOWN (bloqueio por tentativas erradas)
+           ESTADO GLOBAL
            ========================================================= */
-        const COOLDOWN_ATTEMPTS = 3;      // número de erros antes de bloquear
-        const COOLDOWN_MINUTES = 3;       // tempo de bloqueio em minutos
+        let currentPersonType = '';
+        let currentView = 'login';
+        let modoGoogleCadastro = false;
+        let usuarioGoogle = null;
+
+        /* =========================================================
+           SISTEMA DE COOLDOWN
+           ========================================================= */
+        const COOLDOWN_ATTEMPTS = 3;
+        const COOLDOWN_MINUTES = 3;
         const COOLDOWN_STORAGE_KEY = 'cim_cooldowns';
 
         function loadCooldowns() {
-            try {
-                return JSON.parse(localStorage.getItem(COOLDOWN_STORAGE_KEY)) || {};
-            } catch (e) { return {}; }
+            try { return JSON.parse(localStorage.getItem(COOLDOWN_STORAGE_KEY)) || {}; }
+            catch (e) { return {}; }
         }
         function saveCooldowns(data) {
             try { localStorage.setItem(COOLDOWN_STORAGE_KEY, JSON.stringify(data)); } catch (e) {}
@@ -517,9 +540,8 @@
             if (!cd || !cd.blockedUntil) return 0;
             return Math.max(0, cd.blockedUntil - Date.now());
         }
-        function isBlocked(key) {
-            return getRemainingMs(key) > 0;
-        }
+        function isBlocked(key) { return getRemainingMs(key) > 0; }
+
         function formatRemaining(ms) {
             const totalSec = Math.ceil(ms / 1000);
             const min = Math.floor(totalSec / 60);
@@ -527,11 +549,6 @@
             return `${String(min).padStart(2, '0')}:${String(sec).padStart(2, '0')}`;
         }
 
-        /**
-         * Registra um erro de tentativa. Retorna:
-         *   { blocked: true }  -> acabou de ser bloqueado
-         *   { blocked: false, remainingAttempts: N } -> ainda tem tentativas
-         */
         function registerError(key) {
             const cd = cooldowns[key] || { attempts: 0, blockedUntil: 0 };
             cd.attempts = (cd.attempts || 0) + 1;
@@ -566,9 +583,7 @@
                         feedbackEl.textContent = '✓ Você já pode tentar novamente.';
                         feedbackEl.className = 'text-[11px] text-emerald-400 mt-1 font-medium block anim-bounce';
                         setTimeout(() => {
-                            if (feedbackEl.textContent.startsWith('✓')) {
-                                feedbackEl.classList.add('hidden');
-                            }
+                            if (feedbackEl.textContent.startsWith('✓')) feedbackEl.classList.add('hidden');
                         }, 4000);
                     }
                     return;
@@ -591,10 +606,6 @@
             }
         }
 
-        /**
-         * Restaura cooldowns do localStorage ao carregar a página.
-         * Mapeia cada chave para o elemento onde mostrar o contador.
-         */
         function restoreCooldowns() {
             const map = {
                 cnpj: document.getElementById('docApiFeedback'),
@@ -605,14 +616,37 @@
                 if (isBlocked(key) && map[key]) {
                     startCooldownTicker(key, map[key]);
                 } else if (!isBlocked(key)) {
-                    // Cooldown expirado, limpa
                     delete cooldowns[key];
                 }
             }
             saveCooldowns(cooldowns);
         }
 
-        /* ===== Olhinho de ver senha ===== */
+        /* =========================================================
+           MENSAGENS
+           ========================================================= */
+        function showMessage(message, type = 'success') {
+            const messageBox = document.getElementById('messageBox');
+            const messageText = document.getElementById('messageText');
+            const messageIcon = document.getElementById('messageIcon');
+
+            messageText.textContent = message;
+            messageBox.classList.remove('anim-shake', 'anim-bounce');
+
+            if (type === 'success') {
+                messageBox.className = 'mb-6 p-4 rounded-2xl text-sm flex items-center gap-3 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 transition-all duration-300 anim-bounce';
+                messageIcon.className = 'fa-solid fa-circle-check text-lg text-emerald-400';
+            } else {
+                messageBox.className = 'mb-6 p-4 rounded-2xl text-sm flex items-center gap-3 bg-rose-500/10 border border-rose-500/20 text-rose-400 transition-all duration-300 anim-shake';
+                messageIcon.className = 'fa-solid fa-triangle-exclamation text-lg text-rose-400';
+            }
+            messageBox.classList.remove('hidden');
+            void messageBox.offsetWidth;
+        }
+
+        /* =========================================================
+           UTILITÁRIOS DE UI
+           ========================================================= */
         function togglePassword(inputId, button) {
             const input = document.getElementById(inputId);
             const icon = button.querySelector('i');
@@ -629,14 +663,13 @@
 
         function openPrivacy(event) {
             if (event) event.preventDefault();
-            alert('Termo de Privacidade da CIM\n\nAqui você pode colocar o texto completo da Política de Privacidade e dos Termos de Serviço da CIM.\n\n(Substitua este alert por um modal ou redirecione para a página real do termo.)');
+            alert('Termo de Privacidade da CIM\n\nSubstitua este alert pela página real do termo.');
         }
 
         function moveGlowBalls(view) {
             const glowBall = document.getElementById('glowBall');
             const glowBallSm = document.getElementById('glowBallSm');
             if (!glowBall || !glowBallSm) return;
-
             if (view === 'register') {
                 glowBall.classList.add('moved-left');
                 glowBallSm.classList.add('moved-left');
@@ -646,6 +679,9 @@
             }
         }
 
+        /* =========================================================
+           NAVEGAÇÃO ENTRE VIEWS (com animação)
+           ========================================================= */
         function switchView(view) {
             if (currentView === view) return;
 
@@ -705,19 +741,26 @@
 
             if (goingToRegister) {
                 resetPersonTypeSelection();
+            } else {
+                // Se voltou para login, sai do modo Google
+                modoGoogleCadastro = false;
+                usuarioGoogle = null;
+                const senhaContainer = document.getElementById('senhaContainer');
+                const regPassword = document.getElementById('regPassword');
+                if (senhaContainer) senhaContainer.style.display = '';
+                if (regPassword) regPassword.required = true;
             }
         }
 
+        /* =========================================================
+           SELEÇÃO DE TIPO DE PESSOA
+           ========================================================= */
         function resetPersonTypeSelection() {
             currentPersonType = '';
-            currentJuridicaSubtype = '';
             
             const fieldsContainer = document.getElementById('registerFieldsContainer');
             fieldsContainer.classList.add('opacity-0', 'translate-y-2');
             setTimeout(() => { fieldsContainer.classList.add('hidden'); }, 80);
-
-            const juridicaSubtypeContainer = document.getElementById('juridicaSubtypeContainer');
-            juridicaSubtypeContainer.classList.add('hidden');
 
             const btnFisica = document.getElementById('btnFisica');
             const btnJuridica = document.getElementById('btnJuridica');
@@ -727,11 +770,11 @@
             btnFisica.className = 'card-select py-3 px-3 border border-white/10 rounded-2xl text-xs font-semibold flex flex-col items-center justify-center gap-2 bg-white/5 text-gray-300 hover:bg-white/10 hover:border-white/30';
             btnJuridica.className = 'card-select py-3 px-3 border border-white/10 rounded-2xl text-xs font-semibold flex flex-col items-center justify-center gap-2 bg-white/5 text-gray-300 hover:bg-white/10 hover:border-white/30';
             
-            document.getElementById('regName').value = '';
+            document.getElementById('regName').value = modoGoogleCadastro && usuarioGoogle ? (usuarioGoogle.displayName || '') : '';
             document.getElementById('regDoc').value = '';
             document.getElementById('regPhone').value = '';
             document.getElementById('regCep').value = '';
-            document.getElementById('regEmail').value = '';
+            document.getElementById('regEmail').value = modoGoogleCadastro && usuarioGoogle ? (usuarioGoogle.email || '') : '';
             document.getElementById('regPassword').value = '';
             document.getElementById('regNumero').value = '';
             document.getElementById('regComplemento').value = '';
@@ -758,17 +801,9 @@
 
         function handleRegisterBack() {
             const fieldsContainer = document.getElementById('registerFieldsContainer');
-            const juridicaSubtypeContainer = document.getElementById('juridicaSubtypeContainer');
             const isFieldsHidden = fieldsContainer.classList.contains('hidden');
-            const isSubtypeVisible = !juridicaSubtypeContainer.classList.contains('hidden');
 
-            if (isFieldsHidden && isSubtypeVisible) {
-                juridicaSubtypeContainer.classList.add('hidden');
-                document.getElementById('btnFisica').classList.remove('hidden');
-                document.getElementById('btnJuridica').classList.remove('hidden');
-                document.getElementById('btnJuridica').className = 'card-select py-3 px-3 border border-white/10 rounded-2xl text-xs font-semibold flex flex-col items-center justify-center gap-2 bg-white/5 text-gray-300 hover:bg-white/10 hover:border-white/30';
-                currentPersonType = '';
-            } else if (isFieldsHidden || !currentPersonType) {
+            if (isFieldsHidden || !currentPersonType) {
                 switchView('login');
             } else {
                 resetPersonTypeSelection();
@@ -779,37 +814,6 @@
             currentPersonType = type;
             const btnFisica = document.getElementById('btnFisica');
             const btnJuridica = document.getElementById('btnJuridica');
-            const juridicaSubtypeContainer = document.getElementById('juridicaSubtypeContainer');
-
-            if (type === 'fisica') {
-                btnFisica.className = 'card-select py-3 px-3 border-2 rounded-2xl text-xs font-semibold flex flex-col items-center justify-center gap-2 border-white bg-white/10 text-white shadow-lg col-span-2 w-full transform scale-100';
-                btnJuridica.classList.add('hidden');
-                juridicaSubtypeContainer.classList.add('hidden');
-                setupFieldsForPersonType();
-            } else {
-                btnJuridica.className = 'card-select py-3 px-3 border-2 rounded-2xl text-xs font-semibold flex flex-col items-center justify-center gap-2 border-white bg-white/10 text-white shadow-lg col-span-2 w-full transform scale-100';
-                btnFisica.classList.add('hidden');
-                juridicaSubtypeContainer.classList.remove('hidden');
-            }
-        }
-
-        function setJuridicaSubtype(subtype) {
-            currentJuridicaSubtype = subtype;
-            const btnOficina = document.getElementById('btnOficina');
-            const btnLoja = document.getElementById('btnLoja');
-
-            if (subtype === 'oficina') {
-                btnOficina.className = 'card-select py-2.5 px-3 border-2 rounded-2xl text-xs font-semibold flex items-center justify-center gap-2 border-white bg-white/10 text-white shadow-lg';
-                btnLoja.className = 'card-select py-2.5 px-3 border border-white/10 rounded-2xl text-xs font-semibold flex items-center justify-center gap-2 bg-white/5 text-gray-300 hover:bg-white/10 hover:border-white/30';
-            } else {
-                btnLoja.className = 'card-select py-2.5 px-3 border-2 rounded-2xl text-xs font-semibold flex items-center justify-center gap-2 border-white bg-white/10 text-white shadow-lg';
-                btnOficina.className = 'card-select py-2.5 px-3 border border-white/10 rounded-2xl text-xs font-semibold flex items-center justify-center gap-2 bg-white/5 text-gray-300 hover:bg-white/10 hover:border-white/30';
-            }
-
-            setupFieldsForPersonType();
-        }
-
-        function setupFieldsForPersonType() {
             const labelName = document.getElementById('labelName');
             const regName = document.getElementById('regName');
             const labelDoc = document.getElementById('labelDoc');
@@ -822,28 +826,32 @@
             document.getElementById('docApiFeedback').classList.add('hidden');
             document.getElementById('cepApiFeedback').classList.add('hidden');
 
-            // Reinicia o aviso de cooldown ao trocar PF/PJ
-            const cooldownKey = currentPersonType === 'fisica' ? 'cpf' : 'cnpj';
+            // Reinicia cooldown se houver
+            const cooldownKey = type === 'fisica' ? 'cpf' : 'cnpj';
             if (isBlocked(cooldownKey)) {
                 startCooldownTicker(cooldownKey, document.getElementById('docApiFeedback'));
             }
 
-            if (currentPersonType === 'fisica') {
+            if (type === 'fisica') {
+                btnFisica.className = 'card-select py-3 px-3 border-2 rounded-2xl text-xs font-semibold flex flex-col items-center justify-center gap-2 border-white bg-white/10 text-white shadow-lg col-span-2 w-full';
+                btnJuridica.classList.add('hidden');
+
                 labelName.textContent = 'Nome Completo';
                 regName.placeholder = 'Seu nome completo';
                 regName.readOnly = false;
-                regName.classList.remove('bg-white/5', 'cursor-not-allowed');
-                regName.classList.add('bg-white/5');
+                regName.classList.remove('cursor-not-allowed');
                 labelDoc.textContent = 'CPF';
                 regDoc.placeholder = '000.000.000-00';
                 juridicaExtraHeader.classList.add('hidden');
                 cepContainer.classList.remove('hidden');
             } else {
+                btnJuridica.className = 'card-select py-3 px-3 border-2 rounded-2xl text-xs font-semibold flex flex-col items-center justify-center gap-2 border-white bg-white/10 text-white shadow-lg col-span-2 w-full';
+                btnFisica.classList.add('hidden');
+
                 labelName.textContent = 'Razão Social';
                 regName.placeholder = 'Preenchimento automático via CNPJ';
                 regName.readOnly = true;
-                regName.classList.remove('bg-white/5');
-                regName.classList.add('bg-white/5', 'cursor-not-allowed');
+                regName.classList.add('cursor-not-allowed');
                 labelDoc.textContent = 'CNPJ';
                 regDoc.placeholder = '00.000.000/0001-00';
                 juridicaExtraHeader.classList.remove('hidden');
@@ -857,71 +865,50 @@
             }, 10);
         }
 
+        /* =========================================================
+           MÁSCARAS E VALIDAÇÕES
+           ========================================================= */
         function formatDocument(input) {
             let value = input.value.replace(/\D/g, '');
             
             if (currentPersonType === 'fisica') {
                 if (value.length > 11) value = value.slice(0, 11);
-                if (value.length > 9) {
-                    value = value.replace(/^(\d{3})(\d{3})(\d{3})(\d{2}).*/, '$1.$2.$3-$4');
-                } else if (value.length > 6) {
-                    value = value.replace(/^(\d{3})(\d{3})(\d{0,3}).*/, '$1.$2.$3');
-                } else if (value.length > 3) {
-                    value = value.replace(/^(\d{3})(\d{0,3}).*/, '$1.$2');
-                }
+                if (value.length > 9) value = value.replace(/^(\d{3})(\d{3})(\d{3})(\d{2}).*/, '$1.$2.$3-$4');
+                else if (value.length > 6) value = value.replace(/^(\d{3})(\d{3})(\d{0,3}).*/, '$1.$2.$3');
+                else if (value.length > 3) value = value.replace(/^(\d{3})(\d{0,3}).*/, '$1.$2');
                 input.value = value;
-
-                const rawCpf = value.replace(/\D/g, '');
-                if (rawCpf.length === 11) verifyCpfData(rawCpf);
+                if (value.replace(/\D/g, '').length === 11) verifyCpfData(value.replace(/\D/g, ''));
             } else {
                 if (value.length > 14) value = value.slice(0, 14);
-                if (value.length > 12) {
-                    value = value.replace(/^(\d{2})(\d{3})(\d{3})(\d{4})(\d{2}).*/, '$1.$2.$3/$4-$5');
-                } else if (value.length > 8) {
-                    value = value.replace(/^(\d{2})(\d{3})(\d{3})(\d{0,4}).*/, '$1.$2.$3/$4');
-                } else if (value.length > 5) {
-                    value = value.replace(/^(\d{2})(\d{3})(\d{0,3}).*/, '$1.$2.$3');
-                } else if (value.length > 2) {
-                    value = value.replace(/^(\d{2})(\d{0,3}).*/, '$1.$2');
-                }
+                if (value.length > 12) value = value.replace(/^(\d{2})(\d{3})(\d{3})(\d{4})(\d{2}).*/, '$1.$2.$3/$4-$5');
+                else if (value.length > 8) value = value.replace(/^(\d{2})(\d{3})(\d{3})(\d{0,4}).*/, '$1.$2.$3/$4');
+                else if (value.length > 5) value = value.replace(/^(\d{2})(\d{3})(\d{0,3}).*/, '$1.$2.$3');
+                else if (value.length > 2) value = value.replace(/^(\d{2})(\d{0,3}).*/, '$1.$2');
                 input.value = value;
-
-                const rawCnpj = value.replace(/\D/g, '');
-                if (rawCnpj.length === 14) fetchCnpjData(rawCnpj);
+                if (value.replace(/\D/g, '').length === 14) fetchCnpjData(value.replace(/\D/g, ''));
             }
         }
 
         function formatCep(input) {
             let value = input.value.replace(/\D/g, '');
             if (value.length > 8) value = value.slice(0, 8);
-            if (value.length > 5) {
-                value = value.replace(/^(\d{5})(\d{0,3}).*/, '$1-$2');
-            }
+            if (value.length > 5) value = value.replace(/^(\d{5})(\d{0,3}).*/, '$1-$2');
             input.value = value;
-
-            const rawCep = value.replace(/\D/g, '');
-            if (rawCep.length === 8) fetchCepData(rawCep);
+            if (value.replace(/\D/g, '').length === 8) fetchCepData(value.replace(/\D/g, ''));
         }
 
         function formatPhone(input) {
             let value = input.value.replace(/\D/g, '');
             if (value.length > 11) value = value.slice(0, 11);
-            if (value.length > 10) {
-                value = value.replace(/^(\d{2})(\d{5})(\d{4}).*/, '($1) $2-$3');
-            } else if (value.length > 6) {
-                value = value.replace(/^(\d{2})(\d{4})(\d{0,4}).*/, '($1) $2-$3');
-            } else if (value.length > 2) {
-                value = value.replace(/^(\d{2})(\d{0,5}).*/, '($1) $2');
-            } else if (value.length > 0) {
-                value = value.replace(/^(\d{0,2}).*/, '($1');
-            }
+            if (value.length > 10) value = value.replace(/^(\d{2})(\d{5})(\d{4}).*/, '($1) $2-$3');
+            else if (value.length > 6) value = value.replace(/^(\d{2})(\d{4})(\d{0,4}).*/, '($1) $2-$3');
+            else if (value.length > 2) value = value.replace(/^(\d{2})(\d{0,5}).*/, '($1) $2');
+            else if (value.length > 0) value = value.replace(/^(\d{0,2}).*/, '($1');
             input.value = value;
         }
 
-        /* ===== Validação local de CPF ===== */
         function validateCpfAlgorithm(strCPF) {
-            let sum = 0;
-            let remainder;
+            let sum = 0, remainder;
             if (strCPF === "00000000000" || strCPF.length !== 11) return false;
             for (let i = 1; i <= 9; i++) sum += parseInt(strCPF.substring(i - 1, i)) * (11 - i);
             remainder = (sum * 10) % 11;
@@ -935,15 +922,13 @@
             return true;
         }
 
-        /* ===== Validação local de CNPJ ===== */
         function validateCnpjAlgorithm(cnpj) {
             cnpj = cnpj.replace(/\D/g, '');
             if (cnpj.length !== 14) return false;
             if (/^(\d)\1+$/.test(cnpj)) return false;
 
             const calc = (base) => {
-                let sum = 0;
-                let pos = base.length - 7;
+                let sum = 0, pos = base.length - 7;
                 for (let i = base.length; i >= 1; i--) {
                     sum += parseInt(base.charAt(base.length - i)) * pos--;
                     if (pos < 2) pos = 9;
@@ -958,31 +943,25 @@
             return cnpj === base + d1.toString() + d2.toString();
         }
 
-        /* ===== CPF: valida com cooldown ===== */
+        /* =========================================================
+           CPF COM COOLDOWN
+           ========================================================= */
         async function verifyCpfData(cpf) {
             const loadingIndicator = document.getElementById('docLoading');
             const feedback = document.getElementById('docApiFeedback');
             const KEY = 'cpf';
 
-            // Se já está bloqueado, apenas mostra o contador
-            if (isBlocked(KEY)) {
-                startCooldownTicker(KEY, feedback);
-                return;
-            }
+            if (isBlocked(KEY)) { startCooldownTicker(KEY, feedback); return; }
 
             loadingIndicator.classList.remove('hidden');
             feedback.classList.add('hidden');
 
             try {
-                const isValid = validateCpfAlgorithm(cpf);
-
-                if (isValid) {
-                    // ACERTOU: reseta contador de erros desse campo
+                if (validateCpfAlgorithm(cpf)) {
                     registerSuccess(KEY);
                     feedback.textContent = '✓ CPF válido e verificado com sucesso.';
                     feedback.className = 'text-[11px] text-emerald-400 mt-1 font-medium block anim-bounce';
                 } else {
-                    // ERROU: registra tentativa
                     const result = registerError(KEY);
                     if (result.blocked) {
                         startCooldownTicker(KEY, feedback);
@@ -996,29 +975,25 @@
             }
         }
 
-        /* ===== CNPJ: valida com cooldown + APIs ===== */
+        /* =========================================================
+           CNPJ COM COOLDOWN + APIS
+           ========================================================= */
         async function fetchCnpjData(cnpj) {
             const loadingIndicator = document.getElementById('docLoading');
             const feedback = document.getElementById('docApiFeedback');
             const KEY = 'cnpj';
 
-            // Se já está bloqueado, apenas mostra o contador
-            if (isBlocked(KEY)) {
-                startCooldownTicker(KEY, feedback);
-                return;
-            }
+            if (isBlocked(KEY)) { startCooldownTicker(KEY, feedback); return; }
 
             loadingIndicator.classList.remove('hidden');
             feedback.classList.add('hidden');
             feedback.textContent = '';
 
-            // Limpa campos antes de preencher
             ['regName','regFantasia','regSituacao','regLogradouro',
              'regNumero','regBairro','regMunicipio','regUf'].forEach(id => {
                 document.getElementById(id).value = '';
             });
 
-            // ===== 1. Validação local (offline) =====
             if (!validateCnpjAlgorithm(cnpj)) {
                 loadingIndicator.classList.add('hidden');
                 const result = registerError(KEY);
@@ -1040,38 +1015,30 @@
                 document.getElementById('regBairro').value = d.bairro || d.neighborhood || '';
                 document.getElementById('regMunicipio').value = d.municipio || d.city || '';
                 document.getElementById('regUf').value = d.uf || d.state || '';
+                if (d.cep) document.getElementById('regCep').value = String(d.cep).replace(/\D/g, '');
 
                 const emailField = document.getElementById('regEmail');
-                if (d.email && !emailField.value) {
-                    emailField.value = String(d.email).toLowerCase();
-                }
+                if (d.email && !emailField.value) emailField.value = String(d.email).toLowerCase();
             };
 
             try {
                 let data = null;
-                let apiFailedButCnpjValid = false; // API caiu mas CNPJ é válido -> NÃO conta como erro
 
-                // ===== 2. BrasilAPI =====
                 try {
                     const response = await fetch(`https://brasilapi.com.br/api/cnpj/v1/${cnpj}`);
-
                     if (response.ok) {
                         data = await response.json();
                     } else if (response.status === 404) {
-                        // CNPJ válido no formato, mas não existe -> conta como erro
                         throw new Error('__NOT_FOUND__');
                     } else if (response.status === 429) {
-                        apiFailedButCnpjValid = true;
                         throw new Error('Muitas consultas em pouco tempo. Aguarde alguns segundos.');
                     } else {
-                        apiFailedButCnpjValid = true;
                         throw new Error(`BrasilAPI indisponível (${response.status}).`);
                     }
                 } catch (err) {
                     console.warn('[CNPJ] BrasilAPI falhou:', err.message);
 
                     if (err.message === '__NOT_FOUND__') {
-                        // CNPJ válido no formato mas não existe -> conta tentativa
                         loadingIndicator.classList.add('hidden');
                         const result = registerError(KEY);
                         if (result.blocked) {
@@ -1083,11 +1050,9 @@
                         return;
                     }
 
-                    // Fallback ReceitaWS
                     try {
                         const fb = await fetch(`https://receitaws.com.br/v1/cnpj/${cnpj}`);
                         if (!fb.ok) throw new Error(`ReceitaWS indisponível (${fb.status}).`);
-
                         const raw = await fb.json();
 
                         if (raw.status === 'ERROR') {
@@ -1095,16 +1060,13 @@
                             if (msg.includes('not found') || msg.includes('não encontrado')) {
                                 loadingIndicator.classList.add('hidden');
                                 const result = registerError(KEY);
-                                if (result.blocked) {
-                                    startCooldownTicker(KEY, feedback);
-                                } else {
+                                if (result.blocked) startCooldownTicker(KEY, feedback);
+                                else {
                                     feedback.textContent = `⚠ CNPJ não encontrado. Tentativa ${COOLDOWN_ATTEMPTS - result.remainingAttempts} de ${COOLDOWN_ATTEMPTS}.`;
                                     feedback.className = 'text-[11px] text-rose-400 mt-1 font-medium block anim-shake';
                                 }
                                 return;
                             }
-                            // Rate limit / instabilidade: não conta como erro do usuário
-                            apiFailedButCnpjValid = true;
                             throw new Error('Serviço de consulta instável. Tente novamente em instantes.');
                         }
 
@@ -1118,17 +1080,15 @@
                             municipio: raw.municipio,
                             uf: raw.uf,
                             email: raw.email,
+                            cep: raw.cep,
                         };
                     } catch (fbErr) {
-                        console.error('[CNPJ] Fallback também falhou:', fbErr);
-                        apiFailedButCnpjValid = true;
                         throw new Error(fbErr.message || 'Não foi possível consultar o CNPJ agora.');
                     }
                 }
 
                 if (!data) throw new Error('Resposta vazia da API.');
 
-                // ===== 3. SUCESSO: reseta contador =====
                 registerSuccess(KEY);
                 fillFields(data);
                 feedback.textContent = '✓ CNPJ verificado e dados carregados com sucesso.';
@@ -1136,7 +1096,6 @@
 
             } catch (error) {
                 console.error('[CNPJ] Erro final:', error);
-                // Se a API falhou mas o CNPJ é válido, NÃO conta como erro do usuário
                 feedback.textContent = `⚠ ${error.message}`;
                 feedback.className = 'text-[11px] text-amber-400 mt-1 font-medium block';
             } finally {
@@ -1144,6 +1103,9 @@
             }
         }
 
+        /* =========================================================
+           CEP
+           ========================================================= */
         async function fetchCepData(cep) {
             const loadingIndicator = document.getElementById('cepLoading');
             const feedback = document.getElementById('cepApiFeedback');
@@ -1170,6 +1132,9 @@
             }
         }
 
+        /* =========================================================
+           CHECKBOXES
+           ========================================================= */
         function toggleNoNumber(checkbox) {
             const numInput = document.getElementById('regNumero');
             if (checkbox.checked) {
@@ -1196,36 +1161,69 @@
             }
         }
 
-        function showMessage(message, type = 'success') {
-            const messageBox = document.getElementById('messageBox');
-            const messageText = document.getElementById('messageText');
-            const messageIcon = document.getElementById('messageIcon');
+        /* =========================================================
+           FIREBASE: SALVAR DADOS DO USUÁRIO
+           ========================================================= */
+        async function salvarDadosUsuario(uid, extraData = {}) {
+            if (!database) return;
 
-            messageText.textContent = message;
-            messageBox.classList.remove('anim-shake', 'anim-bounce');
+            const dados = {
+                email: document.getElementById('regEmail').value.trim(),
+                userType: currentPersonType === 'fisica' ? 'PF' : 'PJ',
+                telefone: document.getElementById('regPhone').value.replace(/\D/g, ''),
+                createdAt: Date.now(),
+                lastAccess: Date.now(),
+                photoURL: 'https://i.ibb.co/6J5qZ9K/default-avatar.png',
+                mustChangePassword: false,
+                ...extraData
+            };
 
-            if (type === 'success') {
-                messageBox.className = 'mb-6 p-4 rounded-2xl text-sm flex items-center gap-3 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 transition-all duration-300 anim-bounce';
-                messageIcon.className = 'fa-solid fa-circle-check text-lg text-emerald-400';
+            if (currentPersonType === 'fisica') {
+                dados.name = document.getElementById('regName').value.trim();
+                dados.cpf = document.getElementById('regDoc').value.replace(/\D/g, '');
+                dados.cep = document.getElementById('regCep').value.replace(/\D/g, '');
+                dados.logradouro = document.getElementById('regLogradouro').value;
+                dados.numero = document.getElementById('regNumero').value;
+                dados.complemento = document.getElementById('regComplemento').value || '';
+                dados.bairro = document.getElementById('regBairro').value;
+                dados.cidade = document.getElementById('regMunicipio').value;
+                dados.uf = document.getElementById('regUf').value;
             } else {
-                messageBox.className = 'mb-6 p-4 rounded-2xl text-sm flex items-center gap-3 bg-rose-500/10 border border-rose-500/20 text-rose-400 transition-all duration-300 anim-shake';
-                messageIcon.className = 'fa-solid fa-triangle-exclamation text-lg text-rose-400';
+                dados.cnpj = document.getElementById('regDoc').value.replace(/\D/g, '');
+                dados.inscricao_estadual = '';
+                dados.name = document.getElementById('regName').value.trim();
+                dados.cep = document.getElementById('regCep').value.replace(/\D/g, '');
+                dados.logradouro = document.getElementById('regLogradouro').value;
+                dados.numero = document.getElementById('regNumero').value;
+                dados.complemento = document.getElementById('regComplemento').value || '';
+                dados.bairro = document.getElementById('regBairro').value;
+                dados.cidade = document.getElementById('regMunicipio').value;
+                dados.uf = document.getElementById('regUf').value;
+                dados.nome_fantasia = document.getElementById('regFantasia').value || '';
+                dados.situacao_cadastral = document.getElementById('regSituacao').value || '';
             }
-            messageBox.classList.remove('hidden');
-            void messageBox.offsetWidth;
+
+            await database.ref(`users/${uid}`).update(dados);
         }
 
-        /* ===== LOGIN com cooldown ===== */
-        function handleLogin(event) {
+        /* =========================================================
+           LOGIN COM FIREBASE + COOLDOWN
+           ========================================================= */
+        async function handleLogin(event) {
             event.preventDefault();
+
+            if (!auth) {
+                showMessage('Firebase ainda carregando. Aguarde alguns segundos.', 'error');
+                return;
+            }
 
             const KEY = 'login';
             const cooldownMsg = document.getElementById('loginCooldownMsg');
             const submitBtn = document.getElementById('submitBtn');
 
-            // Se está bloqueado, avisa e nem processa
             if (isBlocked(KEY)) {
                 startCooldownTicker(KEY, cooldownMsg);
+                showMessage('Login bloqueado temporariamente por excesso de tentativas.', 'error');
                 return;
             }
 
@@ -1235,33 +1233,88 @@
             submitBtn.disabled = true;
             submitBtn.innerHTML = '<i class="fa-solid fa-spinner animate-spin text-sm"></i><span>Entrando...</span>';
 
-            setTimeout(() => {
+            try {
+                await auth.signInWithEmailAndPassword(email, password);
+                // Sucesso: limpa cooldown e redireciona
+                registerSuccess(KEY);
+                cooldownMsg.classList.add('hidden');
+                showMessage('Login efetuado com sucesso! Redirecionando...', 'success');
+                setTimeout(() => { window.location.href = 'cim.html'; }, 800);
+            } catch (error) {
+                console.error('[Login] Erro Firebase:', error);
+
                 submitBtn.disabled = false;
                 submitBtn.innerHTML = '<span>Entrar</span><i class="fa-solid fa-arrow-right text-xs"></i>';
 
-                const emailOk = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-                const passwordOk = password.length >= 6;
+                // Mensagem específica por código de erro
+                let msgUser = 'E-mail ou senha incorretos.';
+                if (error.code === 'auth/user-not-found') msgUser = 'Usuário não encontrado.';
+                else if (error.code === 'auth/wrong-password') msgUser = 'Senha incorreta.';
+                else if (error.code === 'auth/invalid-email') msgUser = 'E-mail inválido.';
+                else if (error.code === 'auth/too-many-requests') msgUser = 'Muitas tentativas. Aguarde alguns minutos.';
+                else if (error.code === 'auth/network-request-failed') msgUser = 'Falha de conexão. Verifique sua internet.';
 
-                if (emailOk && passwordOk) {
-                    // ACERTOU: reseta o contador
-                    registerSuccess(KEY);
-                    cooldownMsg.classList.add('hidden');
-                    showMessage('Login efetuado com sucesso! Redirecionando...', 'success');
+                const result = registerError(KEY);
+                if (result.blocked) {
+                    startCooldownTicker(KEY, cooldownMsg);
+                    showMessage('Muitas tentativas erradas. Login bloqueado temporariamente.', 'error');
                 } else {
-                    // ERROU: registra tentativa
-                    const result = registerError(KEY);
-                    if (result.blocked) {
-                        startCooldownTicker(KEY, cooldownMsg);
-                        showMessage('Muitas tentativas erradas. Login bloqueado temporariamente.', 'error');
-                    } else {
-                        showMessage(`E-mail ou senha inválidos. Tentativa ${COOLDOWN_ATTEMPTS - result.remainingAttempts} de ${COOLDOWN_ATTEMPTS}.`, 'error');
-                    }
+                    showMessage(`${msgUser} Tentativa ${COOLDOWN_ATTEMPTS - result.remainingAttempts} de ${COOLDOWN_ATTEMPTS}.`, 'error');
                 }
-            }, 300);
+            }
         }
 
-        function handleRegister(event) {
+        /* =========================================================
+           CADASTRO COM FIREBASE
+           ========================================================= */
+        async function handleRegister(event) {
             event.preventDefault();
+
+            if (!auth || !database) {
+                showMessage('Firebase ainda carregando. Aguarde alguns segundos.', 'error');
+                return;
+            }
+
+            // MODO GOOGLE: só salva os dados e redireciona
+            if (modoGoogleCadastro && usuarioGoogle) {
+                const name = document.getElementById('regName').value.trim();
+                const doc = document.getElementById('regDoc').value.trim();
+                const phone = document.getElementById('regPhone').value.trim();
+                const email = document.getElementById('regEmail').value.trim() || usuarioGoogle.email;
+
+                if (!currentPersonType) {
+                    showMessage('Selecione o tipo de pessoa (Física ou Jurídica).', 'error');
+                    return;
+                }
+                if (!name || !doc || !phone || !email) {
+                    showMessage('Preencha todos os campos obrigatórios corretamente.', 'error');
+                    return;
+                }
+
+                const registerBtn = document.getElementById('registerBtn');
+                registerBtn.disabled = true;
+                registerBtn.innerHTML = '<i class="fa-solid fa-spinner animate-spin text-sm"></i><span>Salvando...</span>';
+
+                try {
+                    await salvarDadosUsuario(usuarioGoogle.uid, {
+                        name: name,
+                        email: email
+                    });
+                    registerSuccess('cnpj');
+                    registerSuccess('cpf');
+                    registerSuccess('login');
+                    showMessage('Cadastro concluído com sucesso! Redirecionando...', 'success');
+                    setTimeout(() => { window.location.href = 'cim.html'; }, 800);
+                } catch (err) {
+                    console.error('[Registro Google] Erro:', err);
+                    registerBtn.disabled = false;
+                    registerBtn.innerHTML = '<span>Finalizar Cadastro</span><i class="fa-solid fa-arrow-right text-xs"></i>';
+                    showMessage('Erro ao salvar dados. Tente novamente.', 'error');
+                }
+                return;
+            }
+
+            // MODO NORMAL: cria conta com e-mail/senha
             const name = document.getElementById('regName').value.trim();
             const doc = document.getElementById('regDoc').value.trim();
             const phone = document.getElementById('regPhone').value.trim();
@@ -1269,32 +1322,126 @@
             const password = document.getElementById('regPassword').value.trim();
             const registerBtn = document.getElementById('registerBtn');
 
+            if (!currentPersonType) {
+                showMessage('Selecione o tipo de pessoa (Física ou Jurídica).', 'error');
+                return;
+            }
+            if (!name || !doc || !phone || !email || password.length < 6) {
+                showMessage('Preencha todos os campos obrigatórios. Senha deve ter pelo menos 6 caracteres.', 'error');
+                return;
+            }
+
             registerBtn.disabled = true;
             registerBtn.innerHTML = '<i class="fa-solid fa-spinner animate-spin text-sm"></i><span>Cadastrando...</span>';
 
-            setTimeout(() => {
+            try {
+                const userCredential = await auth.createUserWithEmailAndPassword(email, password);
+
+                // Atualiza displayName
+                try {
+                    await userCredential.user.updateProfile({ displayName: name });
+                } catch (e) { console.warn('Não foi possível atualizar displayName:', e); }
+
+                await salvarDadosUsuario(userCredential.user.uid);
+
+                registerSuccess('cnpj');
+                registerSuccess('cpf');
+                registerSuccess('login');
+
+                showMessage('Cadastro realizado com sucesso! Redirecionando...', 'success');
+                setTimeout(() => { window.location.href = 'cim.html'; }, 800);
+            } catch (error) {
+                console.error('[Cadastro] Erro Firebase:', error);
                 registerBtn.disabled = false;
                 registerBtn.innerHTML = '<span>Finalizar Cadastro</span><i class="fa-solid fa-arrow-right text-xs"></i>';
 
-                if (name && doc && phone && email && password.length >= 6) {
-                    let typeDesc = currentPersonType === 'fisica' ? 'Pessoa Física' : `Pessoa Jurídica (${currentJuridicaSubtype === 'oficina' ? 'Oficina' : 'Loja'})`;
-                    showMessage(`Cadastro de ${typeDesc} realizado com sucesso!`, 'success');
-                    // Zera cooldowns pois cadastro deu certo
-                    registerSuccess('cnpj');
-                    registerSuccess('cpf');
-                    setTimeout(() => switchView('login'), 800);
+                let msgUser = 'Erro ao criar conta. Tente novamente.';
+                if (error.code === 'auth/email-already-in-use') msgUser = 'Este e-mail já está cadastrado.';
+                else if (error.code === 'auth/invalid-email') msgUser = 'E-mail inválido.';
+                else if (error.code === 'auth/weak-password') msgUser = 'Senha muito fraca. Use pelo menos 6 caracteres.';
+                else if (error.code === 'auth/network-request-failed') msgUser = 'Falha de conexão. Verifique sua internet.';
+
+                showMessage(msgUser, 'error');
+            }
+        }
+
+        /* =========================================================
+           GOOGLE LOGIN COM FIREBASE
+           ========================================================= */
+        async function handleGoogleLogin() {
+            if (!auth || !database) {
+                showMessage('Firebase ainda carregando. Aguarde alguns segundos.', 'error');
+                return;
+            }
+
+            const provider = new firebase.auth.GoogleAuthProvider();
+
+            try {
+                const result = await auth.signInWithPopup(provider);
+                const user = result.user;
+
+                const snapshot = await database.ref(`users/${user.uid}`).once('value');
+                if (snapshot.exists()) {
+                    // Usuário já cadastrado -> entra direto
+                    registerSuccess('login');
+                    showMessage('Login com Google realizado! Redirecionando...', 'success');
+                    setTimeout(() => { window.location.href = 'cim.html'; }, 800);
                 } else {
-                    showMessage('Preencha todos os campos obrigatórios corretamente.', 'error');
+                    // Novo usuário: entra em modo de cadastro com Google
+                    modoGoogleCadastro = true;
+                    usuarioGoogle = user;
+
+                    document.getElementById('senhaContainer').style.display = 'none';
+                    document.getElementById('regPassword').required = false;
+
+                    switchView('register');
+
+                    // Pré-preenche email e nome
+                    setTimeout(() => {
+                        document.getElementById('regEmail').value = user.email || '';
+                        document.getElementById('regName').value = user.displayName || '';
+                    }, 450);
+
+                    showMessage('Complete seu cadastro para continuar.', 'success');
                 }
-            }, 300);
+            } catch (error) {
+                console.error('[Google] Erro:', error);
+                if (error.code === 'auth/popup-closed-by-user') {
+                    showMessage('Janela de autenticação fechada. Tente novamente.', 'error');
+                } else if (error.code === 'auth/popup-blocked') {
+                    showMessage('Permita pop-ups para usar o login com Google.', 'error');
+                } else if (error.code === 'auth/cancelled-popup-request') {
+                    // Silencioso
+                } else {
+                    showMessage('Erro ao autenticar com Google. Tente novamente.', 'error');
+                }
+            }
         }
 
-        function handleGoogleLogin() {
-            showMessage('Autenticação com Google iniciada (simulada).', 'success');
-        }
+        /* =========================================================
+           INICIALIZAÇÃO
+           ========================================================= */
+        document.addEventListener('DOMContentLoaded', () => {
+            // Inicializa Firebase
+            if (typeof firebase !== 'undefined') {
+                if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+                auth = firebase.auth();
+                database = firebase.database();
 
-        /* ===== Restaura cooldowns ao carregar ===== */
-        document.addEventListener('DOMContentLoaded', restoreCooldowns);
+                auth.onAuthStateChanged(user => {
+                    if (user) {
+                        database.ref(`users/${user.uid}`).once('value').then(snapshot => {
+                            if (snapshot.exists()) {
+                                window.location.href = 'cim.html';
+                            }
+                        });
+                    }
+                });
+            }
+
+            // Restaura cooldowns salvos
+            restoreCooldowns();
+        });
     </script>
 </body>
 </html>
