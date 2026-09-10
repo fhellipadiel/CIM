@@ -2,492 +2,730 @@
 <html lang="pt-BR" class="h-full">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Tela de Login e Cadastro</title>
-    
-    <!-- PRE-CARREGAMENTO DA LOGO COM PRIORIDADE MAXIMA NO TOPO DO HEAD -->
-    <link rel="preload" as="image" href="https://i.postimg.cc/Qx3MhBfb/Preto.png" fetchpriority="high" type="image/png">
-
-    <!-- Otimizacoes de Conexao Prévias -->
-    <link rel="preconnect" href="https://i.postimg.cc" crossorigin>
-    <link rel="preconnect" href="https://cdn.tailwindcss.com" crossorigin>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
-    <link rel="preconnect" href="https://www.gstatic.com" crossorigin>
-
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
-    <!-- Firebase SDKs com carregamento diferido (defer) -->
-    <script defer src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-    <script defer src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
-    <script defer src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
-
-    <style>
-        /* Aceleração via GPU */
-        .gpu-accelerated {
-            transform: translateZ(0);
-            will-change: transform, opacity;
-            backface-visibility: hidden;
-        }
-
-        /* Efeito de surgimento suave para a imagem de fundo */
-        #bgContainer {
-            transition: opacity 0.6s ease-in-out;
-        }
-
-        /* Container de dimensão fixa para evitar salto visual enquanto a logo carrega */
-        .logo-wrapper {
-            min-height: 80px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        /* Impedir zoom automático no Safari/Chrome Mobile ao focar nos campos */
-        @media screen and (max-width: 768px) {
-            input[type="text"],
-            input[type="password"],
-            input[type="email"],
-            input[type="number"],
-            select,
-            textarea {
-                font-size: 16px !important;
-            }
-        }
-    </style>
-
     <script>
         tailwind.config = {
             theme: {
                 extend: {
-                    fontFamily: {
-                        sans: ['Inter', 'sans-serif'],
-                    },
-                    colors: {
-                        brand: '#000000',
-                    }
+                    fontFamily: { sans: ['Inter', 'sans-serif'] },
+                    colors: { brand: '#ffffff', darkbg: '#0a0a0a' }
                 }
             }
         }
     </script>
+    <style>
+        @keyframes scrollUp {
+            0% { transform: translateY(0); }
+            100% { transform: translateY(-50%); }
+        }
+        @keyframes scrollDown {
+            0% { transform: translateY(-50%); }
+            100% { transform: translateY(0); }
+        }
+        .animate-scroll-up { animation: scrollUp 30s linear infinite; }
+        .animate-scroll-down { animation: scrollDown 35s linear infinite; }
+
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes fadeInLeft {
+            from { opacity: 0; transform: translateX(-20px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        .anim-fade-up { animation: fadeInUp 0.6s ease-out forwards; opacity: 0; }
+        .anim-fade-left { animation: fadeInLeft 0.6s ease-out forwards; opacity: 0; }
+        .delay-1 { animation-delay: 0.1s; }
+        .delay-2 { animation-delay: 0.2s; }
+        .delay-3 { animation-delay: 0.3s; }
+        .delay-4 { animation-delay: 0.4s; }
+        .delay-5 { animation-delay: 0.5s; }
+        .delay-6 { animation-delay: 0.6s; }
+
+        .btn-glow {
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+                        box-shadow 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+                        background-color 0.3s ease;
+            box-shadow: 0 4px 14px rgba(255, 255, 255, 0.12);
+        }
+        .btn-glow:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(255, 255, 255, 0.28),
+                        0 0 0 6px rgba(255, 255, 255, 0.07);
+        }
+        .btn-glow:active {
+            transform: translateY(1px) scale(0.98);
+            box-shadow: 0 2px 8px rgba(255, 255, 255, 0.18);
+        }
+
+        @keyframes inputGlow {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.15); }
+            50% { box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.08); }
+        }
+        .input-anim { transition: all 0.3s ease; }
+        .input-anim:focus { animation: inputGlow 2s ease-in-out infinite; transform: translateY(-1px); }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            20% { transform: translateX(-8px); }
+            40% { transform: translateX(8px); }
+            60% { transform: translateX(-5px); }
+            80% { transform: translateX(5px); }
+        }
+        .anim-shake { animation: shake 0.5s ease-in-out; }
+
+        @keyframes successBounce {
+            0% { transform: scale(0.8); opacity: 0; }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        .anim-bounce { animation: successBounce 0.5s ease-out; }
+
+        .btn-soft { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+        .btn-soft:hover { transform: translateY(-2px); box-shadow: 0 10px 25px -5px rgba(255, 255, 255, 0.15); }
+        .btn-soft:active { transform: translateY(0) scale(0.98); }
+
+        .card-select { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+        .card-select:hover { transform: translateY(-3px) scale(1.02); box-shadow: 0 8px 20px -5px rgba(255, 255, 255, 0.1); }
+        .card-select:active { transform: translateY(-1px) scale(0.99); }
+
+        @keyframes floatLogo {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-5px); }
+        }
+        .anim-float { animation: floatLogo 4s ease-in-out infinite; }
+
+        .btn-arrow i { transition: transform 0.3s ease; }
+        .btn-arrow:hover i { transform: translateX(4px); }
+
+        .form-transition {
+            transition: opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+                        transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .eye-toggle { transition: all 0.2s ease; }
+        .eye-toggle:hover { color: #ffffff; transform: scale(1.1); }
+
+        @keyframes pulseBall {
+            0%, 100% { opacity: 0.7; transform: scale(1); }
+            50% { opacity: 0.9; transform: scale(1.08); }
+        }
+
+        .glow-ball {
+            position: absolute;
+            bottom: -180px;
+            left: calc(50% - 250px);
+            width: 500px;
+            height: 500px;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.18) 0%, rgba(255, 255, 255, 0.08) 35%, rgba(255, 255, 255, 0.02) 60%, transparent 75%);
+            border-radius: 50%;
+            filter: blur(40px);
+            pointer-events: none;
+            animation: pulseBall 6s ease-in-out infinite;
+            transition: left 1s cubic-bezier(0.65, 0, 0.35, 1);
+            z-index: 1;
+            will-change: left;
+        }
+        .glow-ball.moved-left { left: -220px; }
+
+        .glow-ball-sm {
+            position: absolute;
+            bottom: -120px;
+            left: calc(50% - 140px);
+            width: 280px;
+            height: 280px;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.35) 0%, rgba(255, 255, 255, 0.15) 40%, transparent 70%);
+            border-radius: 50%;
+            filter: blur(30px);
+            pointer-events: none;
+            animation: pulseBall 5s ease-in-out infinite;
+            transition: left 1s cubic-bezier(0.65, 0, 0.35, 1);
+            z-index: 2;
+            will-change: left;
+        }
+        .glow-ball-sm.moved-left { left: -110px; }
+
+        /* ===== Aviso de cooldown ===== */
+        @keyframes cooldownPulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.6; }
+        }
+        .cooldown-active {
+            animation: cooldownPulse 2s ease-in-out infinite;
+        }
+    </style>
 </head>
-<body class="h-full bg-gray-900 flex items-center justify-center p-4 overflow-x-hidden relative">
+<body class="h-full bg-darkbg text-white flex overflow-hidden font-sans relative">
 
-    <!-- Fundo Diferido (Carrega apos a estrutura/logo) -->
-    <div id="bgContainer" class="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-0 pointer-events-none"></div>
-
-    <!-- Dark Overlay com Aceleração por Hardware -->
-    <div class="absolute inset-0 bg-black/50 backdrop-blur-[2px] gpu-accelerated"></div>
-
-    <div class="w-full max-w-md bg-white rounded-3xl shadow-2xl border border-white/20 overflow-hidden relative z-10 transform-gpu gpu-accelerated">
+    <!-- LADO ESQUERDO -->
+    <div class="w-full lg:w-[45%] h-full relative z-20 overflow-y-auto no-scrollbar bg-gradient-to-r from-darkbg via-darkbg/95 to-transparent">
         
-        <div id="messageBox" class="hidden mx-8 mt-6 p-4 rounded-xl text-sm flex items-center gap-3 transition-all duration-200">
-            <i id="messageIcon" class="fa-solid fa-circle-info text-lg"></i>
-            <span id="messageText" class="font-medium"></span>
+        <div id="heroHeader" class="px-6 sm:px-12 lg:px-20 pt-10 pb-4">
+            <div class="max-w-md mx-auto lg:mx-0">
+                <div class="flex justify-start mb-4 anim-fade-left">
+                    <img src="https://i.postimg.cc/PrWKgyHX/Branco-PNG.png" alt="Logo" class="h-14 w-auto object-contain anim-float" onerror="this.style.display='none'">
+                </div>
+                <h1 class="text-5xl font-bold text-white tracking-tight text-left leading-tight anim-fade-left delay-1">Conecte-se à CIM</h1>
+                <p class="text-sm text-gray-400 mt-3 text-left leading-relaxed anim-fade-left delay-2">
+                    Acesse sua <strong class="text-white font-bold">conta</strong> e tenha tudo o que precisa para gerenciar seus <strong class="text-white font-bold">pedidos</strong>, peças e <strong class="text-white font-bold">informações</strong> em um só lugar.
+                </p>
+            </div>
         </div>
 
-        <!-- ==================== LOGIN FORM ==================== -->
-        <form id="loginForm" class="p-8 space-y-5" onsubmit="handleLogin(event)">
-            
-            <div class="text-center pt-2 pb-2 logo-wrapper">
-                <img src="https://i.postimg.cc/Qx3MhBfb/Preto.png" 
-                     alt="Logo" 
-                     width="160" 
-                     height="80" 
-                     loading="eager" 
-                     decoding="sync" 
-                     fetchpriority="high" 
-                     class="h-20 w-auto object-contain mb-2" 
-                     onerror="this.style.display='none'">
-            </div>
+        <div class="px-6 sm:px-12 lg:px-20 pb-10 relative">
+            <div class="w-full max-w-md mx-auto lg:mx-0 relative pt-2">
 
-            <button type="button" onclick="handleGoogleLogin()"
-                class="w-full py-3 px-4 bg-white hover:bg-gray-50 text-gray-700 font-medium border border-gray-200 rounded-full shadow-sm hover:shadow active:scale-[0.98] transition-all duration-150 flex items-center justify-center gap-3 text-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-300 transform-gpu">
-                <svg class="w-4 h-4" viewBox="0 0 24 24">
-                    <path fill="#4285F4" d="M23.745 12.27c-.07-.8-.64-1.55-1.42-1.74H12v4.57h6.61c-.3 1.58-1.57 2.82-3.25 3.3l3.69 2.86c2.16-1.99 3.69-4.94 3.69-8.99z"/>
-                    <path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.69-2.86c-1.08.72-2.46 1.22-4.24 1.22-3.26 0-6.02-2.2-7-5.17H1.19v2.96C3.17 21.36 7.24 24 12 24z"/>
-                    <path fill="#FBBC05" d="M5 14.28c-.25-.72-.39-1.5-.39-2.28s.14-1.56.39-2.28V6.76H1.19C.43 8.28 0 10.08 0 12s.43 3.72 1.19 5.24l3.81-2.96z"/>
-                    <path fill="#EA4335" d="M12 4.75c1.76 0 3.34.61 4.58 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.24 0 3.17 2.64 1.19 6.76l3.81 2.96c.98-2.97 3.74-5.17 7-5.17z"/>
-                </svg>
-                <span>Continuar com o Google</span>
-            </button>
-
-            <div class="flex items-center my-3">
-                <div class="flex-grow border-t border-gray-200"></div>
-                <span class="px-3 text-xs text-gray-400 uppercase">ou</span>
-                <div class="flex-grow border-t border-gray-200"></div>
-            </div>
-
-            <div class="space-y-1">
-                <label for="email" class="block text-xs font-semibold uppercase tracking-wider text-gray-600">E-mail</label>
-                <div class="relative">
-                    <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-gray-400">
-                        <i class="fa-regular fa-envelope"></i>
-                    </span>
-                    <input type="email" id="email" required placeholder="seu@email.com"
-                        class="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-gray-800 text-base sm:text-sm focus:outline-none focus:ring-2 focus:ring-black focus:bg-white transition-all">
+                <div id="messageBox" class="hidden mb-6 p-4 rounded-2xl text-sm flex items-center gap-3 transition-all duration-150">
+                    <i id="messageIcon" class="fa-solid fa-circle-info text-lg"></i>
+                    <span id="messageText" class="font-medium"></span>
                 </div>
-            </div>
 
-            <div class="space-y-1">
-                <div class="flex items-center justify-between">
-                    <label for="password" class="block text-xs font-semibold uppercase tracking-wider text-gray-600">Senha</label>
-                </div>
-                <div class="relative">
-                    <input type="password" id="password" required placeholder="••••••••"
-                        class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-gray-800 text-base sm:text-sm focus:outline-none focus:ring-2 focus:ring-black focus:bg-white transition-all">
-                </div>
-            </div>
-
-            <button type="submit" id="submitBtn"
-                class="w-full mt-2 py-3 px-4 bg-black hover:opacity-90 text-white font-semibold rounded-full shadow-md hover:shadow-lg active:scale-[0.98] transition-all duration-150 flex items-center justify-center gap-2 text-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-black transform-gpu">
-                <span>Entrar</span>
-                <i class="fa-solid fa-arrow-right text-xs"></i>
-            </button>
-
-            <p class="text-center text-xs text-gray-500 pt-3">
-                Não tem uma conta? 
-                <a href="#" onclick="switchView('register')" class="text-black font-semibold hover:underline">Cadastre-se</a>
-            </p>
-        </form>
-
-        <!-- ==================== REGISTER FORM ==================== -->
-        <form id="registerForm" class="hidden p-8 space-y-4 max-h-[85vh] overflow-y-auto" onsubmit="handleRegister(event)">
-            
-            <div class="flex items-center justify-between pb-1">
-                <h2 class="text-base font-bold text-gray-900">Criar Conta</h2>
-                <button type="button" onclick="handleRegisterBack()" class="text-xs text-gray-500 hover:text-black font-medium transition-colors">
-                    <i class="fa-solid fa-arrow-left mr-1"></i> Voltar
-                </button>
-            </div>
-
-            <div class="text-center pt-1 pb-1 flex flex-col items-center justify-center">
-                <img src="https://i.postimg.cc/Qx3MhBfb/Preto.png" 
-                     alt="Logo" 
-                     width="130" 
-                     height="65" 
-                     loading="eager"
-                     decoding="sync" 
-                     fetchpriority="high"
-                     class="h-16 w-auto object-contain mb-2" 
-                     onerror="this.style.display='none'">
-            </div>
-
-            <button type="button" onclick="handleGoogleLogin()"
-                class="w-full py-3 px-4 bg-white hover:bg-gray-50 text-gray-700 font-medium border border-gray-200 rounded-full shadow-sm hover:shadow active:scale-[0.98] transition-all duration-150 flex items-center justify-center gap-3 text-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-300 transform-gpu">
-                <svg class="w-4 h-4" viewBox="0 0 24 24">
-                    <path fill="#4285F4" d="M23.745 12.27c-.07-.8-.64-1.55-1.42-1.74H12v4.57h6.61c-.3 1.58-1.57 2.82-3.25 3.3l3.69 2.86c2.16-1.99 3.69-4.94 3.69-8.99z"/>
-                    <path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.69-2.86c-1.08.72-2.46 1.22-4.24 1.22-3.26 0-6.02-2.2-7-5.17H1.19v2.96C3.17 21.36 7.24 24 12 24z"/>
-                    <path fill="#FBBC05" d="M5 14.28c-.25-.72-.39-1.5-.39-2.28s.14-1.56.39-2.28V6.76H1.19C.43 8.28 0 10.08 0 12s.43 3.72 1.19 5.24l3.81-2.96z"/>
-                    <path fill="#EA4335" d="M12 4.75c1.76 0 3.34.61 4.58 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.24 0 3.17 2.64 1.19 6.76l3.81 2.96c.98-2.97 3.74-5.17 7-5.17z"/>
-                </svg>
-                <span>Cadastrar com o Google</span>
-            </button>
-
-            <div class="flex items-center my-2">
-                <div class="flex-grow border-t border-gray-200"></div>
-                <span class="px-3 text-xs text-gray-400 uppercase">ou</span>
-                <div class="flex-grow border-t border-gray-200"></div>
-            </div>
-
-            <!-- Step 1: Person Type Selection -->
-            <div id="personTypeContainer" class="space-y-1">
-                <label class="block text-xs font-semibold uppercase tracking-wider text-gray-600">Selecione o Tipo de Cadastro</label>
-                <div id="personTypeGrid" class="grid grid-cols-2 gap-3">
-                    <button type="button" id="btnFisica" onclick="setPersonType('fisica')"
-                        class="py-3 px-3 border rounded-xl text-xs font-semibold transition-all active:scale-95 flex flex-col items-center justify-center gap-2 border-gray-200 bg-gray-50 text-gray-700 hover:bg-gray-100 transform-gpu">
-                        <i class="fa-solid fa-user text-base"></i> Pessoa Física
+                <!-- ==================== LOGIN FORM ==================== -->
+                <form id="loginForm" class="space-y-5 form-transition" onsubmit="handleLogin(event)">
+                    
+                    <button type="button" onclick="handleGoogleLogin()"
+                        class="w-full py-3 px-4 bg-white hover:bg-gray-100 text-black font-medium border border-transparent rounded-full shadow-sm btn-soft flex items-center justify-center gap-3 text-sm focus:outline-none focus:ring-2 focus:ring-white/50 anim-fade-up delay-3">
+                        <svg class="w-4 h-4" viewBox="0 0 24 24">
+                            <path fill="#4285F4" d="M23.745 12.27c-.07-.8-.64-1.55-1.42-1.74H12v4.57h6.61c-.3 1.58-1.57 2.82-3.25 3.3l3.69 2.86c2.16-1.99 3.69-4.94 3.69-8.99z"/>
+                            <path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.69-2.86c-1.08.72-2.46 1.22-4.24 1.22-3.26 0-6.02-2.2-7-5.17H1.19v2.96C3.17 21.36 7.24 24 12 24z"/>
+                            <path fill="#FBBC05" d="M5 14.28c-.25-.72-.39-1.5-.39-2.28s.14-1.56.39-2.28V6.76H1.19C.43 8.28 0 10.08 0 12s.43 3.72 1.19 5.24l3.81-2.96z"/>
+                            <path fill="#EA4335" d="M12 4.75c1.76 0 3.34.61 4.58 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.24 0 3.17 2.64 1.19 6.76l3.81 2.96c.98-2.97 3.74-5.17 7-5.17z"/>
+                        </svg>
+                        <span>Continuar com o Google</span>
                     </button>
-                    <button type="button" id="btnJuridica" onclick="setPersonType('juridica')"
-                        class="py-3 px-3 border rounded-xl text-xs font-semibold transition-all active:scale-95 flex flex-col items-center justify-center gap-2 border-gray-200 bg-gray-50 text-gray-700 hover:bg-gray-100 transform-gpu">
-                        <i class="fa-solid fa-building text-base"></i> Jurídica
-                    </button>
-                </div>
-            </div>
 
-            <!-- Step 2: Form fields (Hidden initially) -->
-            <div id="registerFieldsContainer" class="hidden border-t border-gray-100 pt-3 space-y-3 pr-1">
-                
-                <div class="space-y-1">
-                    <label for="regDoc" id="labelDoc" class="block text-xs font-semibold uppercase tracking-wider text-gray-600">CPF</label>
-                    <div class="relative">
-                        <input type="text" id="regDoc" placeholder="000.000.000-00" maxlength="18" oninput="formatDocument(this)"
-                            class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-gray-800 text-base sm:text-sm focus:outline-none focus:ring-2 focus:ring-black focus:bg-white transition-all">
-                        <div id="docLoading" class="absolute right-3 top-3.5 hidden">
-                            <i class="fa-solid fa-spinner animate-spin text-gray-500 text-sm"></i>
-                        </div>
+                    <div class="flex items-center my-3 anim-fade-up delay-3">
+                        <div class="flex-grow border-t border-white/10"></div>
+                        <span class="px-3 text-xs text-gray-500 uppercase">ou</span>
+                        <div class="flex-grow border-t border-white/10"></div>
                     </div>
-                    <p id="docApiFeedback" class="text-[11px] text-gray-500 hidden mt-1 font-medium"></p>
-                </div>
 
-                <div class="space-y-1">
-                    <label for="regName" id="labelName" class="block text-xs font-semibold uppercase tracking-wider text-gray-600">Nome Completo</label>
-                    <input type="text" id="regName" placeholder="Seu nome completo"
-                        class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-gray-800 text-base sm:text-sm focus:outline-none focus:ring-2 focus:ring-black focus:bg-white transition-all">
-                </div>
-
-                <div class="space-y-1">
-                    <label for="regPhone" class="block text-xs font-semibold uppercase tracking-wider text-gray-600">Telefone / Celular</label>
-                    <div class="relative">
-                        <input type="text" id="regPhone" placeholder="(00) 00000-0000" maxlength="15" oninput="formatPhone(this)"
-                            class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-gray-800 text-base sm:text-sm focus:outline-none focus:ring-2 focus:ring-black focus:bg-white transition-all">
-                    </div>
-                </div>
-
-                <div id="cepContainer" class="space-y-1">
-                    <label for="regCep" class="block text-xs font-semibold uppercase tracking-wider text-gray-600">CEP</label>
-                    <div class="relative">
-                        <input type="text" id="regCep" placeholder="00000-000" maxlength="9" oninput="formatCep(this)"
-                            class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-gray-800 text-base sm:text-sm focus:outline-none focus:ring-2 focus:ring-black focus:bg-white transition-all">
-                        <div id="cepLoading" class="absolute right-3 top-3.5 hidden">
-                            <i class="fa-solid fa-spinner animate-spin text-gray-500 text-sm"></i>
-                        </div>
-                    </div>
-                    <p id="cepApiFeedback" class="text-[11px] text-gray-500 hidden mt-1 font-medium"></p>
-                </div>
-
-                <div id="addressExtraFields" class="space-y-3 pt-1 border-t border-dashed border-gray-200">
-                    <div id="juridicaExtraHeader" class="hidden">
-                        <div class="grid grid-cols-2 gap-2 mb-2">
-                            <div class="space-y-1">
-                                <label class="block text-[10px] font-semibold uppercase tracking-wider text-gray-500">Nome Fantasia</label>
-                                <input type="text" id="regFantasia" readonly placeholder="Automático via CNPJ"
-                                    class="w-full px-3 py-2 bg-gray-100 border border-gray-200 rounded-lg text-gray-600 text-base sm:text-xs focus:outline-none cursor-not-allowed">
-                            </div>
-                            <div class="space-y-1">
-                                <label class="block text-[10px] font-semibold uppercase tracking-wider text-gray-500">Situação</label>
-                                <input type="text" id="regSituacao" readonly placeholder="Ativa"
-                                    class="w-full px-3 py-2 bg-gray-100 border border-gray-200 rounded-lg text-gray-600 text-base sm:text-xs focus:outline-none cursor-not-allowed">
-                            </div>
+                    <div class="space-y-1 anim-fade-up delay-4">
+                        <label for="email" class="block text-xs font-semibold uppercase tracking-wider text-gray-400">E-mail</label>
+                        <div class="relative">
+                            <input type="email" id="email" required placeholder="E-MAIL"
+                                class="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-full text-white text-sm focus:outline-none focus:ring-2 focus:ring-white/50 focus:bg-white/10 input-anim placeholder-gray-500">
                         </div>
                     </div>
 
-                    <div class="grid grid-cols-3 gap-2">
-                        <div class="col-span-2 space-y-1">
-                            <label class="block text-[10px] font-semibold uppercase tracking-wider text-gray-500">Logradouro / Endereço</label>
-                            <input type="text" id="regLogradouro" readonly placeholder="Preenchido via CEP/CNPJ"
-                                class="w-full px-3 py-2 bg-gray-100 border border-gray-200 rounded-lg text-gray-600 text-base sm:text-xs focus:outline-none cursor-not-allowed">
-                        </div>
-                        <div class="space-y-1">
-                            <div class="flex items-center justify-between">
-                                <label class="block text-[10px] font-semibold uppercase tracking-wider text-gray-500">Número</label>
-                                <label class="flex items-center gap-1 text-[9px] text-gray-500 cursor-pointer">
-                                    <input type="checkbox" id="noNumberCheckbox" onchange="toggleNoNumber(this)" class="rounded text-black focus:ring-0"> S/N
-                                </label>
-                            </div>
-                            <input type="text" id="regNumero" placeholder="Nº"
-                                class="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg text-gray-800 text-base sm:text-xs focus:outline-none focus:ring-1 focus:ring-black">
-                        </div>
-                    </div>
-
-                    <div class="space-y-1">
+                    <div class="space-y-1 anim-fade-up delay-5">
                         <div class="flex items-center justify-between">
-                            <label class="block text-[10px] font-semibold uppercase tracking-wider text-gray-500">Complemento</label>
-                            <label class="flex items-center gap-1 text-[9px] text-gray-500 cursor-pointer">
-                                <input type="checkbox" id="noComplementCheckbox" onchange="toggleNoComplement(this)" class="rounded text-black focus:ring-0"> Nenhum
-                            </label>
+                            <label for="password" class="block text-xs font-semibold uppercase tracking-wider text-gray-400">Senha</label>
                         </div>
-                        <input type="text" id="regComplemento" placeholder="Apto, Bloco, Sala (Opcional)"
-                            class="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg text-gray-800 text-base sm:text-xs focus:outline-none focus:ring-1 focus:ring-black">
+                        <div class="relative">
+                            <input type="password" id="password" required placeholder="••••••••"
+                                class="w-full pl-4 pr-12 py-3 bg-white/5 border border-white/10 rounded-full text-white text-sm focus:outline-none focus:ring-2 focus:ring-white/50 focus:bg-white/10 input-anim placeholder-gray-500">
+                            <button type="button" onclick="togglePassword('password', this)" class="eye-toggle absolute inset-y-0 right-0 pr-4 flex items-center text-gray-500" tabindex="-1" aria-label="Mostrar senha">
+                                <i class="fa-regular fa-eye text-base"></i>
+                            </button>
+                        </div>
+                        <!-- Aviso de cooldown do login -->
+                        <p id="loginCooldownMsg" class="hidden text-[11px] font-medium mt-1"></p>
                     </div>
 
-                    <div class="grid grid-cols-3 gap-2">
-                        <div class="space-y-1">
-                            <label class="block text-[10px] font-semibold uppercase tracking-wider text-gray-500">Bairro</label>
-                            <input type="text" id="regBairro" readonly placeholder="Bairro"
-                                class="w-full px-3 py-2 bg-gray-100 border border-gray-200 rounded-lg text-gray-600 text-base sm:text-xs focus:outline-none cursor-not-allowed">
-                        </div>
-                        <div class="space-y-1">
-                            <label class="block text-[10px] font-semibold uppercase tracking-wider text-gray-500">Município</label>
-                            <input type="text" id="regMunicipio" readonly placeholder="Cidade"
-                                class="w-full px-3 py-2 bg-gray-100 border border-gray-200 rounded-lg text-gray-600 text-base sm:text-xs focus:outline-none cursor-not-allowed">
-                        </div>
-                        <div class="space-y-1">
-                            <label class="block text-[10px] font-semibold uppercase tracking-wider text-gray-500">UF</label>
-                            <input type="text" id="regUf" readonly placeholder="UF"
-                                class="w-full px-3 py-2 bg-gray-100 border border-gray-200 rounded-lg text-gray-600 text-base sm:text-xs focus:outline-none cursor-not-allowed">
+                    <p class="text-[11px] text-gray-500 leading-relaxed text-left anim-fade-up delay-5">
+                        Ao continuar, você concorda com a 
+                        <a href="#" onclick="openPrivacy(event)" class="text-gray-300 underline hover:text-white transition-colors">Política de Privacidade e os Termos</a> 
+                        de Serviço da CIM.
+                    </p>
+
+                    <button type="submit" id="submitBtn"
+                        class="w-full mt-2 py-3 px-4 bg-white hover:bg-gray-100 text-black font-semibold rounded-full shadow-md btn-glow btn-arrow flex items-center justify-center gap-2 text-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-white focus:ring-offset-darkbg anim-fade-up delay-6">
+                        <span>Entrar</span>
+                        <i class="fa-solid fa-arrow-right text-xs"></i>
+                    </button>
+
+                    <p class="text-center text-xs text-gray-400 pt-3 anim-fade-up delay-6">
+                        Não tem uma conta? 
+                        <a href="#" onclick="switchView('register')" class="text-white font-semibold hover:underline transition-all hover:tracking-wide">Cadastre-se</a>
+                    </p>
+                </form>
+
+                <!-- ==================== REGISTER FORM ==================== -->
+                <form id="registerForm" class="hidden space-y-4 form-transition" onsubmit="handleRegister(event)">
+                    
+                    <div class="flex items-center justify-between pb-1">
+                        <h2 class="text-base font-bold text-white">Criar Conta</h2>
+                        <button type="button" onclick="handleRegisterBack()" class="text-xs text-gray-400 hover:text-white font-medium transition-all hover:-translate-x-1">
+                            <i class="fa-solid fa-arrow-left mr-1"></i> Voltar
+                        </button>
+                    </div>
+
+                    <button type="button" onclick="handleGoogleLogin()"
+                        class="w-full py-3 px-4 bg-white hover:bg-gray-100 text-black font-medium border border-transparent rounded-full shadow-sm btn-soft flex items-center justify-center gap-3 text-sm focus:outline-none focus:ring-2 focus:ring-white/50">
+                        <svg class="w-4 h-4" viewBox="0 0 24 24">
+                            <path fill="#4285F4" d="M23.745 12.27c-.07-.8-.64-1.55-1.42-1.74H12v4.57h6.61c-.3 1.58-1.57 2.82-3.25 3.3l3.69 2.86c2.16-1.99 3.69-4.94 3.69-8.99z"/>
+                            <path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.69-2.86c-1.08.72-2.46 1.22-4.24 1.22-3.26 0-6.02-2.2-7-5.17H1.19v2.96C3.17 21.36 7.24 24 12 24z"/>
+                            <path fill="#FBBC05" d="M5 14.28c-.25-.72-.39-1.5-.39-2.28s.14-1.56.39-2.28V6.76H1.19C.43 8.28 0 10.08 0 12s.43 3.72 1.19 5.24l3.81-2.96z"/>
+                            <path fill="#EA4335" d="M12 4.75c1.76 0 3.34.61 4.58 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.24 0 3.17 2.64 1.19 6.76l3.81 2.96c.98-2.97 3.74-5.17 7-5.17z"/>
+                        </svg>
+                        <span>Cadastrar com o Google</span>
+                    </button>
+
+                    <div class="flex items-center my-2">
+                        <div class="flex-grow border-t border-white/10"></div>
+                        <span class="px-3 text-xs text-gray-500 uppercase">ou</span>
+                        <div class="flex-grow border-t border-white/10"></div>
+                    </div>
+
+                    <div id="personTypeContainer" class="space-y-1">
+                        <label class="block text-xs font-semibold uppercase tracking-wider text-gray-400">Selecione o Tipo de Cadastro</label>
+                        <div id="personTypeGrid" class="grid grid-cols-2 gap-3">
+                            <button type="button" id="btnFisica" onclick="setPersonType('fisica')"
+                                class="card-select py-3 px-3 border border-white/10 rounded-2xl text-xs font-semibold flex flex-col items-center justify-center gap-2 bg-white/5 text-gray-300 hover:bg-white/10 hover:border-white/30">
+                                <i class="fa-solid fa-user text-base"></i> Pessoa Física
+                            </button>
+                            <button type="button" id="btnJuridica" onclick="setPersonType('juridica')"
+                                class="card-select py-3 px-3 border border-white/10 rounded-2xl text-xs font-semibold flex flex-col items-center justify-center gap-2 bg-white/5 text-gray-300 hover:bg-white/10 hover:border-white/30">
+                                <i class="fa-solid fa-building text-base"></i> Jurídica
+                            </button>
                         </div>
                     </div>
-                </div>
 
-                <div class="space-y-1 pt-1">
-                    <label for="regEmail" class="block text-xs font-semibold uppercase tracking-wider text-gray-600">E-mail</label>
-                    <input type="email" id="regEmail" placeholder="seu@email.com"
-                        class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-gray-800 text-base sm:text-sm focus:outline-none focus:ring-2 focus:ring-black focus:bg-white transition-all">
-                </div>
-
-                <div class="space-y-1" id="senhaContainer">
-                    <label for="regPassword" class="block text-xs font-semibold uppercase tracking-wider text-gray-600">Senha</label>
-                    <div class="relative">
-                        <input type="password" id="regPassword" placeholder="••••••••"
-                            class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-gray-800 text-base sm:text-sm focus:outline-none focus:ring-2 focus:ring-black focus:bg-white transition-all">
+                    <div id="juridicaSubtypeContainer" class="hidden space-y-1 pt-2">
+                        <label class="block text-xs font-semibold uppercase tracking-wider text-gray-400">Selecione o segmento</label>
+                        <div class="grid grid-cols-2 gap-3">
+                            <button type="button" id="btnOficina" onclick="setJuridicaSubtype('oficina')"
+                                class="card-select py-2.5 px-3 border border-white/10 rounded-2xl text-xs font-semibold flex items-center justify-center gap-2 bg-white/5 text-gray-300 hover:bg-white/10 hover:border-white/30">
+                                <i class="fa-solid fa-wrench"></i> Oficina
+                            </button>
+                            <button type="button" id="btnLoja" onclick="setJuridicaSubtype('loja')"
+                                class="card-select py-2.5 px-3 border border-white/10 rounded-2xl text-xs font-semibold flex items-center justify-center gap-2 bg-white/5 text-gray-300 hover:bg-white/10 hover:border-white/30">
+                                <i class="fa-solid fa-store"></i> Loja
+                            </button>
+                        </div>
                     </div>
-                </div>
 
-                <button type="submit" id="registerBtn"
-                    class="w-full mt-2 py-3 px-4 bg-black hover:opacity-90 text-white font-semibold rounded-full shadow-md hover:shadow-lg active:scale-[0.98] transition-all duration-150 flex items-center justify-center gap-2 text-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-black transform-gpu">
-                    <span>Finalizar Cadastro</span>
-                    <i class="fa-solid fa-arrow-right text-xs"></i>
-                </button>
+                    <div id="registerFieldsContainer" class="hidden opacity-0 transform translate-y-2 transition-all duration-300 ease-in-out border-t border-white/10 pt-3 space-y-3 pr-1">
+                        
+                        <div class="space-y-1">
+                            <label for="regDoc" id="labelDoc" class="block text-xs font-semibold uppercase tracking-wider text-gray-400">CPF</label>
+                            <div class="relative">
+                                <input type="text" id="regDoc" placeholder="000.000.000-00" maxlength="20" oninput="formatDocument(this)"
+                                    class="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-full text-white text-sm focus:outline-none focus:ring-2 focus:ring-white/50 focus:bg-white/10 input-anim placeholder-gray-500">
+                                <div id="docLoading" class="absolute right-4 top-3.5 hidden">
+                                    <i class="fa-solid fa-spinner animate-spin text-gray-400 text-sm"></i>
+                                </div>
+                            </div>
+                            <p id="docApiFeedback" class="text-[11px] text-gray-400 hidden mt-1 font-medium"></p>
+                        </div>
+
+                        <div class="space-y-1">
+                            <label for="regName" id="labelName" class="block text-xs font-semibold uppercase tracking-wider text-gray-400">Nome Completo</label>
+                            <input type="text" id="regName" placeholder="Seu nome completo"
+                                class="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-full text-white text-sm focus:outline-none focus:ring-2 focus:ring-white/50 focus:bg-white/10 input-anim placeholder-gray-500">
+                        </div>
+
+                        <div class="space-y-1">
+                            <label for="regPhone" class="block text-xs font-semibold uppercase tracking-wider text-gray-400">Telefone / Celular</label>
+                            <div class="relative">
+                                <input type="text" id="regPhone" placeholder="(00) 00000-0000" maxlength="15" oninput="formatPhone(this)"
+                                    class="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-full text-white text-sm focus:outline-none focus:ring-2 focus:ring-white/50 focus:bg-white/10 input-anim placeholder-gray-500">
+                            </div>
+                        </div>
+
+                        <div id="cepContainer" class="space-y-1">
+                            <label for="regCep" class="block text-xs font-semibold uppercase tracking-wider text-gray-400">CEP</label>
+                            <div class="relative">
+                                <input type="text" id="regCep" placeholder="00000-000" maxlength="9" oninput="formatCep(this)"
+                                    class="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-full text-white text-sm focus:outline-none focus:ring-2 focus:ring-white/50 focus:bg-white/10 input-anim placeholder-gray-500">
+                                <div id="cepLoading" class="absolute right-4 top-3.5 hidden">
+                                    <i class="fa-solid fa-spinner animate-spin text-gray-400 text-sm"></i>
+                                </div>
+                            </div>
+                            <p id="cepApiFeedback" class="text-[11px] text-gray-400 hidden mt-1 font-medium"></p>
+                        </div>
+
+                        <div id="addressExtraFields" class="space-y-3 pt-1 border-t border-dashed border-white/10">
+                            <div id="juridicaExtraHeader" class="hidden">
+                                <div class="grid grid-cols-2 gap-2 mb-2">
+                                    <div class="space-y-1">
+                                        <label class="block text-[10px] font-semibold uppercase tracking-wider text-gray-500">Nome Fantasia</label>
+                                        <input type="text" id="regFantasia" readonly placeholder="Automático via CNPJ"
+                                            class="w-full px-4 py-2.5 bg-white/5 border border-white/10 rounded-full text-gray-400 text-xs focus:outline-none cursor-not-allowed">
+                                    </div>
+                                    <div class="space-y-1">
+                                        <label class="block text-[10px] font-semibold uppercase tracking-wider text-gray-500">Situação</label>
+                                        <input type="text" id="regSituacao" readonly placeholder="Ativa"
+                                            class="w-full px-4 py-2.5 bg-white/5 border border-white/10 rounded-full text-gray-400 text-xs focus:outline-none cursor-not-allowed">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="grid grid-cols-3 gap-2">
+                                <div class="col-span-2 space-y-1">
+                                    <label class="block text-[10px] font-semibold uppercase tracking-wider text-gray-500">Logradouro / Endereço</label>
+                                    <input type="text" id="regLogradouro" readonly placeholder="Preenchido via CEP/CNPJ"
+                                        class="w-full px-4 py-2.5 bg-white/5 border border-white/10 rounded-full text-gray-400 text-xs focus:outline-none cursor-not-allowed">
+                                </div>
+                                <div class="space-y-1">
+                                    <div class="flex items-center justify-between">
+                                        <label class="block text-[10px] font-semibold uppercase tracking-wider text-gray-500">Número</label>
+                                        <label class="flex items-center gap-1 text-[9px] text-gray-400 cursor-pointer">
+                                            <input type="checkbox" id="noNumberCheckbox" onchange="toggleNoNumber(this)" class="rounded bg-white/5 border-white/10 text-black focus:ring-0"> S/N
+                                        </label>
+                                    </div>
+                                    <input type="text" id="regNumero" placeholder="Nº"
+                                        class="w-full px-4 py-2.5 bg-white/5 border border-white/10 rounded-full text-white text-xs focus:outline-none focus:ring-1 focus:ring-white/50 input-anim placeholder-gray-500">
+                                </div>
+                            </div>
+
+                            <div class="space-y-1">
+                                <div class="flex items-center justify-between">
+                                    <label class="block text-[10px] font-semibold uppercase tracking-wider text-gray-500">Complemento</label>
+                                    <label class="flex items-center gap-1 text-[9px] text-gray-400 cursor-pointer">
+                                        <input type="checkbox" id="noComplementCheckbox" onchange="toggleNoComplement(this)" class="rounded bg-white/5 border-white/10 text-black focus:ring-0"> Nenhum
+                                    </label>
+                                </div>
+                                <input type="text" id="regComplemento" placeholder="Apto, Bloco, Sala (Opcional)"
+                                    class="w-full px-4 py-2.5 bg-white/5 border border-white/10 rounded-full text-white text-xs focus:outline-none focus:ring-1 focus:ring-white/50 input-anim placeholder-gray-500">
+                            </div>
+
+                            <div class="grid grid-cols-3 gap-2">
+                                <div class="space-y-1">
+                                    <label class="block text-[10px] font-semibold uppercase tracking-wider text-gray-500">Bairro</label>
+                                    <input type="text" id="regBairro" readonly placeholder="Bairro"
+                                        class="w-full px-4 py-2.5 bg-white/5 border border-white/10 rounded-full text-gray-400 text-xs focus:outline-none cursor-not-allowed">
+                                </div>
+                                <div class="space-y-1">
+                                    <label class="block text-[10px] font-semibold uppercase tracking-wider text-gray-500">Município</label>
+                                    <input type="text" id="regMunicipio" readonly placeholder="Cidade"
+                                        class="w-full px-4 py-2.5 bg-white/5 border border-white/10 rounded-full text-gray-400 text-xs focus:outline-none cursor-not-allowed">
+                                </div>
+                                <div class="space-y-1">
+                                    <label class="block text-[10px] font-semibold uppercase tracking-wider text-gray-500">UF</label>
+                                    <input type="text" id="regUf" readonly placeholder="UF"
+                                        class="w-full px-4 py-2.5 bg-white/5 border border-white/10 rounded-full text-gray-400 text-xs focus:outline-none cursor-not-allowed">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="space-y-1 pt-1">
+                            <label for="regEmail" class="block text-xs font-semibold uppercase tracking-wider text-gray-400">E-mail</label>
+                            <input type="email" id="regEmail" placeholder="E-MAIL"
+                                class="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-full text-white text-sm focus:outline-none focus:ring-2 focus:ring-white/50 focus:bg-white/10 input-anim placeholder-gray-500">
+                        </div>
+
+                        <div class="space-y-1">
+                            <label for="regPassword" class="block text-xs font-semibold uppercase tracking-wider text-gray-400">Senha</label>
+                            <div class="relative">
+                                <input type="password" id="regPassword" placeholder="••••••••"
+                                    class="w-full pl-4 pr-12 py-3 bg-white/5 border border-white/10 rounded-full text-white text-sm focus:outline-none focus:ring-2 focus:ring-white/50 focus:bg-white/10 input-anim placeholder-gray-500">
+                                <button type="button" onclick="togglePassword('regPassword', this)" class="eye-toggle absolute inset-y-0 right-0 pr-4 flex items-center text-gray-500" tabindex="-1" aria-label="Mostrar senha">
+                                    <i class="fa-regular fa-eye text-base"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <button type="submit" id="registerBtn"
+                            class="w-full mt-2 py-3 px-4 bg-white hover:bg-gray-100 text-black font-semibold rounded-full shadow-md btn-glow btn-arrow flex items-center justify-center gap-2 text-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-white focus:ring-offset-darkbg">
+                            <span>Finalizar Cadastro</span>
+                            <i class="fa-solid fa-arrow-right text-xs"></i>
+                        </button>
+
+                        <div class="text-center pt-2">
+                            <a href="#" onclick="openPrivacy(event)" class="text-[11px] text-gray-500 hover:text-gray-300 transition-colors underline">Termo de privacidade</a>
+                        </div>
+                    </div>
+                </form>
             </div>
-        </form>
+
+            <div class="glow-ball" id="glowBall"></div>
+            <div class="glow-ball-sm" id="glowBallSm"></div>
+        </div>
+    </div>
+
+    <!-- LADO DIREITO: GALERIA -->
+    <div class="hidden lg:flex lg:w-[55%] h-full relative overflow-hidden items-center justify-center bg-darkbg">
+        
+        <div class="absolute inset-y-0 left-0 w-64 bg-gradient-to-r from-darkbg via-darkbg/80 to-transparent z-10 pointer-events-none"></div>
+        <div class="absolute inset-y-0 right-0 w-32 bg-gradient-to-l from-darkbg to-transparent z-10 pointer-events-none"></div>
+        <div class="absolute inset-x-0 top-0 h-32 bg-gradient-to-b from-darkbg to-transparent z-10 pointer-events-none"></div>
+        <div class="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-darkbg to-transparent z-10 pointer-events-none"></div>
+
+        <div class="absolute inset-[-50%] transform rotate-12 scale-125 flex gap-[2px] justify-center">
+            
+            <div class="flex flex-col gap-[2px] animate-scroll-up w-72">
+                <img src="https://picsum.photos/seed/1/600/600" class="w-full aspect-square object-cover rounded-none border border-white/5 shadow-2xl" alt="Gallery 1">
+                <img src="https://picsum.photos/seed/2/600/600" class="w-full aspect-square object-cover rounded-none border border-white/5 shadow-2xl" alt="Gallery 2">
+                <img src="https://picsum.photos/seed/3/600/600" class="w-full aspect-square object-cover rounded-none border border-white/5 shadow-2xl" alt="Gallery 3">
+                <img src="https://picsum.photos/seed/4/600/600" class="w-full aspect-square object-cover rounded-none border border-white/5 shadow-2xl" alt="Gallery 4">
+                <img src="https://picsum.photos/seed/1/600/600" class="w-full aspect-square object-cover rounded-none border border-white/5 shadow-2xl" alt="Gallery 1">
+                <img src="https://picsum.photos/seed/2/600/600" class="w-full aspect-square object-cover rounded-none border border-white/5 shadow-2xl" alt="Gallery 2">
+                <img src="https://picsum.photos/seed/3/600/600" class="w-full aspect-square object-cover rounded-none border border-white/5 shadow-2xl" alt="Gallery 3">
+                <img src="https://picsum.photos/seed/4/600/600" class="w-full aspect-square object-cover rounded-none border border-white/5 shadow-2xl" alt="Gallery 4">
+            </div>
+
+            <div class="flex flex-col gap-[2px] animate-scroll-down w-72 mt-32">
+                <img src="https://picsum.photos/seed/5/600/600" class="w-full aspect-square object-cover rounded-none border border-white/5 shadow-2xl" alt="Gallery 5">
+                <img src="https://picsum.photos/seed/6/600/600" class="w-full aspect-square object-cover rounded-none border border-white/5 shadow-2xl" alt="Gallery 6">
+                <img src="https://picsum.photos/seed/7/600/600" class="w-full aspect-square object-cover rounded-none border border-white/5 shadow-2xl" alt="Gallery 7">
+                <img src="https://picsum.photos/seed/8/600/600" class="w-full aspect-square object-cover rounded-none border border-white/5 shadow-2xl" alt="Gallery 8">
+                <img src="https://picsum.photos/seed/5/600/600" class="w-full aspect-square object-cover rounded-none border border-white/5 shadow-2xl" alt="Gallery 5">
+                <img src="https://picsum.photos/seed/6/600/600" class="w-full aspect-square object-cover rounded-none border border-white/5 shadow-2xl" alt="Gallery 6">
+                <img src="https://picsum.photos/seed/7/600/600" class="w-full aspect-square object-cover rounded-none border border-white/5 shadow-2xl" alt="Gallery 7">
+                <img src="https://picsum.photos/seed/8/600/600" class="w-full aspect-square object-cover rounded-none border border-white/5 shadow-2xl" alt="Gallery 8">
+            </div>
+
+            <div class="flex flex-col gap-[2px] animate-scroll-up w-72 mt-16">
+                <img src="https://picsum.photos/seed/9/600/600" class="w-full aspect-square object-cover rounded-none border border-white/5 shadow-2xl" alt="Gallery 9">
+                <img src="https://picsum.photos/seed/10/600/600" class="w-full aspect-square object-cover rounded-none border border-white/5 shadow-2xl" alt="Gallery 10">
+                <img src="https://picsum.photos/seed/11/600/600" class="w-full aspect-square object-cover rounded-none border border-white/5 shadow-2xl" alt="Gallery 11">
+                <img src="https://picsum.photos/seed/12/600/600" class="w-full aspect-square object-cover rounded-none border border-white/5 shadow-2xl" alt="Gallery 12">
+                <img src="https://picsum.photos/seed/9/600/600" class="w-full aspect-square object-cover rounded-none border border-white/5 shadow-2xl" alt="Gallery 9">
+                <img src="https://picsum.photos/seed/10/600/600" class="w-full aspect-square object-cover rounded-none border border-white/5 shadow-2xl" alt="Gallery 10">
+                <img src="https://picsum.photos/seed/11/600/600" class="w-full aspect-square object-cover rounded-none border border-white/5 shadow-2xl" alt="Gallery 11">
+                <img src="https://picsum.photos/seed/12/600/600" class="w-full aspect-square object-cover rounded-none border border-white/5 shadow-2xl" alt="Gallery 12">
+            </div>
+            
+        </div>
     </div>
 
     <script>
-        // CARREGAMENTO DAS IMAGENS
-        document.addEventListener('DOMContentLoaded', function() {
-            const bgUrl = 'https://i.postimg.cc/XvG83Dvg/IMG-5438.jpg';
-            const img = new Image();
-            img.src = bgUrl;
-            img.onload = function() {
-                const bgContainer = document.getElementById('bgContainer');
-                if (bgContainer) {
-                    bgContainer.style.backgroundImage = `url('${bgUrl}')`;
-                    bgContainer.classList.remove('opacity-0');
-                    bgContainer.classList.add('opacity-100');
-                }
-            };
-        });
-
-        // ===== CONFIGURAÇÃO FIREBASE =====
-        const firebaseConfig = {
-            apiKey: "AIzaSyBVtlnA85ugvll5hLAvOF8FuM4BGnKEovM",
-            authDomain: "redx-6b53f.firebaseapp.com",
-            databaseURL: "https://redx-6b53f-default-rtdb.firebaseio.com",
-            projectId: "redx-6b53f",
-            storageBucket: "redx-6b53f.firebasestorage.app",
-            messagingSenderId: "194933965008",
-            appId: "1:194933965008:web:ae1dae6df66ea44259ded5"
-        };
-
-        let auth, database;
-
-        document.addEventListener('DOMContentLoaded', function() {
-            if (typeof firebase !== 'undefined') {
-                firebase.initializeApp(firebaseConfig);
-                auth = firebase.auth();
-                database = firebase.database();
-
-                auth.onAuthStateChanged(user => {
-                    if (user) {
-                        database.ref(`users/${user.uid}`).once('value').then(snapshot => {
-                            if (snapshot.exists()) {
-                                window.location.href = 'cim.html';
-                            }
-                        });
-                    }
-                });
-            }
-        });
-
-        // ===== VARIÁVEIS GLOBAIS =====
         let currentPersonType = '';
-        let modoGoogleCadastro = false;
-        let usuarioGoogle = null;
+        let currentJuridicaSubtype = '';
+        let currentView = 'login';
 
-        // ===== FUNÇÕES DE MENSAGEM =====
-        function showMessage(message, type = 'error') {
-            const messageBox = document.getElementById('messageBox');
-            const messageText = document.getElementById('messageText');
-            const messageIcon = document.getElementById('messageIcon');
+        /* =========================================================
+           SISTEMA DE COOLDOWN (bloqueio por tentativas erradas)
+           ========================================================= */
+        const COOLDOWN_ATTEMPTS = 3;      // número de erros antes de bloquear
+        const COOLDOWN_MINUTES = 3;       // tempo de bloqueio em minutos
+        const COOLDOWN_STORAGE_KEY = 'cim_cooldowns';
 
-            messageText.textContent = message;
-            if (type === 'success') {
-                messageBox.className = 'mx-8 mt-6 p-4 rounded-xl text-sm flex items-center gap-3 bg-emerald-50 border border-emerald-200 text-emerald-800';
-                messageIcon.className = 'fa-solid fa-circle-check text-lg text-emerald-600';
-            } else {
-                messageBox.className = 'mx-8 mt-6 p-4 rounded-xl text-sm flex items-center gap-3 bg-rose-50 border border-rose-200 text-rose-800';
-                messageIcon.className = 'fa-solid fa-circle-exclamation text-lg text-rose-600';
-            }
-            messageBox.classList.remove('hidden');
+        function loadCooldowns() {
+            try {
+                return JSON.parse(localStorage.getItem(COOLDOWN_STORAGE_KEY)) || {};
+            } catch (e) { return {}; }
+        }
+        function saveCooldowns(data) {
+            try { localStorage.setItem(COOLDOWN_STORAGE_KEY, JSON.stringify(data)); } catch (e) {}
         }
 
-        // ===== NAVEGAÇÃO ENTRE VIEWS =====
+        let cooldowns = loadCooldowns();
+        const cooldownTickers = {};
+
+        function getRemainingMs(key) {
+            const cd = cooldowns[key];
+            if (!cd || !cd.blockedUntil) return 0;
+            return Math.max(0, cd.blockedUntil - Date.now());
+        }
+        function isBlocked(key) {
+            return getRemainingMs(key) > 0;
+        }
+        function formatRemaining(ms) {
+            const totalSec = Math.ceil(ms / 1000);
+            const min = Math.floor(totalSec / 60);
+            const sec = totalSec % 60;
+            return `${String(min).padStart(2, '0')}:${String(sec).padStart(2, '0')}`;
+        }
+
+        /**
+         * Registra um erro de tentativa. Retorna:
+         *   { blocked: true }  -> acabou de ser bloqueado
+         *   { blocked: false, remainingAttempts: N } -> ainda tem tentativas
+         */
+        function registerError(key) {
+            const cd = cooldowns[key] || { attempts: 0, blockedUntil: 0 };
+            cd.attempts = (cd.attempts || 0) + 1;
+
+            if (cd.attempts >= COOLDOWN_ATTEMPTS) {
+                cd.blockedUntil = Date.now() + COOLDOWN_MINUTES * 60 * 1000;
+                cd.attempts = 0;
+                cooldowns[key] = cd;
+                saveCooldowns(cooldowns);
+                return { blocked: true };
+            }
+            cooldowns[key] = cd;
+            saveCooldowns(cooldowns);
+            return { blocked: false, remainingAttempts: COOLDOWN_ATTEMPTS - cd.attempts };
+        }
+
+        function registerSuccess(key) {
+            if (cooldowns[key]) {
+                delete cooldowns[key];
+                saveCooldowns(cooldowns);
+            }
+            stopCooldownTicker(key);
+        }
+
+        function startCooldownTicker(key, feedbackEl) {
+            stopCooldownTicker(key);
+            const tick = () => {
+                const remaining = getRemainingMs(key);
+                if (remaining <= 0) {
+                    stopCooldownTicker(key);
+                    if (feedbackEl) {
+                        feedbackEl.textContent = '✓ Você já pode tentar novamente.';
+                        feedbackEl.className = 'text-[11px] text-emerald-400 mt-1 font-medium block anim-bounce';
+                        setTimeout(() => {
+                            if (feedbackEl.textContent.startsWith('✓')) {
+                                feedbackEl.classList.add('hidden');
+                            }
+                        }, 4000);
+                    }
+                    return;
+                }
+                const text = `⏳ Bloqueado por tentativas excessivas. Tente novamente em ${formatRemaining(remaining)}.`;
+                if (feedbackEl) {
+                    feedbackEl.textContent = text;
+                    feedbackEl.className = 'text-[11px] text-amber-400 mt-1 font-medium block cooldown-active';
+                    feedbackEl.classList.remove('hidden');
+                }
+            };
+            tick();
+            cooldownTickers[key] = setInterval(tick, 1000);
+        }
+
+        function stopCooldownTicker(key) {
+            if (cooldownTickers[key]) {
+                clearInterval(cooldownTickers[key]);
+                delete cooldownTickers[key];
+            }
+        }
+
+        /**
+         * Restaura cooldowns do localStorage ao carregar a página.
+         * Mapeia cada chave para o elemento onde mostrar o contador.
+         */
+        function restoreCooldowns() {
+            const map = {
+                cnpj: document.getElementById('docApiFeedback'),
+                cpf: document.getElementById('docApiFeedback'),
+                login: document.getElementById('loginCooldownMsg'),
+            };
+            for (const key of Object.keys(cooldowns)) {
+                if (isBlocked(key) && map[key]) {
+                    startCooldownTicker(key, map[key]);
+                } else if (!isBlocked(key)) {
+                    // Cooldown expirado, limpa
+                    delete cooldowns[key];
+                }
+            }
+            saveCooldowns(cooldowns);
+        }
+
+        /* ===== Olhinho de ver senha ===== */
+        function togglePassword(inputId, button) {
+            const input = document.getElementById(inputId);
+            const icon = button.querySelector('i');
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.classList.remove('fa-eye');
+                icon.classList.add('fa-eye-slash');
+            } else {
+                input.type = 'password';
+                icon.classList.remove('fa-eye-slash');
+                icon.classList.add('fa-eye');
+            }
+        }
+
+        function openPrivacy(event) {
+            if (event) event.preventDefault();
+            alert('Termo de Privacidade da CIM\n\nAqui você pode colocar o texto completo da Política de Privacidade e dos Termos de Serviço da CIM.\n\n(Substitua este alert por um modal ou redirecione para a página real do termo.)');
+        }
+
+        function moveGlowBalls(view) {
+            const glowBall = document.getElementById('glowBall');
+            const glowBallSm = document.getElementById('glowBallSm');
+            if (!glowBall || !glowBallSm) return;
+
+            if (view === 'register') {
+                glowBall.classList.add('moved-left');
+                glowBallSm.classList.add('moved-left');
+            } else {
+                glowBall.classList.remove('moved-left');
+                glowBallSm.classList.remove('moved-left');
+            }
+        }
+
         function switchView(view) {
+            if (currentView === view) return;
+
             const loginForm = document.getElementById('loginForm');
             const registerForm = document.getElementById('registerForm');
             const messageBox = document.getElementById('messageBox');
+            const heroHeader = document.getElementById('heroHeader');
 
             messageBox.classList.add('hidden');
 
-            if (view === 'login') {
-                modoGoogleCadastro = false;
-                usuarioGoogle = null;
-                document.getElementById('senhaContainer').style.display = '';
-                document.getElementById('regPassword').required = true;
+            const goingToRegister = view === 'register';
+            currentView = view;
+            moveGlowBalls(view);
+
+            const outForm = goingToRegister ? loginForm : registerForm;
+            const inForm  = goingToRegister ? registerForm : loginForm;
+
+            outForm.classList.add('form-transition');
+            outForm.style.opacity = '0';
+            outForm.style.transform = goingToRegister ? 'translateX(-40px)' : 'translateX(40px)';
+
+            if (goingToRegister) {
+                heroHeader.classList.add('form-transition');
+                heroHeader.style.opacity = '0';
+                heroHeader.style.transform = 'translateY(-15px)';
+            }
+
+            setTimeout(() => {
+                outForm.classList.add('hidden');
+                outForm.style.opacity = '';
+                outForm.style.transform = '';
+                outForm.classList.remove('form-transition');
+
+                if (goingToRegister) {
+                    heroHeader.classList.add('hidden');
+                    heroHeader.style.opacity = '';
+                    heroHeader.style.transform = '';
+                    heroHeader.classList.remove('form-transition');
+                } else {
+                    heroHeader.classList.remove('hidden');
+                    heroHeader.classList.add('form-transition');
+                    heroHeader.style.opacity = '0';
+                    heroHeader.style.transform = 'translateY(-15px)';
+                    void heroHeader.offsetWidth;
+                    heroHeader.style.opacity = '1';
+                    heroHeader.style.transform = 'translateY(0)';
+                }
+
+                inForm.classList.remove('hidden');
+                inForm.classList.add('form-transition');
+                inForm.style.opacity = '0';
+                inForm.style.transform = goingToRegister ? 'translateX(40px)' : 'translateX(-40px)';
+                void inForm.offsetWidth;
+                inForm.style.opacity = '1';
+                inForm.style.transform = 'translateX(0)';
+            }, 400);
+
+            if (goingToRegister) {
                 resetPersonTypeSelection();
-                registerForm.classList.add('hidden');
-                loginForm.classList.remove('hidden');
-            } else {
-                loginForm.classList.add('hidden');
-                registerForm.classList.remove('hidden');
             }
-        }
-
-        // ===== SELEÇÃO DE TIPO DE PESSOA =====
-        function setPersonType(type) {
-            currentPersonType = type;
-            const btnFisica = document.getElementById('btnFisica');
-            const btnJuridica = document.getElementById('btnJuridica');
-            const labelName = document.getElementById('labelName');
-            const regName = document.getElementById('regName');
-            const labelDoc = document.getElementById('labelDoc');
-            const regDoc = document.getElementById('regDoc');
-            const registerFieldsContainer = document.getElementById('registerFieldsContainer');
-            const juridicaExtraHeader = document.getElementById('juridicaExtraHeader');
-            const cepContainer = document.getElementById('cepContainer');
-
-            regDoc.value = '';
-            document.getElementById('docApiFeedback').classList.add('hidden');
-            document.getElementById('cepApiFeedback').classList.add('hidden');
-
-            if (type === 'fisica') {
-                btnFisica.className = 'py-3 px-3 border-2 rounded-xl text-xs font-semibold flex flex-col items-center justify-center gap-2 border-black bg-white text-black shadow-sm col-span-2 w-full transform-gpu';
-                btnJuridica.classList.add('hidden');
-                
-                labelName.textContent = 'Nome Completo';
-                regName.placeholder = 'Seu nome completo';
-                regName.readOnly = false;
-                regName.classList.remove('bg-gray-100', 'cursor-not-allowed');
-                regName.classList.add('bg-gray-50');
-                labelDoc.textContent = 'CPF';
-                regDoc.placeholder = '000.000.000-00';
-                juridicaExtraHeader.classList.add('hidden');
-                cepContainer.classList.remove('hidden');
-            } else {
-                btnJuridica.className = 'py-3 px-3 border-2 rounded-xl text-xs font-semibold flex flex-col items-center justify-center gap-2 border-black bg-white text-black shadow-sm col-span-2 w-full transform-gpu';
-                btnFisica.classList.add('hidden');
-                
-                labelName.textContent = 'Razão Social';
-                regName.placeholder = 'Preenchimento automático via CNPJ';
-                regName.readOnly = true;
-                regName.classList.remove('bg-gray-50');
-                regName.classList.add('bg-gray-100', 'cursor-not-allowed');
-                labelDoc.textContent = 'CNPJ';
-                regDoc.placeholder = '00.000.000/0001-00';
-                juridicaExtraHeader.classList.remove('hidden');
-                cepContainer.classList.add('hidden');
-            }
-
-            registerFieldsContainer.classList.remove('hidden');
         }
 
         function resetPersonTypeSelection() {
             currentPersonType = '';
+            currentJuridicaSubtype = '';
+            
             const fieldsContainer = document.getElementById('registerFieldsContainer');
-            fieldsContainer.classList.add('hidden');
+            fieldsContainer.classList.add('opacity-0', 'translate-y-2');
+            setTimeout(() => { fieldsContainer.classList.add('hidden'); }, 80);
+
+            const juridicaSubtypeContainer = document.getElementById('juridicaSubtypeContainer');
+            juridicaSubtypeContainer.classList.add('hidden');
 
             const btnFisica = document.getElementById('btnFisica');
             const btnJuridica = document.getElementById('btnJuridica');
-            
             btnFisica.classList.remove('hidden');
             btnJuridica.classList.remove('hidden');
             
-            btnFisica.className = 'py-3 px-3 border rounded-xl text-xs font-semibold active:scale-95 flex flex-col items-center justify-center gap-2 border-gray-200 bg-gray-50 text-gray-700 hover:bg-gray-100 transform-gpu';
-            btnJuridica.className = 'py-3 px-3 border rounded-xl text-xs font-semibold active:scale-95 flex flex-col items-center justify-center gap-2 border-gray-200 bg-gray-50 text-gray-700 hover:bg-gray-100 transform-gpu';
+            btnFisica.className = 'card-select py-3 px-3 border border-white/10 rounded-2xl text-xs font-semibold flex flex-col items-center justify-center gap-2 bg-white/5 text-gray-300 hover:bg-white/10 hover:border-white/30';
+            btnJuridica.className = 'card-select py-3 px-3 border border-white/10 rounded-2xl text-xs font-semibold flex flex-col items-center justify-center gap-2 bg-white/5 text-gray-300 hover:bg-white/10 hover:border-white/30';
             
             document.getElementById('regName').value = '';
             document.getElementById('regDoc').value = '';
@@ -501,12 +739,14 @@
             document.getElementById('regBairro').value = '';
             document.getElementById('regMunicipio').value = '';
             document.getElementById('regUf').value = '';
+            document.getElementById('regFantasia').value = '';
+            document.getElementById('regSituacao').value = '';
             document.getElementById('juridicaExtraHeader').classList.add('hidden');
             document.getElementById('cepContainer').classList.remove('hidden');
             
             document.getElementById('regName').readOnly = false;
-            document.getElementById('regName').classList.remove('bg-gray-100', 'cursor-not-allowed');
-            document.getElementById('regName').classList.add('bg-gray-50');
+            document.getElementById('regName').classList.remove('bg-white/5', 'cursor-not-allowed');
+            document.getElementById('regName').classList.add('bg-white/5');
             
             document.getElementById('docApiFeedback').classList.add('hidden');
             document.getElementById('cepApiFeedback').classList.add('hidden');
@@ -518,18 +758,108 @@
 
         function handleRegisterBack() {
             const fieldsContainer = document.getElementById('registerFieldsContainer');
+            const juridicaSubtypeContainer = document.getElementById('juridicaSubtypeContainer');
             const isFieldsHidden = fieldsContainer.classList.contains('hidden');
+            const isSubtypeVisible = !juridicaSubtypeContainer.classList.contains('hidden');
 
-            if (isFieldsHidden || !currentPersonType) {
+            if (isFieldsHidden && isSubtypeVisible) {
+                juridicaSubtypeContainer.classList.add('hidden');
+                document.getElementById('btnFisica').classList.remove('hidden');
+                document.getElementById('btnJuridica').classList.remove('hidden');
+                document.getElementById('btnJuridica').className = 'card-select py-3 px-3 border border-white/10 rounded-2xl text-xs font-semibold flex flex-col items-center justify-center gap-2 bg-white/5 text-gray-300 hover:bg-white/10 hover:border-white/30';
+                currentPersonType = '';
+            } else if (isFieldsHidden || !currentPersonType) {
                 switchView('login');
             } else {
                 resetPersonTypeSelection();
             }
         }
 
-        // ===== FORMATAÇÃO E CONSULTAS =====
+        function setPersonType(type) {
+            currentPersonType = type;
+            const btnFisica = document.getElementById('btnFisica');
+            const btnJuridica = document.getElementById('btnJuridica');
+            const juridicaSubtypeContainer = document.getElementById('juridicaSubtypeContainer');
+
+            if (type === 'fisica') {
+                btnFisica.className = 'card-select py-3 px-3 border-2 rounded-2xl text-xs font-semibold flex flex-col items-center justify-center gap-2 border-white bg-white/10 text-white shadow-lg col-span-2 w-full transform scale-100';
+                btnJuridica.classList.add('hidden');
+                juridicaSubtypeContainer.classList.add('hidden');
+                setupFieldsForPersonType();
+            } else {
+                btnJuridica.className = 'card-select py-3 px-3 border-2 rounded-2xl text-xs font-semibold flex flex-col items-center justify-center gap-2 border-white bg-white/10 text-white shadow-lg col-span-2 w-full transform scale-100';
+                btnFisica.classList.add('hidden');
+                juridicaSubtypeContainer.classList.remove('hidden');
+            }
+        }
+
+        function setJuridicaSubtype(subtype) {
+            currentJuridicaSubtype = subtype;
+            const btnOficina = document.getElementById('btnOficina');
+            const btnLoja = document.getElementById('btnLoja');
+
+            if (subtype === 'oficina') {
+                btnOficina.className = 'card-select py-2.5 px-3 border-2 rounded-2xl text-xs font-semibold flex items-center justify-center gap-2 border-white bg-white/10 text-white shadow-lg';
+                btnLoja.className = 'card-select py-2.5 px-3 border border-white/10 rounded-2xl text-xs font-semibold flex items-center justify-center gap-2 bg-white/5 text-gray-300 hover:bg-white/10 hover:border-white/30';
+            } else {
+                btnLoja.className = 'card-select py-2.5 px-3 border-2 rounded-2xl text-xs font-semibold flex items-center justify-center gap-2 border-white bg-white/10 text-white shadow-lg';
+                btnOficina.className = 'card-select py-2.5 px-3 border border-white/10 rounded-2xl text-xs font-semibold flex items-center justify-center gap-2 bg-white/5 text-gray-300 hover:bg-white/10 hover:border-white/30';
+            }
+
+            setupFieldsForPersonType();
+        }
+
+        function setupFieldsForPersonType() {
+            const labelName = document.getElementById('labelName');
+            const regName = document.getElementById('regName');
+            const labelDoc = document.getElementById('labelDoc');
+            const regDoc = document.getElementById('regDoc');
+            const registerFieldsContainer = document.getElementById('registerFieldsContainer');
+            const juridicaExtraHeader = document.getElementById('juridicaExtraHeader');
+            const cepContainer = document.getElementById('cepContainer');
+
+            regDoc.value = '';
+            document.getElementById('docApiFeedback').classList.add('hidden');
+            document.getElementById('cepApiFeedback').classList.add('hidden');
+
+            // Reinicia o aviso de cooldown ao trocar PF/PJ
+            const cooldownKey = currentPersonType === 'fisica' ? 'cpf' : 'cnpj';
+            if (isBlocked(cooldownKey)) {
+                startCooldownTicker(cooldownKey, document.getElementById('docApiFeedback'));
+            }
+
+            if (currentPersonType === 'fisica') {
+                labelName.textContent = 'Nome Completo';
+                regName.placeholder = 'Seu nome completo';
+                regName.readOnly = false;
+                regName.classList.remove('bg-white/5', 'cursor-not-allowed');
+                regName.classList.add('bg-white/5');
+                labelDoc.textContent = 'CPF';
+                regDoc.placeholder = '000.000.000-00';
+                juridicaExtraHeader.classList.add('hidden');
+                cepContainer.classList.remove('hidden');
+            } else {
+                labelName.textContent = 'Razão Social';
+                regName.placeholder = 'Preenchimento automático via CNPJ';
+                regName.readOnly = true;
+                regName.classList.remove('bg-white/5');
+                regName.classList.add('bg-white/5', 'cursor-not-allowed');
+                labelDoc.textContent = 'CNPJ';
+                regDoc.placeholder = '00.000.000/0001-00';
+                juridicaExtraHeader.classList.remove('hidden');
+                cepContainer.classList.add('hidden');
+            }
+
+            registerFieldsContainer.classList.remove('hidden');
+            void registerFieldsContainer.offsetWidth;
+            setTimeout(() => {
+                registerFieldsContainer.classList.remove('opacity-0', 'translate-y-2');
+            }, 10);
+        }
+
         function formatDocument(input) {
             let value = input.value.replace(/\D/g, '');
+            
             if (currentPersonType === 'fisica') {
                 if (value.length > 11) value = value.slice(0, 11);
                 if (value.length > 9) {
@@ -540,6 +870,7 @@
                     value = value.replace(/^(\d{3})(\d{0,3}).*/, '$1.$2');
                 }
                 input.value = value;
+
                 const rawCpf = value.replace(/\D/g, '');
                 if (rawCpf.length === 11) verifyCpfData(rawCpf);
             } else {
@@ -554,6 +885,7 @@
                     value = value.replace(/^(\d{2})(\d{0,3}).*/, '$1.$2');
                 }
                 input.value = value;
+
                 const rawCnpj = value.replace(/\D/g, '');
                 if (rawCnpj.length === 14) fetchCnpjData(rawCnpj);
             }
@@ -562,8 +894,11 @@
         function formatCep(input) {
             let value = input.value.replace(/\D/g, '');
             if (value.length > 8) value = value.slice(0, 8);
-            if (value.length > 5) value = value.replace(/^(\d{5})(\d{0,3}).*/, '$1-$2');
+            if (value.length > 5) {
+                value = value.replace(/^(\d{5})(\d{0,3}).*/, '$1-$2');
+            }
             input.value = value;
+
             const rawCep = value.replace(/\D/g, '');
             if (rawCep.length === 8) fetchCepData(rawCep);
         }
@@ -583,27 +918,7 @@
             input.value = value;
         }
 
-        async function verifyCpfData(cpf) {
-            const loadingIndicator = document.getElementById('docLoading');
-            const feedback = document.getElementById('docApiFeedback');
-            loadingIndicator.classList.remove('hidden');
-            feedback.classList.add('hidden');
-
-            try {
-                if (validateCpfAlgorithm(cpf)) {
-                    feedback.textContent = 'CPF válido e verificado com sucesso.';
-                    feedback.className = 'text-[11px] text-emerald-600 mt-1 font-medium block';
-                } else {
-                    throw new Error('CPF inválido.');
-                }
-            } catch (error) {
-                feedback.textContent = 'CPF inválido ou com dígitos incorretos.';
-                feedback.className = 'text-[11px] text-rose-600 mt-1 font-medium block';
-            } finally {
-                loadingIndicator.classList.add('hidden');
-            }
-        }
-
+        /* ===== Validação local de CPF ===== */
         function validateCpfAlgorithm(strCPF) {
             let sum = 0;
             let remainder;
@@ -620,35 +935,210 @@
             return true;
         }
 
-        async function fetchCnpjData(cnpj) {
+        /* ===== Validação local de CNPJ ===== */
+        function validateCnpjAlgorithm(cnpj) {
+            cnpj = cnpj.replace(/\D/g, '');
+            if (cnpj.length !== 14) return false;
+            if (/^(\d)\1+$/.test(cnpj)) return false;
+
+            const calc = (base) => {
+                let sum = 0;
+                let pos = base.length - 7;
+                for (let i = base.length; i >= 1; i--) {
+                    sum += parseInt(base.charAt(base.length - i)) * pos--;
+                    if (pos < 2) pos = 9;
+                }
+                const result = sum % 11;
+                return result < 2 ? 0 : 11 - result;
+            };
+
+            const base = cnpj.substring(0, 12);
+            const d1 = calc(base);
+            const d2 = calc(base + d1);
+            return cnpj === base + d1.toString() + d2.toString();
+        }
+
+        /* ===== CPF: valida com cooldown ===== */
+        async function verifyCpfData(cpf) {
             const loadingIndicator = document.getElementById('docLoading');
             const feedback = document.getElementById('docApiFeedback');
+            const KEY = 'cpf';
+
+            // Se já está bloqueado, apenas mostra o contador
+            if (isBlocked(KEY)) {
+                startCooldownTicker(KEY, feedback);
+                return;
+            }
+
             loadingIndicator.classList.remove('hidden');
             feedback.classList.add('hidden');
 
             try {
-                const response = await fetch(`https://brasilapi.com.br/api/cnpj/v1/${cnpj}`);
-                if (!response.ok) throw new Error('CNPJ não encontrado.');
-                const data = await response.json();
+                const isValid = validateCpfAlgorithm(cpf);
 
-                document.getElementById('regName').value = data.razao_social || '';
-                document.getElementById('regFantasia').value = data.nome_fantasia || data.razao_social || '';
-                document.getElementById('regSituacao').value = data.descricao_situacao_cadastral || 'Ativa';
-                document.getElementById('regLogradouro').value = data.logradouro || '';
-                document.getElementById('regNumero').value = data.numero || '';
-                document.getElementById('regBairro').value = data.bairro || '';
-                document.getElementById('regMunicipio').value = data.municipio || '';
-                document.getElementById('regUf').value = data.uf || '';
+                if (isValid) {
+                    // ACERTOU: reseta contador de erros desse campo
+                    registerSuccess(KEY);
+                    feedback.textContent = '✓ CPF válido e verificado com sucesso.';
+                    feedback.className = 'text-[11px] text-emerald-400 mt-1 font-medium block anim-bounce';
+                } else {
+                    // ERROU: registra tentativa
+                    const result = registerError(KEY);
+                    if (result.blocked) {
+                        startCooldownTicker(KEY, feedback);
+                    } else {
+                        feedback.textContent = `⚠ CPF inválido. Tentativa ${COOLDOWN_ATTEMPTS - result.remainingAttempts} de ${COOLDOWN_ATTEMPTS}.`;
+                        feedback.className = 'text-[11px] text-rose-400 mt-1 font-medium block anim-shake';
+                    }
+                }
+            } finally {
+                loadingIndicator.classList.add('hidden');
+            }
+        }
 
-                if (data.email && !document.getElementById('regEmail').value) {
-                    document.getElementById('regEmail').value = data.email.toLowerCase();
+        /* ===== CNPJ: valida com cooldown + APIs ===== */
+        async function fetchCnpjData(cnpj) {
+            const loadingIndicator = document.getElementById('docLoading');
+            const feedback = document.getElementById('docApiFeedback');
+            const KEY = 'cnpj';
+
+            // Se já está bloqueado, apenas mostra o contador
+            if (isBlocked(KEY)) {
+                startCooldownTicker(KEY, feedback);
+                return;
+            }
+
+            loadingIndicator.classList.remove('hidden');
+            feedback.classList.add('hidden');
+            feedback.textContent = '';
+
+            // Limpa campos antes de preencher
+            ['regName','regFantasia','regSituacao','regLogradouro',
+             'regNumero','regBairro','regMunicipio','regUf'].forEach(id => {
+                document.getElementById(id).value = '';
+            });
+
+            // ===== 1. Validação local (offline) =====
+            if (!validateCnpjAlgorithm(cnpj)) {
+                loadingIndicator.classList.add('hidden');
+                const result = registerError(KEY);
+                if (result.blocked) {
+                    startCooldownTicker(KEY, feedback);
+                } else {
+                    feedback.textContent = `⚠ CNPJ inválido. Tentativa ${COOLDOWN_ATTEMPTS - result.remainingAttempts} de ${COOLDOWN_ATTEMPTS}.`;
+                    feedback.className = 'text-[11px] text-rose-400 mt-1 font-medium block anim-shake';
+                }
+                return;
+            }
+
+            const fillFields = (d) => {
+                document.getElementById('regName').value = d.razao_social || d.nome || '';
+                document.getElementById('regFantasia').value = d.nome_fantasia || d.fantasia || d.razao_social || '';
+                document.getElementById('regSituacao').value = d.descricao_situacao_cadastral || d.situacao || 'Ativa';
+                document.getElementById('regLogradouro').value = d.logradouro || d.street || '';
+                document.getElementById('regNumero').value = d.numero || '';
+                document.getElementById('regBairro').value = d.bairro || d.neighborhood || '';
+                document.getElementById('regMunicipio').value = d.municipio || d.city || '';
+                document.getElementById('regUf').value = d.uf || d.state || '';
+
+                const emailField = document.getElementById('regEmail');
+                if (d.email && !emailField.value) {
+                    emailField.value = String(d.email).toLowerCase();
+                }
+            };
+
+            try {
+                let data = null;
+                let apiFailedButCnpjValid = false; // API caiu mas CNPJ é válido -> NÃO conta como erro
+
+                // ===== 2. BrasilAPI =====
+                try {
+                    const response = await fetch(`https://brasilapi.com.br/api/cnpj/v1/${cnpj}`);
+
+                    if (response.ok) {
+                        data = await response.json();
+                    } else if (response.status === 404) {
+                        // CNPJ válido no formato, mas não existe -> conta como erro
+                        throw new Error('__NOT_FOUND__');
+                    } else if (response.status === 429) {
+                        apiFailedButCnpjValid = true;
+                        throw new Error('Muitas consultas em pouco tempo. Aguarde alguns segundos.');
+                    } else {
+                        apiFailedButCnpjValid = true;
+                        throw new Error(`BrasilAPI indisponível (${response.status}).`);
+                    }
+                } catch (err) {
+                    console.warn('[CNPJ] BrasilAPI falhou:', err.message);
+
+                    if (err.message === '__NOT_FOUND__') {
+                        // CNPJ válido no formato mas não existe -> conta tentativa
+                        loadingIndicator.classList.add('hidden');
+                        const result = registerError(KEY);
+                        if (result.blocked) {
+                            startCooldownTicker(KEY, feedback);
+                        } else {
+                            feedback.textContent = `⚠ CNPJ não encontrado na Receita. Tentativa ${COOLDOWN_ATTEMPTS - result.remainingAttempts} de ${COOLDOWN_ATTEMPTS}.`;
+                            feedback.className = 'text-[11px] text-rose-400 mt-1 font-medium block anim-shake';
+                        }
+                        return;
+                    }
+
+                    // Fallback ReceitaWS
+                    try {
+                        const fb = await fetch(`https://receitaws.com.br/v1/cnpj/${cnpj}`);
+                        if (!fb.ok) throw new Error(`ReceitaWS indisponível (${fb.status}).`);
+
+                        const raw = await fb.json();
+
+                        if (raw.status === 'ERROR') {
+                            const msg = String(raw.message || '').toLowerCase();
+                            if (msg.includes('not found') || msg.includes('não encontrado')) {
+                                loadingIndicator.classList.add('hidden');
+                                const result = registerError(KEY);
+                                if (result.blocked) {
+                                    startCooldownTicker(KEY, feedback);
+                                } else {
+                                    feedback.textContent = `⚠ CNPJ não encontrado. Tentativa ${COOLDOWN_ATTEMPTS - result.remainingAttempts} de ${COOLDOWN_ATTEMPTS}.`;
+                                    feedback.className = 'text-[11px] text-rose-400 mt-1 font-medium block anim-shake';
+                                }
+                                return;
+                            }
+                            // Rate limit / instabilidade: não conta como erro do usuário
+                            apiFailedButCnpjValid = true;
+                            throw new Error('Serviço de consulta instável. Tente novamente em instantes.');
+                        }
+
+                        data = {
+                            razao_social: raw.nome,
+                            nome_fantasia: raw.fantasia,
+                            descricao_situacao_cadastral: raw.situacao,
+                            logradouro: raw.logradouro,
+                            numero: raw.numero,
+                            bairro: raw.bairro,
+                            municipio: raw.municipio,
+                            uf: raw.uf,
+                            email: raw.email,
+                        };
+                    } catch (fbErr) {
+                        console.error('[CNPJ] Fallback também falhou:', fbErr);
+                        apiFailedButCnpjValid = true;
+                        throw new Error(fbErr.message || 'Não foi possível consultar o CNPJ agora.');
+                    }
                 }
 
-                feedback.textContent = 'CNPJ verificado e dados carregados com sucesso.';
-                feedback.className = 'text-[11px] text-emerald-600 mt-1 font-medium block';
+                if (!data) throw new Error('Resposta vazia da API.');
+
+                // ===== 3. SUCESSO: reseta contador =====
+                registerSuccess(KEY);
+                fillFields(data);
+                feedback.textContent = '✓ CNPJ verificado e dados carregados com sucesso.';
+                feedback.className = 'text-[11px] text-emerald-400 mt-1 font-medium block anim-bounce';
+
             } catch (error) {
-                feedback.textContent = 'CNPJ não encontrado ou erro na consulta.';
-                feedback.className = 'text-[11px] text-rose-600 mt-1 font-medium block';
+                console.error('[CNPJ] Erro final:', error);
+                // Se a API falhou mas o CNPJ é válido, NÃO conta como erro do usuário
+                feedback.textContent = `⚠ ${error.message}`;
+                feedback.className = 'text-[11px] text-amber-400 mt-1 font-medium block';
             } finally {
                 loadingIndicator.classList.add('hidden');
             }
@@ -670,11 +1160,11 @@
                 document.getElementById('regMunicipio').value = data.city || '';
                 document.getElementById('regUf').value = data.state || '';
 
-                feedback.textContent = 'Endereço preenchido automaticamente via CEP.';
-                feedback.className = 'text-[11px] text-emerald-600 mt-1 font-medium block';
+                feedback.textContent = '✓ Endereço preenchido automaticamente via CEP.';
+                feedback.className = 'text-[11px] text-emerald-400 mt-1 font-medium block anim-bounce';
             } catch (error) {
-                feedback.textContent = 'CEP não encontrado.';
-                feedback.className = 'text-[11px] text-rose-600 mt-1 font-medium block';
+                feedback.textContent = '⚠ CEP não encontrado.';
+                feedback.className = 'text-[11px] text-rose-400 mt-1 font-medium block anim-shake';
             } finally {
                 loadingIndicator.classList.add('hidden');
             }
@@ -685,11 +1175,11 @@
             if (checkbox.checked) {
                 numInput.value = 'S/N';
                 numInput.disabled = true;
-                numInput.classList.add('bg-gray-100', 'cursor-not-allowed');
+                numInput.classList.add('bg-white/5', 'cursor-not-allowed');
             } else {
                 numInput.value = '';
                 numInput.disabled = false;
-                numInput.classList.remove('bg-gray-100', 'cursor-not-allowed');
+                numInput.classList.remove('bg-white/5', 'cursor-not-allowed');
             }
         }
 
@@ -698,92 +1188,80 @@
             if (checkbox.checked) {
                 compInput.value = 'Nenhum';
                 compInput.disabled = true;
-                compInput.classList.add('bg-gray-100', 'cursor-not-allowed');
+                compInput.classList.add('bg-white/5', 'cursor-not-allowed');
             } else {
                 compInput.value = '';
                 compInput.disabled = false;
-                compInput.classList.remove('bg-gray-100', 'cursor-not-allowed');
+                compInput.classList.remove('bg-white/5', 'cursor-not-allowed');
             }
         }
 
-        // ===== SALVAR DADOS NO FIREBASE =====
-        async function salvarDadosUsuario(uid) {
-            if (!database) return;
+        function showMessage(message, type = 'success') {
+            const messageBox = document.getElementById('messageBox');
+            const messageText = document.getElementById('messageText');
+            const messageIcon = document.getElementById('messageIcon');
 
-            const dados = {
-                email: document.getElementById('regEmail').value.trim(),
-                userType: currentPersonType === 'fisica' ? 'PF' : 'PJ',
-                telefone: document.getElementById('regPhone').value.replace(/\D/g, ''),
-                createdAt: Date.now(),
-                lastAccess: Date.now(),
-                photoURL: 'https://i.ibb.co/6J5qZ9K/default-avatar.png',
-                mustChangePassword: false
-            };
+            messageText.textContent = message;
+            messageBox.classList.remove('anim-shake', 'anim-bounce');
 
-            if (currentPersonType === 'fisica') {
-                dados.name = document.getElementById('regName').value.trim();
-                dados.cpf = document.getElementById('regDoc').value.replace(/\D/g, '');
-                dados.cep = document.getElementById('regCep').value.replace(/\D/g, '');
-                dados.logradouro = document.getElementById('regLogradouro').value;
-                dados.numero = document.getElementById('regNumero').value;
-                dados.complemento = document.getElementById('regComplemento').value || '';
-                dados.bairro = document.getElementById('regBairro').value;
-                dados.cidade = document.getElementById('regMunicipio').value;
-                dados.uf = document.getElementById('regUf').value;
+            if (type === 'success') {
+                messageBox.className = 'mb-6 p-4 rounded-2xl text-sm flex items-center gap-3 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 transition-all duration-300 anim-bounce';
+                messageIcon.className = 'fa-solid fa-circle-check text-lg text-emerald-400';
             } else {
-                dados.cnpj = document.getElementById('regDoc').value.replace(/\D/g, '');
-                dados.inscricao_estadual = '';
-                dados.name = document.getElementById('regName').value.trim();
-                dados.cep = document.getElementById('regCep').value.replace(/\D/g, '');
-                dados.logradouro = document.getElementById('regLogradouro').value;
-                dados.numero = document.getElementById('regNumero').value;
-                dados.complemento = document.getElementById('regComplemento').value || '';
-                dados.bairro = document.getElementById('regBairro').value;
-                dados.cidade = document.getElementById('regMunicipio').value;
-                dados.uf = document.getElementById('regUf').value;
-                dados.nome_fantasia = document.getElementById('regFantasia').value || '';
-                dados.situacao_cadastral = document.getElementById('regSituacao').value || '';
+                messageBox.className = 'mb-6 p-4 rounded-2xl text-sm flex items-center gap-3 bg-rose-500/10 border border-rose-500/20 text-rose-400 transition-all duration-300 anim-shake';
+                messageIcon.className = 'fa-solid fa-triangle-exclamation text-lg text-rose-400';
             }
-
-            await database.ref(`users/${uid}`).update(dados);
+            messageBox.classList.remove('hidden');
+            void messageBox.offsetWidth;
         }
 
-        // ===== LOGIN =====
-        async function handleLogin(event) {
+        /* ===== LOGIN com cooldown ===== */
+        function handleLogin(event) {
             event.preventDefault();
-            if (!auth) return;
+
+            const KEY = 'login';
+            const cooldownMsg = document.getElementById('loginCooldownMsg');
+            const submitBtn = document.getElementById('submitBtn');
+
+            // Se está bloqueado, avisa e nem processa
+            if (isBlocked(KEY)) {
+                startCooldownTicker(KEY, cooldownMsg);
+                return;
+            }
 
             const email = document.getElementById('email').value.trim();
             const password = document.getElementById('password').value.trim();
-            const submitBtn = document.getElementById('submitBtn');
 
             submitBtn.disabled = true;
             submitBtn.innerHTML = '<i class="fa-solid fa-spinner animate-spin text-sm"></i><span>Entrando...</span>';
 
-            try {
-                await auth.signInWithEmailAndPassword(email, password);
-                window.location.href = 'cim.html';
-            } catch (error) {
+            setTimeout(() => {
                 submitBtn.disabled = false;
                 submitBtn.innerHTML = '<span>Entrar</span><i class="fa-solid fa-arrow-right text-xs"></i>';
-                showMessage('Erro ao realizar login. Verifique seus dados e tente novamente.', 'error');
-            }
+
+                const emailOk = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+                const passwordOk = password.length >= 6;
+
+                if (emailOk && passwordOk) {
+                    // ACERTOU: reseta o contador
+                    registerSuccess(KEY);
+                    cooldownMsg.classList.add('hidden');
+                    showMessage('Login efetuado com sucesso! Redirecionando...', 'success');
+                } else {
+                    // ERROU: registra tentativa
+                    const result = registerError(KEY);
+                    if (result.blocked) {
+                        startCooldownTicker(KEY, cooldownMsg);
+                        showMessage('Muitas tentativas erradas. Login bloqueado temporariamente.', 'error');
+                    } else {
+                        showMessage(`E-mail ou senha inválidos. Tentativa ${COOLDOWN_ATTEMPTS - result.remainingAttempts} de ${COOLDOWN_ATTEMPTS}.`, 'error');
+                    }
+                }
+            }, 300);
         }
 
-        // ===== CADASTRO =====
-        async function handleRegister(event) {
+        function handleRegister(event) {
             event.preventDefault();
-
-            if (modoGoogleCadastro && usuarioGoogle) {
-                try {
-                    await salvarDadosUsuario(usuarioGoogle.uid);
-                    window.location.href = 'cim.html';
-                } catch (error) {
-                    showMessage('Erro ao salvar dados. Tente novamente.', 'error');
-                }
-                return;
-            }
-
             const name = document.getElementById('regName').value.trim();
             const doc = document.getElementById('regDoc').value.trim();
             const phone = document.getElementById('regPhone').value.trim();
@@ -791,63 +1269,32 @@
             const password = document.getElementById('regPassword').value.trim();
             const registerBtn = document.getElementById('registerBtn');
 
-            if (!currentPersonType) {
-                showMessage('Selecione o tipo de pessoa (Física ou Jurídica).', 'error');
-                return;
-            }
-            if (!name || !doc || !phone || !email || password.length < 6) {
-                showMessage('Preencha todos os campos obrigatórios corretamente.', 'error');
-                return;
-            }
-
             registerBtn.disabled = true;
             registerBtn.innerHTML = '<i class="fa-solid fa-spinner animate-spin text-sm"></i><span>Cadastrando...</span>';
 
-            try {
-                const userCredential = await auth.createUserWithEmailAndPassword(email, password);
-                await salvarDadosUsuario(userCredential.user.uid);
-                window.location.href = 'cim.html';
-            } catch (error) {
+            setTimeout(() => {
                 registerBtn.disabled = false;
                 registerBtn.innerHTML = '<span>Finalizar Cadastro</span><i class="fa-solid fa-arrow-right text-xs"></i>';
-                showMessage('Erro ao criar conta. Verifique seus dados e tente novamente.', 'error');
-            }
+
+                if (name && doc && phone && email && password.length >= 6) {
+                    let typeDesc = currentPersonType === 'fisica' ? 'Pessoa Física' : `Pessoa Jurídica (${currentJuridicaSubtype === 'oficina' ? 'Oficina' : 'Loja'})`;
+                    showMessage(`Cadastro de ${typeDesc} realizado com sucesso!`, 'success');
+                    // Zera cooldowns pois cadastro deu certo
+                    registerSuccess('cnpj');
+                    registerSuccess('cpf');
+                    setTimeout(() => switchView('login'), 800);
+                } else {
+                    showMessage('Preencha todos os campos obrigatórios corretamente.', 'error');
+                }
+            }, 300);
         }
 
-        // ===== GOOGLE LOGIN =====
-        async function handleGoogleLogin() {
-            if (!auth) return;
-            const provider = new firebase.auth.GoogleAuthProvider();
-
-            try {
-                const result = await auth.signInWithPopup(provider);
-                const user = result.user;
-
-                const snapshot = await database.ref(`users/${user.uid}`).once('value');
-                if (snapshot.exists()) {
-                    window.location.href = 'cim.html';
-                } else {
-                    modoGoogleCadastro = true;
-                    usuarioGoogle = user;
-
-                    document.getElementById('regEmail').value = user.email || '';
-                    document.getElementById('regName').value = user.displayName || '';
-
-                    document.getElementById('senhaContainer').style.display = 'none';
-                    document.getElementById('regPassword').required = false;
-
-                    switchView('register');
-                }
-            } catch (error) {
-                if (error.code === 'auth/popup-closed-by-user') {
-                    showMessage('A janela de autenticação foi fechada. Tente novamente.', 'error');
-                } else if (error.code === 'auth/popup-blocked') {
-                    showMessage('Permita pop-ups para usar a autenticação com Google.', 'error');
-                } else {
-                    showMessage('Erro ao autenticar com Google. Tente novamente.', 'error');
-                }
-            }
+        function handleGoogleLogin() {
+            showMessage('Autenticação com Google iniciada (simulada).', 'success');
         }
+
+        /* ===== Restaura cooldowns ao carregar ===== */
+        document.addEventListener('DOMContentLoaded', restoreCooldowns);
     </script>
 </body>
 </html>
