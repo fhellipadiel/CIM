@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
     <title>CIM - Peças Mecânicas</title>
 
-    <!-- ===== PERFORMANCE: preconnect + preload ===== -->
+    <!-- ===== PERFORMANCE ===== -->
     <link rel="preconnect" href="https://i.ibb.co" crossorigin>
     <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
     <link rel="preconnect" href="https://www.gstatic.com" crossorigin>
@@ -22,12 +22,10 @@
         body::-webkit-scrollbar { display: none; }
         input, textarea, select, button { font-size: 16px !important; }
 
-        /* ===== PERFORMANCE: lazy render ===== */
-        img { content-visibility: auto; }
+        /* ===== LAZY RENDER (SEM o marquee) ===== */
         .product-image img,
         .session-avatar-circle-inner img,
         .suggestion-item img,
-        .brand-marquee-item img,
         .cart-item-image img,
         .contact-avatar img,
         .profile-avatar img,
@@ -123,27 +121,34 @@
         .category-promo-badge { background: #E60000; color: #fff; font-size: 0.7rem; font-weight: 700; padding: 1px 6px; border-radius: 12px; margin-left: 4px; white-space: nowrap; display: inline-flex; align-items: center; gap: 2px; }
         .category-promo-badge i { font-size: 0.5rem; }
 
+        /* ========== MARQUEE DE MARCAS (CORRIGIDO) ========== */
         .brand-filters-area { background: #000000; padding: 6px 0 12px; }
         .brand-title { text-align: center; font-size: 1.25rem; font-weight: 700; color: #ffffff; margin: 10px 0 8px; letter-spacing: 0.3px; opacity: 1; display: none; }
         .brand-title.visible { display: block; }
 
-        /* ===== MARQUEE OTIMIZADO (GPU + MAIS RÁPIDO) ===== */
         .brand-marquee-wrapper {
             position: relative;
             overflow: hidden;
             padding: 10px 0;
             margin: 0 -10px;
-            transform: translateZ(0);
-            backface-visibility: hidden;
-            contain: content;
         }
-        .brand-marquee-wrapper .gradient-left { position: absolute; left: 0; top: 0; bottom: 0; width: 80px; background: linear-gradient(to right, #000000, transparent); z-index: 10; pointer-events: none; }
-        .brand-marquee-wrapper .gradient-right { position: absolute; right: 0; top: 0; bottom: 0; width: 80px; background: linear-gradient(to left, #000000, transparent); z-index: 10; pointer-events: none; }
+
+        .brand-marquee-wrapper .gradient-left {
+            position: absolute; left: 0; top: 0; bottom: 0; width: 80px;
+            background: linear-gradient(to right, #000000, transparent);
+            z-index: 10; pointer-events: none;
+        }
+        .brand-marquee-wrapper .gradient-right {
+            position: absolute; right: 0; top: 0; bottom: 0; width: 80px;
+            background: linear-gradient(to left, #000000, transparent);
+            z-index: 10; pointer-events: none;
+        }
 
         @keyframes brandScroll {
             0%   { transform: translate3d(0, 0, 0); }
             100% { transform: translate3d(-50%, 0, 0); }
         }
+
         .brand-marquee-track {
             display: flex;
             width: max-content;
@@ -151,17 +156,36 @@
             align-items: center;
             gap: 60px;
             will-change: transform;
-            transform: translate3d(0, 0, 0);
-            backface-visibility: hidden;
         }
         .brand-marquee-track:hover { animation-play-state: paused; }
 
-        .brand-marquee-item { display: flex; align-items: center; justify-content: center; opacity: 0.7; transition: opacity 0.3s ease, transform 0.3s ease; cursor: pointer; flex-shrink: 0; padding: 4px; background: transparent !important; border: none !important; box-shadow: none !important; position: relative; contain: layout style; }
+        .brand-marquee-item {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0.7;
+            transition: opacity 0.3s ease, transform 0.3s ease;
+            cursor: pointer;
+            flex-shrink: 0;
+            padding: 4px;
+            background: transparent !important;
+            border: none !important;
+            box-shadow: none !important;
+            position: relative;
+        }
         .brand-marquee-item:hover { opacity: 1; transform: scale(1.05); }
         .brand-marquee-item.active { opacity: 1; }
-        .brand-marquee-item img { height: 70px; width: auto; max-width: 140px; object-fit: contain; background: transparent !important; display: block; border: none !important; box-shadow: none !important; filter: none !important; }
-        .brand-marquee-item.active img { filter: none !important; box-shadow: none !important; }
-        .brand-marquee-item:hover img { filter: none !important; box-shadow: none !important; }
+        .brand-marquee-item img {
+            height: 70px;
+            width: auto;
+            max-width: 140px;
+            object-fit: contain;
+            background: transparent !important;
+            display: block;
+            border: none !important;
+            box-shadow: none !important;
+            filter: none !important;
+        }
 
         .btn { flex: 1; padding: 8px 6px; border: none; border-radius: 6px; font-weight: 500; font-size: 0.75rem; cursor: pointer; transition: all 0.3s ease; display: flex; align-items: center; justify-content: center; gap: 4px; }
         .btn-outline { background: transparent; border: 1px solid #333; color: #fff; }
@@ -170,7 +194,7 @@
         .btn-primary:hover { background: rgba(255, 255, 255, 0.1); transform: scale(1.02); }
         .btn-primary:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
 
-        .product-card { background: rgba(17, 17, 17, 0.95); border-radius: 16px; overflow: hidden; transition: opacity 0.4s ease, transform 0.4s ease, box-shadow 0.3s ease; border: none; box-shadow: none; position: relative; display: flex; flex-direction: column; opacity: 0; transform: translateY(20px); will-change: opacity, transform; contain: content; }
+        .product-card { background: rgba(17, 17, 17, 0.95); border-radius: 16px; overflow: hidden; transition: opacity 0.4s ease, transform 0.4s ease, box-shadow 0.3s ease; border: none; box-shadow: none; position: relative; display: flex; flex-direction: column; opacity: 0; transform: translateY(20px); will-change: opacity, transform; }
         .product-card.visible { opacity: 1; transform: translateY(0); }
         .product-card.featured { box-shadow: 0 0 30px rgba(255, 107, 0, 0.15); transform: translateY(-3px); }
         .product-card.featured::before { content: 'DESTAQUE'; position: absolute; top: 10px; left: 10px; background: #ff6b00; color: #000; padding: 4px 10px; border-radius: 30px; font-size: 0.7rem; font-weight: 600; z-index: 2; }
@@ -743,9 +767,9 @@
         const brandTitle = document.getElementById('brandTitle');
         const sessionGate = document.getElementById('sessionGate');
 
-        // ========== CACHE LOCAL (RENDER INSTANTÂNEO) ==========
+        // ========== CACHE LOCAL ==========
         const CACHE_KEY = 'cim_cache_v1';
-        const CACHE_TTL = 1000 * 60 * 30; // 30 minutos
+        const CACHE_TTL = 1000 * 60 * 30;
 
         function saveCache() {
             try {
@@ -755,7 +779,7 @@
                     promocoes, categoryOrder, pricesHidden,
                     profileData, contactInfo
                 }));
-            } catch (e) { /* storage cheio, ignora */ }
+            } catch (e) {}
         }
 
         function loadCache() {
@@ -780,7 +804,6 @@
                     if (sessions[id].hidePJ === undefined) sessions[id].hidePJ = false;
                 });
 
-                // Renderiza IMEDIATAMENTE com o cache
                 updateProfileUI();
                 updateMenuContactInfo();
                 renderContacts();
@@ -881,11 +904,6 @@
             return clean;
         }
 
-        function formatDateTime(ts) {
-            if (!ts) return '—';
-            try { return new Date(ts).toLocaleString('pt-BR'); } catch (e) { return '—'; }
-        }
-
         // ========== CARRINHO ==========
         function saveCart() { try { localStorage.setItem('cim_cart', JSON.stringify(cart)); } catch (e) {} }
         function loadCart() { try { const saved = localStorage.getItem('cim_cart'); if (saved) { const parsed = JSON.parse(saved); if (Array.isArray(parsed)) cart = parsed; } } catch (e) {} }
@@ -894,35 +912,25 @@
         // ========== REGISTRO DE CLIQUES ==========
         async function registerClick(product, origem = 'detalhes') {
             if (!product || !product.id) return;
-
             const now = Date.now();
             const dataObj = new Date(now);
             const dataStr = dataObj.toLocaleDateString('pt-BR');
             const horaStr = dataObj.toLocaleTimeString('pt-BR');
-
             const clicksAntes = product.clicks || 0;
             const meta = product.metaClicks || 0;
             const clicksDepois = clicksAntes + 1;
 
             try {
                 database.ref(`products/${product.id}/clicks`).transaction(v => (v || 0) + 1);
-
-                if (product.category) {
-                    database.ref(`categoryClicks/${product.category}`).transaction(v => (v || 0) + 1);
-                }
-                if (product.sessionId && sessions[product.sessionId]) {
-                    database.ref(`sessionClicks/${product.sessionId}`).transaction(v => (v || 0) + 1);
-                }
-                if (product.brand) {
-                    database.ref(`brandClicks/${product.brand}`).transaction(v => (v || 0) + 1);
-                }
+                if (product.category) database.ref(`categoryClicks/${product.category}`).transaction(v => (v || 0) + 1);
+                if (product.sessionId && sessions[product.sessionId]) database.ref(`sessionClicks/${product.sessionId}`).transaction(v => (v || 0) + 1);
+                if (product.brand) database.ref(`brandClicks/${product.brand}`).transaction(v => (v || 0) + 1);
 
                 database.ref('clickLogs').push({
                     productId: product.id,
                     productName: product.name || 'Sem nome',
                     sessionId: product.sessionId || null,
-                    sessionName: product.sessionId && sessions[product.sessionId]
-                        ? sessions[product.sessionId].name : '',
+                    sessionName: product.sessionId && sessions[product.sessionId] ? sessions[product.sessionId].name : '',
                     category: product.category || '',
                     brand: product.brand || '',
                     userId: currentUser ? currentUser.uid : null,
@@ -945,9 +953,7 @@
                     });
                     database.ref(`products/${product.id}/featured`).set(true);
                 }
-            } catch (e) {
-                console.warn('[registerClick] falhou:', e);
-            }
+            } catch (e) { console.warn('[registerClick] falhou:', e); }
         }
 
         window.clickAndZoom = function(id, url) {
@@ -1127,7 +1133,6 @@
         let searchTimer = null;
         function debouncedSearch(value) {
             clearTimeout(searchTimer);
-            // feedback visual imediato do botão de limpar
             searchClearHeader.classList.toggle('visible', value.length > 0);
             searchTimer = setTimeout(() => handleSearchInput(value), 180);
         }
@@ -1204,15 +1209,6 @@
         }
 
         // ========== PROMOÇÕES ==========
-        function carregarPromocoes() {
-            database.ref('promocoes').on('value', (snapshot) => {
-                promocoes = snapshot.val() || {};
-                verificarExpiracao();
-                renderPromotionBadgesOnly();
-                filterProducts();
-                saveCache();
-            });
-        }
         function verificarExpiracao() {
             const now = Date.now();
             let expiradas = [];
@@ -1229,14 +1225,13 @@
                 });
             }
         }
+
         function renderPromotionBadgesOnly() {
             const now = Date.now();
-            // Early return: se não há promoções ativas, não varre DOM nenhum
             const ativas = Object.values(promocoes).filter(p => p.ativa && (!p.dataExpiracao || p.dataExpiracao > now));
             if (ativas.length === 0) return;
 
-            const sessionEls = document.querySelectorAll('.session-item');
-            sessionEls.forEach(item => {
+            document.querySelectorAll('.session-item').forEach(item => {
                 const sessionId = item.getAttribute('data-session-id');
                 if (!sessionId) return;
                 const oldBadge = item.querySelector('.session-promo-badge');
@@ -1253,8 +1248,7 @@
                     item.appendChild(badge);
                 }
             });
-            const tabEls = document.querySelectorAll('.category-tab');
-            tabEls.forEach(tab => {
+            document.querySelectorAll('.category-tab').forEach(tab => {
                 const cat = tab.getAttribute('data-category');
                 if (!cat || cat === '') return;
                 const oldBadge = tab.querySelector('.category-promo-badge');
@@ -1302,20 +1296,10 @@
         }
 
         // ========== CUPONS ==========
-        function loadCupons() {
-            database.ref('cupons').on('value', (snapshot) => {
-                cupons = snapshot.val() || {};
-                validateActiveCoupon();
-            });
-        }
-
         function validateActiveCoupon() {
             if (!cupomAtivo || !currentUser) return;
             const now = Date.now();
-            if (cupomAtivo.expiracao && cupomAtivo.expiracao < now) {
-                removeCouponSilent('Cupom expirado');
-                return;
-            }
+            if (cupomAtivo.expiracao && cupomAtivo.expiracao < now) { removeCouponSilent('Cupom expirado'); return; }
             const dbCoupon = cupons[cupomAtivo.cupomId];
             if (!dbCoupon) { removeCouponSilent('Cupom não está mais disponível'); return; }
             if (!dbCoupon.ativo) { removeCouponSilent('Cupom foi desativado'); return; }
@@ -1399,7 +1383,6 @@
             });
 
             const c = candidates[0];
-
             if (!c.ativo) { showCouponMessage('Cupom não está disponível'); return; }
             if (c.expiracao && c.expiracao < now) { showCouponMessage('Cupom expirado'); return; }
             if (c.tipoCliente && c.tipoCliente !== 'ambos') {
@@ -1489,7 +1472,7 @@
             if (currentProduct) showDetails(currentProduct.id);
         }
 
-        // ========== FILTRAR PRODUTOS (BATCH RENDER) ==========
+        // ========== FILTRAR PRODUTOS ==========
         function filterProducts() {
             let filtered = products;
             if (selectedSessionId !== null) filtered = filtered.filter(p => p.sessionId === selectedSessionId);
@@ -1546,7 +1529,7 @@
             clearSearchBtn.style.display = searchTerm ? 'flex' : 'none';
         }
 
-        // ========== INTERSECTION OBSERVER (unobserve após aparecer) ==========
+        // ========== INTERSECTION OBSERVER ==========
         let observer = null;
         function observeCard(card) {
             if (!observer) {
@@ -1580,7 +1563,6 @@
         // ========== CRIAR CARD DE PRODUTO ==========
         function createProductCard(product) {
             const card = document.createElement('div');
-
             const discountInfo = getEffectiveDiscount(product);
             const desconto = discountInfo.discount;
             const precoOriginalPF = product.prices?.PF || 0;
@@ -1636,22 +1618,6 @@
         }
 
         // ========== SESSÕES ==========
-        function loadSessions() {
-            database.ref('sessions').on('value', (snapshot) => {
-                sessions = snapshot.val() || {};
-                Object.keys(sessions).forEach(id => {
-                    const s = sessions[id];
-                    if (s.hidePF === undefined) s.hidePF = false;
-                    if (s.hidePJ === undefined) s.hidePJ = false;
-                });
-                updateSessionsCarousel();
-                if (selectedSessionId && !sessions[selectedSessionId]) { selectedSessionId = null; filterProducts(); }
-                renderPromotionBadgesOnly();
-                updatePriceDisplay();
-                saveCache();
-            });
-        }
-
         function updateSessionsCarousel() {
             if (!sessionsCarousel) return;
             const sessionArray = Object.keys(sessions).map(id => ({ id, ...sessions[id] }));
@@ -1700,17 +1666,7 @@
             renderPromotionBadgesOnly();
         }
 
-        // ========== MARCAS (OTIMIZADO COM FRAGMENT) ==========
-        function loadBrands() {
-            database.ref('brands').on('value', (snapshot) => {
-                brands = snapshot.val() || {};
-                updateBrandTabs();
-                const hasBrands = Object.keys(brands).length > 0;
-                brandTitle.classList.toggle('visible', hasBrands);
-                saveCache();
-            });
-        }
-
+        // ========== MARCAS (MARQUEE) ==========
         function updateBrandTabs() {
             if (!brandTabs) return;
             const brandArray = Object.keys(brands).map(id => ({ id, ...brands[id] }));
@@ -1732,7 +1688,7 @@
                 const img = document.createElement('img');
                 img.src = brand.image || DEFAULT_PLACEHOLDER_IMAGE;
                 img.alt = brand.name;
-                img.loading = 'lazy';
+                img.loading = 'eager';
                 img.decoding = 'async';
                 img.onerror = () => { img.src = DEFAULT_PLACEHOLDER_IMAGE; };
                 el.appendChild(img);
@@ -1789,7 +1745,6 @@
             const product = products.find(p => p.id === id);
             if (!product) return;
             currentProduct = product;
-
             registerClick(product, 'detalhes');
 
             document.getElementById('modalTitle').textContent = product.name || 'Sem nome';
@@ -1994,9 +1949,7 @@
             if (sessionGate) sessionGate.remove();
             if (!dataLoaded) {
                 dataLoaded = true;
-                // 1) Tenta cache primeiro (render instantâneo)
                 loadCache();
-                // 2) Depois sincroniza com Firebase
                 loadData();
             }
         }
@@ -2016,7 +1969,6 @@
             }
 
             const uid = user.uid;
-
             let snap = null;
             for (let i = 0; i < 3; i++) {
                 try {
@@ -2071,11 +2023,10 @@
             unlockPage();
         });
 
-        // ========== LOAD DATA (FIREBASE SYNC) ==========
+        // ========== LOAD DATA ==========
         function loadData() {
             loadCart();
 
-            // Sincroniza Firebase, sobrescrevendo cache quando chegar
             database.ref('products').on('value', (snapshot) => {
                 products = snapshot.val() ? Object.values(snapshot.val()) : [];
                 updateCategoryTabs();
@@ -2194,8 +2145,8 @@
         window.removeCoupon = removeCoupon;
         window.registerClick = registerClick;
 
-        console.log('CIM - Loja Virtual carregada com sucesso! (Versão Otimizada)');
-        console.log('✅ Cache local ativo | Marquee com GPU | Busca debounced | Lazy loading');
+        console.log('CIM - Loja Virtual carregada! (Versão Otimizada + Marquee Corrigido)');
+        console.log('✅ Cache local | Marquee GPU | Busca debounced | Lazy loading');
     </script>
 </body>
 </html>
