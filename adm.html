@@ -285,6 +285,11 @@ tbody tr:last-child td{border-bottom:none;}
 .coupon-code{font-family:var(--font-mono);font-weight:600;letter-spacing:1.2px;color:var(--accent);background:var(--accent-soft);padding:2px 10px;border-radius:6px;font-size:.78rem;}
 .coupon-usage-bar{display:inline-flex;align-items:center;gap:8px;}
 .coupon-usage-bar .progress-track{width:80px;height:5px;}
+
+/* ============ OCULTAR PREÇO (novo) ============ */
+.hide-price-group{display:flex;gap:20px;margin-top:6px;flex-wrap:wrap;}
+.hide-price-group label{display:flex;gap:6px;align-items:center;font-size:.85rem;cursor:pointer;color:var(--text);}
+.hide-price-group input{width:16px;height:16px;accent-color:var(--accent);}
 </style>
 </head>
 <body>
@@ -378,6 +383,7 @@ tbody tr:last-child td{border-bottom:none;}
         <div class="stat-card c-accent"><div class="sc-top"><div class="sc-icon"><i class="fas fa-ticket"></i></div></div><div class="sc-val" id="statCupons">0</div><div class="sc-label">Cupons ativos</div></div>
         <div class="stat-card c-accent"><div class="sc-top"><div class="sc-icon"><i class="fas fa-users"></i></div></div><div class="sc-val" id="statUsuarios">0</div><div class="sc-label">Usuários cadastrados</div></div>
         <div class="stat-card c-teal"><div class="sc-top"><div class="sc-icon"><i class="fas fa-ban"></i></div></div><div class="sc-val" id="statEsgotados">0</div><div class="sc-label">Peças esgotadas</div></div>
+        <div class="stat-card c-teal"><div class="sc-top"><div class="sc-icon"><i class="fas fa-eye-slash"></i></div></div><div class="sc-val" id="statPrecoOculto">0</div><div class="sc-label">Preços ocultos</div></div>
       </div>
       <div class="stats-grid" style="margin-top: 4px;">
         <div class="stat-card c-teal" data-period="7" onclick="showActiveUsersModal(7)"><div class="sc-top"><div class="sc-icon"><i class="fas fa-user-clock"></i></div></div><div class="sc-val" id="statActive7d">0</div><div class="sc-label">Ativos (7 dias)</div></div>
@@ -414,7 +420,7 @@ tbody tr:last-child td{border-bottom:none;}
         <input type="text" id="prodFilterText" placeholder="Buscar por nome, código ou marca..." oninput="renderProducts()">
         <div class="select-wrap"><select id="prodFilterCategory" onchange="renderProducts()"><option value="">Todas categorias</option></select></div>
         <div class="select-wrap"><select id="prodFilterStatus" onchange="renderProducts()">
-          <option value="">Todos status</option><option value="featured">Destacados</option><option value="soldout">Esgotados</option><option value="noprice">Sem preço</option>
+          <option value="">Todos status</option><option value="featured">Destacados</option><option value="soldout">Esgotados</option><option value="noprice">Sem preço</option><option value="hidden">Preço oculto</option>
         </select></div>
       </div>
       <div class="block"><div class="block-body tight"><table>
@@ -485,6 +491,7 @@ tbody tr:last-child td{border-bottom:none;}
       <div class="block">
         <div class="block-head"><h3><i class="fas fa-triangle-exclamation" style="color:var(--warn)"></i> Produtos sem preço</h3><span class="chip chip-warn" id="noPriceCountChip">0</span></div>
         <div class="block-body tight"><table><thead><tr><th>Peça</th><th>PF (R$)</th><th>PJ (R$)</th><th></th></tr></thead><tbody id="noPriceTableBody"></tbody></table></div>
+        <div class="block-body" style="padding-top:0;"><p style="color:var(--text-dim);font-size:.72rem;"><i class="fas fa-info-circle"></i> Peças com preço oculto por escolha (ícone <i class="fas fa-eye-slash"></i> na tabela de produtos) <strong>não</strong> aparecem aqui.</p></div>
       </div>
     </section>
 
@@ -532,6 +539,14 @@ tbody tr:last-child td{border-bottom:none;}
               <div class="f-group"><label>Organizar por sessão</label><div class="select-wrap"><select id="impSessionAdm"><option value="">— Nenhuma —</option></select></div></div>
               <div class="f-group"><label>Organizar por categoria</label><div class="select-wrap"><select id="impCategoryAdm"><option value="">— Nenhuma —</option></select></div></div>
               <div class="f-group"><label>Organizar por marca</label><div class="select-wrap"><select id="impBrandAdm"><option value="">— Nenhuma —</option></select></div></div>
+            </div>
+            <div class="f-group" style="background:var(--panel-alt);padding:14px;border-radius:8px;border:1px solid var(--border);">
+              <label><i class="fas fa-eye-slash" style="color:var(--accent);"></i> Ocultar valores das peças importadas</label>
+              <div class="hide-price-group">
+                <label><input type="checkbox" id="impHidePF"> Pessoa Física (PF)</label>
+                <label><input type="checkbox" id="impHidePJ"> Pessoa Jurídica (PJ)</label>
+              </div>
+              <small style="display:block;color:var(--text-dim);font-size:.72rem;margin-top:8px;"><i class="fas fa-info-circle"></i> Peças com preço oculto aqui não aparecem na aba "Produtos sem preço". Os preços continuam sendo salvos normalmente no banco.</small>
             </div>
             <div class="upload-box" onclick="document.getElementById('csvFileAdm').click()">
               <i class="fas fa-file-csv"></i><p>Clique para selecionar o arquivo .CSV</p>
@@ -670,9 +685,32 @@ tbody tr:last-child td{border-bottom:none;}
       <div class="f-group"><label>Preço PJ (R$)</label><input type="number" step="0.01" id="pPricePJ"></div>
     </div>
     <div class="f-group"><label>Descrição</label><textarea id="pDesc" rows="3"></textarea></div>
+    <div class="f-group" style="background:var(--panel-alt);padding:14px;border-radius:8px;border:1px solid var(--border);">
+      <label><i class="fas fa-eye-slash" style="color:var(--accent);"></i> Ocultar preço na loja para</label>
+      <div class="hide-price-group">
+        <label><input type="checkbox" id="pHidePF"> Pessoa Física (PF)</label>
+        <label><input type="checkbox" id="pHidePJ"> Pessoa Jurídica (PJ)</label>
+      </div>
+      <small style="display:block;color:var(--text-dim);font-size:.72rem;margin-top:8px;"><i class="fas fa-info-circle"></i> Quando oculto, o preço aparece vazio na loja — sobram apenas os botões <strong>Adicionar</strong> e <strong>Detalhes</strong>.</small>
+    </div>
     <div class="f-check"><input type="checkbox" id="pSoldOut"><label for="pSoldOut">Marcar como esgotado</label></div>
   </div>
   <div class="modal-foot"><button class="btn btn-ghost" onclick="closeModal('modalProduto')">Cancelar</button><button class="btn btn-accent" onclick="saveProductAdm()"><i class="fas fa-save"></i> Salvar peça</button></div>
+</div></div>
+
+<!-- Ocultar preço rápido -->
+<div class="modal-overlay" id="modalQuickHidePrice"><div class="modal">
+  <div class="modal-head"><h3><i class="fas fa-eye-slash" style="color:var(--accent)"></i> Ocultar preço</h3><button class="modal-close" onclick="closeModal('modalQuickHidePrice')"><i class="fas fa-times"></i></button></div>
+  <div class="modal-body">
+    <p style="color:var(--text-muted);font-size:.82rem;margin-bottom:14px;">Peça: <strong id="quickHideProdName" style="color:var(--text);"></strong></p>
+    <div class="f-check"><input type="checkbox" id="qhPF"><label for="qhPF">Ocultar preço para Pessoa Física (PF)</label></div>
+    <div class="f-check"><input type="checkbox" id="qhPJ"><label for="qhPJ">Ocultar preço para Pessoa Jurídica (PJ)</label></div>
+    <p style="color:var(--text-dim);font-size:.72rem;margin-top:10px;"><i class="fas fa-info-circle"></i> Peças com preço oculto não aparecem em "Produtos sem preço".</p>
+  </div>
+  <div class="modal-foot">
+    <button class="btn btn-ghost" onclick="closeModal('modalQuickHidePrice')">Cancelar</button>
+    <button class="btn btn-accent" onclick="saveQuickHidePrice()"><i class="fas fa-save"></i> Salvar</button>
+  </div>
 </div></div>
 
 <!-- Sessão -->
@@ -822,6 +860,7 @@ let editingProductId=null, editingSessionId=null, editingBrandId=null, editingCo
 let uploadedProdImg=null, uploadedSesImg=null, uploadedBrImg=null, uploadedCtImg=null, uploadedProfileImg=null;
 let usersTab='PF', importTab='novo';
 let profileData = {};
+let quickHideProductId = null;
 
 /* ================= UTIL ================= */
 function esc(t){ if(!t) return ''; const d=document.createElement('div'); d.textContent=t; return d.innerHTML; }
@@ -1013,12 +1052,13 @@ function renderDashboard(){
   document.getElementById('navBadgeProdutos').textContent=products.length;
   const totalClicks=products.reduce((s,p)=>s+(p.clicks||0),0);
   document.getElementById('statCliques').textContent=totalClicks;
-  const noPrice=products.filter(p=>!p.soldOut && ((p.prices?.PF||0)===0 || (p.prices?.PJ||0)===0)).length;
+  const noPrice=products.filter(p=>!p.soldOut && ((!p.hidePricePF && (p.prices?.PF||0)===0) || (!p.hidePricePJ && (p.prices?.PJ||0)===0))).length;
   document.getElementById('statSemPreco').textContent=noPrice;
+  const hiddenCount = products.filter(p=>p.hidePricePF || p.hidePricePJ).length;
+  document.getElementById('statPrecoOculto').textContent = hiddenCount;
   const now=Date.now();
   const activePromos=Object.values(promocoes).filter(p=>p.ativa && (!p.dataExpiracao || p.dataExpiracao>now)).length;
   document.getElementById('statPromosAtivas').textContent=activePromos;
-  // Cupons ativos
   const activeCoupons = Object.values(cupons).filter(c => c.ativo && (!c.expiracao || c.expiracao > now) && (c.limite === 0 || (c.usos||0) < c.limite)).length;
   document.getElementById('statCupons').textContent = activeCoupons;
   document.getElementById('navBadgeCupons').textContent = activeCoupons;
@@ -1106,7 +1146,8 @@ function renderProducts(){
   if(cat) list=list.filter(p=>p.category===cat);
   if(status==='featured') list=list.filter(p=>p.featured);
   if(status==='soldout') list=list.filter(p=>p.soldOut);
-  if(status==='noprice') list=list.filter(p=>(p.prices?.PF||0)===0||(p.prices?.PJ||0)===0);
+  if(status==='noprice') list=list.filter(p=>!p.soldOut && ((!p.hidePricePF && (p.prices?.PF||0)===0) || (!p.hidePricePJ && (p.prices?.PJ||0)===0)));
+  if(status==='hidden') list=list.filter(p=>p.hidePricePF || p.hidePricePJ);
   list.sort((a,b) => {
     if(a.featured && !b.featured) return -1;
     if(!a.featured && b.featured) return 1;
@@ -1122,23 +1163,30 @@ function renderProducts(){
   if(list.length===0){ body.innerHTML=`<tr><td colspan="9"><div class="empty-state"><i class="fas fa-box-open"></i><p>Nenhuma peça encontrada</p></div></td></tr>`; return; }
   body.innerHTML=list.map(p=>{
     const meta=p.metaClicks||0, clicks=p.clicks||0; const pct=meta>0? Math.min(100,Math.round(clicks/meta*100)) : 0;
+    const pricePFDisplay = p.hidePricePF ? `<span style="color:var(--warn);font-size:.72rem;"><i class="fas fa-eye-slash"></i> oculto</span>` : `R$ ${(p.prices?.PF||0).toFixed(2)}`;
+    const pricePJDisplay = p.hidePricePJ ? `<span style="color:var(--warn);font-size:.72rem;"><i class="fas fa-eye-slash"></i> oculto</span>` : `R$ ${(p.prices?.PJ||0).toFixed(2)}`;
     let statusChips='';
     if(p.soldOut) statusChips+='<span class="chip chip-danger">Esgotado</span> ';
     if(p.featured) statusChips+='<span class="chip chip-warn">Destaque</span> ';
-    if(!p.soldOut && !p.featured) statusChips='<span class="chip chip-ok">Ativo</span>';
+    if(p.hidePricePF || p.hidePricePJ){
+      const pr=[]; if(p.hidePricePF) pr.push('PF'); if(p.hidePricePJ) pr.push('PJ');
+      statusChips+=`<span class="chip chip-warn" title="Preço oculto na loja"><i class="fas fa-eye-slash"></i> Preço oculto ${pr.join('+')}</span> `;
+    }
+    if(!p.soldOut && !p.featured && !(p.hidePricePF || p.hidePricePJ)) statusChips='<span class="chip chip-ok">Ativo</span>';
     return `<tr>
       <td><img class="td-img" src="${p.image||PLACEHOLDER_IMG}" onerror="this.src='${PLACEHOLDER_IMG}'" title="Clique para ampliar" onclick="openImageViewer(this.src,'${esc(p.name)}')"></td>
       <td><div class="td-name">${esc(p.name)}</div><div class="td-sub">${esc(p.codigo||'sem código')}</div></td>
       <td>${esc(p.category||'—')}</td>
       <td>${esc(p.brand||'—')}</td>
-      <td class="mono">R$ ${(p.prices?.PF||0).toFixed(2)}</td>
-      <td class="mono">R$ ${(p.prices?.PJ||0).toFixed(2)}</td>
+      <td class="mono">${pricePFDisplay}</td>
+      <td class="mono">${pricePJDisplay}</td>
       <td style="min-width:110px;"><div class="mono" style="font-size:.72rem;margin-bottom:4px;">${clicks} / ${meta||'—'}</div>${meta>0?`<div class="progress-track"><div class="progress-fill" style="width:${pct}%"></div></div>`:''}</td>
       <td>${statusChips}</td>
       <td><div class="row-actions">
         <button class="btn btn-icon btn-ghost" title="Editar" onclick="editProductAdm('${p.id}')"><i class="fas fa-pencil"></i></button>
         <button class="btn btn-icon btn-ghost" title="${p.featured?'Remover destaque':'Destacar'}" onclick="toggleFeatureAdm('${p.id}')"><i class="fas fa-star" style="${p.featured?'color:var(--warn)':''}"></i></button>
         <button class="btn btn-icon btn-ghost" title="${p.soldOut?'Marcar disponível':'Marcar esgotado'}" onclick="toggleSoldOutAdm('${p.id}')"><i class="fas fa-ban" style="${p.soldOut?'color:var(--danger)':''}"></i></button>
+        <button class="btn btn-icon btn-ghost" title="${(p.hidePricePF||p.hidePricePJ)?'Alterar ocultação de preço':'Ocultar preço'}" onclick="openQuickHidePrice('${p.id}')"><i class="fas fa-eye-slash" style="${(p.hidePricePF||p.hidePricePJ)?'color:var(--warn)':''}"></i></button>
         <button class="btn btn-icon btn-danger" title="Excluir" onclick="deleteProductAdm('${p.id}')"><i class="fas fa-trash"></i></button>
       </div></td>
     </tr>`;
@@ -1151,6 +1199,8 @@ function openProductModal(){
   ['pName','pCodigo','pDesc'].forEach(id=>document.getElementById(id).value='');
   document.getElementById('pPricePF').value=''; document.getElementById('pPricePJ').value=''; document.getElementById('pMeta').value=0;
   document.getElementById('pSoldOut').checked=false;
+  document.getElementById('pHidePF').checked=false;
+  document.getElementById('pHidePJ').checked=false;
   resetUpload('prodUploadBox','prodPreview'); updateSelectPopulators();
   setupUpload('prodImgInput','prodUploadBox','prodPreview','prodPreviewImg',url=>uploadedProdImg=url);
   openModal('modalProduto');
@@ -1163,6 +1213,8 @@ function editProductAdm(id){
   document.getElementById('pDesc').value=p.description||''; document.getElementById('pPricePF').value=p.prices?.PF||'';
   document.getElementById('pPricePJ').value=p.prices?.PJ||''; document.getElementById('pMeta').value=p.metaClicks||0;
   document.getElementById('pSoldOut').checked=p.soldOut||false;
+  document.getElementById('pHidePF').checked=p.hidePricePF||false;
+  document.getElementById('pHidePJ').checked=p.hidePricePJ||false;
   updateSelectPopulators();
   setTimeout(()=>{ document.getElementById('pCategory').value=p.category||''; document.getElementById('pBrand').value=p.brand||''; document.getElementById('pSession').value=p.sessionId||''; },50);
   if(p.image){ document.getElementById('prodPreviewImg').src=p.image; document.getElementById('prodPreview').style.display='block'; document.getElementById('prodUploadBox').style.display='none'; }
@@ -1179,6 +1231,7 @@ function saveProductAdm(){
     description:document.getElementById('pDesc').value||'Sem descrição',
     image:uploadedProdImg||PLACEHOLDER_IMG, featured:false, pinned:false,
     soldOut:document.getElementById('pSoldOut').checked, sessionId:document.getElementById('pSession').value||null,
+    hidePricePF:document.getElementById('pHidePF').checked, hidePricePJ:document.getElementById('pHidePJ').checked,
     clicks:0, metaClicks:parseInt(document.getElementById('pMeta').value)||0,
     prices:{PF:parseFloat(document.getElementById('pPricePF').value)||0, PJ:parseFloat(document.getElementById('pPricePJ').value)||0}
   };
@@ -1188,6 +1241,27 @@ function saveProductAdm(){
 function toggleFeatureAdm(id){ const p=products.find(x=>x.id===id); if(p) database.ref(`products/${id}/featured`).set(!p.featured); }
 function toggleSoldOutAdm(id){ const p=products.find(x=>x.id===id); if(p) database.ref(`products/${id}/soldOut`).set(!p.soldOut); }
 function deleteProductAdm(id){ if(confirm('Excluir esta peça?')) database.ref(`products/${id}`).remove().then(()=>showToast('Peça removida')); }
+
+/* ================= OCULTAR PREÇO RÁPIDO ================= */
+function openQuickHidePrice(id){
+  const p = products.find(x => x.id === id);
+  if(!p) return;
+  quickHideProductId = id;
+  document.getElementById('quickHideProdName').textContent = p.name || '';
+  document.getElementById('qhPF').checked = !!p.hidePricePF;
+  document.getElementById('qhPJ').checked = !!p.hidePricePJ;
+  openModal('modalQuickHidePrice');
+}
+function saveQuickHidePrice(){
+  if(!quickHideProductId) return;
+  const pf = document.getElementById('qhPF').checked;
+  const pj = document.getElementById('qhPJ').checked;
+  database.ref(`products/${quickHideProductId}`).update({ hidePricePF: pf, hidePricePJ: pj }).then(()=>{
+    showToast(pf || pj ? 'Preço oculto atualizado' : 'Preço visível novamente');
+    closeModal('modalQuickHidePrice');
+    quickHideProductId = null;
+  });
+}
 
 /* ================= CATEGORIAS ================= */
 function renderCategories(){
@@ -1352,7 +1426,7 @@ function applyBulk(type){
   database.ref().update(updates).then(()=>showToast('Ajuste aplicado com sucesso'));
 }
 function renderNoPrice(){
-  const list=products.filter(p=>!p.soldOut && ((p.prices?.PF||0)===0 || (p.prices?.PJ||0)===0));
+  const list=products.filter(p=>!p.soldOut && ((!p.hidePricePF && (p.prices?.PF||0)===0) || (!p.hidePricePJ && (p.prices?.PJ||0)===0)));
   document.getElementById('noPriceCountChip').textContent=list.length;
   const body=document.getElementById('noPriceTableBody');
   if(list.length===0){ body.innerHTML=`<tr><td colspan="4"><div class="empty-state"><i class="fas fa-circle-check"></i><p>Todas as peças disponíveis têm preço definido</p></div></td></tr>`; return; }
@@ -1484,7 +1558,6 @@ function toggleCouponAdm(id){
 function deleteCouponAdm(id){
   const c = cupons[id]; if(!c) return;
   if(!confirm(`Excluir o cupom "${c.codigo}"? Os clientes que o aplicaram perderão o desconto.`)) return;
-  // Remove dos usuários que aplicaram
   const usersWithCoupon = usersCache.filter(u => u.cupomAtivo && u.cupomAtivo.cupomId === id);
   const updates = {};
   updates[`cupons/${id}`] = null;
@@ -1577,18 +1650,23 @@ async function importNamesAdm(){
   const sessionId=document.getElementById('impSessionAdm').value||null;
   const category=document.getElementById('impCategoryAdm').value||null;
   const brand=document.getElementById('impBrandAdm').value||null;
+  const impHidePF = document.getElementById('impHidePF').checked;
+  const impHidePJ = document.getElementById('impHidePJ').checked;
   showLoading('Importando peças...');
   const snap=await database.ref('products').once('value');
   const map={}; snap.forEach(c=>{ const p=c.val(); map[`${p.name}|${p.category||''}`]={id:c.key,...p}; });
   const historyEntry={ fileName:window.importFileNameAdm||'arquivo.csv', timestamp:Date.now(), date:new Date().toLocaleDateString('pt-BR'), time:new Date().toLocaleTimeString('pt-BR'),
     totalItems:items.length, newItems:0, updatedItems:0, skippedItems:0, userId:currentAdmin?.uid||'unknown', userName:currentAdmin?.name||'Admin', addedProductIds:[], updatedProductIds:[],
-    organization:{sessionId,category,brand} };
+    organization:{sessionId,category,brand}, hidePricePF:impHidePF, hidePricePJ:impHidePJ };
   const historyRef=await database.ref('importHistory').push(historyEntry); const historyKey=historyRef.key;
   const updates={}; let added=0,updated=0,skipped=0; const addedIds=[],updatedIds=[];
   items.forEach(item=>{
     const key=`${item.name}|${item.category||''}`; const existing=map[key];
     if(existing){
-      const changed = existing.prices?.PF!==item.pricePF || existing.prices?.PJ!==item.pricePJ || existing.brand!==item.brand || existing.codigo!==item.codigo || existing.image!==item.image;
+      const hideChanged = (existing.hidePricePF||false)!==impHidePF || (existing.hidePricePJ||false)!==impHidePJ;
+      updates[`products/${existing.id}/hidePricePF`]=impHidePF;
+      updates[`products/${existing.id}/hidePricePJ`]=impHidePJ;
+      const changed = existing.prices?.PF!==item.pricePF || existing.prices?.PJ!==item.pricePJ || existing.brand!==item.brand || existing.codigo!==item.codigo || existing.image!==item.image || hideChanged;
       if(changed){
         if(item.pricePF!==undefined) updates[`products/${existing.id}/prices/PF`]=item.pricePF;
         if(item.pricePJ!==undefined) updates[`products/${existing.id}/prices/PJ`]=item.pricePJ;
@@ -1602,6 +1680,7 @@ async function importNamesAdm(){
       const id=database.ref().child('products').push().key;
       updates[`products/${id}`]={ id, name:item.name, category:category||item.category||'', brand:brand||item.brand||'', codigo:item.codigo||'', description:'',
         image:item.image||PLACEHOLDER_IMG, featured:false, pinned:false, soldOut:false, sessionId, clicks:0, metaClicks:0,
+        hidePricePF: impHidePF, hidePricePJ: impHidePJ,
         prices:{PF:item.pricePF||0,PJ:item.pricePJ||0}, importedFrom:historyKey };
       added++; addedIds.push(id);
     }
@@ -1612,17 +1691,22 @@ async function importNamesAdm(){
   showToast(`Importação concluída: ${added} adicionadas, ${updated} atualizadas, ${skipped} ignoradas`);
   document.getElementById('importPreviewAdm').style.display='none';
   document.getElementById('csvFileAdm').value=''; document.getElementById('confirmImportAdm').checked=false; document.getElementById('importBtnAdm').disabled=true;
+  document.getElementById('impHidePF').checked=false; document.getElementById('impHidePJ').checked=false;
 }
 function renderImportHistory(){
   const list=document.getElementById('importHistoryListAdm');
   if(importHistoryCache.length===0){ list.innerHTML=`<div class="empty-state"><i class="fas fa-file-import"></i><p>Nenhum arquivo importado ainda</p></div>`; return; }
   list.innerHTML=importHistoryCache.map(item=>{
     const hasPriority=products.some(p=>p.importedFrom===item.id && p.topPriority===true);
+    const hideInfo = (item.hidePricePF || item.hidePricePJ) ? `<span class="chip chip-warn"><i class="fas fa-eye-slash"></i> ${[item.hidePricePF?'PF':'',item.hidePricePJ?'PJ':''].filter(Boolean).join('+')}</span>` : '';
     return `<div class="mini-item" style="align-items:flex-start;flex-direction:column;gap:8px;padding:12px 14px;">
       <div style="display:flex;justify-content:space-between;width:100%;align-items:center;flex-wrap:wrap;gap:8px;">
         <div><div class="td-name"><i class="fas fa-file-csv" style="color:var(--accent);margin-right:6px;"></i>${esc(item.fileName)}</div>
           <div class="td-sub">${item.date||''} ${item.time||''} · ${esc(item.userName||'Admin')}</div></div>
-        <span class="chip ${hasPriority?'chip-ok':'chip-mut'}">${hasPriority?'Fixado':'Não fixado'}</span>
+        <div style="display:flex;gap:6px;align-items:center;">
+          ${hideInfo}
+          <span class="chip ${hasPriority?'chip-ok':'chip-mut'}">${hasPriority?'Fixado':'Não fixado'}</span>
+        </div>
       </div>
       <div style="font-size:.78rem;color:var(--text-muted);">
         <span style="color:var(--ok)">+${item.newItems||0} novas</span> · <span style="color:var(--warn)">${item.updatedItems||0} atualizadas</span> · <span>${item.skippedItems||0} ignoradas</span>
