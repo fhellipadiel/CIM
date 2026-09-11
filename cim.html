@@ -2188,10 +2188,10 @@
                 if (!currentUser) {
                     database.ref(`users/${user.uid}`).once('value').then((snap) => {
                         if (snap.exists()) { loadUserData(user.uid); toggleProfileDropdown(); }
-                        else window.location.href = 'index.html?complete=true';
+                        else window.location.href = 'login.html?complete=true';   // ← ALTERADO
                     });
                 } else toggleProfileDropdown();
-            } else window.location.href = 'index.html';
+            } else window.location.href = 'login.html';   // ← ALTERADO
         }
 
         function toggleProfileDropdown() {
@@ -2227,7 +2227,7 @@
                     hideLoading();
                     currentUser = null; currentUserPhoto = null; cupomAtivo = null;
                     cart = []; updateCart(); clearCartStorage();
-                    window.location.href = 'index.html';
+                    window.location.href = 'login.html';   // ← ALTERADO
                 }).catch((error) => { hideLoading(); showToast('Erro ao sair: ' + error.message, 'error'); });
             }
         }
@@ -2245,7 +2245,7 @@
         }
         function redirectToLogin() {
             currentUser = null; currentUserPhoto = null;
-            window.location.replace('index.html');
+            window.location.replace('login.html');   // ← ALTERADO
         }
 
         // ========== AUTH STATE ==========
@@ -2253,7 +2253,7 @@
             console.log('🔍 [cim] auth state →', user ? user.uid : 'NULL');
 
             if (!user) {
-                console.warn('❌ [cim] Sem usuário → voltando ao index');
+                console.warn('❌ [cim] Sem usuário → voltando ao login');
                 redirectToLogin();
                 return;
             }
@@ -2273,7 +2273,7 @@
                             sessionGate.innerHTML =
                                 '<i class="fas fa-exclamation-triangle" style="animation:none;"></i>' +
                                 '<span>Erro ao carregar sessão (' + (err.code || 'erro') + '). ' +
-                                '<a href="index.html" style="color:#ff6b00;">Voltar ao login</a></span>';
+                                '<a href="login.html" style="color:#ff6b00;">Voltar ao login</a></span>';   // ← ALTERADO
                         }
                         return;
                     }
@@ -2304,7 +2304,7 @@
                     }
                 } else {
                     console.warn('⚠️ [cim] Usuário logado mas SEM perfil no banco → completo o cadastro');
-                    window.location.replace('index.html?complete=true');
+                    window.location.replace('login.html?complete=true');   // ← ALTERADO
                 }
                 return;
             }
