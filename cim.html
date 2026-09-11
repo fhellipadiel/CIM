@@ -802,6 +802,77 @@
         function loadCart() { try { const saved = localStorage.getItem('cim_cart'); if (saved) { const parsed = JSON.parse(saved); if (Array.isArray(parsed)) cart = parsed; } } catch (e) {} }
         function clearCartStorage() { localStorage.removeItem('cim_cart'); }
 
+        // ========== REGISTRO DE CLIQUES ==========
+        async function registerClick(product, origem = 'detalhes') {
+            if (!product || !product.id) return;
+
+            const now = Date.now();
+            const dataObj = new Date(now);
+            const dataStr = dataObj.toLocaleDateString('pt-BR');
+            const horaStr = dataObj.toLocaleTimeString('pt-BR');
+
+            const clicksAntes = product.clicks || 0;
+            const meta = product.metaClicks || 0;
+            const clicksDepois = clicksAntes + 1;
+
+            try {
+                // 1) Incrementa contador do produto (transação evita race condition)
+                database.ref(`products/${product.id}/clicks`).transaction(v => (v || 0) + 1);
+
+                // 2) Incrementa contadores de categoria / sessão / marca
+                if (product.category) {
+                    database.ref(`categoryClicks/${product.category}`).transaction(v => (v || 0) + 1);
+                }
+                if (product.sessionId && sessions[product.sessionId]) {
+                    database.ref(`sessionClicks/${product.sessionId}`).transaction(v => (v || 0) + 1);
+                }
+                if (product.brand) {
+                    database.ref(`brandClicks/${product.brand}`).transaction(v => (v || 0) + 1);
+                }
+
+                // 3) Log detalhado (quem clicou, quando, em qual peça)
+                database.ref('clickLogs').push({
+                    productId: product.id,
+                    productName: product.name || 'Sem nome',
+                    sessionId: product.sessionId || null,
+                    sessionName: product.sessionId && sessions[product.sessionId]
+                        ? sessions[product.sessionId].name : '',
+                    category: product.category || '',
+                    brand: product.brand || '',
+                    userId: currentUser ? currentUser.uid : null,
+                    userName: currentUser ? (currentUser.name || currentUser.email || 'Cliente') : 'Visitante',
+                    userType: currentUser ? (currentUser.userType || null) : null,
+                    origem: origem,
+                    timestamp: now,
+                    date: dataStr,
+                    time: horaStr
+                });
+
+                // 4) Verifica se bateu a meta (só dispara UMA vez, ao cruzar)
+                if (meta > 0 && clicksAntes < meta && clicksDepois >= meta) {
+                    database.ref('metaAchievements').push({
+                        productId: product.id,
+                        productName: product.name || 'Sem nome',
+                        category: product.category || '',
+                        timestamp: now,
+                        date: dataStr,
+                        time: horaStr
+                    });
+                    // Destaca automaticamente a peça que bateu a meta
+                    database.ref(`products/${product.id}/featured`).set(true);
+                }
+            } catch (e) {
+                console.warn('[registerClick] falhou:', e);
+            }
+        }
+
+        // Helper global para clicar na imagem do card (conta clique + abre zoom)
+        window.clickAndZoom = function(id, url) {
+            const p = products.find(x => x.id === id);
+            if (p) registerClick(p, 'imagem');
+            openFullscreenImage(url);
+        };
+
         function addToCart(productId) {
             const product = products.find(p => p.id === productId);
             if (!product) return;
@@ -812,6 +883,8 @@
             updateCart();
             saveCart();
             showToast('Adicionado');
+            // Registra clique de "carrinho" (intenção de compra)
+            registerClick(product, 'carrinho');
         }
 
         function updateCart() {
@@ -1458,8 +1531,8 @@
             card.innerHTML = `
                         ${ribbonHtml}
                         <div class="product-image">
-                            <img src="${img}" alt="${product.name || 'Peça'}" loading="lazy" onclick="openFullscreenImage('${img}')">
-                            <div class="fullscreen-icon" onclick="event.stopPropagation(); openFullscreenImage('${img}')"><i class="fas fa-expand"></i></div>
+                            <img src="${img}" alt="${product.name || 'Peça'}" loading="lazy" onclick="clickAndZoom('${product.id}', '${img}')">
+                            <div class="fullscreen-icon" onclick="event.stopPropagation(); clickAndZoom('${product.id}', '${img}')"><i class="fas fa-expand"></i></div>
                         </div>
                         <div class="product-info">
                             <div class="product-category">${escapeHtml(product.category || 'Sem categoria')}</div>
@@ -1524,6 +1597,10 @@
 
         function selectSession(id) {
             if (selectedSessionId === id) return;
+            // Registra clique na sessão (só quando seleciona de fato)
+            if (id && sessions[id]) {
+                database.ref(`sessionClicks/${id}`).transaction(v => (v || 0) + 1);
+            }
             selectedSessionId = id; selectedCategory = ''; selectedBrand = '';
             updateSessionsCarousel();
             filterProducts();
@@ -1560,7 +1637,12 @@
         }
 
         function selectBrand(b) {
-            if (selectedBrand === b) selectedBrand = ''; else selectedBrand = b;
+            if (selectedBrand === b) selectedBrand = '';
+            else {
+                selectedBrand = b;
+                // Registra clique na marca
+                database.ref(`brandClicks/${b}`).transaction(v => (v || 0) + 1);
+            }
             updateBrandTabs();
             filterProducts();
         }
@@ -1589,7 +1671,11 @@
 
         function selectCategory(cat) {
             if (cat === '') { selectedCategory = ''; selectedBrand = ''; updateBrandTabs(); }
-            else selectedCategory = cat;
+            else {
+                selectedCategory = cat;
+                // Registra clique na categoria
+                database.ref(`categoryClicks/${cat}`).transaction(v => (v || 0) + 1);
+            }
             updateCategoryTabs();
             filterProducts();
             renderPromotionBadgesOnly();
@@ -1600,6 +1686,10 @@
             const product = products.find(p => p.id === id);
             if (!product) return;
             currentProduct = product;
+
+            // ===== REGISTRA O CLIQUE EM DETALHES =====
+            registerClick(product, 'detalhes');
+
             document.getElementById('modalTitle').textContent = product.name || 'Sem nome';
             const img = product.image || DEFAULT_PLACEHOLDER_IMAGE;
             document.getElementById('modalImage').innerHTML = `<img src="${img}" alt="${product.name}" onclick="openFullscreenImage('${img}')"><div class="fullscreen-icon" onclick="openFullscreenImage('${img}')"><i class="fas fa-expand"></i></div>`;
@@ -1982,9 +2072,11 @@
         window.closeForceResetModal = closeForceResetModal;
         window.applyCoupon = applyCoupon;
         window.removeCoupon = removeCoupon;
+        window.registerClick = registerClick;
 
         console.log('CIM - Loja Virtual carregada com sucesso!');
         console.log('Sistema de cupons ativo: aplicação global, maior desconto vence.');
+        console.log('✅ Sistema de cliques ativo: clickLogs, metaAchievements, categoryClicks, sessionClicks, brandClicks.');
     </script>
 </body>
 </html>
