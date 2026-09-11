@@ -4,7 +4,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
     <title>CIM - Peças Mecânicas</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- ===== PERFORMANCE: preconnect + preload ===== -->
+    <link rel="preconnect" href="https://i.ibb.co" crossorigin>
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
+    <link rel="preconnect" href="https://www.gstatic.com" crossorigin>
+    <link rel="dns-prefetch" href="https://api.imgbb.com">
+    <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"></noscript>
+
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
@@ -13,6 +21,17 @@
         html, body { background: #000000; color: #ffffff; min-height: 100vh; scrollbar-width: none; -ms-overflow-style: none; }
         body::-webkit-scrollbar { display: none; }
         input, textarea, select, button { font-size: 16px !important; }
+
+        /* ===== PERFORMANCE: lazy render ===== */
+        img { content-visibility: auto; }
+        .product-image img,
+        .session-avatar-circle-inner img,
+        .suggestion-item img,
+        .brand-marquee-item img,
+        .cart-item-image img,
+        .contact-avatar img,
+        .profile-avatar img,
+        .dropdown-avatar-wrap img { content-visibility: auto; }
 
         #sessionGate { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000000; z-index: 99999; display: flex; align-items: center; justify-content: center; flex-direction: column; gap: 15px; }
         #sessionGate i { font-size: 3rem; color: #ff6b00; animation: spin 1s linear infinite; }
@@ -107,15 +126,40 @@
         .brand-filters-area { background: #000000; padding: 6px 0 12px; }
         .brand-title { text-align: center; font-size: 1.25rem; font-weight: 700; color: #ffffff; margin: 10px 0 8px; letter-spacing: 0.3px; opacity: 1; display: none; }
         .brand-title.visible { display: block; }
-        .brand-marquee-wrapper { position: relative; overflow: hidden; padding: 10px 0; margin: 0 -10px; }
+
+        /* ===== MARQUEE OTIMIZADO (GPU + MAIS RÁPIDO) ===== */
+        .brand-marquee-wrapper {
+            position: relative;
+            overflow: hidden;
+            padding: 10px 0;
+            margin: 0 -10px;
+            transform: translateZ(0);
+            backface-visibility: hidden;
+            contain: content;
+        }
         .brand-marquee-wrapper .gradient-left { position: absolute; left: 0; top: 0; bottom: 0; width: 80px; background: linear-gradient(to right, #000000, transparent); z-index: 10; pointer-events: none; }
         .brand-marquee-wrapper .gradient-right { position: absolute; right: 0; top: 0; bottom: 0; width: 80px; background: linear-gradient(to left, #000000, transparent); z-index: 10; pointer-events: none; }
-        @keyframes brandScroll { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
-        .brand-marquee-track { display: flex; width: max-content; animation: brandScroll 40s linear infinite; align-items: center; gap: 80px; }
-        .brand-marquee-item { display: flex; align-items: center; justify-content: center; opacity: 0.7; transition: opacity 0.3s ease, transform 0.3s ease; cursor: pointer; flex-shrink: 0; padding: 4px; background: transparent !important; border: none !important; box-shadow: none !important; position: relative; }
+
+        @keyframes brandScroll {
+            0%   { transform: translate3d(0, 0, 0); }
+            100% { transform: translate3d(-50%, 0, 0); }
+        }
+        .brand-marquee-track {
+            display: flex;
+            width: max-content;
+            animation: brandScroll 22s linear infinite;
+            align-items: center;
+            gap: 60px;
+            will-change: transform;
+            transform: translate3d(0, 0, 0);
+            backface-visibility: hidden;
+        }
+        .brand-marquee-track:hover { animation-play-state: paused; }
+
+        .brand-marquee-item { display: flex; align-items: center; justify-content: center; opacity: 0.7; transition: opacity 0.3s ease, transform 0.3s ease; cursor: pointer; flex-shrink: 0; padding: 4px; background: transparent !important; border: none !important; box-shadow: none !important; position: relative; contain: layout style; }
         .brand-marquee-item:hover { opacity: 1; transform: scale(1.05); }
         .brand-marquee-item.active { opacity: 1; }
-        .brand-marquee-item img { height: 80px; width: auto; max-width: 160px; object-fit: contain; background: transparent !important; display: block; border: none !important; box-shadow: none !important; filter: none !important; }
+        .brand-marquee-item img { height: 70px; width: auto; max-width: 140px; object-fit: contain; background: transparent !important; display: block; border: none !important; box-shadow: none !important; filter: none !important; }
         .brand-marquee-item.active img { filter: none !important; box-shadow: none !important; }
         .brand-marquee-item:hover img { filter: none !important; box-shadow: none !important; }
 
@@ -126,7 +170,7 @@
         .btn-primary:hover { background: rgba(255, 255, 255, 0.1); transform: scale(1.02); }
         .btn-primary:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
 
-        .product-card { background: rgba(17, 17, 17, 0.95); border-radius: 16px; overflow: hidden; transition: all 0.3s ease; border: none; box-shadow: none; position: relative; display: flex; flex-direction: column; opacity: 0; transform: translateY(20px); transition: opacity 0.6s ease, transform 0.6s ease, box-shadow 0.3s ease; }
+        .product-card { background: rgba(17, 17, 17, 0.95); border-radius: 16px; overflow: hidden; transition: opacity 0.4s ease, transform 0.4s ease, box-shadow 0.3s ease; border: none; box-shadow: none; position: relative; display: flex; flex-direction: column; opacity: 0; transform: translateY(20px); will-change: opacity, transform; contain: content; }
         .product-card.visible { opacity: 1; transform: translateY(0); }
         .product-card.featured { box-shadow: 0 0 30px rgba(255, 107, 0, 0.15); transform: translateY(-3px); }
         .product-card.featured::before { content: 'DESTAQUE'; position: absolute; top: 10px; left: 10px; background: #ff6b00; color: #000; padding: 4px 10px; border-radius: 30px; font-size: 0.7rem; font-weight: 600; z-index: 2; }
@@ -283,7 +327,6 @@
         .bottom-menu .admin-contact-btn { background: #1a1a1a; border: 1px solid #333; color: #ff6b00; padding: 4px 10px; border-radius: 20px; font-size: 0.65rem; cursor: pointer; transition: 0.3s; display: inline-flex; align-items: center; gap: 4px; }
         .bottom-menu .admin-contact-btn:hover { background: #ff6b00; color: #000; border-color: #ff6b00; }
 
-        /* ========== CUPOM DE DESCONTO (no menu inferior) ========== */
         .coupon-section { margin-top: 16px; padding-top: 16px; border-top: 1px solid rgba(255, 255, 255, 0.08); }
         .coupon-section .section-title { font-size: 0.85rem; color: #888; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between; }
         .coupon-input-wrap { display: flex; align-items: center; background: #1a1a1a; border-radius: 50px; padding: 5px 5px 5px 20px; gap: 8px; border: none; outline: none; }
@@ -364,8 +407,8 @@
             .sticky-category-bar { padding: 4px 0 4px; }
             .brand-filters-area { padding: 4px 0 4px; }
             .brand-marquee-wrapper .gradient-left, .brand-marquee-wrapper .gradient-right { width: 40px; }
-            .brand-marquee-track { gap: 40px; }
-            .brand-marquee-item img { height: 60px; }
+            .brand-marquee-track { gap: 40px; animation-duration: 18s; }
+            .brand-marquee-item img { height: 50px; }
             .type-selector { margin: 6px 0; padding: 12px 16px; }
             .price-indicator { margin: 8px 0 10px; }
             .results-info { margin: 8px 0 8px; }
@@ -410,7 +453,7 @@
             <div class="header-actions" id="headerActions">
                 <div class="search-header expanded" id="searchHeader">
                     <button class="search-icon-btn" id="searchIconBtn" onclick="toggleSearch()"><i class="fas fa-search"></i></button>
-                    <input type="text" class="search-input-header" id="searchInputHeader" placeholder="Buscar peças..." oninput="handleSearchInput(this.value)" onfocus="onSearchFocus()" onblur="onSearchBlur()">
+                    <input type="text" class="search-input-header" id="searchInputHeader" placeholder="Buscar peças..." oninput="debouncedSearch(this.value)" onfocus="onSearchFocus()" onblur="onSearchBlur()">
                     <span class="search-clear-header" id="searchClearHeader" onclick="clearSearchHeader()"><i class="fas fa-times"></i></span>
                     <div class="suggestions-dropdown" id="suggestionsDropdown"></div>
                 </div>
@@ -471,13 +514,11 @@
             </div>
         </div>
 
-        <!-- ================= CUPOM DE DESCONTO ================= -->
         <div class="coupon-section" id="couponSection">
             <div class="section-title">
                 <span><i class="fas fa-ticket"></i> Cupom de Desconto</span>
             </div>
 
-            <!-- Estado: Cupom aplicado -->
             <div id="couponActiveBox" style="display:none;">
                 <div class="coupon-active">
                     <div class="coupon-active-info">
@@ -491,7 +532,6 @@
                 </div>
             </div>
 
-            <!-- Estado: Campo para aplicar -->
             <div id="couponInputBox">
                 <div class="coupon-input-wrap">
                     <input type="text" id="couponInput" placeholder="Digite seu cupom" maxlength="30" autocomplete="off" onkeydown="if(event.key==='Enter'){event.preventDefault();applyCoupon();}">
@@ -703,6 +743,55 @@
         const brandTitle = document.getElementById('brandTitle');
         const sessionGate = document.getElementById('sessionGate');
 
+        // ========== CACHE LOCAL (RENDER INSTANTÂNEO) ==========
+        const CACHE_KEY = 'cim_cache_v1';
+        const CACHE_TTL = 1000 * 60 * 30; // 30 minutos
+
+        function saveCache() {
+            try {
+                localStorage.setItem(CACHE_KEY, JSON.stringify({
+                    ts: Date.now(),
+                    products, sessions, brands, contacts,
+                    promocoes, categoryOrder, pricesHidden,
+                    profileData, contactInfo
+                }));
+            } catch (e) { /* storage cheio, ignora */ }
+        }
+
+        function loadCache() {
+            try {
+                const raw = localStorage.getItem(CACHE_KEY);
+                if (!raw) return false;
+                const c = JSON.parse(raw);
+                if (!c.ts || Date.now() - c.ts > CACHE_TTL) return false;
+
+                products      = c.products      || [];
+                sessions      = c.sessions      || {};
+                brands        = c.brands        || {};
+                contacts      = c.contacts      || {};
+                promocoes     = c.promocoes     || {};
+                categoryOrder = c.categoryOrder || [];
+                pricesHidden  = c.pricesHidden  || false;
+                if (c.profileData) profileData = c.profileData;
+                if (c.contactInfo) contactInfo = c.contactInfo;
+
+                Object.keys(sessions).forEach(id => {
+                    if (sessions[id].hidePF === undefined) sessions[id].hidePF = false;
+                    if (sessions[id].hidePJ === undefined) sessions[id].hidePJ = false;
+                });
+
+                // Renderiza IMEDIATAMENTE com o cache
+                updateProfileUI();
+                updateMenuContactInfo();
+                renderContacts();
+                updateSessionsCarousel();
+                updateCategoryTabs();
+                updateBrandTabs();
+                filterProducts();
+                return true;
+            } catch (e) { return false; }
+        }
+
         // ========== UTILITÁRIOS ==========
         function showToast(msg, type = 'success') {
             const toast = document.createElement('div');
@@ -816,10 +905,8 @@
             const clicksDepois = clicksAntes + 1;
 
             try {
-                // 1) Incrementa contador do produto (transação evita race condition)
                 database.ref(`products/${product.id}/clicks`).transaction(v => (v || 0) + 1);
 
-                // 2) Incrementa contadores de categoria / sessão / marca
                 if (product.category) {
                     database.ref(`categoryClicks/${product.category}`).transaction(v => (v || 0) + 1);
                 }
@@ -830,7 +917,6 @@
                     database.ref(`brandClicks/${product.brand}`).transaction(v => (v || 0) + 1);
                 }
 
-                // 3) Log detalhado (quem clicou, quando, em qual peça)
                 database.ref('clickLogs').push({
                     productId: product.id,
                     productName: product.name || 'Sem nome',
@@ -848,7 +934,6 @@
                     time: horaStr
                 });
 
-                // 4) Verifica se bateu a meta (só dispara UMA vez, ao cruzar)
                 if (meta > 0 && clicksAntes < meta && clicksDepois >= meta) {
                     database.ref('metaAchievements').push({
                         productId: product.id,
@@ -858,7 +943,6 @@
                         date: dataStr,
                         time: horaStr
                     });
-                    // Destaca automaticamente a peça que bateu a meta
                     database.ref(`products/${product.id}/featured`).set(true);
                 }
             } catch (e) {
@@ -866,7 +950,6 @@
             }
         }
 
-        // Helper global para clicar na imagem do card (conta clique + abre zoom)
         window.clickAndZoom = function(id, url) {
             const p = products.find(x => x.id === id);
             if (p) registerClick(p, 'imagem');
@@ -883,7 +966,6 @@
             updateCart();
             saveCart();
             showToast('Adicionado');
-            // Registra clique de "carrinho" (intenção de compra)
             registerClick(product, 'carrinho');
         }
 
@@ -898,7 +980,7 @@
                     const priceHtml = price > 0 ? `R$ ${price.toFixed(2)}` : '';
                     return `
                             <div class="cart-item">
-                                <div class="cart-item-image"><img src="${item.image || DEFAULT_PLACEHOLDER_IMAGE}"></div>
+                                <div class="cart-item-image"><img src="${item.image || DEFAULT_PLACEHOLDER_IMAGE}" loading="lazy" decoding="async"></div>
                                 <div class="cart-item-info">
                                     <div class="cart-item-name">${escapeHtml(item.name)}</div>
                                     ${priceHtml ? `<div class="cart-item-price">${priceHtml}</div>` : ''}
@@ -996,34 +1078,21 @@
         }
 
         // ========== PERFIL DA LOJA ==========
-        function loadProfile() {
-            database.ref('profile').on('value', (snapshot) => {
-                const data = snapshot.val() || {};
-                profileData = {
-                    photo: data.photo || DEFAULT_PROFILE_IMAGE,
-                    name: data.name || 'CIM Peças',
-                    subtitle: data.subtitle || '',
-                    message: data.message || 'Sua peça com qualidade e rapidez'
-                };
-                updateProfileUI();
-            });
-        }
         function updateProfileUI() {
-            document.getElementById('profileImage').src = profileData.photo;
-            document.getElementById('profileName').textContent = profileData.name;
+            const el = document.getElementById('profileImage');
+            if (el) el.src = profileData.photo;
+            const nameEl = document.getElementById('profileName');
+            if (nameEl) nameEl.textContent = profileData.name;
             const subtitleEl = document.getElementById('profileSubtitle');
-            if (profileData.subtitle) { subtitleEl.style.display = 'block'; subtitleEl.textContent = profileData.subtitle; }
-            else { subtitleEl.style.display = 'none'; }
-            document.getElementById('profileMessage').textContent = profileData.message;
+            if (subtitleEl) {
+                if (profileData.subtitle) { subtitleEl.style.display = 'block'; subtitleEl.textContent = profileData.subtitle; }
+                else { subtitleEl.style.display = 'none'; }
+            }
+            const msgEl = document.getElementById('profileMessage');
+            if (msgEl) msgEl.textContent = profileData.message;
         }
 
         // ========== CONTATOS ==========
-        function loadContacts() {
-            database.ref('contacts').on('value', (snapshot) => {
-                contacts = snapshot.val() || {};
-                renderContacts();
-            });
-        }
         function renderContacts() {
             const container = document.getElementById('contactsList');
             if (!container) return;
@@ -1034,7 +1103,7 @@
             container.innerHTML = items.map(c => `
                         <div class="contact-item" onclick="openWhatsApp('${c.phone}', '${c.message}')">
                             <div class="contact-avatar">
-                                ${c.image ? `<img src="${c.image}" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">` : ''}
+                                ${c.image ? `<img src="${c.image}" loading="lazy" decoding="async" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">` : ''}
                                 <i class="fas fa-user" style="${c.image ? 'display:none;' : 'display:flex;'}"></i>
                             </div>
                             <div class="contact-info">
@@ -1054,7 +1123,15 @@
             return true;
         }
 
-        // ========== BUSCA ==========
+        // ========== BUSCA (com debounce) ==========
+        let searchTimer = null;
+        function debouncedSearch(value) {
+            clearTimeout(searchTimer);
+            // feedback visual imediato do botão de limpar
+            searchClearHeader.classList.toggle('visible', value.length > 0);
+            searchTimer = setTimeout(() => handleSearchInput(value), 180);
+        }
+
         function toggleSearch() { searchInputHeader.focus(); }
         function onSearchFocus() { headerActions.classList.add('hide-buttons'); searchHeader.classList.add('focused'); }
         function onSearchBlur() {
@@ -1066,14 +1143,15 @@
             searchTerm = value.trim();
             searchClearHeader.classList.toggle('visible', value.length > 0);
             if (value.length > 0) {
+                const lower = value.toLowerCase();
                 const filtered = products.filter(p => {
                     const fields = [p.name || '', p.category || '', p.codigo || '', p.brand || ''];
-                    return fields.some(f => f.toLowerCase().includes(value.toLowerCase()));
+                    return fields.some(f => f.toLowerCase().includes(lower));
                 }).slice(0, 10);
                 if (filtered.length > 0) {
                     suggestionsDropdown.innerHTML = filtered.map(p => `
                                 <div class="suggestion-item" onclick="selectSuggestion('${p.id}')">
-                                    <img src="${p.image || DEFAULT_PLACEHOLDER_IMAGE}" onerror="this.src='${DEFAULT_PLACEHOLDER_IMAGE}'">
+                                    <img src="${p.image || DEFAULT_PLACEHOLDER_IMAGE}" loading="lazy" decoding="async" onerror="this.src='${DEFAULT_PLACEHOLDER_IMAGE}'">
                                     <span class="suggestion-name">${escapeHtml(p.name)}</span>
                                     <span class="suggestion-category">${escapeHtml(p.category || '')}</span>
                                 </div>
@@ -1132,6 +1210,7 @@
                 verificarExpiracao();
                 renderPromotionBadgesOnly();
                 filterProducts();
+                saveCache();
             });
         }
         function verificarExpiracao() {
@@ -1152,46 +1231,44 @@
         }
         function renderPromotionBadgesOnly() {
             const now = Date.now();
-            document.querySelectorAll('.session-item').forEach(item => {
+            // Early return: se não há promoções ativas, não varre DOM nenhum
+            const ativas = Object.values(promocoes).filter(p => p.ativa && (!p.dataExpiracao || p.dataExpiracao > now));
+            if (ativas.length === 0) return;
+
+            const sessionEls = document.querySelectorAll('.session-item');
+            sessionEls.forEach(item => {
                 const sessionId = item.getAttribute('data-session-id');
                 if (!sessionId) return;
                 const oldBadge = item.querySelector('.session-promo-badge');
                 if (oldBadge) oldBadge.remove();
-                for (let id in promocoes) {
-                    const promo = promocoes[id];
-                    if (!promo.ativa) continue;
-                    if (promo.dataExpiracao && promo.dataExpiracao < now) continue;
-                    let match = false;
-                    if (promo.tipo === 'sessao' && promo.alvoId === sessionId) match = true;
-                    if (promo.tipo === 'todas_sessoes') match = true;
-                    if (match) {
-                        const badge = document.createElement('div');
-                        badge.className = 'session-promo-badge';
-                        badge.textContent = `${promo.descontoPercentual}%`;
-                        item.appendChild(badge);
-                        break;
-                    }
+                const match = ativas.find(promo => {
+                    if (promo.tipo === 'sessao' && promo.alvoId === sessionId) return true;
+                    if (promo.tipo === 'todas_sessoes') return true;
+                    return false;
+                });
+                if (match) {
+                    const badge = document.createElement('div');
+                    badge.className = 'session-promo-badge';
+                    badge.textContent = `${match.descontoPercentual}%`;
+                    item.appendChild(badge);
                 }
             });
-            document.querySelectorAll('.category-tab').forEach(tab => {
+            const tabEls = document.querySelectorAll('.category-tab');
+            tabEls.forEach(tab => {
                 const cat = tab.getAttribute('data-category');
                 if (!cat || cat === '') return;
                 const oldBadge = tab.querySelector('.category-promo-badge');
                 if (oldBadge) oldBadge.remove();
-                for (let id in promocoes) {
-                    const promo = promocoes[id];
-                    if (!promo.ativa) continue;
-                    if (promo.dataExpiracao && promo.dataExpiracao < now) continue;
-                    let match = false;
-                    if (promo.tipo === 'categoria' && promo.alvoId === cat) match = true;
-                    if (promo.tipo === 'todas_categorias') match = true;
-                    if (match) {
-                        const badge = document.createElement('span');
-                        badge.className = 'category-promo-badge';
-                        badge.textContent = `${promo.descontoPercentual}%`;
-                        tab.appendChild(badge);
-                        break;
-                    }
+                const match = ativas.find(promo => {
+                    if (promo.tipo === 'categoria' && promo.alvoId === cat) return true;
+                    if (promo.tipo === 'todas_categorias') return true;
+                    return false;
+                });
+                if (match) {
+                    const badge = document.createElement('span');
+                    badge.className = 'category-promo-badge';
+                    badge.textContent = `${match.descontoPercentual}%`;
+                    tab.appendChild(badge);
                 }
             });
         }
@@ -1224,7 +1301,7 @@
             return preco * (1 - descontoPercent / 100);
         }
 
-        // ========== CUPONS — LÓGICA PRINCIPAL ==========
+        // ========== CUPONS ==========
         function loadCupons() {
             database.ref('cupons').on('value', (snapshot) => {
                 cupons = snapshot.val() || {};
@@ -1412,7 +1489,7 @@
             if (currentProduct) showDetails(currentProduct.id);
         }
 
-        // ========== FILTRAR PRODUTOS ==========
+        // ========== FILTRAR PRODUTOS (BATCH RENDER) ==========
         function filterProducts() {
             let filtered = products;
             if (selectedSessionId !== null) filtered = filtered.filter(p => p.sessionId === selectedSessionId);
@@ -1458,39 +1535,47 @@
             if (filtered.length === 0) {
                 productsGrid.innerHTML = `<div class="no-results"><i class="fas fa-search"></i><p>Nenhuma peça encontrada${searchTerm ? ` para "${searchTerm}"` : ''}</p></div>`;
             } else {
-                productsGrid.innerHTML = '';
+                const frag = document.createDocumentFragment();
                 filtered.forEach(p => {
                     const card = createProductCard(p);
-                    productsGrid.appendChild(card);
-                    setTimeout(() => observeCard(card), 0);
+                    frag.appendChild(card);
+                    observeCard(card);
                 });
+                productsGrid.replaceChildren(frag);
             }
             clearSearchBtn.style.display = searchTerm ? 'flex' : 'none';
         }
 
-        // ========== INTERSECTION OBSERVER ==========
+        // ========== INTERSECTION OBSERVER (unobserve após aparecer) ==========
         let observer = null;
         function observeCard(card) {
             if (!observer) {
                 observer = new IntersectionObserver((entries) => {
                     entries.forEach(entry => {
-                        if (entry.isIntersecting) entry.target.classList.add('visible');
-                        else entry.target.classList.remove('visible');
+                        if (entry.isIntersecting) {
+                            entry.target.classList.add('visible');
+                            observer.unobserve(entry.target);
+                        }
                     });
-                }, { threshold: 0.1, rootMargin: '0px 0px -50px 0px' });
+                }, { threshold: 0.05, rootMargin: '0px 0px 200px 0px' });
             }
             observer.observe(card);
         }
 
         // ========== SCROLL ==========
+        let scrollTicking = false;
         window.addEventListener('scroll', function() {
-            const bar = document.getElementById('stickyCategoryBar');
-            if (window.scrollY > 70) bar.classList.add('scrolled');
-            else bar.classList.remove('scrolled');
-            const btn = document.getElementById('backToTop');
-            if (window.scrollY > 300) btn.classList.add('visible');
-            else btn.classList.remove('visible');
-        });
+            if (scrollTicking) return;
+            scrollTicking = true;
+            requestAnimationFrame(() => {
+                const bar = document.getElementById('stickyCategoryBar');
+                if (window.scrollY > 70) bar.classList.add('scrolled');
+                else bar.classList.remove('scrolled');
+                if (window.scrollY > 300) backToTop.classList.add('visible');
+                else backToTop.classList.remove('visible');
+                scrollTicking = false;
+            });
+        }, { passive: true });
 
         // ========== CRIAR CARD DE PRODUTO ==========
         function createProductCard(product) {
@@ -1531,7 +1616,7 @@
             card.innerHTML = `
                         ${ribbonHtml}
                         <div class="product-image">
-                            <img src="${img}" alt="${product.name || 'Peça'}" loading="lazy" onclick="clickAndZoom('${product.id}', '${img}')">
+                            <img src="${img}" alt="${product.name || 'Peça'}" loading="lazy" decoding="async" onclick="clickAndZoom('${product.id}', '${img}')">
                             <div class="fullscreen-icon" onclick="event.stopPropagation(); clickAndZoom('${product.id}', '${img}')"><i class="fas fa-expand"></i></div>
                         </div>
                         <div class="product-info">
@@ -1563,6 +1648,7 @@
                 if (selectedSessionId && !sessions[selectedSessionId]) { selectedSessionId = null; filterProducts(); }
                 renderPromotionBadgesOnly();
                 updatePriceDisplay();
+                saveCache();
             });
         }
 
@@ -1577,19 +1663,24 @@
                 return;
             }
             sessionsWrapper.classList.remove('hidden');
-            let html = '';
+            const frag = document.createDocumentFragment();
             sessionArray.forEach(s => {
                 const sel = selectedSessionId === s.id;
-                html += `<div class="session-item ${sel ? 'selected' : ''}" onclick="selectSession('${s.id}')" data-session-id="${s.id}">
-                            <div class="session-avatar-circle">
-                                <div class="session-avatar-circle-inner">
-                                    <img src="${s.image || DEFAULT_SESSION_IMAGE}" alt="${escapeHtml(s.name)}" onerror="this.src='${DEFAULT_SESSION_IMAGE}'">
-                                </div>
-                            </div>
-                            <div class="session-name-label">${escapeHtml(s.name)}</div>
-                        </div>`;
+                const el = document.createElement('div');
+                el.className = `session-item ${sel ? 'selected' : ''}`;
+                el.setAttribute('data-session-id', s.id);
+                el.onclick = () => selectSession(s.id);
+                el.innerHTML = `
+                    <div class="session-avatar-circle">
+                        <div class="session-avatar-circle-inner">
+                            <img src="${s.image || DEFAULT_SESSION_IMAGE}" alt="${escapeHtml(s.name)}" loading="lazy" decoding="async" onerror="this.src='${DEFAULT_SESSION_IMAGE}'">
+                        </div>
+                    </div>
+                    <div class="session-name-label">${escapeHtml(s.name)}</div>
+                `;
+                frag.appendChild(el);
             });
-            sessionsCarousel.innerHTML = html;
+            sessionsCarousel.replaceChildren(frag);
             if (selectedSessionId !== null) viewAllSessions.classList.add('active');
             else viewAllSessions.classList.remove('active');
             renderPromotionBadgesOnly();
@@ -1597,7 +1688,6 @@
 
         function selectSession(id) {
             if (selectedSessionId === id) return;
-            // Registra clique na sessão (só quando seleciona de fato)
             if (id && sessions[id]) {
                 database.ref(`sessionClicks/${id}`).transaction(v => (v || 0) + 1);
             }
@@ -1610,13 +1700,14 @@
             renderPromotionBadgesOnly();
         }
 
-        // ========== MARCAS ==========
+        // ========== MARCAS (OTIMIZADO COM FRAGMENT) ==========
         function loadBrands() {
             database.ref('brands').on('value', (snapshot) => {
                 brands = snapshot.val() || {};
                 updateBrandTabs();
                 const hasBrands = Object.keys(brands).length > 0;
                 brandTitle.classList.toggle('visible', hasBrands);
+                saveCache();
             });
         }
 
@@ -1624,23 +1715,36 @@
             if (!brandTabs) return;
             const brandArray = Object.keys(brands).map(id => ({ id, ...brands[id] }));
             brandArray.sort((a, b) => (a.order || 0) - (b.order || 0));
-            if (brandArray.length === 0) { brandTabs.innerHTML = ''; brandTitle.classList.remove('visible'); return; }
+            if (brandArray.length === 0) {
+                brandTabs.innerHTML = '';
+                brandTitle.classList.remove('visible');
+                return;
+            }
             brandTitle.classList.add('visible');
             const doubled = [...brandArray, ...brandArray];
-            let html = '';
+            const frag = document.createDocumentFragment();
             doubled.forEach((brand) => {
-                const isActive = selectedBrand === brand.name;
-                const imgSrc = brand.image || DEFAULT_PLACEHOLDER_IMAGE;
-                html += `<div class="brand-marquee-item ${isActive ? 'active' : ''}" data-brand-name="${escapeHtml(brand.name)}" onclick="selectBrand('${escapeHtml(brand.name)}')"><img src="${imgSrc}" alt="${escapeHtml(brand.name)}" onerror="this.src='${DEFAULT_PLACEHOLDER_IMAGE}'"></div>`;
+                const el = document.createElement('div');
+                el.className = 'brand-marquee-item' + (selectedBrand === brand.name ? ' active' : '');
+                el.dataset.brandName = brand.name;
+                el.onclick = () => selectBrand(brand.name);
+
+                const img = document.createElement('img');
+                img.src = brand.image || DEFAULT_PLACEHOLDER_IMAGE;
+                img.alt = brand.name;
+                img.loading = 'lazy';
+                img.decoding = 'async';
+                img.onerror = () => { img.src = DEFAULT_PLACEHOLDER_IMAGE; };
+                el.appendChild(img);
+                frag.appendChild(el);
             });
-            brandTabs.innerHTML = html;
+            brandTabs.replaceChildren(frag);
         }
 
         function selectBrand(b) {
             if (selectedBrand === b) selectedBrand = '';
             else {
                 selectedBrand = b;
-                // Registra clique na marca
                 database.ref(`brandClicks/${b}`).transaction(v => (v || 0) + 1);
             }
             updateBrandTabs();
@@ -1673,7 +1777,6 @@
             if (cat === '') { selectedCategory = ''; selectedBrand = ''; updateBrandTabs(); }
             else {
                 selectedCategory = cat;
-                // Registra clique na categoria
                 database.ref(`categoryClicks/${cat}`).transaction(v => (v || 0) + 1);
             }
             updateCategoryTabs();
@@ -1687,12 +1790,11 @@
             if (!product) return;
             currentProduct = product;
 
-            // ===== REGISTRA O CLIQUE EM DETALHES =====
             registerClick(product, 'detalhes');
 
             document.getElementById('modalTitle').textContent = product.name || 'Sem nome';
             const img = product.image || DEFAULT_PLACEHOLDER_IMAGE;
-            document.getElementById('modalImage').innerHTML = `<img src="${img}" alt="${product.name}" onclick="openFullscreenImage('${img}')"><div class="fullscreen-icon" onclick="openFullscreenImage('${img}')"><i class="fas fa-expand"></i></div>`;
+            document.getElementById('modalImage').innerHTML = `<img src="${img}" alt="${product.name}" decoding="async" onclick="openFullscreenImage('${img}')"><div class="fullscreen-icon" onclick="openFullscreenImage('${img}')"><i class="fas fa-expand"></i></div>`;
             document.getElementById('modalDescription').textContent = product.description || 'Sem descrição';
 
             const codigoContainer = document.getElementById('modalCodigoContainer');
@@ -1795,8 +1897,6 @@
                     updateCart();
                     if (currentProduct) showDetails(currentProduct.id);
                 });
-
-                if (currentUser.mustChangePassword) openForceResetModal();
             });
         }
 
@@ -1876,37 +1976,6 @@
             e.target.value = '';
         });
 
-        // ========== FORÇAR REDEFINIÇÃO DE SENHA ==========
-        function openForceResetModal() {
-            const m = document.getElementById('forceResetModal'); if (!m) return;
-            document.getElementById('forceNewPassword').value = '';
-            document.getElementById('forceConfirmPassword').value = '';
-            document.getElementById('forceResetError').textContent = '';
-            m.classList.add('active');
-        }
-        function closeForceResetModal() {
-            const m = document.getElementById('forceResetModal'); if (!m) return;
-            m.classList.remove('active');
-        }
-        async function forceResetPassword() {
-            const newPass = document.getElementById('forceNewPassword').value;
-            const confirmPass = document.getElementById('forceConfirmPassword').value;
-            if (newPass.length < 6) { document.getElementById('forceResetError').textContent = 'A senha deve ter no mínimo 6 caracteres.'; return; }
-            if (newPass !== confirmPass) { document.getElementById('forceResetError').textContent = 'As senhas não coincidem.'; return; }
-            try {
-                showLoading('Alterando senha...');
-                const user = auth.currentUser;
-                if (!user) throw new Error('Usuário não autenticado');
-                await user.updatePassword(newPass);
-                await database.ref(`users/${user.uid}/mustChangePassword`).remove();
-                if (currentUser) currentUser.mustChangePassword = false;
-                hideLoading(); closeForceResetModal(); showToast('Senha alterada com sucesso!'); updateProfileUIUser();
-            } catch (e) {
-                hideLoading();
-                document.getElementById('forceResetError').textContent = 'Erro ao alterar senha: ' + e.message;
-            }
-        }
-
         // ========== LOGOUT ==========
         function logoutUser() {
             if (confirm('Deseja sair?')) {
@@ -1923,14 +1992,20 @@
         // ========== GATE DE SESSÃO ==========
         function unlockPage() {
             if (sessionGate) sessionGate.remove();
-            if (!dataLoaded) { dataLoaded = true; loadData(); }
+            if (!dataLoaded) {
+                dataLoaded = true;
+                // 1) Tenta cache primeiro (render instantâneo)
+                loadCache();
+                // 2) Depois sincroniza com Firebase
+                loadData();
+            }
         }
         function redirectToLogin() {
             currentUser = null; currentUserPhoto = null;
             window.location.replace('index.html');
         }
 
-        // ========== AUTH STATE — CORRIGIDO ==========
+        // ========== AUTH STATE ==========
         auth.onAuthStateChanged(async (user) => {
             console.log('🔍 [cim] auth state →', user ? user.uid : 'NULL');
 
@@ -1942,7 +2017,6 @@
 
             const uid = user.uid;
 
-            // Retry: aguenta erro transitório de auth/DB na primeira leitura
             let snap = null;
             for (let i = 0; i < 3; i++) {
                 try {
@@ -1997,39 +2071,79 @@
             unlockPage();
         });
 
-        // ========== LOAD DATA ==========
+        // ========== LOAD DATA (FIREBASE SYNC) ==========
         function loadData() {
             loadCart();
-            loadProfile();
-            loadContacts();
-            loadSessions();
-            loadBrands();
-            carregarPromocoes();
-            loadCupons();
 
-            database.ref('categoryClicks').on('value', (snapshot) => { categoryClicks = snapshot.val() || {}; updateCategoryTabs(); });
-            database.ref('sessionClicks').on('value', (snapshot) => { sessionClicks = snapshot.val() || {}; updateSessionsCarousel(); });
-            database.ref('brandClicks').on('value', (snapshot) => { brandClicks = snapshot.val() || {}; updateBrandTabs(); });
-
-            database.ref('categoryHidePF').on('value', (snapshot) => { categoryHidePF = snapshot.val() || {}; updateCategoryTabs(); updatePriceDisplay(); });
-            database.ref('categoryHidePJ').on('value', (snapshot) => { categoryHidePJ = snapshot.val() || {}; updateCategoryTabs(); updatePriceDisplay(); });
-
+            // Sincroniza Firebase, sobrescrevendo cache quando chegar
             database.ref('products').on('value', (snapshot) => {
                 products = snapshot.val() ? Object.values(snapshot.val()) : [];
                 updateCategoryTabs();
                 updateBrandTabs();
                 filterProducts();
-                renderPromotionBadgesOnly();
                 updateCart();
+                saveCache();
+            });
+
+            database.ref('sessions').on('value', (snapshot) => {
+                sessions = snapshot.val() || {};
+                Object.keys(sessions).forEach(id => {
+                    if (sessions[id].hidePF === undefined) sessions[id].hidePF = false;
+                    if (sessions[id].hidePJ === undefined) sessions[id].hidePJ = false;
+                });
+                updateSessionsCarousel();
+                if (selectedSessionId && !sessions[selectedSessionId]) { selectedSessionId = null; filterProducts(); }
+                renderPromotionBadgesOnly();
+                updatePriceDisplay();
+                saveCache();
+            });
+
+            database.ref('brands').on('value', (snapshot) => {
+                brands = snapshot.val() || {};
+                updateBrandTabs();
+                brandTitle.classList.toggle('visible', Object.keys(brands).length > 0);
+                saveCache();
+            });
+
+            database.ref('contacts').on('value', (snapshot) => {
+                contacts = snapshot.val() || {};
+                renderContacts();
+                saveCache();
+            });
+
+            database.ref('promocoes').on('value', (snapshot) => {
+                promocoes = snapshot.val() || {};
+                verificarExpiracao();
+                renderPromotionBadgesOnly();
+                filterProducts();
+                saveCache();
+            });
+
+            database.ref('cupons').on('value', (snapshot) => {
+                cupons = snapshot.val() || {};
+                validateActiveCoupon();
+            });
+
+            database.ref('profile').on('value', (snapshot) => {
+                const data = snapshot.val() || {};
+                profileData = {
+                    photo: data.photo || DEFAULT_PROFILE_IMAGE,
+                    name: data.name || 'CIM Peças',
+                    subtitle: data.subtitle || '',
+                    message: data.message || 'Sua peça com qualidade e rapidez'
+                };
+                updateProfileUI();
+                saveCache();
             });
 
             database.ref('contactInfo').on('value', (snapshot) => {
-                if (snapshot.val()) { contactInfo = snapshot.val(); updateMenuContactInfo(); }
+                if (snapshot.val()) { contactInfo = snapshot.val(); updateMenuContactInfo(); saveCache(); }
             });
 
             database.ref('settings/categoryOrder').on('value', (snapshot) => {
                 categoryOrder = snapshot.val() || [];
                 updateCategoryTabs();
+                saveCache();
             });
 
             database.ref('settings/pricesHidden').on('value', (snapshot) => {
@@ -2037,16 +2151,24 @@
                 if (val === undefined || val === null) pricesHidden = false;
                 else pricesHidden = val;
                 updatePriceDisplay();
+                saveCache();
             });
 
+            database.ref('categoryClicks').on('value', (snapshot) => { categoryClicks = snapshot.val() || {}; });
+            database.ref('sessionClicks').on('value', (snapshot) => { sessionClicks = snapshot.val() || {}; });
+            database.ref('brandClicks').on('value', (snapshot) => { brandClicks = snapshot.val() || {}; });
+
+            database.ref('categoryHidePF').on('value', (snapshot) => { categoryHidePF = snapshot.val() || {}; updatePriceDisplay(); });
+            database.ref('categoryHidePJ').on('value', (snapshot) => { categoryHidePJ = snapshot.val() || {}; updatePriceDisplay(); });
+
             setInterval(() => verificarExpiracao(), 30000);
-            setInterval(() => renderPromotionBadgesOnly(), 60000);
         }
 
         // ========== EXPOR FUNÇÕES ==========
         window.toggleBottomMenu = toggleBottomMenu;
         window.closeBottomMenu = closeBottomMenu;
         window.toggleSearch = toggleSearch;
+        window.debouncedSearch = debouncedSearch;
         window.handleSearchInput = handleSearchInput;
         window.selectSuggestion = selectSuggestion;
         window.clearSearchHeader = clearSearchHeader;
@@ -2068,15 +2190,12 @@
         window.logoutUser = logoutUser;
         window.handleProfileBtnClick = handleProfileBtnClick;
         window.toggleProfileDropdown = toggleProfileDropdown;
-        window.forceResetPassword = forceResetPassword;
-        window.closeForceResetModal = closeForceResetModal;
         window.applyCoupon = applyCoupon;
         window.removeCoupon = removeCoupon;
         window.registerClick = registerClick;
 
-        console.log('CIM - Loja Virtual carregada com sucesso!');
-        console.log('Sistema de cupons ativo: aplicação global, maior desconto vence.');
-        console.log('✅ Sistema de cliques ativo: clickLogs, metaAchievements, categoryClicks, sessionClicks, brandClicks.');
+        console.log('CIM - Loja Virtual carregada com sucesso! (Versão Otimizada)');
+        console.log('✅ Cache local ativo | Marquee com GPU | Busca debounced | Lazy loading');
     </script>
 </body>
 </html>
