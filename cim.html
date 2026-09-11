@@ -138,7 +138,7 @@
         .category-promo-badge { background: #E60000; color: #fff; font-size: 0.7rem; font-weight: 700; padding: 1px 6px; border-radius: 12px; margin-left: 4px; white-space: nowrap; display: inline-flex; align-items: center; gap: 2px; }
         .category-promo-badge i { font-size: 0.5rem; }
 
-        /* ===== MARQUEE DE MARCAS (GPU) ===== */
+        /* ===== MARQUEE DE MARCAS (GPU) - SEMPRE RODANDO ===== */
         .brand-filters-area { background: #000; padding: 6px 0 12px; }
         .brand-title { text-align: center; font-size: var(--fs-lg); font-weight: 700; color: #fff; margin: 10px 0 8px; letter-spacing: 0.3px; display: none; }
         .brand-title.visible { display: block; }
@@ -146,8 +146,17 @@
         .brand-marquee-wrapper .gradient-left { position: absolute; left: 0; top: 0; bottom: 0; width: 60px; background: linear-gradient(to right, #000, transparent); z-index: 10; pointer-events: none; }
         .brand-marquee-wrapper .gradient-right { position: absolute; right: 0; top: 0; bottom: 0; width: 60px; background: linear-gradient(to left, #000, transparent); z-index: 10; pointer-events: none; }
         @keyframes brandScroll { 0% { transform: translate3d(0,0,0); } 100% { transform: translate3d(-50%,0,0); } }
-        .brand-marquee-track { display: flex; width: max-content; animation: brandScroll 22s linear infinite; align-items: center; gap: 40px; will-change: transform; backface-visibility: hidden; }
-        .brand-marquee-track:hover { animation-play-state: paused; }
+        .brand-marquee-track {
+            display: flex;
+            width: max-content;
+            animation: brandScroll 22s linear infinite;
+            animation-play-state: running;
+            align-items: center;
+            gap: 40px;
+            will-change: transform;
+            backface-visibility: hidden;
+            transform: translateZ(0);
+        }
         .brand-marquee-item { display: flex; align-items: center; justify-content: center; opacity: 0.7; transition: opacity 0.2s ease, transform 0.2s ease; cursor: pointer; flex-shrink: 0; padding: 4px; position: relative; min-height: 50px; }
         .brand-marquee-item:hover { opacity: 1; transform: scale(1.05) translate3d(0,0,0); }
         .brand-marquee-item.active { opacity: 1; }
@@ -228,9 +237,10 @@
             width: 100%;
             height: 100%;
             object-fit: cover;
-            transition: transform 0.4s ease, opacity 0.25s ease-out;
+            transition: transform 0.4s ease, opacity 0.35s ease-out;
             opacity: 0;
             backface-visibility: hidden;
+            background: #1a1a1a;
         }
         .product-image img.img-loaded { opacity: 1; }
         .product-card:hover .product-image img { transform: scale(1.05) translate3d(0,0,0); }
@@ -422,6 +432,29 @@
         .view-all-sessions a:hover { text-decoration: underline; transform: scale(1.02) translate3d(0,0,0); }
 
         /* ============================================================
+           ANIMAÇÕES DE ENTRADA SUAVES
+           ============================================================ */
+        @keyframes headerSlideIn {
+            from { opacity: 0; transform: translate3d(0, -20px, 0); }
+            to   { opacity: 1; transform: translate3d(0, 0, 0); }
+        }
+        @keyframes sectionSlideIn {
+            from { opacity: 0; transform: translate3d(0, 22px, 0); }
+            to   { opacity: 1; transform: translate3d(0, 0, 0); }
+        }
+        @keyframes sectionFadeIn {
+            from { opacity: 0; }
+            to   { opacity: 1; }
+        }
+
+        .header { animation: headerSlideIn 0.6s cubic-bezier(0.22, 1, 0.36, 1) backwards; }
+        .top-filters-area { animation: sectionSlideIn 0.55s cubic-bezier(0.22, 1, 0.36, 1) 0.10s backwards; }
+        /* sticky-category-bar: apenas fade, para não quebrar position: sticky */
+        .sticky-category-bar { animation: sectionFadeIn 0.5s ease-out 0.20s backwards; }
+        .brand-filters-area { animation: sectionSlideIn 0.6s cubic-bezier(0.22, 1, 0.36, 1) 0.28s backwards; }
+        .results-info { animation: sectionFadeIn 0.5s ease-out 0.36s backwards; }
+
+        /* ============================================================
            RESPONSIVIDADE UNIVERSAL
            ============================================================ */
         .products-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 40px; }
@@ -599,6 +632,7 @@
         @media (prefers-reduced-motion: reduce) {
             .brand-marquee-track { animation: none; }
             .product-card { transition: none; animation: none; }
+            .header, .top-filters-area, .sticky-category-bar, .brand-filters-area, .results-info { animation: none; }
             *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
         }
 
@@ -828,7 +862,6 @@
     </div>
 
     <script>
-    // ⚡ Todo o código roda após o Firebase (defer) estar pronto e o DOM parseado
     document.addEventListener('DOMContentLoaded', function () {
 
         // ========== FIREBASE CONFIG ==========
@@ -851,6 +884,9 @@
         const DEFAULT_SESSION_IMAGE = 'https://via.placeholder.com/200x200?text=Sess%C3%A3o';
         const DEFAULT_PROFILE_IMAGE = 'https://i.ibb.co/6J5qZ9K/default-avatar.png';
         const DEFAULT_USER_AVATAR = 'https://i.ibb.co/6J5qZ9K/default-avatar.png';
+
+        // Pixel transparente 1x1 (placeholder até a imagem real carregar)
+        const TRANSPARENT_PIXEL = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
 
         // ========== VARIÁVEIS GLOBAIS ==========
         let cart = [];
@@ -967,6 +1003,66 @@
             } catch (e) { return false; }
         }
 
+        // ============================================================
+        // FILA DE IMAGENS (carregamento sequencial, 1 por vez)
+        // ============================================================
+        const imageQueue = [];
+        let isProcessingImageQueue = false;
+        let imageObserver = null;
+
+        function ensureImageObserver() {
+            if (imageObserver) return imageObserver;
+            imageObserver = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        const img = entry.target;
+                        imageObserver.unobserve(img);
+                        enqueueImageLoad(img);
+                    }
+                });
+            }, { rootMargin: '400px 0px 400px 0px', threshold: 0.01 });
+            return imageObserver;
+        }
+
+        function enqueueImageLoad(imgEl) {
+            if (!imgEl || !imgEl.dataset.realSrc) return;
+            if (imgEl.dataset.queued === '1' || imgEl.dataset.loaded === '1') return;
+            imgEl.dataset.queued = '1';
+            imageQueue.push(imgEl);
+            processImageQueue();
+        }
+
+        async function processImageQueue() {
+            if (isProcessingImageQueue) return;
+            isProcessingImageQueue = true;
+            while (imageQueue.length > 0) {
+                const imgEl = imageQueue.shift();
+                if (!imgEl.isConnected) continue;
+                const src = imgEl.dataset.realSrc;
+                if (!src) continue;
+                await loadSingleImage(imgEl, src);
+                // Pequeno yield para o browser respirar entre imagens
+                await new Promise(r => setTimeout(r, 16));
+            }
+            isProcessingImageQueue = false;
+        }
+
+        function loadSingleImage(imgEl, src) {
+            return new Promise((resolve) => {
+                const temp = new Image();
+                temp.decoding = 'async';
+                const finish = (finalSrc) => {
+                    imgEl.src = finalSrc;
+                    imgEl.classList.add('img-loaded');
+                    imgEl.dataset.loaded = '1';
+                    resolve();
+                };
+                temp.onload = () => finish(src);
+                temp.onerror = () => finish(DEFAULT_PLACEHOLDER_IMAGE);
+                temp.src = src;
+            });
+        }
+
         // ========== UTILITÁRIOS ==========
         function showToast(msg, type = 'success') {
             const toast = document.createElement('div');
@@ -1056,7 +1152,7 @@
             return clean;
         }
 
-        // ========== SKELETON (fragment + replaceChildren) ==========
+        // ========== SKELETON ==========
         function renderSkeletons(count = 6) {
             if (!productsGrid) return;
             const frag = document.createDocumentFragment();
@@ -1653,7 +1749,7 @@
             if (currentProduct) showDetails(currentProduct.id);
         }
 
-        // ========== FILTRAR PRODUTOS (com pré-cálculo de sort keys) ==========
+        // ========== FILTRAR PRODUTOS ==========
         let renderToken = 0;
         async function filterProducts() {
             const myToken = ++renderToken;
@@ -1671,7 +1767,6 @@
             if (selectedCategory && selectedCategory !== '') filtered = filtered.filter(p => p.category === selectedCategory);
             if (selectedBrand && selectedBrand !== '') filtered = filtered.filter(p => p.brand === selectedBrand);
 
-            // ⚡ Pré-calcula chaves de ordenação UMA VEZ por item
             const sortable = filtered.map(p => {
                 const hasPrice = (p.prices?.PF || 0) > 0 || (p.prices?.PJ || 0) > 0;
                 const soldOut = !!p.soldOut;
@@ -1718,7 +1813,6 @@
                 }
                 if (myToken !== renderToken) return;
                 productsGrid.replaceChildren(frag);
-                // Marca visível tudo que já está no viewport o mais rápido possível
                 requestAnimationFrame(() => {
                     const cards = productsGrid.children;
                     const limit = Math.min(cards.length, 8);
@@ -1728,7 +1822,7 @@
             clearSearchBtn.style.display = searchTerm ? 'flex' : 'none';
         }
 
-        // ========== INTERSECTION OBSERVER ==========
+        // ========== INTERSECTION OBSERVER (revelação dos cards) ==========
         let observer = null;
         function observeCard(card) {
             if (!observer) {
@@ -1794,13 +1888,11 @@
             }
 
             const img = product.image || DEFAULT_PLACEHOLDER_IMAGE;
-            const loadingAttr = eagerLoad ? 'eager' : 'lazy';
-            const fetchAttr = eagerLoad ? 'fetchpriority="high"' : '';
 
             card.innerHTML = `
                         ${ribbonHtml}
                         <div class="product-image">
-                            <img src="${img}" alt="${escapeHtml(product.name || 'Peça')}" loading="${loadingAttr}" ${fetchAttr} decoding="async" data-img>
+                            <img src="${TRANSPARENT_PIXEL}" data-real-src="${img}" alt="${escapeHtml(product.name || 'Peça')}" decoding="async" data-img>
                             <div class="fullscreen-icon" onclick="event.stopPropagation(); clickAndZoom('${product.id}', '${img}')"><i class="fas fa-expand"></i></div>
                         </div>
                         <div class="product-info">
@@ -1817,15 +1909,16 @@
                         </div>
                     `;
 
-            // ⚡ Registra o carregamento da imagem para fade-in suave (sem flicker)
+            // Registra o clique para zoom e enfileira a imagem (1 por vez)
             const imgEl = card.querySelector('img[data-img]');
             if (imgEl) {
                 imgEl.addEventListener('click', function() { window.clickAndZoom(product.id, img); });
-                if (imgEl.complete && imgEl.naturalWidth > 0) {
-                    imgEl.classList.add('img-loaded');
+                if (eagerLoad) {
+                    // Primeiras 4: carrega imediatamente (entra na fila)
+                    enqueueImageLoad(imgEl);
                 } else {
-                    imgEl.addEventListener('load', () => imgEl.classList.add('img-loaded'), { once: true });
-                    imgEl.addEventListener('error', () => imgEl.classList.add('img-loaded'), { once: true });
+                    // Restante: só quando entra no viewport (rootMargin 400px)
+                    ensureImageObserver().observe(imgEl);
                 }
             }
 
@@ -1882,11 +1975,20 @@
             renderPromotionBadgesOnly();
         }
 
-        // ========== MARCAS (MARQUEE) ==========
+        // ========== MARCAS (MARQUEE - SEMPRE RODANDO) ==========
+        let lastBrandsHash = '';
+
         function updateBrandTabs() {
             if (!brandTabs) return;
             const brandArray = Object.keys(brands).map(id => ({ id, ...brands[id] }));
             brandArray.sort((a, b) => (a.order || 0) - (b.order || 0));
+
+            // Hash para evitar re-render (que reinicia a animação do marquee)
+            const hash = JSON.stringify(brandArray.map(b => `${b.id}|${b.name}|${b.image || ''}`));
+            const isFirstRender = !lastBrandsHash;
+            if (hash === lastBrandsHash) return;
+            lastBrandsHash = hash;
+
             if (brandArray.length === 0) {
                 brandTabs.innerHTML = '';
                 brandTitle.classList.remove('visible');
@@ -1911,6 +2013,12 @@
                 frag.appendChild(el);
             });
             brandTabs.replaceChildren(frag);
+
+            // Garante que a animação sempre esteja rodando (mesmo após replaceChildren)
+            brandTabs.style.animation = 'none';
+            void brandTabs.offsetWidth; // força reflow
+            brandTabs.style.animation = '';
+            brandTabs.style.animationPlayState = 'running';
         }
 
         function selectBrand(b) {
@@ -2347,7 +2455,7 @@
             registerClick, onSearchFocus, onSearchBlur, openWhatsApp, handleInstagramClick
         });
 
-        console.log('✅ CIM carregada — Otimizada + Responsiva Universal');
+        console.log('✅ CIM carregada — Marquee sempre rodando + Fila de imagens + Entrada suave');
     });
     </script>
 </body>
