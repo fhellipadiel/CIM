@@ -666,6 +666,7 @@
         let currentUser = null;
         let currentUserPhoto = null;
         let dataLoaded = false;
+        let currentProduct = null;
 
         // ========== DOM REFS ==========
         const productsGrid = document.getElementById('productsGrid');
@@ -1150,23 +1151,16 @@
             return preco * (1 - descontoPercent / 100);
         }
 
-        // ========== CUPONS — LÓGICA PRINCIPAL (CORRIGIDA) ==========
+        // ========== CUPONS — LÓGICA PRINCIPAL ==========
         function loadCupons() {
             database.ref('cupons').on('value', (snapshot) => {
                 cupons = snapshot.val() || {};
-                // Só valida o cupom ativo depois que a lista foi carregada
-                if (Object.keys(cupons).length > 0 || cupomAtivo) {
-                    validateActiveCoupon();
-                }
+                validateActiveCoupon();
             });
         }
 
-        // FIX 1: Não valida enquanto cupons estiver vazio (evita apagar cupom ativo no boot)
         function validateActiveCoupon() {
             if (!cupomAtivo || !currentUser) return;
-            // Se ainda não temos cupons carregados do Firebase, não faça nada
-            if (!cupons || Object.keys(cupons).length === 0) return;
-
             const now = Date.now();
             if (cupomAtivo.expiracao && cupomAtivo.expiracao < now) {
                 removeCouponSilent('Cupom expirado');
@@ -1229,7 +1223,6 @@
             el.className = 'coupon-message';
         }
 
-        // FIX 2: applyCoupon limpa automaticamente cupom ativo "morto"
         async function applyCoupon() {
             const input = document.getElementById('couponInput');
             if (!input) return;
@@ -1237,25 +1230,7 @@
             clearCouponMessage();
             if (!codigo) { showCouponMessage('Digite um código de cupom'); return; }
             if (!currentUser) { showCouponMessage('Você precisa estar logado'); return; }
-
-            // --- LIMPEZA AUTOMÁTICA DE CUPOM ÓRFÃO ---
-            if (cupomAtivo) {
-                const dbC = cupons[cupomAtivo.cupomId];
-                const morto = !dbC || !dbC.ativo ||
-                              (cupomAtivo.expiracao && cupomAtivo.expiracao < Date.now()) ||
-                              !cupons[cupomAtivo.cupomId];
-                if (morto) {
-                    cupomAtivo = null;
-                    if (currentUser.uid) {
-                        try { await database.ref(`users/${currentUser.uid}/cupomAtivo`).remove(); } catch(e) {}
-                    }
-                    updateCouponUI();
-                    // Continua o fluxo para aplicar o novo cupom
-                } else {
-                    showCouponMessage('Você já tem um cupom aplicado. Remova para aplicar outro.');
-                    return;
-                }
-            }
+            if (cupomAtivo) { showCouponMessage('Você já tem um cupom aplicado. Remova para aplicar outro.'); return; }
 
             const now = Date.now();
             const candidates = [];
@@ -1308,19 +1283,11 @@
             }
         }
 
-        // FIX 3: removeCoupon limpa o cupom ativo E permite reutilizar (remove de usuariosUsaram)
         function removeCoupon() {
             if (!cupomAtivo) return;
-            if (!confirm('Remover o cupom aplicado? Você poderá usá-lo novamente depois.')) return;
-            const idRemovido = cupomAtivo.cupomId;
+            if (!confirm('Remover o cupom aplicado? Você não poderá usá-lo novamente.')) return;
             cupomAtivo = null;
-            if (currentUser && currentUser.uid) {
-                database.ref(`users/${currentUser.uid}/cupomAtivo`).remove();
-                // Permite reuso do mesmo cupom (remove da lista de quem já usou)
-                database.ref(`cupons/${idRemovido}/usuariosUsaram/${currentUser.uid}`).remove();
-                // Decrementa contador de usos
-                database.ref(`cupons/${idRemovido}/usos`).transaction(v => Math.max(0, (v || 1) - 1));
-            }
+            if (currentUser && currentUser.uid) database.ref(`users/${currentUser.uid}/cupomAtivo`).remove();
             updateCouponUI();
             filterProducts();
             updateCart();
@@ -1455,6 +1422,7 @@
         // ========== CRIAR CARD DE PRODUTO ==========
         function createProductCard(product) {
             const card = document.createElement('div');
+
             const discountInfo = getEffectiveDiscount(product);
             const desconto = discountInfo.discount;
             const precoOriginalPF = product.prices?.PF || 0;
@@ -1628,8 +1596,6 @@
         }
 
         // ========== DETALHES DO PRODUTO ==========
-        let currentProduct = null;
-
         function showDetails(id) {
             const product = products.find(p => p.id === id);
             if (!product) return;
@@ -1722,21 +1688,16 @@
                 updateCart();
                 renderPromotionBadgesOnly();
 
-                // Listener do cupom ativo do usuário
                 database.ref(`users/${uid}/cupomAtivo`).on('value', (snapCupom) => {
                     const c = snapCupom.val();
                     cupomAtivo = c || null;
                     if (cupomAtivo) {
                         const now = Date.now();
                         const dbCoupon = cupons[cupomAtivo.cupomId];
-                        // FIX 4: só invalida se realmente temos os cupons carregados
-                        const cuponsCarregados = Object.keys(cupons).length > 0;
-                        if (cuponsCarregados) {
-                            const invalid = (cupomAtivo.expiracao && cupomAtivo.expiracao < now) || !dbCoupon || !dbCoupon.ativo;
-                            if (invalid) {
-                                database.ref(`users/${uid}/cupomAtivo`).remove();
-                                return;
-                            }
+                        const invalid = (cupomAtivo.expiracao && cupomAtivo.expiracao < now) || !dbCoupon || !dbCoupon.ativo;
+                        if (invalid) {
+                            database.ref(`users/${uid}/cupomAtivo`).remove();
+                            return;
                         }
                     }
                     updateCouponUI();
@@ -1879,35 +1840,71 @@
             window.location.replace('index.html');
         }
 
-        // ========== AUTH STATE ==========
-        auth.onAuthStateChanged((user) => {
-            if (user) {
-                const uid = user.uid;
-                if (user.email === 'cim@gmail.com') {
-                    database.ref(`users/${uid}`).once('value').then((snapshot) => {
-                        if (!snapshot.exists()) {
-                            const adminData = {
-                                email: user.email, name: 'Admin CIM', photoURL: user.photoURL || DEFAULT_USER_AVATAR,
-                                userType: 'PF', isAdmin: true, telefone: '5511986866888',
-                                createdAt: Date.now(), lastAccess: Date.now(), mustChangePassword: false
-                            };
-                            database.ref(`users/${uid}`).set(adminData).then(() => { loadUserData(uid); unlockPage(); });
-                        } else {
-                            database.ref(`users/${uid}/lastAccess`).set(Date.now());
-                            loadUserData(uid);
-                            unlockPage();
+        // ========== AUTH STATE — CORRIGIDO ==========
+        auth.onAuthStateChanged(async (user) => {
+            console.log('🔍 [cim] auth state →', user ? user.uid : 'NULL');
+
+            if (!user) {
+                console.warn('❌ [cim] Sem usuário → voltando ao index');
+                redirectToLogin();
+                return;
+            }
+
+            const uid = user.uid;
+
+            // Retry: aguenta erro transitório de auth/DB na primeira leitura
+            let snap = null;
+            for (let i = 0; i < 3; i++) {
+                try {
+                    snap = await database.ref(`users/${uid}`).once('value');
+                    break;
+                } catch (err) {
+                    console.warn(`[cim] Falha ao ler users/${uid} (tentativa ${i + 1}/3):`, err.code, err.message);
+                    if (i === 2) {
+                        if (sessionGate) {
+                            sessionGate.innerHTML =
+                                '<i class="fas fa-exclamation-triangle" style="animation:none;"></i>' +
+                                '<span>Erro ao carregar sessão (' + (err.code || 'erro') + '). ' +
+                                '<a href="index.html" style="color:#ff6b00;">Voltar ao login</a></span>';
                         }
-                    }).catch(() => { redirectToLogin(); });
-                } else {
-                    database.ref(`users/${uid}`).once('value').then((snapshot) => {
-                        if (snapshot.exists()) {
-                            database.ref(`users/${uid}/lastAccess`).set(Date.now());
-                            loadUserData(uid);
-                            unlockPage();
-                        } else window.location.replace('index.html?complete=true');
-                    }).catch(() => { redirectToLogin(); });
+                        return;
+                    }
+                    await new Promise(r => setTimeout(r, 500 * (i + 1)));
                 }
-            } else redirectToLogin();
+            }
+
+            if (!snap || !snap.exists()) {
+                if (user.email === 'cim@gmail.com') {
+                    const adminData = {
+                        email: user.email,
+                        name: 'Admin CIM',
+                        photoURL: user.photoURL || DEFAULT_USER_AVATAR,
+                        userType: 'PF',
+                        isAdmin: true,
+                        telefone: '5511986866888',
+                        createdAt: Date.now(),
+                        lastAccess: Date.now(),
+                        mustChangePassword: false
+                    };
+                    try {
+                        await database.ref(`users/${uid}`).set(adminData);
+                        loadUserData(uid);
+                        unlockPage();
+                    } catch (e) {
+                        console.error('[cim] Falha ao criar admin:', e);
+                        redirectToLogin();
+                    }
+                } else {
+                    console.warn('⚠️ [cim] Usuário logado mas SEM perfil no banco → completo o cadastro');
+                    window.location.replace('index.html?complete=true');
+                }
+                return;
+            }
+
+            console.log('✅ [cim] Perfil encontrado. Carregando loja...');
+            database.ref(`users/${uid}/lastAccess`).set(Date.now()).catch(() => {});
+            loadUserData(uid);
+            unlockPage();
         });
 
         // ========== LOAD DATA ==========
@@ -1987,7 +1984,7 @@
         window.removeCoupon = removeCoupon;
 
         console.log('CIM - Loja Virtual carregada com sucesso!');
-        console.log('Sistema de cupons ativo (CORRIGIDO): limpeza automática de cupom órfão + permite reuso após remoção.');
+        console.log('Sistema de cupons ativo: aplicação global, maior desconto vence.');
     </script>
 </body>
 </html>
