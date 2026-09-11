@@ -121,9 +121,9 @@
         .category-promo-badge { background: #E60000; color: #fff; font-size: 0.7rem; font-weight: 700; padding: 1px 6px; border-radius: 12px; margin-left: 4px; white-space: nowrap; display: inline-flex; align-items: center; gap: 2px; }
         .category-promo-badge i { font-size: 0.5rem; }
 
-        /* ========== MARQUEE DE MARCAS (CORRIGIDO) ========== */
+        /* ========== MARQUEE DE MARCAS (OTIMIZADO MOBILE) ========== */
         .brand-filters-area { background: #000000; padding: 6px 0 12px; }
-        .brand-title { text-align: center; font-size: 1.25rem; font-weight: 700; color: #ffffff; margin: 10px 0 8px; letter-spacing: 0.3px; opacity: 1; display: none; }
+        .brand-title { text-align: center; font-size: 1.25rem; font-weight: 700; color: #ffffff; margin: 10px 0 8px; letter-spacing: 0.3px; display: none; }
         .brand-title.visible { display: block; }
 
         .brand-marquee-wrapper {
@@ -134,13 +134,13 @@
         }
 
         .brand-marquee-wrapper .gradient-left {
-            position: absolute; left: 0; top: 0; bottom: 0; width: 80px;
-            background: linear-gradient(to right, #000000, transparent);
+            position: absolute; left: 0; top: 0; bottom: 0; width: 60px;
+            background: linear-gradient(to right, #000, transparent);
             z-index: 10; pointer-events: none;
         }
         .brand-marquee-wrapper .gradient-right {
-            position: absolute; right: 0; top: 0; bottom: 0; width: 80px;
-            background: linear-gradient(to left, #000000, transparent);
+            position: absolute; right: 0; top: 0; bottom: 0; width: 60px;
+            background: linear-gradient(to left, #000, transparent);
             z-index: 10; pointer-events: none;
         }
 
@@ -154,31 +154,30 @@
             width: max-content;
             animation: brandScroll 22s linear infinite;
             align-items: center;
-            gap: 60px;
+            gap: 50px;
             will-change: transform;
+            transform: translateZ(0);
+            backface-visibility: hidden;
         }
-        .brand-marquee-track:hover { animation-play-state: paused; }
+        .brand-marquee-track.paused { animation-play-state: paused; }
 
         .brand-marquee-item {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            opacity: 0.7;
-            transition: opacity 0.3s ease, transform 0.3s ease;
+            display: flex; align-items: center; justify-content: center;
+            opacity: 0.75;
+            transition: opacity 0.3s ease;
             cursor: pointer;
             flex-shrink: 0;
-            padding: 4px;
+            padding: 2px;
             background: transparent !important;
             border: none !important;
             box-shadow: none !important;
             position: relative;
         }
-        .brand-marquee-item:hover { opacity: 1; transform: scale(1.05); }
         .brand-marquee-item.active { opacity: 1; }
         .brand-marquee-item img {
-            height: 70px;
+            height: 65px;
             width: auto;
-            max-width: 140px;
+            max-width: 130px;
             object-fit: contain;
             background: transparent !important;
             display: block;
@@ -238,7 +237,7 @@
 
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); z-index: 2001; justify-content: center; align-items: flex-end; }
         .modal.active { display: flex; animation: modalBackdropIn 0.3s ease; }
-        @keyframes modalBackdropIn { from { background: rgba(0, 0, 0, 0); backdrop-filter: blur(0); -webkit-backdrop-filter: blur(0); } to { background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); } }
+        @keyframes modalBackdropIn { from { background: rgba(0, 0, 0, 0); } to { background: rgba(0, 0, 0, 0.85); } }
         .modal-content { background: #1a1a1a; border-radius: 24px 24px 0 0; width: 100%; max-width: 600px; max-height: 88vh; overflow-y: auto; border: 1px solid #333; border-bottom: none; position: relative; padding: 16px 20px 30px; transform: translateY(100%); transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1); scrollbar-width: none; -ms-overflow-style: none; }
         .modal-content::-webkit-scrollbar { display: none; }
         .modal.active .modal-content { transform: translateY(0); }
@@ -330,12 +329,8 @@
         .bottom-menu .menu-item .item-label { font-size: 0.9rem; font-weight: 500; color: #fff; }
         .bottom-menu .menu-item .item-value { font-size: 0.85rem; color: #aaa; }
         .bottom-menu .menu-item .item-value.hours { color: #ff9f4a; }
-        .bottom-menu .menu-item .item-value[contenteditable="true"] { border-bottom: 1px dashed #ff6b00; padding: 2px 4px; outline: none; cursor: text; }
-        .bottom-menu .menu-item .item-value[contenteditable="true"]:focus { background: #1a1a1a; border-bottom-color: #fff; }
         .bottom-menu .menu-item a { display: flex; align-items: center; gap: 14px; text-decoration: none; color: inherit; width: 100%; }
         .bottom-menu .menu-item a:hover { background: rgba(255, 107, 0, 0.05); padding-left: 8px; }
-        .bottom-menu .menu-item .admin-edit-icon { color: #ff6b00; background: #1a1a1a; border: 1px solid #333; width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; cursor: pointer; transition: all 0.3s ease; flex-shrink: 0; }
-        .bottom-menu .menu-item .admin-edit-icon:hover { background: #ff6b00; color: #000; }
 
         .bottom-menu .contacts-section { margin-top: 16px; }
         .bottom-menu .contacts-section .section-title { font-size: 0.85rem; color: #888; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between; }
@@ -347,9 +342,6 @@
         .bottom-menu .contact-item .contact-info { flex: 1; }
         .bottom-menu .contact-item .contact-name { font-weight: 500; color: #fff; font-size: 0.95rem; }
         .bottom-menu .contact-item .contact-subtitle { font-size: 0.75rem; color: #999; margin-top: 2px; }
-        .bottom-menu .contact-item .contact-actions { display: flex; gap: 6px; align-items: center; }
-        .bottom-menu .admin-contact-btn { background: #1a1a1a; border: 1px solid #333; color: #ff6b00; padding: 4px 10px; border-radius: 20px; font-size: 0.65rem; cursor: pointer; transition: 0.3s; display: inline-flex; align-items: center; gap: 4px; }
-        .bottom-menu .admin-contact-btn:hover { background: #ff6b00; color: #000; border-color: #ff6b00; }
 
         .coupon-section { margin-top: 16px; padding-top: 16px; border-top: 1px solid rgba(255, 255, 255, 0.08); }
         .coupon-section .section-title { font-size: 0.85rem; color: #888; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between; }
@@ -384,8 +376,6 @@
 
         .products-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-bottom: 40px; }
         @media (min-width: 768px) { .products-grid { grid-template-columns: repeat(4, 1fr); gap: 20px; } }
-
-        @keyframes fadeInUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
 
         .sessions-carousel-wrapper { margin: 0 0 8px 0; padding: 5px 0; position: relative; }
         .sessions-carousel-wrapper.hidden { display: none; }
@@ -430,9 +420,6 @@
             .top-filters-area { padding: 4px 0 4px; }
             .sticky-category-bar { padding: 4px 0 4px; }
             .brand-filters-area { padding: 4px 0 4px; }
-            .brand-marquee-wrapper .gradient-left, .brand-marquee-wrapper .gradient-right { width: 40px; }
-            .brand-marquee-track { gap: 40px; animation-duration: 18s; }
-            .brand-marquee-item img { height: 50px; }
             .type-selector { margin: 6px 0; padding: 12px 16px; }
             .price-indicator { margin: 8px 0 10px; }
             .results-info { margin: 8px 0 8px; }
@@ -456,8 +443,52 @@
             .cart-float .cart-float-count { width: 20px; height: 20px; font-size: 0.6rem; }
             .back-to-top { width: 44px; height: 44px; font-size: 1.2rem; bottom: 20px; right: 16px; }
             .profile-dropdown { right: -10px; min-width: 200px; }
-            #sessionPromoBanner, #categoryPromoBanner { display: none !important; }
             .product-card .promo-ribbon { font-size: 0.6rem; padding: 2px 25px; width: 80px; left: -20px; }
+        }
+
+        /* ============================================
+           OTIMIZAÇÕES MOBILE — GPU & PERFORMANCE
+           ============================================ */
+        @media (max-width: 900px) {
+            .header {
+                background-color: rgba(0, 0, 0, 0.94) !important;
+                backdrop-filter: none !important;
+                -webkit-backdrop-filter: none !important;
+            }
+            .sticky-category-bar.scrolled {
+                background: rgba(0, 0, 0, 0.96) !important;
+                backdrop-filter: none !important;
+                -webkit-backdrop-filter: none !important;
+            }
+            .bottom-menu {
+                background: rgba(0, 0, 0, 0.98) !important;
+                backdrop-filter: none !important;
+                -webkit-backdrop-filter: none !important;
+            }
+            .modal {
+                background: rgba(0, 0, 0, 0.92) !important;
+                backdrop-filter: none !important;
+                -webkit-backdrop-filter: none !important;
+            }
+            .brand-marquee-track {
+                gap: 30px;
+                animation-duration: 16s;
+            }
+            .brand-marquee-item img {
+                height: 46px;
+                max-width: 95px;
+            }
+            .brand-marquee-wrapper { padding: 6px 0; }
+            .brand-marquee-wrapper .gradient-left,
+            .brand-marquee-wrapper .gradient-right { width: 30px; }
+            .product-card { transition: opacity 0.25s ease, transform 0.25s ease; }
+            .product-card:hover .product-image img { transform: none; }
+            .cart-float { box-shadow: 0 3px 10px rgba(255,107,0,0.35); }
+            .back-to-top { box-shadow: 0 3px 10px rgba(255,107,0,0.3); }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .brand-marquee-track { animation: none; }
         }
     </style>
 </head>
@@ -723,8 +754,6 @@
         let sessionClicks = {};
         let brandClicks = {};
         let promocoes = {};
-        let sessionHidePF = {};
-        let sessionHidePJ = {};
         let categoryHidePF = {};
         let categoryHidePJ = {};
         let currentUser = null;
@@ -1039,7 +1068,12 @@
                 else { updateCart(); saveCart(); }
             }
         }
-        function toggleCart() { cartPanel.classList.toggle('open'); }
+
+        function toggleCart() {
+            cartPanel.classList.toggle('open');
+            if (cartPanel.classList.contains('open')) pauseMarquee();
+            else resumeMarquee();
+        }
 
         // ========== FINALIZAR COMPRA ==========
         function finalizePurchase() {
@@ -1076,11 +1110,13 @@
             bottomMenu.classList.add('open');
             bottomOverlay.classList.add('active');
             document.body.style.overflow = 'hidden';
+            pauseMarquee();
         }
         function closeBottomMenu() {
             bottomMenu.classList.remove('open');
             bottomOverlay.classList.remove('active');
             document.body.style.overflow = '';
+            resumeMarquee();
         }
 
         // ========== PERFIL DA LOJA ==========
@@ -1129,7 +1165,7 @@
             return true;
         }
 
-        // ========== BUSCA (com debounce) ==========
+        // ========== BUSCA ==========
         let searchTimer = null;
         function debouncedSearch(value) {
             clearTimeout(searchTimer);
@@ -1667,6 +1703,8 @@
         }
 
         // ========== MARCAS (MARQUEE) ==========
+        let marqueeObserver = null;
+
         function updateBrandTabs() {
             if (!brandTabs) return;
             const brandArray = Object.keys(brands).map(id => ({ id, ...brands[id] }));
@@ -1677,7 +1715,14 @@
                 return;
             }
             brandTitle.classList.add('visible');
-            const doubled = [...brandArray, ...brandArray];
+
+            const isMobile = window.innerWidth <= 768;
+            let brandsToShow = brandArray;
+            if (isMobile && brandArray.length > 12) {
+                brandsToShow = brandArray.slice(0, 12);
+            }
+
+            const doubled = [...brandsToShow, ...brandsToShow];
             const frag = document.createDocumentFragment();
             doubled.forEach((brand) => {
                 const el = document.createElement('div');
@@ -1695,7 +1740,29 @@
                 frag.appendChild(el);
             });
             brandTabs.replaceChildren(frag);
+
+            setupMarqueeObserver();
         }
+
+        function setupMarqueeObserver() {
+            if (marqueeObserver) marqueeObserver.disconnect();
+            if (!brandTabs) return;
+
+            marqueeObserver = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        brandTabs.classList.remove('paused');
+                    } else {
+                        brandTabs.classList.add('paused');
+                    }
+                });
+            }, { threshold: 0 });
+
+            marqueeObserver.observe(brandTabs);
+        }
+
+        function pauseMarquee() { if (brandTabs) brandTabs.classList.add('paused'); }
+        function resumeMarquee() { if (brandTabs) brandTabs.classList.remove('paused'); }
 
         function selectBrand(b) {
             if (selectedBrand === b) selectedBrand = '';
@@ -1911,7 +1978,6 @@
             if (!dropdown) return;
             dropdown.classList.toggle('open');
         }
-        function closeProfileDropdown() { document.getElementById('profileDropdown').classList.remove('open'); }
 
         document.addEventListener('click', function(e) {
             const btn = document.getElementById('profileBtn');
@@ -2145,8 +2211,8 @@
         window.removeCoupon = removeCoupon;
         window.registerClick = registerClick;
 
-        console.log('CIM - Loja Virtual carregada! (Versão Otimizada + Marquee Corrigido)');
-        console.log('✅ Cache local | Marquee GPU | Busca debounced | Lazy loading');
+        console.log('CIM - Loja Virtual carregada! (Versão Final Mobile-Otimizada)');
+        console.log('✅ Cache local | Marquee GPU | Pausa inteligente | Backdrop-filter removido mobile');
     </script>
 </body>
 </html>
