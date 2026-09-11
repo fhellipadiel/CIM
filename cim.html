@@ -237,12 +237,15 @@
             width: 100%;
             height: 100%;
             object-fit: cover;
-            transition: transform 0.4s ease, opacity 0.35s ease-out;
-            opacity: 0;
-            backface-visibility: hidden;
+            transition: transform 0.4s ease;
             background: #1a1a1a;
+            animation: imgFadeIn 0.25s ease-out;
+            backface-visibility: hidden;
         }
-        .product-image img.img-loaded { opacity: 1; }
+        @keyframes imgFadeIn {
+            from { opacity: 0.5; }
+            to   { opacity: 1; }
+        }
         .product-card:hover .product-image img { transform: scale(1.05) translate3d(0,0,0); }
         .fullscreen-icon { position: absolute; top: 10px; right: 10px; background: rgba(0,0,0,0.7); color: #ff6b00; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: background-color 0.2s ease, color 0.2s ease, transform 0.2s ease, opacity 0.2s ease; opacity: 1; z-index: 5; border: 1px solid #ff6b00; }
         @media (hover: hover) { .fullscreen-icon { opacity: 0; } .product-card:hover .fullscreen-icon { opacity: 1; } }
@@ -449,7 +452,6 @@
 
         .header { animation: headerSlideIn 0.6s cubic-bezier(0.22, 1, 0.36, 1) backwards; }
         .top-filters-area { animation: sectionSlideIn 0.55s cubic-bezier(0.22, 1, 0.36, 1) 0.10s backwards; }
-        /* sticky-category-bar: apenas fade, para não quebrar position: sticky */
         .sticky-category-bar { animation: sectionFadeIn 0.5s ease-out 0.20s backwards; }
         .brand-filters-area { animation: sectionSlideIn 0.6s cubic-bezier(0.22, 1, 0.36, 1) 0.28s backwards; }
         .results-info { animation: sectionFadeIn 0.5s ease-out 0.36s backwards; }
@@ -885,9 +887,6 @@
         const DEFAULT_PROFILE_IMAGE = 'https://i.ibb.co/6J5qZ9K/default-avatar.png';
         const DEFAULT_USER_AVATAR = 'https://i.ibb.co/6J5qZ9K/default-avatar.png';
 
-        // Pixel transparente 1x1 (placeholder até a imagem real carregar)
-        const TRANSPARENT_PIXEL = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
-
         // ========== VARIÁVEIS GLOBAIS ==========
         let cart = [];
         let products = [];
@@ -953,7 +952,7 @@
         const sessionGate = document.getElementById('sessionGate');
 
         // ========== CACHE LOCAL ==========
-        const CACHE_KEY = 'cim_cache_v2';
+        const CACHE_KEY = 'cim_cache_v3';
         const CACHE_TTL = 1000 * 60 * 60 * 24;
 
         function saveCache() {
@@ -998,68 +997,32 @@
                 filterProducts();
                 updateCart();
 
-                console.log('⚡ [cache] renderizado em', Date.now() - c.ts, 'ms de idade');
+                console.log('⚡ [cache] renderizado com', products.length, 'produtos');
                 return true;
             } catch (e) { return false; }
         }
 
         // ============================================================
-        // FILA DE IMAGENS (carregamento sequencial, 1 por vez)
+        // ⚡ CARREGAMENTO DE IMAGENS — OTIMIZADO
         // ============================================================
-        const imageQueue = [];
-        let isProcessingImageQueue = false;
-        let imageObserver = null;
+        // Estratégia:
+        //  1. Preload das 6 primeiras imagens com fetchpriority="high"
+        //  2. Lazy loading NATIVO do browser (loading="lazy") para o resto
+        //  3. Sem fila manual, sem double-load, sem opacity gate
+        // Resultado: imagens aparecem em SEGUNDOS, não minutos
 
-        function ensureImageObserver() {
-            if (imageObserver) return imageObserver;
-            imageObserver = new IntersectionObserver((entries) => {
-                entries.forEach(entry => {
-                    if (entry.isIntersecting) {
-                        const img = entry.target;
-                        imageObserver.unobserve(img);
-                        enqueueImageLoad(img);
-                    }
-                });
-            }, { rootMargin: '400px 0px 400px 0px', threshold: 0.01 });
-            return imageObserver;
-        }
-
-        function enqueueImageLoad(imgEl) {
-            if (!imgEl || !imgEl.dataset.realSrc) return;
-            if (imgEl.dataset.queued === '1' || imgEl.dataset.loaded === '1') return;
-            imgEl.dataset.queued = '1';
-            imageQueue.push(imgEl);
-            processImageQueue();
-        }
-
-        async function processImageQueue() {
-            if (isProcessingImageQueue) return;
-            isProcessingImageQueue = true;
-            while (imageQueue.length > 0) {
-                const imgEl = imageQueue.shift();
-                if (!imgEl.isConnected) continue;
-                const src = imgEl.dataset.realSrc;
-                if (!src) continue;
-                await loadSingleImage(imgEl, src);
-                // Pequeno yield para o browser respirar entre imagens
-                await new Promise(r => setTimeout(r, 16));
-            }
-            isProcessingImageQueue = false;
-        }
-
-        function loadSingleImage(imgEl, src) {
-            return new Promise((resolve) => {
-                const temp = new Image();
-                temp.decoding = 'async';
-                const finish = (finalSrc) => {
-                    imgEl.src = finalSrc;
-                    imgEl.classList.add('img-loaded');
-                    imgEl.dataset.loaded = '1';
-                    resolve();
-                };
-                temp.onload = () => finish(src);
-                temp.onerror = () => finish(DEFAULT_PLACEHOLDER_IMAGE);
-                temp.src = src;
+        function preloadImages(urls) {
+            if (!urls || !urls.length) return;
+            urls.slice(0, 6).forEach(url => {
+                if (!url || url.startsWith('data:')) return;
+                const link = document.createElement('link');
+                link.rel = 'preload';
+                link.as = 'image';
+                link.href = url;
+                link.fetchPriority = 'high';
+                document.head.appendChild(link);
+                // Remove a tag preload após 20s para não acumular no head
+                setTimeout(() => link.remove(), 20000);
             });
         }
 
@@ -1105,7 +1068,8 @@
             }
         }
 
-        function compressImage(file, maxW = 800, maxH = 800, quality = 0.7) {
+        // ⚡ COMPRESSÃO OTIMIZADA — imagens menores = carregamento mais rápido
+        function compressImage(file, maxW = 600, maxH = 600, quality = 0.65) {
             return new Promise((resolve, reject) => {
                 const reader = new FileReader();
                 reader.readAsDataURL(file);
@@ -1804,7 +1768,7 @@
                     if (myToken !== renderToken) return;
                     const end = Math.min(i + CHUNK, filtered.length);
                     for (let j = i; j < end; j++) {
-                        const card = createProductCard(filtered[j], j < 4);
+                        const card = createProductCard(filtered[j], j < 6);
                         frag.appendChild(card);
                     }
                     if (end < filtered.length) {
@@ -1813,6 +1777,10 @@
                 }
                 if (myToken !== renderToken) return;
                 productsGrid.replaceChildren(frag);
+
+                // 🔥 PRELOAD DAS PRIMEIRAS IMAGENS — aparecem em milissegundos
+                preloadImages(filtered.slice(0, 6).map(p => p.image).filter(Boolean));
+
                 requestAnimationFrame(() => {
                     const cards = productsGrid.children;
                     const limit = Math.min(cards.length, 8);
@@ -1889,10 +1857,17 @@
 
             const img = product.image || DEFAULT_PLACEHOLDER_IMAGE;
 
+            // ⚡ IMAGEM OTIMIZADA — primeiras 6 com prioridade alta, resto lazy nativo
+            const imgAttrs = eagerLoad
+                ? `src="${img}" fetchpriority="high" loading="eager" decoding="async"`
+                : `src="${img}" loading="lazy" decoding="async"`;
+
             card.innerHTML = `
                         ${ribbonHtml}
                         <div class="product-image">
-                            <img src="${TRANSPARENT_PIXEL}" data-real-src="${img}" alt="${escapeHtml(product.name || 'Peça')}" decoding="async" data-img>
+                            <img ${imgAttrs} alt="${escapeHtml(product.name || 'Peça')}"
+                                 onerror="this.onerror=null;this.src='${DEFAULT_PLACEHOLDER_IMAGE}'"
+                                 data-img>
                             <div class="fullscreen-icon" onclick="event.stopPropagation(); clickAndZoom('${product.id}', '${img}')"><i class="fas fa-expand"></i></div>
                         </div>
                         <div class="product-info">
@@ -1909,17 +1884,9 @@
                         </div>
                     `;
 
-            // Registra o clique para zoom e enfileira a imagem (1 por vez)
             const imgEl = card.querySelector('img[data-img]');
             if (imgEl) {
                 imgEl.addEventListener('click', function() { window.clickAndZoom(product.id, img); });
-                if (eagerLoad) {
-                    // Primeiras 4: carrega imediatamente (entra na fila)
-                    enqueueImageLoad(imgEl);
-                } else {
-                    // Restante: só quando entra no viewport (rootMargin 400px)
-                    ensureImageObserver().observe(imgEl);
-                }
             }
 
             observeCard(card);
@@ -1983,9 +1950,7 @@
             const brandArray = Object.keys(brands).map(id => ({ id, ...brands[id] }));
             brandArray.sort((a, b) => (a.order || 0) - (b.order || 0));
 
-            // Hash para evitar re-render (que reinicia a animação do marquee)
             const hash = JSON.stringify(brandArray.map(b => `${b.id}|${b.name}|${b.image || ''}`));
-            const isFirstRender = !lastBrandsHash;
             if (hash === lastBrandsHash) return;
             lastBrandsHash = hash;
 
@@ -2014,9 +1979,8 @@
             });
             brandTabs.replaceChildren(frag);
 
-            // Garante que a animação sempre esteja rodando (mesmo após replaceChildren)
             brandTabs.style.animation = 'none';
-            void brandTabs.offsetWidth; // força reflow
+            void brandTabs.offsetWidth;
             brandTabs.style.animation = '';
             brandTabs.style.animationPlayState = 'running';
         }
@@ -2455,7 +2419,7 @@
             registerClick, onSearchFocus, onSearchBlur, openWhatsApp, handleInstagramClick
         });
 
-        console.log('✅ CIM carregada — Marquee sempre rodando + Fila de imagens + Entrada suave');
+        console.log('✅ CIM carregada — Imagens com preload + lazy nativo (carregamento em segundos)');
     });
     </script>
 </body>
