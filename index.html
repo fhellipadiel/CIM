@@ -657,7 +657,6 @@
             messageText.textContent = message;
             messageBox.classList.remove('anim-shake', 'anim-bounce');
 
-            // Só existe estilo de erro agora
             messageBox.className = 'mb-6 p-4 rounded-2xl text-sm flex items-center gap-3 bg-rose-500/10 border border-rose-500/20 text-rose-400 transition-all duration-300 anim-shake';
             messageIcon.className = 'fa-solid fa-triangle-exclamation text-lg text-rose-400';
 
@@ -709,6 +708,10 @@
            ========================================================= */
         function switchView(view) {
             if (currentView === view) return;
+
+            if (window.location.search.includes('complete=true')) {
+                try { window.history.replaceState({}, '', window.location.pathname); } catch (e) {}
+            }
 
             const loginForm = document.getElementById('loginForm');
             const registerForm = document.getElementById('registerForm');
@@ -890,6 +893,27 @@
             setTimeout(() => {
                 registerFieldsContainer.classList.remove('opacity-0', 'translate-y-2');
             }, 10);
+        }
+
+        function prefillRegistrationFromAuth(user) {
+            if (!user) return;
+
+            modoGoogleCadastro = true;
+            usuarioGoogle = user;
+
+            const senhaContainer = document.getElementById('senhaContainer');
+            const regPassword = document.getElementById('regPassword');
+            if (senhaContainer) senhaContainer.style.display = 'none';
+            if (regPassword) regPassword.required = false;
+
+            switchView('register');
+
+            setTimeout(() => {
+                const emailField = document.getElementById('regEmail');
+                const nameField  = document.getElementById('regName');
+                if (emailField) emailField.value = user.email || emailField.value || '';
+                if (nameField && !nameField.value) nameField.value = user.displayName || '';
+            }, 500);
         }
 
         /* =========================================================
@@ -1234,12 +1258,12 @@
         }
 
         /* =========================================================
-           LOGIN — SEM MENSAGEM DE SUCESSO
+           LOGIN
            ========================================================= */
         async function handleLogin(event) {
             event.preventDefault();
 
-            if (!auth) {
+            if (!auth || !database) {
                 showMessage('Firebase ainda carregando. Aguarde alguns segundos.');
                 return;
             }
@@ -1262,10 +1286,29 @@
             submitBtn.innerHTML = '<i class="fa-solid fa-spinner animate-spin text-sm"></i><span>Entrando...</span>';
 
             try {
-                await auth.signInWithEmailAndPassword(email, password);
+                const cred = await auth.signInWithEmailAndPassword(email, password);
                 registerSuccess(KEY);
                 cooldownMsg.classList.add('hidden');
-                window.location.href = 'cim.html';
+
+                let perfilExiste = false;
+                try {
+                    const snap = await database.ref(`users/${cred.user.uid}`).once('value');
+                    perfilExiste = snap.exists();
+                } catch (readErr) {
+                    console.warn('[Login] Não foi possível checar perfil:', readErr.code);
+                    perfilExiste = false;
+                }
+
+                if (perfilExiste) {
+                    window.location.replace('cim.html');
+                    return;
+                }
+
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '<span>Entrar</span><i class="fa-solid fa-arrow-right text-xs"></i>';
+                prefillRegistrationFromAuth(cred.user);
+                showMessage('Você ainda não completou seu cadastro. Finalize os dados abaixo.');
+
             } catch (error) {
                 console.error('[Login] Erro Firebase:', error);
 
@@ -1278,6 +1321,7 @@
                 else if (error.code === 'auth/invalid-email') msgUser = 'E-mail inválido.';
                 else if (error.code === 'auth/too-many-requests') msgUser = 'Muitas tentativas. Aguarde alguns minutos.';
                 else if (error.code === 'auth/network-request-failed') msgUser = 'Falha de conexão. Verifique sua internet.';
+                else if (error.code === 'auth/invalid-credential') msgUser = 'E-mail ou senha incorretos.';
 
                 const result = registerError(KEY);
                 if (result.blocked) {
@@ -1290,7 +1334,7 @@
         }
 
         /* =========================================================
-           CADASTRO — SEM MENSAGEM DE SUCESSO
+           CADASTRO
            ========================================================= */
         async function handleRegister(event) {
             event.preventDefault();
@@ -1328,7 +1372,7 @@
                     registerSuccess('cnpj');
                     registerSuccess('cpf');
                     registerSuccess('login');
-                    window.location.href = 'cim.html';
+                    window.location.replace('cim.html');
                 } catch (err) {
                     console.error('[Registro Google] Erro:', err);
                     registerBtn.disabled = false;
@@ -1371,7 +1415,7 @@
                 registerSuccess('cpf');
                 registerSuccess('login');
 
-                window.location.href = 'cim.html';
+                window.location.replace('cim.html');
             } catch (error) {
                 console.error('[Cadastro] Erro Firebase:', error);
                 registerBtn.disabled = false;
@@ -1388,7 +1432,7 @@
         }
 
         /* =========================================================
-           GOOGLE — SEM MENSAGEM DE SUCESSO
+           GOOGLE
            ========================================================= */
         async function handleGoogleLogin() {
             if (!auth || !database) {
@@ -1405,20 +1449,10 @@
                 const snapshot = await database.ref(`users/${user.uid}`).once('value');
                 if (snapshot.exists()) {
                     registerSuccess('login');
-                    window.location.href = 'cim.html';
+                    window.location.replace('cim.html');
                 } else {
-                    modoGoogleCadastro = true;
-                    usuarioGoogle = user;
-
-                    document.getElementById('senhaContainer').style.display = 'none';
-                    document.getElementById('regPassword').required = false;
-
-                    switchView('register');
-
-                    setTimeout(() => {
-                        document.getElementById('regEmail').value = user.email || '';
-                        document.getElementById('regName').value = user.displayName || '';
-                    }, 450);
+                    prefillRegistrationFromAuth(user);
+                    showMessage('Complete seu cadastro para continuar.');
                 }
             } catch (error) {
                 console.error('[Google] Erro:', error);
@@ -1443,13 +1477,28 @@
                 auth = firebase.auth();
                 database = firebase.database();
 
-                auth.onAuthStateChanged(user => {
-                    if (user) {
-                        database.ref(`users/${user.uid}`).once('value').then(snapshot => {
-                            if (snapshot.exists()) {
-                                window.location.href = 'cim.html';
-                            }
-                        });
+                auth.onAuthStateChanged(async (user) => {
+                    if (!user) return;
+
+                    await new Promise(r => setTimeout(r, 100));
+
+                    try {
+                        const snapshot = await database.ref(`users/${user.uid}`).once('value');
+
+                        if (snapshot.exists()) {
+                            window.location.replace('cim.html');
+                            return;
+                        }
+
+                        const params = new URLSearchParams(window.location.search);
+                        const pediuCompletar = params.get('complete') === 'true';
+
+                        if (pediuCompletar) {
+                            prefillRegistrationFromAuth(user);
+                        }
+
+                    } catch (err) {
+                        console.warn('[Auth] Falha ao checar perfil:', err.code, err.message);
                     }
                 });
             }
