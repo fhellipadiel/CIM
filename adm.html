@@ -286,7 +286,7 @@ tbody tr:last-child td{border-bottom:none;}
 .coupon-usage-bar{display:inline-flex;align-items:center;gap:8px;}
 .coupon-usage-bar .progress-track{width:80px;height:5px;}
 
-/* ============ OCULTAR PREÇO (novo) ============ */
+/* ============ OCULTAR PREÇO ============ */
 .hide-price-group{display:flex;gap:20px;margin-top:6px;flex-wrap:wrap;}
 .hide-price-group label{display:flex;gap:6px;align-items:center;font-size:.85rem;cursor:pointer;color:var(--text);}
 .hide-price-group input{width:16px;height:16px;accent-color:var(--accent);}
@@ -294,6 +294,9 @@ tbody tr:last-child td{border-bottom:none;}
 /* ============ DESTAQUES DA BUSCA ============ */
 .featured-slot-num{width:34px;height:34px;border-radius:50%;background:var(--accent);color:#160b05;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-family:var(--font-mono);font-size:.9rem;}
 .featured-slot-num.empty{background:var(--panel-alt);color:var(--text-dim);border:1px dashed var(--border);}
+
+/* ============ GALERIA DO LOGIN ============ */
+.gallery-slot-num{width:34px;height:34px;border-radius:50%;background:var(--ok);color:#04140c;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-family:var(--font-mono);font-size:.9rem;}
 </style>
 </head>
 <body>
@@ -462,6 +465,48 @@ tbody tr:last-child td{border-bottom:none;}
           <input type="text" id="featuredSearchInput" placeholder="Buscar por nome, código, marca ou categoria..." oninput="renderFeaturedPickerAdm()"
             style="width:100%;padding:11px 14px;background:var(--panel-alt);border:1px solid var(--border);border-radius:8px;color:var(--text);margin-bottom:12px;font-size:.85rem;">
           <div class="mini-list" id="featuredPickerAdm" style="max-height:480px;overflow-y:auto;"></div>
+        </div>
+      </div>
+
+      <!-- ===== GALERIA DO LOGIN ===== -->
+      <div class="block">
+        <div class="block-head">
+          <h3>
+            <i class="fas fa-images" style="color:var(--ok)"></i>
+            Galeria do Login (<span id="galleryCountAdm">0</span>/20)
+          </h3>
+          <div style="display:flex;gap:8px;align-items:center;">
+            <span class="chip chip-ok" id="gallerySavedChip" style="display:none;">
+              <i class="fas fa-check"></i> Salvo
+            </span>
+            <button class="btn btn-sm btn-ghost" onclick="clearAllGalleryAdm()">
+              <i class="fas fa-eraser"></i> Limpar
+            </button>
+          </div>
+        </div>
+        <div class="block-body">
+          <p style="color:var(--text-muted);font-size:.8rem;margin-bottom:14px;line-height:1.6;">
+            <i class="fas fa-info-circle" style="color:var(--ok);"></i>
+            Escolha até <strong>20 peças</strong> para aparecer na galeria animada da tela de <strong>login</strong>.
+            Se escolher poucas, elas se <strong>repetem automaticamente</strong> para preencher toda a galeria.
+          </p>
+          <div class="mini-list" id="gallerySlotsAdm"></div>
+        </div>
+      </div>
+
+      <div class="block">
+        <div class="block-head">
+          <h3>
+            <i class="fas fa-plus-circle" style="color:var(--ok)"></i>
+            Adicionar peça à galeria do login
+          </h3>
+        </div>
+        <div class="block-body">
+          <input type="text" id="gallerySearchInput"
+            placeholder="Buscar por nome, código, marca ou categoria..."
+            oninput="renderGalleryPickerAdm()"
+            style="width:100%;padding:11px 14px;background:var(--panel-alt);border:1px solid var(--border);border-radius:8px;color:var(--text);margin-bottom:12px;font-size:.85rem;">
+          <div class="mini-list" id="galleryPickerAdm" style="max-height:480px;overflow-y:auto;"></div>
         </div>
       </div>
     </section>
@@ -960,6 +1005,13 @@ let featuredLoaded = false;
 let featuredDirty = false;
 let featuredSaveTimer = null;
 
+/* Galeria do Login */
+let galleryDraft = [];
+let galleryLoaded = false;
+let galleryDirty = false;
+let gallerySaveTimer = null;
+const GALLERY_MAX = 20;
+
 /* ================= UTIL ================= */
 function esc(t){ if(!t) return ''; const d=document.createElement('div'); d.textContent=t; return d.innerHTML; }
 function showToast(msg,type='ok'){
@@ -1097,7 +1149,7 @@ function switchPanel(name){
   document.getElementById('topbarTitle').textContent=titles[name][0];
   document.getElementById('topbarCrumb').textContent=titles[name][1];
   document.getElementById('sidebar').classList.remove('open');
-  if(name === 'destaques') renderFeaturedPanelAdm();
+  if(name === 'destaques'){ renderFeaturedPanelAdm(); renderGalleryPanelAdm(); }
 }
 function globalSearchHandler(v){ if(v.trim()==='') return; switchPanel('produtos'); document.getElementById('prodFilterText').value=v; renderProducts(); }
 
@@ -1107,6 +1159,7 @@ function loadAllData(){
     products = snap.val()? Object.values(snap.val()) : [];
     renderDashboard(); renderProducts(); renderCategories(); updateSelectPopulators(); renderNoPrice(); refreshPromoTargets();
     renderFeaturedPanelAdm();
+    renderGalleryPanelAdm();
   });
   database.ref('sessions').on('value',snap=>{ sessions=snap.val()||{}; renderSessions(); updateSelectPopulators(); });
   database.ref('brands').on('value',snap=>{ brands=snap.val()||{}; renderBrands(); updateSelectPopulators(); });
@@ -1146,6 +1199,7 @@ function loadAllData(){
   setInterval(updateOnlineUsersBadge, 30000);
   setInterval(checkPromoExpiration,30000);
   loadFeaturedAdm();
+  loadGalleryAdm();
 }
 
 function updateOnlineUsersBadge(){
@@ -1554,7 +1608,6 @@ function editBrandAdm(id){
   openModal('modalMarca');
 }
 
-/* ⭐ EXCLUSÃO DE MARCA EM CASCATA — apaga TODAS as peças vinculadas */
 function deleteBrandAdm(id){
   const b = brands[id]; if(!b) return;
   const brandName = b.name || '';
@@ -2401,6 +2454,148 @@ function persistFeaturedAdm(){
       }
     }).catch(e => {
       showToast('Erro ao salvar destaques: '+e.message,'err');
+    });
+  }, 250);
+}
+
+/* ================= GALERIA DO LOGIN ================= */
+function loadGalleryAdm(){
+  database.ref('loginGallery').on('value', snap => {
+    const ids = parseFeatured(snap.val());
+    if(!galleryLoaded){
+      galleryDraft = [...ids];
+      galleryLoaded = true;
+      renderGalleryPanelAdm();
+    } else if(!galleryDirty){
+      const same = JSON.stringify(ids) === JSON.stringify(galleryDraft);
+      if(!same){
+        galleryDraft = [...ids];
+        renderGalleryPanelAdm();
+      }
+    }
+  });
+}
+
+function renderGalleryPanelAdm(){
+  const slots = document.getElementById('gallerySlotsAdm');
+  const counter = document.getElementById('galleryCountAdm');
+  if(!slots) return;
+  counter.textContent = galleryDraft.length;
+
+  if(galleryDraft.length === 0){
+    slots.innerHTML = `<div class="empty-state"><i class="fas fa-images"></i><p>Nenhuma peça adicionada à galeria do login ainda. Adicione até ${GALLERY_MAX} peças na lista abaixo.</p></div>`;
+  } else {
+    slots.innerHTML = galleryDraft.map((id, idx) => {
+      const p = products.find(x => x.id === id);
+      if(!p){
+        return `<div class="mini-item" style="opacity:.5;">
+          <div class="gallery-slot-num">${idx+1}</div>
+          <div class="mi-t">Peça removida (id: ${esc(id)})</div>
+          <div class="mi-actions">
+            <button class="btn btn-icon btn-danger" onclick="removeGalleryAdm(${idx})"><i class="fas fa-times"></i></button>
+          </div>
+        </div>`;
+      }
+      return `<div class="mini-item">
+        <div class="gallery-slot-num">${idx+1}</div>
+        <img src="${p.image || PLACEHOLDER_IMG}" onerror="this.src='${PLACEHOLDER_IMG}'" style="width:44px;height:44px;border-radius:8px;object-fit:cover;">
+        <div class="mi-t">${esc(p.name)}
+          <div style="color:var(--text-dim);font-size:.75rem;font-weight:400;">
+            ${esc(p.brand||'sem marca')}${p.codigo?' · '+esc(p.codigo):''}${p.category?' · '+esc(p.category):''}
+          </div>
+        </div>
+        <div class="mi-actions">
+          ${idx > 0 ? `<button class="btn btn-icon btn-ghost" title="Subir" onclick="moveGalleryAdm(${idx},-1)"><i class="fas fa-chevron-up"></i></button>` : ''}
+          ${idx < galleryDraft.length-1 ? `<button class="btn btn-icon btn-ghost" title="Descer" onclick="moveGalleryAdm(${idx},1)"><i class="fas fa-chevron-down"></i></button>` : ''}
+          <button class="btn btn-icon btn-danger" title="Remover" onclick="removeGalleryAdm(${idx})"><i class="fas fa-times"></i></button>
+        </div>
+      </div>`;
+    }).join('');
+  }
+  renderGalleryPickerAdm();
+}
+
+function renderGalleryPickerAdm(){
+  const el = document.getElementById('galleryPickerAdm');
+  if(!el) return;
+
+  const q = (document.getElementById('gallerySearchInput')?.value || '').toLowerCase().trim();
+  let list = products.filter(p => !galleryDraft.includes(p.id));
+  if(q){
+    list = list.filter(p => [p.name, p.codigo, p.brand, p.category].join(' ').toLowerCase().includes(q));
+  }
+  list.sort((a,b) => (a.name||'').localeCompare(b.name||''));
+
+  if(list.length === 0){
+    el.innerHTML = `<div class="empty-state"><i class="fas fa-search"></i><p>Nenhuma peça encontrada</p></div>`;
+    return;
+  }
+
+  const full = galleryDraft.length >= GALLERY_MAX;
+  el.innerHTML = list.slice(0, 200).map(p => `
+    <div class="mini-item">
+      <img src="${p.image || PLACEHOLDER_IMG}" onerror="this.src='${PLACEHOLDER_IMG}'" style="width:36px;height:36px;border-radius:8px;object-fit:cover;">
+      <div class="mi-t">${esc(p.name)}
+        <div style="color:var(--text-dim);font-size:.75rem;font-weight:400;">
+          ${esc(p.brand||'sem marca')}${p.codigo?' · '+esc(p.codigo):''}${p.category?' · '+esc(p.category):''}
+        </div>
+      </div>
+      <div class="mi-actions">
+        <button class="btn btn-sm btn-accent" onclick="addGalleryAdm('${p.id}')" ${full ? 'disabled style="opacity:.4;cursor:not-allowed;"' : ''}>
+          <i class="fas fa-plus"></i> Adicionar
+        </button>
+      </div>
+    </div>
+  `).join('');
+}
+
+function addGalleryAdm(id){
+  if(galleryDraft.length >= GALLERY_MAX){ showToast(`Máximo de ${GALLERY_MAX} peças na galeria`,'err'); return; }
+  if(galleryDraft.includes(id)){ showToast('Esta peça já está na galeria','err'); return; }
+  galleryDraft.push(id);
+  galleryDirty = true;
+  renderGalleryPanelAdm();
+  persistGalleryAdm();
+}
+
+function removeGalleryAdm(idx){
+  galleryDraft.splice(idx, 1);
+  galleryDirty = true;
+  renderGalleryPanelAdm();
+  persistGalleryAdm();
+}
+
+function moveGalleryAdm(idx, dir){
+  const ni = idx + dir;
+  if(ni < 0 || ni >= galleryDraft.length) return;
+  [galleryDraft[idx], galleryDraft[ni]] = [galleryDraft[ni], galleryDraft[idx]];
+  galleryDirty = true;
+  renderGalleryPanelAdm();
+  persistGalleryAdm();
+}
+
+function clearAllGalleryAdm(){
+  if(galleryDraft.length === 0){ showToast('Nada para limpar','err'); return; }
+  if(!confirm('Remover todas as peças da galeria do login? A galeria voltará a exibir imagens padrão.')) return;
+  galleryDraft = [];
+  galleryDirty = true;
+  renderGalleryPanelAdm();
+  persistGalleryAdm();
+}
+
+function persistGalleryAdm(){
+  const chip = document.getElementById('gallerySavedChip');
+  if(chip) chip.style.display = 'none';
+  clearTimeout(gallerySaveTimer);
+  gallerySaveTimer = setTimeout(() => {
+    database.ref('loginGallery').set(galleryDraft).then(() => {
+      galleryDirty = false;
+      if(chip){
+        chip.style.display = 'inline-flex';
+        setTimeout(()=>{ chip.style.display='none'; }, 1500);
+      }
+    }).catch(e => {
+      showToast('Erro ao salvar galeria: '+e.message,'err');
     });
   }, 250);
 }
