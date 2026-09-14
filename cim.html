@@ -13,6 +13,7 @@
     <link rel="preconnect" href="https://www.gstatic.com" crossorigin>
     <link rel="dns-prefetch" href="https://api.imgbb.com">
     <link rel="dns-prefetch" href="https://redx-6b53f-default-rtdb.firebaseio.com">
+    <link rel="preload" as="image" href="assets/logo.webp" fetchpriority="high">
     <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" onload="this.onload=null;this.rel='stylesheet'">
     <noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"></noscript>
 
@@ -654,7 +655,7 @@
     <header class="header">
         <div class="header-container">
             <div class="logo">
-                <img src="https://i.ibb.co/PvtM4DTs/IMG-6505.jpg" alt="CIM Peças Mecânicas" class="logo-img">
+                <img src="assets/logo.webp" alt="CIM Peças Mecânicas" class="logo-img">
             </div>
             <div class="header-actions" id="headerActions">
                 <div class="search-header expanded" id="searchHeader">
@@ -881,9 +882,11 @@
         const auth = firebase.auth();
 
         const IMGBB_API_KEY = '8d6bcd122e2d808ccb276de3bbb0790c';
-        const DEFAULT_PLACEHOLDER_IMAGE = 'https://i.ibb.co/F4dXSwVG/IMG-6495.jpg';
+        // ⚡ IMAGEM PADRÃO DE PRODUTO — agora usa a logo local
+        const DEFAULT_PLACEHOLDER_IMAGE = 'assets/logo.webp';
         const DEFAULT_CONTACT_IMAGE = 'https://i.ibb.co/6J5qZ9K/default-avatar.png';
-        const DEFAULT_SESSION_IMAGE = 'https://via.placeholder.com/200x200?text=Sess%C3%A3o';
+        // ⚡ IMAGEM PADRÃO DE SESSÃO — também usa a logo local
+        const DEFAULT_SESSION_IMAGE = 'assets/logo.webp';
         const DEFAULT_PROFILE_IMAGE = 'https://i.ibb.co/6J5qZ9K/default-avatar.png';
         const DEFAULT_USER_AVATAR = 'https://i.ibb.co/6J5qZ9K/default-avatar.png';
 
@@ -2188,10 +2191,10 @@
                 if (!currentUser) {
                     database.ref(`users/${user.uid}`).once('value').then((snap) => {
                         if (snap.exists()) { loadUserData(user.uid); toggleProfileDropdown(); }
-                        else window.location.href = 'login.html?complete=true';   // ← ALTERADO
+                        else window.location.href = 'login.html?complete=true';
                     });
                 } else toggleProfileDropdown();
-            } else window.location.href = 'login.html';   // ← ALTERADO
+            } else window.location.href = 'login.html';
         }
 
         function toggleProfileDropdown() {
@@ -2227,7 +2230,7 @@
                     hideLoading();
                     currentUser = null; currentUserPhoto = null; cupomAtivo = null;
                     cart = []; updateCart(); clearCartStorage();
-                    window.location.href = 'login.html';   // ← ALTERADO
+                    window.location.href = 'login.html';
                 }).catch((error) => { hideLoading(); showToast('Erro ao sair: ' + error.message, 'error'); });
             }
         }
@@ -2245,7 +2248,7 @@
         }
         function redirectToLogin() {
             currentUser = null; currentUserPhoto = null;
-            window.location.replace('login.html');   // ← ALTERADO
+            window.location.replace('login.html');
         }
 
         // ========== AUTH STATE ==========
@@ -2273,7 +2276,7 @@
                             sessionGate.innerHTML =
                                 '<i class="fas fa-exclamation-triangle" style="animation:none;"></i>' +
                                 '<span>Erro ao carregar sessão (' + (err.code || 'erro') + '). ' +
-                                '<a href="login.html" style="color:#ff6b00;">Voltar ao login</a></span>';   // ← ALTERADO
+                                '<a href="login.html" style="color:#ff6b00;">Voltar ao login</a></span>';
                         }
                         return;
                     }
@@ -2304,7 +2307,7 @@
                     }
                 } else {
                     console.warn('⚠️ [cim] Usuário logado mas SEM perfil no banco → completo o cadastro');
-                    window.location.replace('login.html?complete=true');   // ← ALTERADO
+                    window.location.replace('login.html?complete=true');
                 }
                 return;
             }
@@ -2419,7 +2422,7 @@
             registerClick, onSearchFocus, onSearchBlur, openWhatsApp, handleInstagramClick
         });
 
-        console.log('✅ CIM carregada — Imagens com preload + lazy nativo (carregamento em segundos)');
+        console.log('✅ CIM carregada — logo local em assets/logo.webp como padrão de peças e sessões');
     });
     </script>
 </body>
