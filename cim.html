@@ -7,20 +7,20 @@
     <meta name="theme-color" content="#000000">
     <title>CIM - Peças Mecânicas</title>
 
-    <!-- ===== PERFORMANCE: preconnect/dns ===== -->
     <link rel="preconnect" href="https://i.ibb.co" crossorigin>
     <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
     <link rel="preconnect" href="https://www.gstatic.com" crossorigin>
-    <link rel="dns-prefetch" href="https://api.imgbb.com">
     <link rel="dns-prefetch" href="https://redx-6b53f-default-rtdb.firebaseio.com">
+    <link rel="dns-prefetch" href="https://firebasestorage.googleapis.com">
     <link rel="preload" as="image" href="assets/logo.webp" fetchpriority="high">
     <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" onload="this.onload=null;this.rel='stylesheet'">
     <noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"></noscript>
 
-    <!-- ===== FIREBASE (defer → não bloqueia o parser) ===== -->
+    <!-- ===== FIREBASE ===== -->
     <script defer src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script defer src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
     <script defer src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script defer src="https://www.gstatic.com/firebasejs/9.22.0/firebase-storage-compat.js"></script>
 
     <style>
         /* ===== RESET + VARIÁVEIS ===== */
@@ -45,12 +45,10 @@
         body::-webkit-scrollbar { display: none; }
         input, textarea, select, button { font-size: 16px !important; }
 
-        /* ===== SESSION GATE ===== */
         #sessionGate { position: fixed; inset: 0; background: #000; z-index: 99999; display: flex; align-items: center; justify-content: center; flex-direction: column; gap: 15px; }
         #sessionGate i { font-size: 3rem; color: #ff6b00; animation: spin 1s linear infinite; }
         #sessionGate span { color: #fff; font-size: 1rem; }
 
-        /* ===== HEADER ===== */
         .header { background-color: rgba(0,0,0,0.4) !important; backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border-bottom: 1px solid rgba(255,255,255,0.1); position: fixed; top: 0; left: 0; right: 0; z-index: 1000; height: calc(var(--header-h) + var(--safe-top)); padding-top: var(--safe-top); }
         .header-container { max-width: 1400px; margin: 0 auto; padding: 0 10px; display: flex; justify-content: space-between; align-items: center; height: var(--header-h); gap: 8px; }
         body { padding-top: calc(var(--header-h) + var(--safe-top)); }
@@ -112,7 +110,6 @@
         .dropdown-avatar-wrap img { width: 100%; height: 100%; object-fit: cover; display: block; }
         .dropdown-avatar-wrap .avatar-edit-hint { position: absolute; bottom: 0; left: 0; right: 0; background: rgba(0,0,0,0.65); color: #ff6b00; font-size: 0.65rem; text-align: center; padding: 3px 0; }
 
-        /* ===== BOTÕES FLUTUANTES ===== */
         .cart-float { position: fixed; bottom: calc(20px + var(--safe-bottom)); left: calc(16px + var(--safe-left)); z-index: 999; background: #ff6b00; border-radius: 50%; width: 52px; height: 52px; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 15px rgba(255,107,0,0.5); cursor: pointer; transition: transform 0.25s cubic-bezier(0.2,0.9,0.4,1.1); border: none; color: #000; font-size: 1.5rem; will-change: transform; }
         .cart-float:hover { transform: scale(1.08) translate3d(0,0,0); }
         .cart-float .cart-float-count { position: absolute; top: -6px; right: -6px; background: #dc3545; color: #fff; border-radius: 50%; width: 22px; height: 22px; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 0.65rem; border: 2px solid #000; }
@@ -121,7 +118,6 @@
         .back-to-top.visible { opacity: 1; pointer-events: auto; transform: translate3d(0,0,0); }
         .back-to-top:hover { transform: scale(1.1) translate3d(0,0,0); }
 
-        /* ===== CONTAINER PRINCIPAL ===== */
         .main-container { max-width: 1400px; margin: 0 auto; padding: 12px 10px 80px; }
         .top-filters-area { background: #000; padding: 4px 0 8px; }
         .sticky-category-bar { position: sticky; top: calc(var(--header-h) + var(--safe-top)); z-index: 500; background: transparent; padding: 4px 0 8px; margin: 0 -10px; padding-left: 10px; padding-right: 10px; border-bottom: 1px solid rgba(255,255,255,0.05); transition: background-color 0.25s ease; }
@@ -139,7 +135,6 @@
         .category-promo-badge { background: #E60000; color: #fff; font-size: 0.7rem; font-weight: 700; padding: 1px 6px; border-radius: 12px; margin-left: 4px; white-space: nowrap; display: inline-flex; align-items: center; gap: 2px; }
         .category-promo-badge i { font-size: 0.5rem; }
 
-        /* ===== MARQUEE DE MARCAS (GPU) - SEMPRE RODANDO ===== */
         .brand-filters-area { background: #000; padding: 6px 0 12px; }
         .brand-title { text-align: center; font-size: var(--fs-lg); font-weight: 700; color: #fff; margin: 10px 0 8px; letter-spacing: 0.3px; display: none; }
         .brand-title.visible { display: block; }
@@ -163,7 +158,6 @@
         .brand-marquee-item.active { opacity: 1; }
         .brand-marquee-item img { height: 50px; width: auto; max-width: 120px; object-fit: contain; display: block; }
 
-        /* ===== BOTÕES ===== */
         .btn { flex: 1; padding: 10px 8px; border: none; border-radius: 6px; font-weight: 500; font-size: var(--fs-sm); cursor: pointer; transition: background-color 0.2s ease, color 0.2s ease, transform 0.15s ease, border-color 0.2s ease; display: flex; align-items: center; justify-content: center; gap: 4px; min-height: 40px; }
         .btn-outline { background: transparent; border: 1px solid #333; color: #fff; }
         .btn-outline:hover { border-color: #ff6b00; color: #ff6b00; background: #222; }
@@ -171,7 +165,6 @@
         .btn-primary:hover { background: rgba(255,255,255,0.1); transform: scale(1.02) translate3d(0,0,0); }
         .btn-primary:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
 
-        /* ===== SKELETON (shimmer GPU-accelerated) ===== */
         .skeleton-card { background: #111; border-radius: 16px; overflow: hidden; display: flex; flex-direction: column; height: 100%; contain: layout style paint; }
         .skeleton-image {
             aspect-ratio: 1 / 1;
@@ -205,7 +198,6 @@
             to { transform: translate3d(100%, 0, 0); }
         }
 
-        /* ===== CARD DE PRODUTO (GPU + contain) ===== */
         .product-card {
             background: rgba(17,17,17,0.95);
             border-radius: 16px;
@@ -274,7 +266,6 @@
         .no-results i { font-size: 3rem; color: #ff6b00; opacity: 0.5; margin-bottom: 15px; }
         .no-results p { color: #999; font-size: 1rem; }
 
-        /* ===== MODAIS ===== */
         .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); z-index: 2001; justify-content: center; align-items: flex-end; }
         .modal.active { display: flex; animation: modalBackdropIn 0.25s ease; }
         @keyframes modalBackdropIn { from { background: rgba(0,0,0,0); } to { background: rgba(0,0,0,0.85); } }
@@ -303,7 +294,6 @@
         .modal-close { position: absolute; top: 15px; right: 15px; background: #222; border: 1px solid #333; width: 40px; height: 40px; border-radius: 50%; cursor: pointer; z-index: 10; color: #ff6b00; display: flex; align-items: center; justify-content: center; transition: background-color 0.2s, color 0.2s, transform 0.2s; font-size: 1rem; }
         .modal-close:hover { background: #ff6b00; color: #000; transform: rotate(90deg); border-color: #ff6b00; }
 
-        /* ===== CARRINHO ===== */
         .cart-panel { position: fixed; bottom: -100%; left: 0; width: 100%; max-height: 75vh; background: #111; box-shadow: 0 -5px 30px rgba(0,0,0,0.7); z-index: 2001; transition: bottom 0.35s ease, transform 0.35s ease; display: flex; flex-direction: column; border-top: 1px solid #333; border-radius: 20px 20px 0 0; overflow: hidden; will-change: bottom, transform; }
         .cart-panel.open { bottom: 0; }
         .cart-header { padding: 12px 20px; border-bottom: 1px solid #333; display: flex; justify-content: space-between; align-items: center; background: #1a1a1a; border-radius: 20px 20px 0 0; }
@@ -334,7 +324,6 @@
         .empty-cart { text-align: center; color: #666; padding: 20px 0; }
         .empty-cart i { color: #ff6b00; font-size: 2rem; opacity: 0.5; margin-bottom: 8px; }
 
-        /* ===== TOAST ===== */
         .toast { position: fixed; bottom: calc(30px + var(--safe-bottom)); left: 50%; transform: translate3d(-50%, 0, 0); background: #222; color: #fff; padding: 10px 24px; border-radius: 50px; box-shadow: 0 5px 20px rgba(0,0,0,0.5); z-index: 3000; animation: toastIn 0.25s ease; border-left: 3px solid #ff6b00; font-size: var(--fs-sm); border: 1px solid #333; white-space: nowrap; max-width: 90vw; overflow: hidden; text-overflow: ellipsis; will-change: transform, opacity; }
         .toast i { color: #ff6b00; margin-right: 8px; }
         @keyframes toastIn { from { transform: translate3d(-50%, 100%, 0); opacity: 0; } to { transform: translate3d(-50%, 0, 0); opacity: 1; } }
@@ -345,7 +334,6 @@
         .loading-overlay span { color: #fff; font-size: 1rem; }
         @keyframes spin { to { transform: rotate(360deg); } }
 
-        /* ===== OVERLAY + MENU INFERIOR ===== */
         .bottom-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 1999; }
         .bottom-overlay.active { display: block; }
 
@@ -400,7 +388,6 @@
         .coupon-remove-btn { background: transparent; border: 1px solid #dc3545; color: #dc3545; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: background-color 0.2s, color 0.2s; flex-shrink: 0; }
         .coupon-remove-btn:hover { background: #dc3545; color: #fff; }
 
-        /* ===== INFO ===== */
         .price-indicator { background: rgba(17,17,17,0.95); padding: 10px 16px; border-radius: 8px; margin: 12px 0 16px; display: none; align-items: center; gap: 10px; border-left: 4px solid #ff6b00; border: 1px solid #333; }
         .price-indicator.visible { display: flex; }
         .price-indicator i { color: #ff6b00; font-size: 1rem; }
@@ -413,7 +400,6 @@
         .clear-search { color: #ff6b00; cursor: pointer; font-size: var(--fs-sm); display: flex; align-items: center; gap: 5px; padding: 8px 14px; border-radius: 20px; transition: background-color 0.2s, color 0.2s; background: #1a1a1a; min-height: 40px; }
         .clear-search:hover { background: #ff6b00; color: #000; }
 
-        /* ===== SESSÕES ===== */
         .sessions-carousel-wrapper { margin: 0 0 8px 0; padding: 5px 0; position: relative; }
         .sessions-carousel-wrapper.hidden { display: none; }
         .sessions-carousel { display: flex; gap: 10px; overflow-x: auto; padding: 8px 5px 12px 5px; scrollbar-width: none; -ms-overflow-style: none; -webkit-overflow-scrolling: touch; scroll-behavior: smooth; justify-content: flex-start; cursor: grab; scroll-snap-type: x proximity; }
@@ -435,9 +421,6 @@
         .view-all-sessions a { color: #ff6b00; text-decoration: none; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; transition: transform 0.2s ease; }
         .view-all-sessions a:hover { text-decoration: underline; transform: scale(1.02) translate3d(0,0,0); }
 
-        /* ============================================================
-           ANIMAÇÕES DE ENTRADA SUAVES
-           ============================================================ */
         @keyframes headerSlideIn {
             from { opacity: 0; transform: translate3d(0, -20px, 0); }
             to   { opacity: 1; transform: translate3d(0, 0, 0); }
@@ -457,9 +440,6 @@
         .brand-filters-area { animation: sectionSlideIn 0.6s cubic-bezier(0.22, 1, 0.36, 1) 0.28s backwards; }
         .results-info { animation: sectionFadeIn 0.5s ease-out 0.36s backwards; }
 
-        /* ============================================================
-           RESPONSIVIDADE UNIVERSAL
-           ============================================================ */
         .products-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 40px; }
 
         @media (min-width: 600px) {
@@ -645,13 +625,11 @@
     </style>
 </head>
 <body>
-    <!-- GATE DE SESSÃO -->
     <div id="sessionGate">
         <i class="fas fa-spinner"></i>
         <span>Verificando sua sessão...</span>
     </div>
 
-    <!-- HEADER -->
     <header class="header">
         <div class="header-container">
             <div class="logo">
@@ -696,16 +674,13 @@
         </div>
     </header>
 
-    <!-- CARRINHO FLUTUANTE -->
     <div class="cart-float" onclick="toggleCart()" id="cartFloat">
         <i class="fas fa-shopping-cart"></i>
         <span class="cart-float-count" id="cartFloatCount">0</span>
     </div>
 
-    <!-- VOLTAR AO TOPO -->
     <button class="back-to-top" id="backToTop" onclick="window.scrollTo({top:0,behavior:'smooth'})"><i class="fas fa-chevron-up"></i></button>
 
-    <!-- MENU INFERIOR -->
     <div class="bottom-overlay" id="bottomOverlay" onclick="closeBottomMenu()"></div>
     <div class="bottom-menu" id="bottomMenu">
         <div class="menu-handle"></div>
@@ -781,7 +756,6 @@
         </div>
     </div>
 
-    <!-- CONTEÚDO PRINCIPAL -->
     <div class="main-container">
         <div class="top-filters-area" id="topFiltersArea">
             <div class="sessions-carousel-wrapper hidden" id="sessionsWrapper">
@@ -819,7 +793,6 @@
         </div>
     </div>
 
-    <!-- MODAIS -->
     <div class="modal" id="productModal">
         <div class="modal-content">
             <button class="modal-close" onclick="closeModal()"><i class="fas fa-times"></i></button>
@@ -880,10 +853,9 @@
         firebase.initializeApp(firebaseConfig);
         const database = firebase.database();
         const auth = firebase.auth();
+        const storage = firebase.storage();   // ✅ Firebase Storage
 
-        const IMGBB_API_KEY = '8d6bcd122e2d808ccb276de3bbb0790c';
-
-        // ⚡ TODAS AS IMAGENS PADRÃO USAM A LOGO LOCAL
+        // ⚡ IMAGENS PADRÃO
         const DEFAULT_PLACEHOLDER_IMAGE = 'assets/logo.webp';
         const DEFAULT_CONTACT_IMAGE   = 'assets/logo.webp';
         const DEFAULT_SESSION_IMAGE   = 'assets/logo.webp';
@@ -919,7 +891,6 @@
         let dataLoaded = false;
         let currentProduct = null;
 
-        // ========== DOM REFS ==========
         const productsGrid = document.getElementById('productsGrid');
         const cartPanel = document.getElementById('cartPanel');
         const cartFloat = document.getElementById('cartFloat');
@@ -1005,10 +976,6 @@
             } catch (e) { return false; }
         }
 
-        // ============================================================
-        // ⚡ CARREGAMENTO DE IMAGENS — OTIMIZADO
-        // ============================================================
-
         function preloadImages(urls) {
             if (!urls || !urls.length) return;
             urls.slice(0, 6).forEach(url => {
@@ -1046,22 +1013,57 @@
 
         function hideLoading() { const el = document.querySelector('.loading-overlay'); if (el) el.remove(); }
 
-        async function uploadImageToImgBB(file, retry = 2) {
-            for (let attempt = 0; attempt <= retry; attempt++) {
-                try {
-                    showLoading(attempt === 0 ? 'Enviando...' : `Tentativa ${attempt+1}`);
-                    const compressed = await compressImage(file);
-                    const compressedFile = new File([compressed], file.name, { type: file.type });
-                    const formData = new FormData();
-                    formData.append('key', IMGBB_API_KEY);
-                    formData.append('image', compressedFile);
-                    const resp = await fetch('https://api.imgbb.com/1/upload', { method: 'POST', body: formData });
-                    const data = await resp.json();
-                    if (data.success) { hideLoading(); return data.data.url; } else throw new Error(data.error?.message || 'Erro');
-                } catch (e) {
-                    if (attempt === retry) { hideLoading(); showToast('Erro ao enviar imagem', 'error'); return null; }
-                    await new Promise(r => setTimeout(r, 1000));
+        // ========== 🔥 UPLOAD → FIREBASE STORAGE ==========
+        async function uploadImageToStorage(file, folder = 'avatars') {
+            try {
+                // Validação
+                if (!file.type.startsWith('image/')) {
+                    showToast('Arquivo não é uma imagem', 'error');
+                    return null;
                 }
+                if (file.size > 5 * 1024 * 1024) {
+                    showToast('Imagem muito grande (máx 5MB)', 'error');
+                    return null;
+                }
+
+                showLoading('Enviando...');
+
+                const compressed = await compressImage(file, 600, 600, 0.7);
+
+                const ext = (file.name.split('.').pop() || 'jpg').toLowerCase().replace(/[^a-z0-9]/g,'');
+                const safeExt = ['jpg','jpeg','png','webp','gif'].includes(ext) ? ext : 'jpg';
+
+                const uid = currentUser?.uid || 'anon';
+                const filename = `${folder}/${uid}/${Date.now()}_${Math.random().toString(36).slice(2,8)}.${safeExt}`;
+
+                const ref = storage.ref(filename);
+                const snap = await ref.put(compressed, {
+                    contentType: file.type || 'image/jpeg',
+                    cacheControl: 'public, max-age=31536000'
+                });
+
+                const url = await snap.ref.getDownloadURL();
+                hideLoading();
+                return url;
+            } catch (e) {
+                hideLoading();
+                console.error('❌ [storage] erro upload avatar:', e);
+                showToast('Erro ao enviar imagem: ' + (e.message || e.code), 'error');
+                return null;
+            }
+        }
+
+        // 🔥 Deleta imagem do Storage a partir de URL
+        async function deleteImageByUrl(url) {
+            if (!url || typeof url !== 'string') return false;
+            if (!url.includes('firebasestorage.googleapis.com')) return false;
+            try {
+                const ref = storage.refFromURL(url);
+                await ref.delete();
+                return true;
+            } catch (e) {
+                console.warn('⚠️ [storage] não foi possível deletar:', e.code);
+                return false;
             }
         }
 
@@ -2201,13 +2203,30 @@
             if (!btn.contains(e.target) && !dropdown.contains(e.target)) dropdown.classList.remove('open');
         });
 
+        // ========== 🔥 TROCAR FOTO → DELETA ANTIGA + UPLOAD STORAGE ==========
         document.getElementById('dropdownAvatarInput').addEventListener('change', async function(e) {
             const file = e.target.files[0];
             if (!file || !currentUser) return;
-            const url = await uploadImageToImgBB(file);
+
+            // 1) Deleta foto antiga (se for do Firebase Storage)
+            const oldPhoto = currentUser.photoURL;
+            if (oldPhoto && oldPhoto.includes('firebasestorage.googleapis.com')) {
+                try {
+                    await storage.refFromURL(oldPhoto).delete();
+                    console.log('✅ Foto antiga removida do Storage');
+                } catch (_) {
+                    // ignora se não existir ou já foi deletada
+                }
+            }
+
+            // 2) Upload da nova
+            const url = await uploadImageToStorage(file, 'avatars');
             if (url) {
                 database.ref(`users/${currentUser.uid}/photoURL`).set(url).then(() => {
-                    currentUser.photoURL = url; currentUserPhoto = url; updateProfileUIUser(); showToast('Foto atualizada');
+                    currentUser.photoURL = url;
+                    currentUserPhoto = url;
+                    updateProfileUIUser();
+                    showToast('Foto atualizada');
                 });
             }
             e.target.value = '';
@@ -2413,7 +2432,7 @@
             registerClick, onSearchFocus, onSearchBlur, openWhatsApp, handleInstagramClick
         });
 
-        console.log('✅ CIM carregada — assets/logo.webp é o fallback universal de imagens');
+        console.log('✅ CIM carregada — Firebase Storage ativo · imagens salvas em products/sessions/brands/contacts/profile/avatars');
     });
     </script>
 </body>
