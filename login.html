@@ -7,7 +7,6 @@
 
     <link rel="preload" as="image" href="assets/logo.webp" fetchpriority="high" type="image/webp">
 
-    <link rel="preconnect" href="https://i.postimg.cc" crossorigin>
     <link rel="preconnect" href="https://cdn.tailwindcss.com" crossorigin>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -507,6 +506,9 @@
         let currentView = 'login';
         let modoGoogleCadastro = false;
         let usuarioGoogle = null;
+
+        /* 🔥 MUDADO: foto padrão agora usa asset local */
+        const DEFAULT_USER_AVATAR = 'assets/logo.webp';
 
         /* =========================================================
            SISTEMA DE COOLDOWN
@@ -1166,7 +1168,7 @@
                 telefone: document.getElementById('regPhone').value.replace(/\D/g, ''),
                 createdAt: Date.now(),
                 lastAccess: Date.now(),
-                photoURL: 'https://i.ibb.co/6J5qZ9K/default-avatar.png',
+                photoURL: DEFAULT_USER_AVATAR,   /* 🔥 MUDADO: era ImgBB, agora asset local */
                 mustChangePassword: false,
                 ...extraData
             };
@@ -1289,7 +1291,8 @@
                 try {
                     await salvarDadosUsuario(usuarioGoogle.uid, {
                         name: name,
-                        email: email
+                        email: email,
+                        photoURL: usuarioGoogle.photoURL || DEFAULT_USER_AVATAR   /* 🔥 MUDADO: fallback local */
                     });
                     registerSuccess('cnpj');
                     registerSuccess('cpf');
