@@ -44,19 +44,29 @@
             min-height: 100vh;
         }
 
+        /* ============================================
+           IMAGENS DE FUNDO
+           ============================================ */
         .bg-custom-image {
-            background-image: url('https://i.postimg.cc/W36zDQZV/450B5288-B897-4D82-9F5B-37D20FFBE0FB.png');
+            background-image: url('assets/sessao1.webp');
             background-size: cover;
             background-position: center;
         }
+
+        /* Seção Peças — fundo preto com brilhos brancos suaves */
         .bg-products-image {
-            background-image: url('https://i.postimg.cc/nrcYvtjp/E7A76D15-4B4D-47E0-A951-12F0FC7E7337.jpg');
-            background-size: cover;
-            background-position: center;
+            background-color: #000000;
+            background-image:
+                radial-gradient(circle at 15% 15%, rgba(255, 255, 255, 0.10), transparent 45%),
+                radial-gradient(circle at 85% 20%, rgba(255, 255, 255, 0.06), transparent 40%),
+                radial-gradient(circle at 20% 85%, rgba(255, 255, 255, 0.06), transparent 45%),
+                radial-gradient(circle at 85% 90%, rgba(255, 255, 255, 0.10), transparent 50%),
+                radial-gradient(ellipse at 50% 50%, rgba(255, 255, 255, 0.04), transparent 70%);
             background-repeat: no-repeat;
         }
+
         .bg-mobility-image {
-            background-image: url('https://i.postimg.cc/ZRpVk6qj/2F4E92F2-0308-4D1D-B5E8-239D8668DCE7.png');
+            background-image: url('assets/sessao3.webp');
             background-size: cover;
             background-position: center;
         }
@@ -342,7 +352,7 @@
         <!-- Conteúdo do header -->
         <div class="relative flex items-center justify-between py-6 px-6 md:px-16">
             <div class="flex items-center">
-                <img src="https://i.postimg.cc/4NFdhvYP/IMG-4524.png" alt="CIM Global Parts" class="h-10 md:h-12 object-contain">
+                <img src="assets/logo.webp" alt="CIM Global Parts" class="h-10 md:h-12 object-contain">
             </div>
 
             <nav id="main-nav" class="hidden md:flex items-center space-x-8 text-sm font-medium">
@@ -417,7 +427,7 @@
 
     <!-- Seção Peças -->
     <section id="produtos" class="py-20 relative bg-products-image min-h-[800px] flex flex-col justify-between overflow-hidden reveal">
-        <div class="absolute inset-0 bg-black/75 z-0"></div>
+        <!-- Overlay removido (não é mais necessário, agora é fundo preto puro com brilhos) -->
 
         <!-- MONTADORAS -->
         <div class="w-full relative z-10 mb-8 pt-4">
@@ -619,7 +629,7 @@
             <div class="grid grid-cols-1 md:grid-cols-12 gap-12 pb-16 border-b border-gray-900">
                 
                 <div class="md:col-span-5 space-y-6">
-                    <img src="https://i.postimg.cc/4NFdhvYP/IMG-4524.png" alt="CIM Global Parts" class="h-10 object-contain">
+                    <img src="assets/logo.webp" alt="CIM Global Parts" class="h-10 object-contain">
                     <p class="text-gray-400 text-sm leading-relaxed max-w-sm">
                         Desempenho que você pode confiar. Soluções completas em peças automotivas, alta performance e inovação em mobilidade.
                     </p>
@@ -849,6 +859,7 @@
 
         let produtosReais = [];
         let produtosCarregados = false;
+        let featuredIds = [];
 
         function normalizar(str) {
             return (str || '')
@@ -870,6 +881,21 @@
 
             produtosCarregados = true;
 
+            if (!searchModal.classList.contains('hidden')) {
+                renderSuggestions(searchInput.value);
+            }
+        });
+
+        // Listener dos destaques escolhidos no ADM
+        database.ref('featured').on('value', (snap) => {
+            const v = snap.val();
+            if (!v) {
+                featuredIds = [];
+            } else if (Array.isArray(v)) {
+                featuredIds = v.filter(Boolean);
+            } else {
+                featuredIds = Object.keys(v).sort((a,b)=>Number(a)-Number(b)).map(k=>v[k]).filter(Boolean);
+            }
             if (!searchModal.classList.contains('hidden')) {
                 renderSuggestions(searchInput.value);
             }
@@ -911,7 +937,17 @@
             let lista;
 
             if (termo === '') {
-                lista = produtosReais.slice(0, QUANTIDADE_DESTAQUE);
+                if (featuredIds.length > 0) {
+                    lista = featuredIds
+                        .map(id => produtosReais.find(p => p.id === id))
+                        .filter(Boolean)
+                        .slice(0, QUANTIDADE_DESTAQUE);
+                    if (lista.length === 0) {
+                        lista = produtosReais.slice(0, QUANTIDADE_DESTAQUE);
+                    }
+                } else {
+                    lista = produtosReais.slice(0, QUANTIDADE_DESTAQUE);
+                }
             } else {
                 const palavras = normalizar(termo).split(/\s+/).filter(Boolean);
 
