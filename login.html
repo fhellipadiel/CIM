@@ -212,7 +212,7 @@
 
     <!-- LADO ESQUERDO -->
     <div class="w-full lg:w-[45%] h-full relative z-20 overflow-y-auto overflow-x-hidden no-scrollbar bg-gradient-to-r from-darkbg via-darkbg/95 to-transparent">
-        
+
         <div id="heroHeader" class="px-5 sm:px-8 lg:px-20 pt-10 pb-4">
             <div class="max-w-md mx-auto text-center lg:text-left lg:mx-0">
                 <div class="flex justify-center lg:justify-start mb-4 anim-fade-left">
@@ -235,7 +235,7 @@
 
                 <!-- ==================== LOGIN FORM ==================== -->
                 <form id="loginForm" class="space-y-5 form-transition" onsubmit="handleLogin(event)">
-                    
+
                     <button type="button" onclick="handleGoogleLogin()"
                         class="w-full py-3 px-4 bg-white hover:bg-gray-100 text-black font-medium border border-transparent rounded-full shadow-sm btn-soft flex items-center justify-center gap-3 text-sm focus:outline-none focus:ring-2 focus:ring-white/50 anim-fade-up delay-3">
                         <svg class="w-4 h-4" viewBox="0 0 24 24">
@@ -295,7 +295,7 @@
 
                 <!-- ==================== REGISTER FORM ==================== -->
                 <form id="registerForm" class="hidden space-y-4 form-transition" onsubmit="handleRegister(event)">
-                    
+
                     <div class="flex items-center justify-between pb-1">
                         <h2 class="text-base font-bold text-white">Criar Conta</h2>
                         <button type="button" onclick="handleRegisterBack()" class="text-xs text-gray-400 hover:text-white font-medium transition-all hover:-translate-x-1">
@@ -335,7 +335,7 @@
                     </div>
 
                     <div id="registerFieldsContainer" class="hidden opacity-0 transform translate-y-2 transition-all duration-300 ease-in-out border-t border-white/10 pt-3 space-y-3 pr-1">
-                        
+
                         <div class="space-y-1">
                             <label for="regDoc" id="labelDoc" class="block text-xs font-semibold uppercase tracking-wider text-gray-400">CPF</label>
                             <div class="relative">
@@ -473,49 +473,16 @@
         </div>
     </div>
 
-    <!-- LADO DIREITO: GALERIA -->
+    <!-- LADO DIREITO: GALERIA DINÂMICA -->
     <div class="hidden lg:flex lg:w-[55%] h-full relative overflow-hidden items-center justify-center bg-darkbg">
-        
+
         <div class="absolute inset-y-0 left-0 w-64 bg-gradient-to-r from-darkbg via-darkbg/80 to-transparent z-10 pointer-events-none"></div>
         <div class="absolute inset-y-0 right-0 w-32 bg-gradient-to-l from-darkbg to-transparent z-10 pointer-events-none"></div>
         <div class="absolute inset-x-0 top-0 h-32 bg-gradient-to-b from-darkbg to-transparent z-10 pointer-events-none"></div>
         <div class="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-darkbg to-transparent z-10 pointer-events-none"></div>
 
-        <div class="absolute inset-[-50%] transform rotate-12 scale-125 flex gap-[2px] justify-center">
-            
-            <div class="flex flex-col gap-[2px] animate-scroll-up w-72">
-                <img src="https://picsum.photos/seed/1/600/600" class="w-full aspect-square object-cover rounded-none border border-white/5 shadow-2xl" alt="Gallery 1">
-                <img src="https://picsum.photos/seed/2/600/600" class="w-full aspect-square object-cover rounded-none border border-white/5 shadow-2xl" alt="Gallery 2">
-                <img src="https://picsum.photos/seed/3/600/600" class="w-full aspect-square object-cover rounded-none border border-white/5 shadow-2xl" alt="Gallery 3">
-                <img src="https://picsum.photos/seed/4/600/600" class="w-full aspect-square object-cover rounded-none border border-white/5 shadow-2xl" alt="Gallery 4">
-                <img src="https://picsum.photos/seed/1/600/600" class="w-full aspect-square object-cover rounded-none border border-white/5 shadow-2xl" alt="Gallery 1">
-                <img src="https://picsum.photos/seed/2/600/600" class="w-full aspect-square object-cover rounded-none border border-white/5 shadow-2xl" alt="Gallery 2">
-                <img src="https://picsum.photos/seed/3/600/600" class="w-full aspect-square object-cover rounded-none border border-white/5 shadow-2xl" alt="Gallery 3">
-                <img src="https://picsum.photos/seed/4/600/600" class="w-full aspect-square object-cover rounded-none border border-white/5 shadow-2xl" alt="Gallery 4">
-            </div>
-
-            <div class="flex flex-col gap-[2px] animate-scroll-down w-72 mt-32">
-                <img src="https://picsum.photos/seed/5/600/600" class="w-full aspect-square object-cover rounded-none border border-white/5 shadow-2xl" alt="Gallery 5">
-                <img src="https://picsum.photos/seed/6/600/600" class="w-full aspect-square object-cover rounded-none border border-white/5 shadow-2xl" alt="Gallery 6">
-                <img src="https://picsum.photos/seed/7/600/600" class="w-full aspect-square object-cover rounded-none border border-white/5 shadow-2xl" alt="Gallery 7">
-                <img src="https://picsum.photos/seed/8/600/600" class="w-full aspect-square object-cover rounded-none border border-white/5 shadow-2xl" alt="Gallery 8">
-                <img src="https://picsum.photos/seed/5/600/600" class="w-full aspect-square object-cover rounded-none border border-white/5 shadow-2xl" alt="Gallery 5">
-                <img src="https://picsum.photos/seed/6/600/600" class="w-full aspect-square object-cover rounded-none border border-white/5 shadow-2xl" alt="Gallery 6">
-                <img src="https://picsum.photos/seed/7/600/600" class="w-full aspect-square object-cover rounded-none border border-white/5 shadow-2xl" alt="Gallery 7">
-                <img src="https://picsum.photos/seed/8/600/600" class="w-full aspect-square object-cover rounded-none border border-white/5 shadow-2xl" alt="Gallery 8">
-            </div>
-
-            <div class="flex flex-col gap-[2px] animate-scroll-up w-72 mt-16">
-                <img src="https://picsum.photos/seed/9/600/600" class="w-full aspect-square object-cover rounded-none border border-white/5 shadow-2xl" alt="Gallery 9">
-                <img src="https://picsum.photos/seed/10/600/600" class="w-full aspect-square object-cover rounded-none border border-white/5 shadow-2xl" alt="Gallery 10">
-                <img src="https://picsum.photos/seed/11/600/600" class="w-full aspect-square object-cover rounded-none border border-white/5 shadow-2xl" alt="Gallery 11">
-                <img src="https://picsum.photos/seed/12/600/600" class="w-full aspect-square object-cover rounded-none border border-white/5 shadow-2xl" alt="Gallery 12">
-                <img src="https://picsum.photos/seed/9/600/600" class="w-full aspect-square object-cover rounded-none border border-white/5 shadow-2xl" alt="Gallery 9">
-                <img src="https://picsum.photos/seed/10/600/600" class="w-full aspect-square object-cover rounded-none border border-white/5 shadow-2xl" alt="Gallery 10">
-                <img src="https://picsum.photos/seed/11/600/600" class="w-full aspect-square object-cover rounded-none border border-white/5 shadow-2xl" alt="Gallery 11">
-                <img src="https://picsum.photos/seed/12/600/600" class="w-full aspect-square object-cover rounded-none border border-white/5 shadow-2xl" alt="Gallery 12">
-            </div>
-            
+        <div id="loginGalleryContainer" class="absolute inset-[-50%] transform rotate-12 scale-125 flex gap-[2px] justify-center">
+            <!-- Populado via JS -->
         </div>
     </div>
 
@@ -657,7 +624,6 @@
             messageText.textContent = message;
             messageBox.classList.remove('anim-shake', 'anim-bounce');
 
-            // Só existe estilo de erro agora
             messageBox.className = 'mb-6 p-4 rounded-2xl text-sm flex items-center gap-3 bg-rose-500/10 border border-rose-500/20 text-rose-400 transition-all duration-300 anim-shake';
             messageIcon.className = 'fa-solid fa-triangle-exclamation text-lg text-rose-400';
 
@@ -785,7 +751,7 @@
            ========================================================= */
         function resetPersonTypeSelection() {
             currentPersonType = '';
-            
+
             const fieldsContainer = document.getElementById('registerFieldsContainer');
             fieldsContainer.classList.add('opacity-0', 'translate-y-2');
             setTimeout(() => { fieldsContainer.classList.add('hidden'); }, 80);
@@ -794,10 +760,10 @@
             const btnJuridica = document.getElementById('btnJuridica');
             btnFisica.classList.remove('hidden');
             btnJuridica.classList.remove('hidden');
-            
+
             btnFisica.className = 'card-select py-3 px-3 border border-white/10 rounded-2xl text-xs font-semibold flex flex-col items-center justify-center gap-2 bg-white/5 text-gray-300 hover:bg-white/10 hover:border-white/30';
             btnJuridica.className = 'card-select py-3 px-3 border border-white/10 rounded-2xl text-xs font-semibold flex flex-col items-center justify-center gap-2 bg-white/5 text-gray-300 hover:bg-white/10 hover:border-white/30';
-            
+
             document.getElementById('regName').value = modoGoogleCadastro && usuarioGoogle ? (usuarioGoogle.displayName || '') : '';
             document.getElementById('regDoc').value = '';
             document.getElementById('regPhone').value = '';
@@ -814,11 +780,11 @@
             document.getElementById('regSituacao').value = '';
             document.getElementById('juridicaExtraHeader').classList.add('hidden');
             document.getElementById('cepContainer').classList.remove('hidden');
-            
+
             document.getElementById('regName').readOnly = false;
             document.getElementById('regName').classList.remove('bg-white/5', 'cursor-not-allowed');
             document.getElementById('regName').classList.add('bg-white/5');
-            
+
             document.getElementById('docApiFeedback').classList.add('hidden');
             document.getElementById('cepApiFeedback').classList.add('hidden');
             document.getElementById('noNumberCheckbox').checked = false;
@@ -897,7 +863,7 @@
            ========================================================= */
         function formatDocument(input) {
             let value = input.value.replace(/\D/g, '');
-            
+
             if (currentPersonType === 'fisica') {
                 if (value.length > 11) value = value.slice(0, 11);
                 if (value.length > 9) value = value.replace(/^(\d{3})(\d{3})(\d{3})(\d{2}).*/, '$1.$2.$3-$4');
@@ -1234,7 +1200,7 @@
         }
 
         /* =========================================================
-           LOGIN — SEM MENSAGEM DE SUCESSO
+           LOGIN
            ========================================================= */
         async function handleLogin(event) {
             event.preventDefault();
@@ -1290,7 +1256,7 @@
         }
 
         /* =========================================================
-           CADASTRO — SEM MENSAGEM DE SUCESSO
+           CADASTRO
            ========================================================= */
         async function handleRegister(event) {
             event.preventDefault();
@@ -1388,7 +1354,7 @@
         }
 
         /* =========================================================
-           GOOGLE — SEM MENSAGEM DE SUCESSO
+           GOOGLE
            ========================================================= */
         async function handleGoogleLogin() {
             if (!auth || !database) {
@@ -1435,6 +1401,85 @@
         }
 
         /* =========================================================
+           GALERIA DINÂMICA DO LOGIN
+           ========================================================= */
+        const GALLERY_DEFAULT_IMAGES = [
+            'https://picsum.photos/seed/1/600/600',
+            'https://picsum.photos/seed/2/600/600',
+            'https://picsum.photos/seed/3/600/600',
+            'https://picsum.photos/seed/4/600/600',
+            'https://picsum.photos/seed/5/600/600',
+            'https://picsum.photos/seed/6/600/600'
+        ];
+
+        function parseGalleryArray(val){
+            if(!val) return [];
+            if(Array.isArray(val)) return val.filter(Boolean);
+            return Object.keys(val).sort((a,b)=>Number(a)-Number(b)).map(k=>val[k]).filter(Boolean);
+        }
+
+        function escapeAttr(str){
+            return String(str)
+                .replace(/&/g,'&amp;')
+                .replace(/"/g,'&quot;')
+                .replace(/</g,'&lt;')
+                .replace(/>/g,'&gt;');
+        }
+
+        async function buildLoginGallery(){
+            const container = document.getElementById('loginGalleryContainer');
+            if(!container) return;
+
+            let images = [];
+
+            try {
+                if(database){
+                    const [gallerySnap, productsSnap] = await Promise.all([
+                        database.ref('loginGallery').once('value'),
+                        database.ref('products').once('value')
+                    ]);
+
+                    const ids = parseGalleryArray(gallerySnap.val());
+                    const products = productsSnap.val() || {};
+
+                    images = ids
+                        .map(id => {
+                            const p = products[id];
+                            return p && p.image ? p.image : null;
+                        })
+                        .filter(url => url && typeof url === 'string' && url.trim() !== '');
+                }
+            } catch (err) {
+                console.warn('[Galeria Login] Falha ao carregar do Firebase:', err);
+            }
+
+            if(images.length === 0){
+                images = [...GALLERY_DEFAULT_IMAGES];
+            }
+
+            const MIN_UNIQUE = 4;
+            const uniqueCount = Math.max(MIN_UNIQUE, images.length);
+            const itemsPerColumn = uniqueCount * 2;
+
+            const columns = [
+                { anim: 'scroll-up',   offset: 0,                                 mt: '' },
+                { anim: 'scroll-down', offset: Math.floor(images.length / 3),     mt: 'mt-32' },
+                { anim: 'scroll-up',   offset: Math.floor(images.length * 2 / 3), mt: 'mt-16' }
+            ];
+
+            container.innerHTML = columns.map(col => {
+                let items = '';
+                for(let i = 0; i < itemsPerColumn; i++){
+                    const idx = (i + col.offset) % images.length;
+                    const url = escapeAttr(images[idx]);
+                    items += `<img src="${url}" class="w-full aspect-square object-cover rounded-none border border-white/5 shadow-2xl" alt="" loading="lazy">`;
+                }
+                const mtClass = col.mt ? ` ${col.mt}` : '';
+                return `<div class="flex flex-col gap-[2px] animate-${col.anim} w-72${mtClass}">${items}</div>`;
+            }).join('');
+        }
+
+        /* =========================================================
            INICIALIZAÇÃO
            ========================================================= */
         document.addEventListener('DOMContentLoaded', () => {
@@ -1452,6 +1497,8 @@
                         });
                     }
                 });
+
+                buildLoginGallery();
             }
 
             restoreCooldowns();
