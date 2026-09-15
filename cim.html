@@ -111,8 +111,30 @@
         .back-to-top:hover { transform: scale(1.1) translate3d(0,0,0); }
         .main-container { max-width: 1400px; margin: 0 auto; padding: 12px 10px 80px; }
         .top-filters-area { background: #000; padding: 4px 0 8px; }
-        .sticky-category-bar { position: sticky; top: calc(var(--header-h) + var(--safe-top)); z-index: 500; background: transparent; padding: 4px 0 8px; margin: 0 -10px; padding-left: 10px; padding-right: 10px; border-bottom: 1px solid rgba(255,255,255,0.05); transition: background-color 0.25s ease; }
-        .sticky-category-bar.scrolled { background: rgba(0,0,0,0.85) !important; backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); }
+
+        /* ========== BARRA DE CATEGORIAS (STICKY) — FUNDO PRETO TRANSPARENTE + BORDAS INFERIORES ARREDONDADAS ========== */
+        .sticky-category-bar {
+            position: sticky;
+            top: calc(var(--header-h) + var(--safe-top));
+            z-index: 500;
+            background: transparent;
+            padding: 4px 0 8px;
+            margin: 0 -10px;
+            padding-left: 10px;
+            padding-right: 10px;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            border-radius: 0 0 18px 18px;
+            transition: background-color 0.3s ease, backdrop-filter 0.3s ease, border-radius 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+        }
+        .sticky-category-bar.scrolled {
+            background: rgba(0, 0, 0, 0.55) !important;
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            border-bottom: 1px solid transparent;
+            border-radius: 0 0 18px 18px;
+            box-shadow: 0 8px 22px rgba(0, 0, 0, 0.45);
+        }
+
         .tabs-carousel-wrapper { position: relative; display: flex; align-items: center; gap: 6px; background: transparent; border-radius: 0; border: none; padding: 4px 0; }
         .tabs-carousel-wrapper .tabs-scroll { display: flex; overflow-x: auto; scroll-behavior: smooth; -webkit-overflow-scrolling: touch; scrollbar-width: none; -ms-overflow-style: none; flex: 1; padding: 6px 4px; gap: 6px; cursor: grab; scroll-snap-type: x proximity; }
         .tabs-carousel-wrapper .tabs-scroll:active { cursor: grabbing; }
@@ -151,7 +173,6 @@
         .skeleton-image::after, .skeleton-line::after { content: ''; position: absolute; inset: 0; background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.07) 50%, transparent 100%); transform: translate3d(-100%, 0, 0); animation: skeletonShimmer 1.2s ease-in-out infinite; pointer-events: none; backface-visibility: hidden; }
         @keyframes skeletonShimmer { to { transform: translate3d(100%, 0, 0); } }
 
-        /* ✅ CORREÇÃO: card agora usa ANIMAÇÃO CSS — nunca fica preso em opacity:0 */
         @keyframes cardEnter {
             from { opacity: 0; transform: translate3d(0, 12px, 0); }
             to   { opacity: 1; transform: translate3d(0, 0, 0); }
@@ -171,7 +192,6 @@
             contain-intrinsic-size: auto 380px;
             contain: layout style paint;
         }
-        /* mantido por compatibilidade — não é mais necessário para visibilidade */
         .product-card.visible { opacity: 1; transform: translate3d(0, 0, 0); }
 
         .product-card.featured { box-shadow: 0 0 30px rgba(255,107,0,0.15); }
@@ -797,12 +817,11 @@
         let dataLoaded = false;
         let currentProduct = null;
 
-        // ⚡ PERFORMANCE: SCHEDULERS + CACHE DE DESCONTO
         let _filterScheduled = false;
         let _categoryTabsScheduled = false;
         let _priceRefreshScheduled = false;
         let _lastFilterSignature = '';
-        let _hasRenderedOnce = false; // ✅ garante o 1º render mesmo se sig bater
+        let _hasRenderedOnce = false;
         const _discountCache = new Map();
 
         function scheduleFilter() {
@@ -867,6 +886,36 @@
         const dropdownUserDoc = document.getElementById('dropdownUserDoc');
         const brandTitle = document.getElementById('brandTitle');
         const sessionGate = document.getElementById('sessionGate');
+        const stickyCategoryBar = document.getElementById('stickyCategoryBar');
+
+        // ========== SCROLL: STICKY CATEGORY BAR + BACK TO TOP ==========
+        let _scrollTicking = false;
+        function handlePageScroll() {
+            // Barra de categorias: aplica .scrolled quando ela está "grudada" no topo
+            if (stickyCategoryBar) {
+                const headerH = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--header-h')) || 60;
+                const safeTop = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--safe-top')) || 0;
+                const stickyTop = headerH + safeTop;
+                const rect = stickyCategoryBar.getBoundingClientRect();
+                if (rect.top <= stickyTop + 2 && window.scrollY > 5) {
+                    stickyCategoryBar.classList.add('scrolled');
+                } else {
+                    stickyCategoryBar.classList.remove('scrolled');
+                }
+            }
+            // Botão voltar ao topo
+            if (backToTop) {
+                if (window.scrollY > 300) backToTop.classList.add('visible');
+                else backToTop.classList.remove('visible');
+            }
+            _scrollTicking = false;
+        }
+        window.addEventListener('scroll', () => {
+            if (!_scrollTicking) {
+                requestAnimationFrame(handlePageScroll);
+                _scrollTicking = true;
+            }
+        }, { passive: true });
 
         // ========== CACHE LOCAL ==========
         const CACHE_KEY = 'cim_cache_v4';
@@ -1683,7 +1732,6 @@
                 cupomAtivo ? cupomAtivo.codigo : 'none'
             ].join('|');
 
-            // ✅ Garante o 1º render mesmo se a assinatura coincidir
             if (_hasRenderedOnce && sig === _lastFilterSignature && productsGrid.children.length > 0) {
                 return;
             }
@@ -1752,7 +1800,6 @@
                 if (myToken !== renderToken) return;
                 productsGrid.replaceChildren(frag);
                 preloadImages(filtered.slice(0, 6).map(p => p.image).filter(Boolean));
-                // ✅ Não precisa mais adicionar .visible — a animação CSS cuida disso
             }
             clearSearchBtn.style.display = searchTerm ? 'flex' : 'none';
         }
@@ -2242,6 +2289,8 @@
                 if (!temCache) renderSkeletons(6);
                 loadData();
                 scheduleExpiryCheck();
+                // aplica estado inicial do scroll
+                handlePageScroll();
             }
         }
         function redirectToLogin() {
