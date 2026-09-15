@@ -112,7 +112,6 @@
         .main-container { max-width: 1400px; margin: 0 auto; padding: 12px 10px 80px; }
         .top-filters-area { background: #000; padding: 4px 0 8px; }
 
-        /* ========== BARRA DE CATEGORIAS (STICKY) — FUNDO PRETO TRANSPARENTE + BORDAS INFERIORES ARREDONDADAS ========== */
         .sticky-category-bar {
             position: sticky;
             top: calc(var(--header-h) + var(--safe-top));
@@ -817,11 +816,13 @@
         let dataLoaded = false;
         let currentProduct = null;
 
+        // ⚡ PERFORMANCE: SCHEDULERS + CACHE DE DESCONTO
         let _filterScheduled = false;
         let _categoryTabsScheduled = false;
         let _priceRefreshScheduled = false;
         let _lastFilterSignature = '';
         let _hasRenderedOnce = false;
+        let _productsLoaded = false;   // ✅ NOVO: indica que o Firebase já respondeu ao nó products
         const _discountCache = new Map();
 
         function scheduleFilter() {
@@ -891,7 +892,6 @@
         // ========== SCROLL: STICKY CATEGORY BAR + BACK TO TOP ==========
         let _scrollTicking = false;
         function handlePageScroll() {
-            // Barra de categorias: aplica .scrolled quando ela está "grudada" no topo
             if (stickyCategoryBar) {
                 const headerH = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--header-h')) || 60;
                 const safeTop = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--safe-top')) || 0;
@@ -903,7 +903,6 @@
                     stickyCategoryBar.classList.remove('scrolled');
                 }
             }
-            // Botão voltar ao topo
             if (backToTop) {
                 if (window.scrollY > 300) backToTop.classList.add('visible');
                 else backToTop.classList.remove('visible');
@@ -1711,11 +1710,11 @@
             if (currentProduct) showDetails(currentProduct.id);
         }
 
-        // ========== FILTRAR PRODUTOS ==========
+        // ========== FILTRAR PRODUTOS (CORRIGIDO ✅) ==========
         let renderToken = 0;
-        async function filterProducts() {
-            const myToken = ++renderToken;
 
+        async function filterProducts(force = false) {
+            // 1) Calcula assinatura ANTES de tudo
             const sig = [
                 products.length,
                 lastProductsJson.length,
@@ -1732,13 +1731,19 @@
                 cupomAtivo ? cupomAtivo.codigo : 'none'
             ].join('|');
 
-            if (_hasRenderedOnce && sig === _lastFilterSignature && productsGrid.children.length > 0) {
+            // 2) Early-return SEM incrementar renderToken
+            //    (antes, essa linha incrementava e matava renders em andamento — bug principal)
+            if (!force && _hasRenderedOnce && sig === _lastFilterSignature && productsGrid.children.length > 0) {
                 return;
             }
+
+            // 3) Somente agora invalida renders anteriores — vamos renderizar de verdade
+            const myToken = ++renderToken;
             _lastFilterSignature = sig;
             _hasRenderedOnce = true;
             _discountCache.clear();
 
+            // 4) Aplica filtros
             let filtered = products;
             if (selectedSessionId !== null) filtered = filtered.filter(p => p.sessionId === selectedSessionId);
             if (searchTerm) {
@@ -1753,6 +1758,7 @@
             if (selectedCategory && selectedCategory !== '') filtered = filtered.filter(p => p.category === selectedCategory);
             if (selectedBrand && selectedBrand !== '') filtered = filtered.filter(p => p.brand === selectedBrand);
 
+            // 5) Ordenação por grupos
             const sortable = filtered.map(p => {
                 const hasPrice = (p.prices?.PF || 0) > 0 || (p.prices?.PJ || 0) > 0;
                 const soldOut = !!p.soldOut;
@@ -1781,8 +1787,19 @@
             filtered = sortable.map(s => s.p);
 
             resultsCount.textContent = filtered.length;
+
+            // 6) Renderização
             if (filtered.length === 0) {
-                productsGrid.innerHTML = `<div class="no-results"><i class="fas fa-search"></i><p>Nenhuma peça encontrada${searchTerm ? ` para "${searchTerm}"` : ''}</p></div>`;
+                if (!_productsLoaded) {
+                    // Ainda não recebemos resposta do Firebase → mostra skeletons
+                    renderSkeletons(6);
+                } else if (searchTerm || selectedCategory || selectedBrand || selectedSessionId !== null) {
+                    // Filtros aplicados mas nada casou → no-results
+                    productsGrid.innerHTML = `<div class="no-results"><i class="fas fa-search"></i><p>Nenhuma peça encontrada${searchTerm ? ` para "${searchTerm}"` : ''}</p></div>`;
+                } else {
+                    // Firebase respondeu mas catálogo está vazio de verdade
+                    productsGrid.innerHTML = `<div class="no-results"><i class="fas fa-box-open"></i><p>Nenhuma peça disponível no momento</p></div>`;
+                }
             } else {
                 const frag = document.createDocumentFragment();
                 const CHUNK = 24;
@@ -2110,7 +2127,6 @@
                 currentUserPhoto = userPhoto;
                 updateProfileUIUser();
                 updatePriceDisplay();
-                filterProducts();
                 updateCart();
                 renderPromotionBadgesOnly();
 
@@ -2289,7 +2305,6 @@
                 if (!temCache) renderSkeletons(6);
                 loadData();
                 scheduleExpiryCheck();
-                // aplica estado inicial do scroll
                 handlePageScroll();
             }
         }
@@ -2376,6 +2391,7 @@
                 if (json === lastProductsJson) return;
                 lastProductsJson = json;
                 products = raw ? Object.values(raw) : [];
+                _productsLoaded = true;   // ✅ Firebase já respondeu — agora sim podemos mostrar "vazio"
                 products.forEach(p => {
                     if (isImgbbUrl(p.image)) {
                         console.warn('🚫 [imgbb] produto com URL imgbb:', p.id, p.image);
@@ -2385,6 +2401,9 @@
                 scheduleCategoryTabs();
                 updateBrandTabs();
                 scheduleFilter();
+                // ✅ Safety net: força re-render direto para garantir que os cards apareçam
+                //    mesmo se outra chamada concorrente tentar invalidar o render agendado.
+                filterProducts(true);
                 updateCart();
                 saveCache();
             });
