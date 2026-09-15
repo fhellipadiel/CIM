@@ -150,8 +150,30 @@
         .skeleton-line.full { width: 100%; height: 46px; border-radius: 8px; margin-top: auto; }
         .skeleton-image::after, .skeleton-line::after { content: ''; position: absolute; inset: 0; background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.07) 50%, transparent 100%); transform: translate3d(-100%, 0, 0); animation: skeletonShimmer 1.2s ease-in-out infinite; pointer-events: none; backface-visibility: hidden; }
         @keyframes skeletonShimmer { to { transform: translate3d(100%, 0, 0); } }
-        .product-card { background: rgba(17,17,17,0.95); border-radius: 16px; overflow: hidden; transition: opacity 0.22s ease-out, transform 0.22s ease-out, box-shadow 0.25s ease; border: none; position: relative; display: flex; flex-direction: column; opacity: 0; transform: translate3d(0, 12px, 0); will-change: opacity, transform; backface-visibility: hidden; content-visibility: auto; contain-intrinsic-size: auto 380px; contain: layout style paint; }
+
+        /* ✅ CORREÇÃO: card agora usa ANIMAÇÃO CSS — nunca fica preso em opacity:0 */
+        @keyframes cardEnter {
+            from { opacity: 0; transform: translate3d(0, 12px, 0); }
+            to   { opacity: 1; transform: translate3d(0, 0, 0); }
+        }
+        .product-card {
+            background: rgba(17,17,17,0.95);
+            border-radius: 16px;
+            overflow: hidden;
+            transition: transform 0.22s ease-out, box-shadow 0.25s ease;
+            border: none;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            animation: cardEnter 0.35s ease-out backwards;
+            backface-visibility: hidden;
+            content-visibility: auto;
+            contain-intrinsic-size: auto 380px;
+            contain: layout style paint;
+        }
+        /* mantido por compatibilidade — não é mais necessário para visibilidade */
         .product-card.visible { opacity: 1; transform: translate3d(0, 0, 0); }
+
         .product-card.featured { box-shadow: 0 0 30px rgba(255,107,0,0.15); }
         .product-card.featured::before { content: 'DESTAQUE'; position: absolute; top: 10px; left: 10px; background: #ff6b00; color: #000; padding: 4px 10px; border-radius: 30px; font-size: 0.7rem; font-weight: 600; z-index: 2; }
         .product-card.sold-out { opacity: 0.7; }
@@ -469,7 +491,7 @@
         }
         @media (prefers-reduced-motion: reduce) {
             .brand-marquee-track { animation: none; }
-            .product-card { transition: none; animation: none; }
+            .product-card { animation: none !important; opacity: 1 !important; transform: none !important; transition: none; }
             .header, .top-filters-area, .sticky-category-bar, .brand-filters-area, .results-info { animation: none; }
             *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
         }
@@ -719,42 +741,27 @@
         const DEFAULT_USER_AVATAR     = 'assets/logo.webp';
 
         // ⛔ ========== BLOQUEIO TOTAL DE IMGBB ==========
-        // Motivo: imgbb retorna HTTP 200 com placeholder próprio quando a
-        // imagem não existe, o que impede onerror de disparar. Portanto
-        // bloqueamos QUALQUER URL externa que não seja Firebase Storage
-        // ou assets locais (data URIs também são permitidos).
         const IMGBB_BLOCKLIST = ['ibb.co', 'imgbb.com'];
 
         function isAllowedImageUrl(url) {
             if (!url || typeof url !== 'string') return false;
             const u = url.trim().toLowerCase();
             if (u.length < 4) return false;
-            // Bloqueio explícito
             for (const bad of IMGBB_BLOCKLIST) {
                 if (u.includes(bad)) return false;
             }
-            // Permitidos
             if (u.startsWith('assets/')) return true;
             if (u.startsWith('data:image/')) return true;
             if (u.includes('firebasestorage.googleapis.com')) return true;
             if (u.includes('firebasestorage.app')) return true;
             if (u.startsWith('blob:')) return true;
-            // Qualquer outra URL externa é bloqueada
             return false;
         }
 
-        // Retorna a URL se for permitida, senão retorna o fallback padrão
         function sanitizeImageUrl(url, fallback = DEFAULT_PLACEHOLDER_IMAGE) {
             return isAllowedImageUrl(url) ? url : fallback;
         }
 
-        // Retorna null se for permitida (para usar em <img>), senão fallback
-        // Útil para avatares onde o "sem foto" deve exibir ícone, não imagem.
-        function sanitizeAvatarUrl(url) {
-            return isAllowedImageUrl(url) ? url : null;
-        }
-
-        // Detecta URL imgbb explicitamente (para log/limpeza)
         function isImgbbUrl(url) {
             if (!url || typeof url !== 'string') return false;
             const u = url.toLowerCase();
@@ -795,6 +802,7 @@
         let _categoryTabsScheduled = false;
         let _priceRefreshScheduled = false;
         let _lastFilterSignature = '';
+        let _hasRenderedOnce = false; // ✅ garante o 1º render mesmo se sig bater
         const _discountCache = new Map();
 
         function scheduleFilter() {
@@ -871,7 +879,7 @@
                 try {
                     const slimProducts = products.map(p => ({
                         id: p.id, name: p.name,
-                        image: sanitizeImageUrl(p.image),  // já sanitiza no cache
+                        image: sanitizeImageUrl(p.image),
                         category: p.category,
                         brand: p.brand, sessionId: p.sessionId, prices: p.prices,
                         description: p.description, codigo: p.codigo,
@@ -906,7 +914,6 @@
                 if (c.profileData) profileData = c.profileData;
                 if (c.contactInfo) contactInfo = c.contactInfo;
 
-                // Limpa URLs imgbb do cache antigo
                 products.forEach(p => { if (isImgbbUrl(p.image)) p.image = DEFAULT_PLACEHOLDER_IMAGE; });
 
                 Object.keys(sessions).forEach(id => {
@@ -932,7 +939,7 @@
             if (!urls || !urls.length) return;
             urls.slice(0, 6).forEach(url => {
                 if (!url || url.startsWith('data:')) return;
-                if (!isAllowedImageUrl(url)) return;  // não preload imgbb
+                if (!isAllowedImageUrl(url)) return;
                 const link = document.createElement('link');
                 link.rel = 'preload';
                 link.as = 'image';
@@ -995,19 +1002,6 @@
                 console.error('❌ [storage] erro upload avatar:', e);
                 showToast('Erro ao enviar imagem: ' + (e.message || e.code), 'error');
                 return null;
-            }
-        }
-
-        async function deleteImageByUrl(url) {
-            if (!url || typeof url !== 'string') return false;
-            if (!url.includes('firebasestorage.googleapis.com')) return false;
-            try {
-                const ref = storage.refFromURL(url);
-                await ref.delete();
-                return true;
-            } catch (e) {
-                console.warn('⚠️ [storage] não foi possível deletar:', e.code);
-                return false;
             }
         }
 
@@ -1689,10 +1683,12 @@
                 cupomAtivo ? cupomAtivo.codigo : 'none'
             ].join('|');
 
-            if (sig === _lastFilterSignature && productsGrid.children.length > 0) {
+            // ✅ Garante o 1º render mesmo se a assinatura coincidir
+            if (_hasRenderedOnce && sig === _lastFilterSignature && productsGrid.children.length > 0) {
                 return;
             }
             _lastFilterSignature = sig;
+            _hasRenderedOnce = true;
             _discountCache.clear();
 
             let filtered = products;
@@ -1755,48 +1751,11 @@
                 }
                 if (myToken !== renderToken) return;
                 productsGrid.replaceChildren(frag);
-
                 preloadImages(filtered.slice(0, 6).map(p => p.image).filter(Boolean));
-
-                requestAnimationFrame(() => {
-                    const cards = productsGrid.children;
-                    const limit = Math.min(cards.length, 12);
-                    for (let i = 0; i < limit; i++) cards[i].classList.add('visible');
-                });
+                // ✅ Não precisa mais adicionar .visible — a animação CSS cuida disso
             }
             clearSearchBtn.style.display = searchTerm ? 'flex' : 'none';
         }
-
-        // ========== INTERSECTION OBSERVER ==========
-        let observer = null;
-        function observeCard(card) {
-            if (!observer) {
-                observer = new IntersectionObserver((entries) => {
-                    entries.forEach(entry => {
-                        if (entry.isIntersecting) {
-                            entry.target.classList.add('visible');
-                            observer.unobserve(entry.target);
-                        }
-                    });
-                }, { threshold: 0.01, rootMargin: '0px 0px 800px 0px' });
-            }
-            observer.observe(card);
-        }
-
-        // ========== SCROLL ==========
-        let scrollTicking = false;
-        window.addEventListener('scroll', function() {
-            if (scrollTicking) return;
-            scrollTicking = true;
-            requestAnimationFrame(() => {
-                const bar = document.getElementById('stickyCategoryBar');
-                if (window.scrollY > 70) bar.classList.add('scrolled');
-                else bar.classList.remove('scrolled');
-                if (window.scrollY > 300) backToTop.classList.add('visible');
-                else backToTop.classList.remove('visible');
-                scrollTicking = false;
-            });
-        }, { passive: true });
 
         // ========== CRIAR CARD DE PRODUTO ==========
         function createProductCard(product, eagerLoad = false) {
@@ -1832,7 +1791,6 @@
                 }
             }
 
-            // ⛔ sanitiza a imagem contra imgbb
             const img = sanitizeImageUrl(product.image);
 
             const imgAttrs = eagerLoad
@@ -1866,7 +1824,6 @@
                 imgEl.addEventListener('click', function() { window.clickAndZoom(product.id, img); });
             }
 
-            observeCard(card);
             return card;
         }
 
@@ -2065,7 +2022,6 @@
         // ========== FULLSCREEN IMAGE ==========
         function openFullscreenImage(url) {
             if (!url) return;
-            // ⛔ bloqueia imgbb também no fullscreen
             const safeUrl = isAllowedImageUrl(url) ? url : DEFAULT_PLACEHOLDER_IMAGE;
             document.getElementById('fullscreenImage').src = safeUrl;
             document.getElementById('fullscreenImageModal').classList.add('active');
@@ -2089,7 +2045,6 @@
             database.ref(`users/${uid}`).once('value').then((snapshot) => {
                 const data = snapshot.val() || {};
 
-                // ⛔ DETECÇÃO E LIMPEZA DE URL IMGBB DO USUÁRIO
                 let userPhoto = data.photoURL || DEFAULT_USER_AVATAR;
                 if (isImgbbUrl(userPhoto)) {
                     console.warn('🚫 [imgbb] URL imgbb detectada no photoURL do usuário — limpando:', userPhoto);
@@ -2134,8 +2089,6 @@
             });
         }
 
-        // ✅ SIMPLIFICADO: como isAllowedImageUrl já bloqueia imgbb,
-        // se não passar no filtro já mostramos o ícone laranja.
         function updateProfileUIUser() {
             const img = document.getElementById('profileBtnImage');
             const icon = document.getElementById('profileBtnIcon');
@@ -2162,12 +2115,10 @@
 
             if (currentUser && currentUser.uid) {
                 const photoURL = currentUser.photoURL;
-                // ⛔ BLOQUEIO EXTREMO: se for imgbb, nem tenta carregar
                 const isCustom = photoURL && photoURL !== DEFAULT_USER_AVATAR;
                 const isValidCustom = isCustom && isAllowedImageUrl(photoURL);
 
                 if (isValidCustom) {
-                    // Valida carregando de fato (para pegar 404 de outros hosts)
                     const probe = new Image();
                     probe.onload = () => showCustomPhoto(photoURL);
                     probe.onerror = () => {
@@ -2180,7 +2131,6 @@
                     };
                     probe.src = photoURL;
                 } else {
-                    // Sem foto OU imgbb OU URL externa bloqueada → ícone laranja imediato
                     showIconFallback();
                     if (isCustom && !isAllowedImageUrl(photoURL)) {
                         console.warn('🚫 URL bloqueada detectada (imgbb/externo):', photoURL);
@@ -2256,7 +2206,6 @@
 
             const url = await uploadImageToStorage(file, 'avatars');
             if (url) {
-                // ⛔ Garante que só salvamos URLs permitidas (Firebase Storage)
                 if (!isAllowedImageUrl(url)) {
                     showToast('URL de imagem não permitida', 'error');
                     return;
@@ -2378,7 +2327,6 @@
                 if (json === lastProductsJson) return;
                 lastProductsJson = json;
                 products = raw ? Object.values(raw) : [];
-                // ⛔ Saneia imagens imgbb vindas do banco
                 products.forEach(p => {
                     if (isImgbbUrl(p.image)) {
                         console.warn('🚫 [imgbb] produto com URL imgbb:', p.id, p.image);
@@ -2502,22 +2450,21 @@
         });
 
         // ========== LIMPEZA MANUAL DE IMGBB (via console) ==========
-        // Digite no console: window.purgeAllImgbb()
-        // Remove QUALQUER URL imgbb do banco (products, sessions, brands, contacts, profile, users)
         window.purgeAllImgbb = async function() {
             console.log('🧹 Iniciando limpeza total de URLs imgbb...');
             const updates = {};
             let count = 0;
 
-            // products
-            Object.keys(products || {}).forEach(id => {
-                const p = products[id];
-                if (isImgbbUrl(p?.image)) { updates[`products/${id}/image`] = DEFAULT_PLACEHOLDER_IMAGE; count++; }
-            });
-
-            // sessions, brands, contacts
             const snapAll = await database.ref().once('value');
             const all = snapAll.val() || {};
+
+            Object.keys(all.products || {}).forEach(id => {
+                if (isImgbbUrl(all.products[id]?.image)) {
+                    updates[`products/${id}/image`] = DEFAULT_PLACEHOLDER_IMAGE;
+                    count++;
+                }
+            });
+
             ['sessions','brands','contacts'].forEach(node => {
                 Object.keys(all[node] || {}).forEach(id => {
                     if (isImgbbUrl(all[node][id]?.image)) {
@@ -2527,13 +2474,11 @@
                 });
             });
 
-            // profile
             if (isImgbbUrl(all.profile?.photo)) {
                 updates['profile/photo'] = DEFAULT_PROFILE_IMAGE;
                 count++;
             }
 
-            // users
             Object.keys(all.users || {}).forEach(uid => {
                 if (isImgbbUrl(all.users[uid]?.photoURL)) {
                     updates[`users/${uid}/photoURL`] = DEFAULT_USER_AVATAR;
@@ -2548,7 +2493,7 @@
             showToast(`${count} URLs imgbb limpas`);
         };
 
-        console.log('✅ CIM carregada — bloqueio total de imgbb ativo');
+        console.log('✅ CIM carregada — produtos visíveis no 1º render + bloqueio imgbb ativo');
         console.log('💡 Dica: execute window.purgeAllImgbb() no console para limpar o banco inteiro');
     });
     </script>
