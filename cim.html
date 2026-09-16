@@ -517,6 +517,176 @@
         @media (max-width: 768px) {
             input, textarea, select { font-size: 16px !important; }
         }
+
+        /* ==========================================================
+           MODAL PRODUTO — LAYOUT 2 COLUNAS (SÓ NO DESKTOP ≥768px)
+           Foto à esquerda · Conteúdo à direita
+           ========================================================== */
+        .modal-product-layout {
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+        }
+
+        .modal-product-image-side { width: 100%; }
+
+        .modal-product-image-side .modal-image {
+            width: 100%;
+            aspect-ratio: 1 / 1;
+            border-radius: 14px;
+            overflow: hidden;
+            margin: 0;
+            border: 1px solid #2a2a2a;
+            cursor: pointer;
+            position: relative;
+            background: #0a0a0a;
+        }
+
+        .modal-product-image-side .modal-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            transition: transform 0.3s ease;
+            background: #0a0a0a;
+        }
+
+        .modal-product-image-side .modal-image:hover img { transform: scale(1.04); }
+
+        .modal-product-image-side .modal-image .fullscreen-icon {
+            opacity: 1;
+            background: rgba(0,0,0,0.75);
+        }
+
+        .modal-product-info-side {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            min-width: 0;
+        }
+
+        .modal-product-category {
+            color: #ff6b00;
+            font-size: 0.72rem;
+            text-transform: uppercase;
+            letter-spacing: 1.6px;
+            font-weight: 600;
+        }
+
+        .modal-product-title {
+            color: #fff;
+            font-size: clamp(1.3rem, 1.1rem + 0.9vw, 1.9rem);
+            font-weight: 700;
+            line-height: 1.2;
+            margin: 0;
+        }
+
+        .modal-price-inline {
+            display: flex;
+            align-items: baseline;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin: 6px 0 4px;
+        }
+
+        .modal-price-inline .price-label-inline {
+            color: #888;
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 500;
+        }
+
+        .modal-price-inline .price-value-inline {
+            color: #ff6b00;
+            font-size: clamp(1.4rem, 1.2rem + 1vw, 2rem);
+            font-weight: 700;
+        }
+
+        .modal-price-inline .price-value-inline.original {
+            color: #777;
+            text-decoration: line-through;
+            font-size: 1rem;
+            font-weight: 500;
+        }
+
+        .modal-price-inline .price-value-inline.promocional {
+            color: #ff6b00;
+            font-size: clamp(1.6rem, 1.3rem + 1.2vw, 2.3rem);
+        }
+
+        .modal-codigo-inline {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #aaa;
+            font-size: 0.82rem;
+            padding: 6px 0;
+            border-top: 1px solid #222;
+            border-bottom: 1px solid #222;
+            margin: 4px 0;
+        }
+
+        .modal-codigo-inline i { color: #ff6b00; }
+        .modal-codigo-inline strong { color: #fff; letter-spacing: 0.5px; }
+
+        .modal-description-inline {
+            color: #bbb;
+            font-size: 0.9rem;
+            line-height: 1.65;
+            margin: 6px 0;
+        }
+
+        .modal-add-link {
+            background: transparent !important;
+            border: none !important;
+            color: #ff6b00;
+            font-size: 0.95rem;
+            font-weight: 600;
+            text-align: left;
+            padding: 14px 0;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: color 0.2s ease, transform 0.2s ease;
+            align-self: flex-start;
+            margin-top: auto;
+            font-family: inherit;
+        }
+
+        .modal-add-link:hover { color: #ff8c33; transform: translateX(5px); }
+        .modal-add-link:active { transform: translateX(2px) scale(0.98); }
+        .modal-add-link i { font-size: 1.05rem; }
+
+        @media (min-width: 768px) {
+            .modal-content.modal-product {
+                max-width: 900px;
+                padding: 26px;
+                background: #111;
+            }
+            .modal-product-layout {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 28px;
+                align-items: start;
+            }
+            .modal-product-image-side {
+                position: sticky;
+                top: 10px;
+            }
+            .modal-product-info-side { min-height: 100%; }
+            .modal-add-link { margin-top: 20px; }
+        }
+
+        @media (min-width: 1024px) {
+            .modal-content.modal-product { max-width: 1020px; padding: 30px; }
+            .modal-product-layout {
+                grid-template-columns: 1.05fr 1fr;
+                gap: 38px;
+            }
+            .modal-description-inline { font-size: 0.95rem; }
+        }
     </style>
 </head>
 <body>
@@ -691,24 +861,37 @@
         </div>
     </div>
 
+    <!-- ========== MODAL DE PRODUTO — NOVO LAYOUT ========== -->
     <div class="modal" id="productModal">
-        <div class="modal-content">
+        <div class="modal-content modal-product">
             <button class="modal-close" onclick="closeModal()"><i class="fas fa-times"></i></button>
-            <div class="modal-header"><h2 id="modalTitle"></h2></div>
-            <div class="modal-body">
-                <div class="modal-image" id="modalImage" onclick="openFullscreenImage(document.getElementById('modalImage').querySelector('img')?.src)">
-                    <div class="fullscreen-icon"><i class="fas fa-expand"></i></div>
-                </div>
-                <div id="modalCodigoContainer" style="display:none;margin-bottom:15px;padding:10px;background:#222;border-radius:8px;border-left:3px solid #ff6b00;">
-                    <div style="display:flex;align-items:center;gap:10px;">
-                        <i class="fas fa-barcode" style="color:#ff6b00;font-size:1.1rem;"></i>
-                        <span style="color:#cccccc;font-size:0.9rem;">Código:</span>
-                        <span id="modalCodigo" style="color:#ffffff;font-weight:600;font-size:1rem;"></span>
+
+            <div class="modal-product-layout">
+                <!-- FOTO (esquerda no desktop) -->
+                <div class="modal-product-image-side">
+                    <div class="modal-image" id="modalImage">
+                        <div class="fullscreen-icon"><i class="fas fa-expand"></i></div>
                     </div>
                 </div>
-                <p class="modal-description" id="modalDescription"></p>
-                <div class="modal-price-box" id="modalPriceBox"></div>
-                <button class="btn btn-primary" style="width:100%;" onclick="addFromModal()" id="modalAddButton"><i class="fas fa-cart-plus"></i> Adicionar ao Carrinho</button>
+
+                <!-- CONTEÚDO (direita no desktop) -->
+                <div class="modal-product-info-side">
+                    <div class="modal-product-category" id="modalCategory"></div>
+                    <h2 class="modal-product-title" id="modalTitle"></h2>
+                    <div class="modal-price-inline" id="modalPriceBox"></div>
+
+                    <div id="modalCodigoContainer" class="modal-codigo-inline" style="display:none;">
+                        <i class="fas fa-barcode"></i>
+                        <span>Código:</span>
+                        <strong id="modalCodigo"></strong>
+                    </div>
+
+                    <p class="modal-description-inline" id="modalDescription"></p>
+
+                    <button class="modal-add-link" id="modalAddButton" onclick="addFromModal()">
+                        <i class="fas fa-cart-plus"></i> Adicionar no carrinho
+                    </button>
+                </div>
             </div>
         </div>
     </div>
@@ -822,7 +1005,7 @@
         let _priceRefreshScheduled = false;
         let _lastFilterSignature = '';
         let _hasRenderedOnce = false;
-        let _productsLoaded = false;   // ✅ NOVO: indica que o Firebase já respondeu ao nó products
+        let _productsLoaded = false;
         const _discountCache = new Map();
 
         function scheduleFilter() {
@@ -1710,11 +1893,10 @@
             if (currentProduct) showDetails(currentProduct.id);
         }
 
-        // ========== FILTRAR PRODUTOS (CORRIGIDO ✅) ==========
+        // ========== FILTRAR PRODUTOS ==========
         let renderToken = 0;
 
         async function filterProducts(force = false) {
-            // 1) Calcula assinatura ANTES de tudo
             const sig = [
                 products.length,
                 lastProductsJson.length,
@@ -1731,19 +1913,15 @@
                 cupomAtivo ? cupomAtivo.codigo : 'none'
             ].join('|');
 
-            // 2) Early-return SEM incrementar renderToken
-            //    (antes, essa linha incrementava e matava renders em andamento — bug principal)
             if (!force && _hasRenderedOnce && sig === _lastFilterSignature && productsGrid.children.length > 0) {
                 return;
             }
 
-            // 3) Somente agora invalida renders anteriores — vamos renderizar de verdade
             const myToken = ++renderToken;
             _lastFilterSignature = sig;
             _hasRenderedOnce = true;
             _discountCache.clear();
 
-            // 4) Aplica filtros
             let filtered = products;
             if (selectedSessionId !== null) filtered = filtered.filter(p => p.sessionId === selectedSessionId);
             if (searchTerm) {
@@ -1758,7 +1936,6 @@
             if (selectedCategory && selectedCategory !== '') filtered = filtered.filter(p => p.category === selectedCategory);
             if (selectedBrand && selectedBrand !== '') filtered = filtered.filter(p => p.brand === selectedBrand);
 
-            // 5) Ordenação por grupos
             const sortable = filtered.map(p => {
                 const hasPrice = (p.prices?.PF || 0) > 0 || (p.prices?.PJ || 0) > 0;
                 const soldOut = !!p.soldOut;
@@ -1788,16 +1965,12 @@
 
             resultsCount.textContent = filtered.length;
 
-            // 6) Renderização
             if (filtered.length === 0) {
                 if (!_productsLoaded) {
-                    // Ainda não recebemos resposta do Firebase → mostra skeletons
                     renderSkeletons(6);
                 } else if (searchTerm || selectedCategory || selectedBrand || selectedSessionId !== null) {
-                    // Filtros aplicados mas nada casou → no-results
                     productsGrid.innerHTML = `<div class="no-results"><i class="fas fa-search"></i><p>Nenhuma peça encontrada${searchTerm ? ` para "${searchTerm}"` : ''}</p></div>`;
                 } else {
-                    // Firebase respondeu mas catálogo está vazio de verdade
                     productsGrid.innerHTML = `<div class="no-results"><i class="fas fa-box-open"></i><p>Nenhuma peça disponível no momento</p></div>`;
                 }
             } else {
@@ -2027,23 +2200,45 @@
             renderPromotionBadgesOnly();
         }
 
-        // ========== DETALHES DO PRODUTO ==========
+        // ========== DETALHES DO PRODUTO (NOVO LAYOUT 2 COLUNAS) ==========
         function showDetails(id) {
             const product = products.find(p => p.id === id);
             if (!product) return;
             currentProduct = product;
             registerClick(product, 'detalhes');
 
-            document.getElementById('modalTitle').textContent = product.name || 'Sem nome';
-            const img = sanitizeImageUrl(product.image);
-            document.getElementById('modalImage').innerHTML = `<img src="${img}" alt="${escapeHtml(product.name)}" decoding="async" onerror="this.onerror=null;this.src='${DEFAULT_PLACEHOLDER_IMAGE}'" onclick="openFullscreenImage('${img}')"><div class="fullscreen-icon" onclick="openFullscreenImage('${img}')"><i class="fas fa-expand"></i></div>`;
-            document.getElementById('modalDescription').textContent = product.description || 'Sem descrição';
+            // Categoria (topo do lado direito)
+            document.getElementById('modalCategory').textContent =
+                (product.category || '').toUpperCase();
 
+            // Título
+            document.getElementById('modalTitle').textContent = product.name || 'Sem nome';
+
+            // Imagem
+            const img = sanitizeImageUrl(product.image);
+            document.getElementById('modalImage').innerHTML = `
+                <img src="${img}" alt="${escapeHtml(product.name)}" decoding="async"
+                     onerror="this.onerror=null;this.src='${DEFAULT_PLACEHOLDER_IMAGE}'"
+                     onclick="openFullscreenImage('${img}')">
+                <div class="fullscreen-icon" onclick="openFullscreenImage('${img}')">
+                    <i class="fas fa-expand"></i>
+                </div>`;
+
+            // Descrição
+            document.getElementById('modalDescription').textContent =
+                product.description || 'Sem descrição';
+
+            // Código (opcional)
             const codigoContainer = document.getElementById('modalCodigoContainer');
             const codigoEl = document.getElementById('modalCodigo');
-            if (product.codigo && product.codigo.trim() !== '') { codigoEl.textContent = product.codigo; codigoContainer.style.display = 'block'; }
-            else codigoContainer.style.display = 'none';
+            if (product.codigo && product.codigo.trim() !== '') {
+                codigoEl.textContent = product.codigo;
+                codigoContainer.style.display = 'flex';
+            } else {
+                codigoContainer.style.display = 'none';
+            }
 
+            // Preço
             const userType = currentUser ? currentUser.userType : null;
             const info = getEffectiveDiscount(product);
             const desconto = info.discount;
@@ -2054,29 +2249,30 @@
             const isPromo = desconto > 0 && (precoPromoPF > 0 || precoPromoPJ > 0);
             const hideForUser = shouldHidePriceForUser(product, userType);
 
-            let showPrice = false; let priceHtml = '';
+            let priceHtml = '';
             if (!hideForUser && userType) {
                 const precoOriginal = userType === 'PF' ? precoOriginalPF : precoOriginalPJ;
                 const precoPromo = userType === 'PF' ? precoPromoPF : precoPromoPJ;
+                const label = userType === 'PF' ? 'Pessoa Física' : 'Pessoa Jurídica';
+
                 if (precoOriginal > 0) {
-                    showPrice = true;
                     if (isPromo && precoPromo > 0) {
-                        priceHtml = `<span class="modal-price-value original">R$ ${precoOriginal.toFixed(2)}</span> <span class="modal-price-value promocional">R$ ${precoPromo.toFixed(2)}</span>`;
+                        priceHtml = `
+                            <span class="price-label-inline">${label}</span>
+                            <span class="price-value-inline original">R$ ${precoOriginal.toFixed(2)}</span>
+                            <span class="price-value-inline promocional">R$ ${precoPromo.toFixed(2)}</span>`;
                     } else {
-                        priceHtml = `<span class="modal-price-value">R$ ${precoOriginal.toFixed(2)}</span>`;
+                        priceHtml = `
+                            <span class="price-label-inline">${label}</span>
+                            <span class="price-value-inline">R$ ${precoOriginal.toFixed(2)}</span>`;
                     }
                 }
             }
 
-            if (showPrice) {
-                const label = userType === 'PF' ? 'PF' : 'PJ';
-                const icon = userType === 'PF' ? 'fa-user' : 'fa-building';
-                document.getElementById('modalPriceBox').innerHTML = `<div class="modal-price-label"><i class="fas ${icon}"></i> Preço ${label}</div><div>${priceHtml}</div>`;
-                document.getElementById('modalAddButton').style.display = 'block';
-            } else {
-                document.getElementById('modalPriceBox').innerHTML = '';
-                document.getElementById('modalAddButton').style.display = 'none';
-            }
+            document.getElementById('modalPriceBox').innerHTML = priceHtml;
+            document.getElementById('modalAddButton').style.display =
+                (!hideForUser && userType && priceHtml) ? 'inline-flex' : 'none';
+
             document.getElementById('productModal').classList.add('active');
         }
 
@@ -2391,7 +2587,7 @@
                 if (json === lastProductsJson) return;
                 lastProductsJson = json;
                 products = raw ? Object.values(raw) : [];
-                _productsLoaded = true;   // ✅ Firebase já respondeu — agora sim podemos mostrar "vazio"
+                _productsLoaded = true;
                 products.forEach(p => {
                     if (isImgbbUrl(p.image)) {
                         console.warn('🚫 [imgbb] produto com URL imgbb:', p.id, p.image);
@@ -2401,8 +2597,6 @@
                 scheduleCategoryTabs();
                 updateBrandTabs();
                 scheduleFilter();
-                // ✅ Safety net: força re-render direto para garantir que os cards apareçam
-                //    mesmo se outra chamada concorrente tentar invalidar o render agendado.
                 filterProducts(true);
                 updateCart();
                 saveCache();
