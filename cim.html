@@ -140,8 +140,23 @@
         .tabs-carousel-wrapper .tabs-scroll::-webkit-scrollbar { display: none; }
         .category-tab { padding: 8px 14px; background: #222; border: 1px solid #333; border-radius: 30px; cursor: pointer; transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease, transform 0.2s ease; font-size: var(--fs-sm); color: #fff; display: inline-flex; align-items: center; gap: 6px; font-weight: 500; position: relative; user-select: none; white-space: nowrap; flex-shrink: 0; min-height: 40px; scroll-snap-align: start; }
         .category-tab:hover { background: #ff6b00; color: #000; border-color: #ff6b00; }
-        .category-tab.active { background: rgba(255,255,255,0.08); border-color: rgba(255,255,255,0.2); color: #fff; }
-        .category-tab.active:hover { background: rgba(255,255,255,0.12); color: #fff; border-color: rgba(255,255,255,0.3); }
+        /* ========== ABA ATIVA EM BRANCO ========== */
+        .category-tab.active {
+            background: #fff;
+            border-color: #fff;
+            color: #000;
+            font-weight: 700;
+            box-shadow: 0 2px 12px rgba(255,255,255,0.15);
+        }
+        .category-tab.active:hover {
+            background: #f0f0f0;
+            border-color: #f0f0f0;
+            color: #000;
+        }
+        .category-tab.active .category-promo-badge {
+            background: #E60000;
+            color: #fff;
+        }
         .category-promo-badge { background: #E60000; color: #fff; font-size: 0.7rem; font-weight: 700; padding: 1px 6px; border-radius: 12px; margin-left: 4px; white-space: nowrap; display: inline-flex; align-items: center; gap: 2px; }
         .category-promo-badge i { font-size: 0.5rem; }
         .brand-filters-area { background: #000; padding: 6px 0 12px; }
@@ -659,6 +674,7 @@
         .modal-add-link:active { transform: translateX(2px) scale(0.98); }
         .modal-add-link i { font-size: 1.05rem; }
 
+        /* ====== DESKTOP ≥768px: GRID 2 COLUNAS SEM STICKY ====== */
         @media (min-width: 768px) {
             .modal-content.modal-product {
                 max-width: 900px;
@@ -668,14 +684,24 @@
             .modal-product-layout {
                 display: grid;
                 grid-template-columns: 1fr 1fr;
+                grid-template-rows: auto auto;
                 gap: 28px;
                 align-items: start;
             }
             .modal-product-image-side {
-                position: sticky;
-                top: 10px;
+                grid-column: 1;
+                grid-row: 1;
+                position: relative;
+                align-self: start;
+                width: 100%;
             }
-            .modal-product-info-side { min-height: 100%; }
+            .modal-product-info-side {
+                grid-column: 2;
+                grid-row: 1;
+                min-height: 100%;
+                display: flex;
+                flex-direction: column;
+            }
             .modal-add-link { margin-top: 20px; }
         }
 
@@ -686,6 +712,105 @@
                 gap: 38px;
             }
             .modal-description-inline { font-size: 0.95rem; }
+        }
+
+        /* ========== PRODUTOS RELACIONADOS NO MODAL ========== */
+        .modal-related {
+            margin-top: 26px;
+            padding-top: 20px;
+            border-top: 1px solid #222;
+            width: 100%;
+        }
+        @media (min-width: 768px) {
+            .modal-related {
+                grid-column: 1 / -1;
+                grid-row: 2;
+            }
+        }
+        .modal-related-title {
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: #fff;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            letter-spacing: 0.3px;
+        }
+        .modal-related-title i { color: #ff6b00; }
+        .modal-related-scroll {
+            display: flex;
+            gap: 10px;
+            overflow-x: auto;
+            padding-bottom: 8px;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+            scroll-snap-type: x proximity;
+            -webkit-overflow-scrolling: touch;
+            cursor: grab;
+        }
+        .modal-related-scroll:active { cursor: grabbing; }
+        .modal-related-scroll::-webkit-scrollbar { display: none; }
+
+        .related-card {
+            flex: 0 0 132px;
+            background: #1a1a1a;
+            border-radius: 12px;
+            overflow: hidden;
+            cursor: pointer;
+            transition: transform 0.2s ease, border-color 0.2s ease;
+            border: 1px solid #2a2a2a;
+            scroll-snap-align: start;
+        }
+        .related-card:hover {
+            transform: translateY(-3px);
+            border-color: #ff6b00;
+        }
+        .related-card:active { transform: scale(0.97); }
+
+        .related-card-image {
+            aspect-ratio: 1 / 1;
+            background: #0a0a0a;
+            overflow: hidden;
+        }
+        .related-card-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+            transition: transform 0.3s ease;
+        }
+        .related-card:hover .related-card-image img { transform: scale(1.06); }
+
+        .related-card-info { padding: 8px 9px 10px; }
+        .related-card-name {
+            font-size: 0.76rem;
+            color: #fff;
+            font-weight: 500;
+            line-height: 1.3;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            min-height: 2.1em;
+        }
+        .related-card-price {
+            font-size: 0.85rem;
+            color: #ff6b00;
+            font-weight: 700;
+            margin-top: 5px;
+        }
+        .related-card-original {
+            color: #666;
+            text-decoration: line-through;
+            font-size: 0.7rem;
+            font-weight: 400;
+            margin-right: 4px;
+        }
+
+        @media (min-width: 768px) {
+            .related-card { flex: 0 0 150px; }
+            .related-card-name { font-size: 0.82rem; }
         }
     </style>
 </head>
@@ -861,7 +986,7 @@
         </div>
     </div>
 
-    <!-- ========== MODAL DE PRODUTO — NOVO LAYOUT ========== -->
+    <!-- ========== MODAL DE PRODUTO ========== -->
     <div class="modal" id="productModal">
         <div class="modal-content modal-product">
             <button class="modal-close" onclick="closeModal()"><i class="fas fa-times"></i></button>
@@ -891,6 +1016,14 @@
                     <button class="modal-add-link" id="modalAddButton" onclick="addFromModal()">
                         <i class="fas fa-cart-plus"></i> Adicionar no carrinho
                     </button>
+                </div>
+
+                <!-- PRODUTOS RELACIONADOS -->
+                <div class="modal-related" id="modalRelated" style="display:none;">
+                    <h3 class="modal-related-title">
+                        <i class="fas fa-layer-group"></i> Produtos Relacionados
+                    </h3>
+                    <div class="modal-related-scroll" id="modalRelatedScroll"></div>
                 </div>
             </div>
         </div>
@@ -2200,7 +2333,98 @@
             renderPromotionBadgesOnly();
         }
 
-        // ========== DETALHES DO PRODUTO (NOVO LAYOUT 2 COLUNAS) ==========
+        // ========== PRODUTOS RELACIONADOS ==========
+        function renderRelatedProducts(product) {
+            const container = document.getElementById('modalRelated');
+            const scroll = document.getElementById('modalRelatedScroll');
+            if (!container || !scroll) return;
+
+            // 1) Mesma categoria primeiro
+            let related = products.filter(p =>
+                p.id !== product.id &&
+                p.category && product.category &&
+                p.category === product.category &&
+                !p.soldOut
+            );
+
+            // 2) Se poucos, completa com produtos da mesma sessão
+            if (related.length < 4 && product.sessionId) {
+                const sessionRelated = products.filter(p =>
+                    p.id !== product.id &&
+                    p.sessionId === product.sessionId &&
+                    !p.soldOut &&
+                    !related.some(r => r.id === p.id)
+                );
+                related = [...related, ...sessionRelated];
+            }
+
+            // 3) Se ainda poucos, completa com mesma marca
+            if (related.length < 4 && product.brand) {
+                const brandRelated = products.filter(p =>
+                    p.id !== product.id &&
+                    p.brand === product.brand &&
+                    !p.soldOut &&
+                    !related.some(r => r.id === p.id)
+                );
+                related = [...related, ...brandRelated];
+            }
+
+            related = related.slice(0, 8);
+
+            if (related.length === 0) {
+                container.style.display = 'none';
+                scroll.innerHTML = '';
+                return;
+            }
+
+            const userType = currentUser ? currentUser.userType : null;
+            const frag = document.createDocumentFragment();
+
+            related.forEach(p => {
+                const card = document.createElement('div');
+                card.className = 'related-card';
+                card.onclick = () => showDetails(p.id);
+
+                const img = sanitizeImageUrl(p.image);
+                const hidePrice = shouldHidePriceForUser(p, userType);
+                const discountInfo = getEffectiveDiscount(p);
+                const desconto = discountInfo.discount;
+
+                let priceHtml = '';
+                if (!hidePrice && userType) {
+                    const base = userType === 'PF' ? (p.prices?.PF || 0) : (p.prices?.PJ || 0);
+                    const final = calcularPrecoComDesconto(base, desconto);
+                    if (base > 0) {
+                        if (desconto > 0 && final > 0 && final < base) {
+                            priceHtml = `<div class="related-card-price">
+                                <span class="related-card-original">R$ ${base.toFixed(2)}</span>R$ ${final.toFixed(2)}
+                            </div>`;
+                        } else {
+                            priceHtml = `<div class="related-card-price">R$ ${base.toFixed(2)}</div>`;
+                        }
+                    }
+                }
+                // 👆 Se hidePrice = true OU sem preço → priceHtml fica vazio (não mostra nada)
+
+                card.innerHTML = `
+                    <div class="related-card-image">
+                        <img src="${img}" alt="${escapeHtml(p.name || 'Peça')}"
+                             loading="lazy" decoding="async"
+                             onerror="this.onerror=null;this.src='${DEFAULT_PLACEHOLDER_IMAGE}'">
+                    </div>
+                    <div class="related-card-info">
+                        <div class="related-card-name">${escapeHtml(p.name || 'Sem nome')}</div>
+                        ${priceHtml}
+                    </div>
+                `;
+                frag.appendChild(card);
+            });
+
+            scroll.replaceChildren(frag);
+            container.style.display = 'block';
+        }
+
+        // ========== DETALHES DO PRODUTO ==========
         function showDetails(id) {
             const product = products.find(p => p.id === id);
             if (!product) return;
@@ -2274,9 +2498,22 @@
                 (!hideForUser && userType && priceHtml) ? 'inline-flex' : 'none';
 
             document.getElementById('productModal').classList.add('active');
+
+            // Produtos relacionados + volta o scroll ao topo
+            renderRelatedProducts(product);
+
+            const modalScroll = document.querySelector('.modal-product');
+            if (modalScroll) modalScroll.scrollTop = 0;
         }
 
-        function closeModal() { document.getElementById('productModal').classList.remove('active'); currentProduct = null; }
+        function closeModal() {
+            document.getElementById('productModal').classList.remove('active');
+            currentProduct = null;
+            const related = document.getElementById('modalRelated');
+            if (related) related.style.display = 'none';
+            const scroll = document.getElementById('modalRelatedScroll');
+            if (scroll) scroll.innerHTML = '';
+        }
         function addFromModal() { if (currentProduct) { addToCart(currentProduct.id); closeModal(); } }
 
         // ========== FULLSCREEN IMAGE ==========
@@ -2710,6 +2947,27 @@
             logoutUser, handleProfileBtnClick, toggleProfileDropdown, applyCoupon, removeCoupon,
             registerClick, onSearchFocus, onSearchBlur, openWhatsApp, handleInstagramClick
         });
+
+        // ========== DRAG-TO-SCROLL NOS RELACIONADOS ==========
+        (function initRelatedDrag() {
+            const el = document.getElementById('modalRelatedScroll');
+            if (!el) return;
+            let isDown = false, startX, scrollLeft;
+            el.addEventListener('mousedown', e => {
+                isDown = true;
+                el.style.cursor = 'grabbing';
+                startX = e.pageX - el.offsetLeft;
+                scrollLeft = el.scrollLeft;
+            });
+            el.addEventListener('mouseleave', () => { isDown = false; el.style.cursor = 'grab'; });
+            el.addEventListener('mouseup', () => { isDown = false; el.style.cursor = 'grab'; });
+            el.addEventListener('mousemove', e => {
+                if (!isDown) return;
+                e.preventDefault();
+                const x = e.pageX - el.offsetLeft;
+                el.scrollLeft = scrollLeft - (x - startX) * 1.5;
+            });
+        })();
 
         // ========== LIMPEZA MANUAL DE IMGBB (via console) ==========
         window.purgeAllImgbb = async function() {
