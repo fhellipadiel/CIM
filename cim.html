@@ -353,11 +353,6 @@
         .coupon-active-desc { font-size: 0.75rem; color: #aaa; margin-top: 2px; }
         .coupon-remove-btn { background: transparent; border: 1px solid #dc3545; color: #dc3545; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: background-color 0.2s, color 0.2s; flex-shrink: 0; }
         .coupon-remove-btn:hover { background: #dc3545; color: #fff; }
-        .price-indicator { background: rgba(17,17,17,0.95); padding: 10px 16px; border-radius: 8px; margin: 12px 0 16px; display: none; align-items: center; gap: 10px; border-left: 4px solid #ff6b00; border: 1px solid #333; }
-        .price-indicator.visible { display: flex; }
-        .price-indicator i { color: #ff6b00; font-size: 1rem; }
-        .price-indicator span { color: #fff; font-weight: 500; font-size: var(--fs-sm); }
-        .price-indicator strong { color: #ff6b00; }
         .results-info { display: flex; justify-content: space-between; align-items: center; margin: 16px 0 12px; padding: 0 5px; }
         .results-count { color: #999; font-size: var(--fs-sm); }
         .results-count strong { color: #ff6b00; }
@@ -847,7 +842,7 @@
                                 </div>
                                 <input type="file" id="dropdownAvatarInput" accept="image/*" style="display:none;">
                             </div>
-                            <div class="user-info" id="dropdownUserInfo">
+                            <div class="user-info">
                                 <div id="dropdownUserName">Usuário</div>
                                 <div class="user-type" id="dropdownUserType"></div>
                                 <div class="user-email" id="dropdownUserEmail"></div>
@@ -878,7 +873,7 @@
     <div class="bottom-menu" id="bottomMenu">
         <div class="menu-handle"></div>
         <div class="profile-section">
-            <div class="profile-avatar" id="profileAvatar">
+            <div class="profile-avatar">
                 <img src="assets/logo.webp" alt="Perfil" id="profileImage">
             </div>
             <div class="profile-info">
@@ -889,7 +884,7 @@
             </div>
         </div>
 
-        <div class="coupon-section" id="couponSection">
+        <div class="coupon-section">
             <div class="section-title">
                 <span><i class="fas fa-ticket"></i> Cupom de Desconto</span>
             </div>
@@ -920,14 +915,14 @@
             <i class="fab fa-instagram"></i>
             <div class="item-content"><div class="item-label">Instagram</div></div>
         </a>
-        <div class="menu-item" id="menuAddress">
+        <div class="menu-item">
             <i class="fas fa-map-marker-alt"></i>
             <div class="item-content">
                 <div class="item-label">Endereço</div>
                 <a href="#" target="_blank" id="addressLink"><div class="item-value" id="addressValue">R. Nicolau Ancona Lopez - Cambuci, SP</div></a>
             </div>
         </div>
-        <div class="menu-item" style="cursor:default;" id="menuHours">
+        <div class="menu-item" style="cursor:default;">
             <i class="fas fa-clock"></i>
             <div class="item-content">
                 <div class="item-label">Horário de Funcionamento</div>
@@ -950,7 +945,7 @@
     </div>
 
     <div class="main-container">
-        <div class="top-filters-area" id="topFiltersArea">
+        <div class="top-filters-area">
             <div class="sessions-carousel-wrapper hidden" id="sessionsWrapper">
                 <div class="sessions-carousel" id="sessionsCarousel"></div>
                 <div class="view-all-sessions" id="viewAllSessions"><a onclick="selectSession(null)"><i class="fas fa-th-list"></i> Ver Todos</a></div>
@@ -961,18 +956,13 @@
             <div class="tabs-carousel-wrapper"><div class="tabs-scroll" id="categoryTabs"></div></div>
         </div>
 
-        <div class="brand-filters-area" id="brandFiltersArea">
+        <div class="brand-filters-area">
             <div class="brand-title" id="brandTitle">Navegue pelas marcas</div>
             <div class="brand-marquee-wrapper">
                 <div class="gradient-left"></div>
                 <div class="gradient-right"></div>
                 <div class="brand-marquee-track" id="brandTabs"></div>
             </div>
-        </div>
-
-        <div class="price-indicator" id="priceIndicator">
-            <i class="fas fa-tag"></i>
-            <span>Mostrando preços para <strong id="selectedTypeLabel">Pessoa Física</strong></span>
         </div>
 
         <div id="productsView">
@@ -1119,18 +1109,14 @@
         let cupons = {};
         let cupomAtivo = null;
         let profileData = { photo: DEFAULT_PROFILE_IMAGE, name: 'CIM Peças', subtitle: 'Mecânica de confiança', message: 'Sua peça com qualidade e rapidez' };
-        let categoryClicks = {};
-        let sessionClicks = {};
-        let brandClicks = {};
         let promocoes = {};
-        let sessionHidePF = {};
-        let sessionHidePJ = {};
         let categoryHidePF = {};
         let categoryHidePJ = {};
         let currentUser = null;
         let currentUserPhoto = null;
         let dataLoaded = false;
         let currentProduct = null;
+        let lastProductsJson = '';
 
         // ⚡ PERFORMANCE: SCHEDULERS + CACHE DE DESCONTO
         let _filterScheduled = false;
@@ -1172,14 +1158,11 @@
 
         const productsGrid = document.getElementById('productsGrid');
         const cartPanel = document.getElementById('cartPanel');
-        const cartFloat = document.getElementById('cartFloat');
         const cartFloatCount = document.getElementById('cartFloatCount');
         const cartItems = document.getElementById('cartItems');
         const cartTotal = document.getElementById('cartTotal');
         const resultsCount = document.getElementById('resultsCount');
         const clearSearchBtn = document.getElementById('clearSearchBtn');
-        const priceIndicator = document.getElementById('priceIndicator');
-        const selectedTypeLabel = document.getElementById('selectedTypeLabel');
         const categoryTabs = document.getElementById('categoryTabs');
         const brandTabs = document.getElementById('brandTabs');
         const sessionsCarousel = document.getElementById('sessionsCarousel');
@@ -1670,7 +1653,6 @@
         function onSearchBlur() {
             if (!searchInputHeader.value) { headerActions.classList.remove('hide-buttons'); searchHeader.classList.remove('focused'); }
         }
-        document.getElementById('searchIconBtn').addEventListener('click', function(e) { e.preventDefault(); searchInputHeader.focus(); });
 
         function handleSearchInput(value) {
             searchTerm = value.trim();
@@ -2680,7 +2662,6 @@
             if (!dropdown) return;
             dropdown.classList.toggle('open');
         }
-        function closeProfileDropdown() { document.getElementById('profileDropdown').classList.remove('open'); }
 
         document.addEventListener('click', function(e) {
             const btn = document.getElementById('profileBtn');
@@ -2814,7 +2795,6 @@
         });
 
         // ========== LOAD DATA ==========
-        let lastProductsJson = '';
         function loadData() {
             loadCart();
 
@@ -2897,10 +2877,6 @@
             });
 
             const subscribeDeferred = () => {
-                database.ref('categoryClicks').on('value', (s) => { categoryClicks = s.val() || {}; });
-                database.ref('sessionClicks').on('value', (s) => { sessionClicks = s.val() || {}; });
-                database.ref('brandClicks').on('value', (s) => { brandClicks = s.val() || {}; });
-
                 database.ref('cupons').on('value', (s) => {
                     cupons = s.val() || {};
                     validateActiveCoupon();
