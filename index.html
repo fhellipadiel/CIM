@@ -862,8 +862,7 @@
            Suporta 2 formatos:
              - Novo:   https://cimglobalparts.vercel.app/jenny
              - Antigo: https://cimglobalparts.vercel.app/index.html?ref=jenny
-           Contabiliza no Firebase quantas pessoas entraram por cada link
-           criado no painel admin. Cooldown de 24h por visitante (localStorage).
+           Conta TODA entrada, sem cooldown e sem localStorage.
            ============================================================ */
         (function trackCampaignEntry() {
             // ---------- Detecta o slug ----------
@@ -885,16 +884,7 @@
 
             if (!ref) return;
 
-            // ---------- Cooldown 24h ----------
-            const storageKey = `cim_ref_${ref}`;
-            const lastSeen = parseInt(localStorage.getItem(storageKey) || '0', 10);
-            const COOLDOWN = 24 * 60 * 60 * 1000;
-            if (Date.now() - lastSeen < COOLDOWN) {
-                console.log('📊 Entrada já registrada recentemente para:', ref);
-                return;
-            }
-
-            // ---------- Incrementa no Firebase ----------
+            // ---------- Incrementa SEMPRE no Firebase ----------
             database.ref('trackingLinks').orderByChild('slug').equalTo(ref).once('value')
                 .then(snap => {
                     if (!snap.exists()) {
@@ -906,7 +896,6 @@
                 })
                 .then(result => {
                     if (result && result.committed) {
-                        localStorage.setItem(storageKey, String(Date.now()));
                         console.log('✅ Entrada contabilizada via link:', ref, '→ total:', result.snapshot.val());
                     }
                 })
