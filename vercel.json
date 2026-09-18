@@ -1,0 +1,7 @@
+{
+  "rewrites": [
+    { "source": "/admin", "destination": "/admin.html" },
+    { "source": "/login", "destination": "/login.html" },
+    { "source": "/:slug([a-zA-Z0-9_-]+)", "destination": "/index.html" }
+  ]
+}
