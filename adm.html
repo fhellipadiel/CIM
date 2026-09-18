@@ -265,7 +265,7 @@ tbody tr:last-child td{border-bottom:none;}
 .featured-slot-num.empty{background:var(--panel-alt);color:var(--text-dim);border:1px dashed var(--border);}
 .gallery-slot-num{width:34px;height:34px;border-radius:50%;background:var(--ok);color:#04140c;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-family:var(--font-mono);font-size:.9rem;}
 
-/* 👇 NOVO — estilos da aba Links */
+/* 👇 Estilos da aba Links */
 .link-entries-badge{display:inline-flex;flex-direction:column;align-items:center;justify-content:center;min-width:74px;padding:6px 10px;background:var(--panel);border:1px solid var(--border);border-radius:10px;}
 .link-entries-badge .num{font-family:var(--font-mono);font-size:1.3rem;font-weight:700;color:var(--accent);line-height:1;}
 .link-entries-badge .lbl{font-size:.6rem;color:var(--text-dim);text-transform:uppercase;letter-spacing:.5px;margin-top:3px;}
@@ -313,7 +313,6 @@ tbody tr:last-child td{border-bottom:none;}
       <div class="sb-item" data-panel="precos"><i class="fas fa-tag"></i> Preços</div>
       <div class="sb-item" data-panel="promocoes"><i class="fas fa-percent"></i> Promoções</div>
       <div class="sb-item" data-panel="cupons"><i class="fas fa-ticket"></i> Cupons <span class="badge" id="navBadgeCupons">0</span></div>
-      <!-- 👇 NOVO -->
       <div class="sb-item" data-panel="links"><i class="fas fa-link"></i> Links <span class="badge" id="navBadgeLinks" style="display:none;">0</span></div>
     </div>
     <div class="sb-group">
@@ -381,7 +380,6 @@ tbody tr:last-child td{border-bottom:none;}
             <button class="btn btn-ghost" style="justify-content:flex-start" onclick="switchPanel('importacao')"><i class="fas fa-file-import"></i> Importar CSV</button>
             <button class="btn btn-ghost" style="justify-content:flex-start" onclick="switchPanel('promocoes');openPromoModal()"><i class="fas fa-percent"></i> Nova promoção</button>
             <button class="btn btn-ghost" style="justify-content:flex-start" onclick="switchPanel('cupons');openCouponModal()"><i class="fas fa-ticket"></i> Novo cupom</button>
-            <!-- 👇 NOVO -->
             <button class="btn btn-ghost" style="justify-content:flex-start" onclick="switchPanel('links');openLinkModal()"><i class="fas fa-link"></i> Novo link de campanha</button>
             <button class="btn btn-ghost" style="justify-content:flex-start" onclick="switchPanel('precos')"><i class="fas fa-tag"></i> Ajustar preços em massa</button>
             <button class="btn btn-ghost" style="justify-content:flex-start" onclick="openCreateClientModal()"><i class="fas fa-user-plus"></i> Criar cliente</button>
@@ -542,12 +540,12 @@ tbody tr:last-child td{border-bottom:none;}
       </table></div></div>
     </section>
 
-    <!-- 👇 NOVO — Painel Links de Campanha -->
+    <!-- 👇 Painel Links de Campanha -->
     <section class="panel" id="panel-links">
       <div class="panel-head">
         <div>
           <h1>Links de Campanha</h1>
-          <p>Crie links rastreáveis e veja de onde o público está vindo</p>
+          <p>Crie links curtos e rastreáveis para saber de onde o público está vindo</p>
         </div>
         <div class="panel-actions">
           <button class="btn btn-ghost" onclick="resetAllLinkCounts()"><i class="fas fa-undo"></i> Zerar todos</button>
@@ -697,7 +695,7 @@ tbody tr:last-child td{border-bottom:none;}
         <div class="block-head"><h3><i class="fas fa-database" style="color:var(--accent);"></i> Armazenamento (Firebase Storage)</h3></div>
         <div class="block-body">
           <p style="color:var(--text-muted);font-size:.82rem;margin-bottom:12px;line-height:1.6;">
-            Varre o Storage em busca de imagens <strong>órfãs</strong> (arquivos que não são referenciados por nenhum produto, marca, sessão, contato ou perfil) e as remove. Útil para liberar espaço após excluir peças ou trocar fotos.
+            Varre o Storage em busca de imagens <strong>órfãs</strong> (arquivos que não são referenciados por nenhum produto, marca, sessão, contato, perfil ou link) e as remove. Útil para liberar espaço.
           </p>
           <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px;">
             <button class="btn btn-ghost" id="scanOrphansBtn" onclick="scanOrphanImagesAdm()">
@@ -843,7 +841,7 @@ tbody tr:last-child td{border-bottom:none;}
   <div class="modal-foot"><button class="btn btn-ghost" onclick="closeModal('modalCupom')">Cancelar</button><button class="btn btn-accent" onclick="saveCouponAdm()"><i class="fas fa-save"></i> Salvar cupom</button></div>
 </div></div>
 
-<!-- 👇 NOVO — Modal Link de Campanha -->
+<!-- Modal Link de Campanha -->
 <div class="modal-overlay" id="modalLink"><div class="modal">
   <div class="modal-head">
     <h3 id="modalLinkTitle">Novo link</h3>
@@ -867,7 +865,7 @@ tbody tr:last-child td{border-bottom:none;}
     <div class="f-group">
       <label>Identificador na URL <span class="req">*</span></label>
       <input type="text" id="lnkSlug" placeholder="Ex: instagram" maxlength="40" style="font-family:var(--font-mono);">
-      <small>Será usado como <strong>?ref=instagram</strong> no final do link.</small>
+      <small>Vai ficar assim: <strong>cimglobalparts.vercel.app/instagram</strong></small>
     </div>
 
     <div class="f-group">
@@ -1008,7 +1006,7 @@ let featuredDraft = []; let featuredLoaded = false; let featuredDirty = false; l
 let galleryDraft = []; let galleryLoaded = false; let galleryDirty = false; let gallerySaveTimer = null;
 const GALLERY_MAX = 20;
 
-/* 👇 NOVO — State da aba Links */
+/* State da aba Links */
 let trackingLinks = {};
 let editingLinkId = null;
 let uploadedLinkImg = null;
@@ -1041,7 +1039,7 @@ async function compressImage(file,maxW=1000,maxH=1000,q=.75){
   });
 }
 
-/* ================= 🔥 UPLOAD → FIREBASE STORAGE ================= */
+/* ================= UPLOAD → FIREBASE STORAGE ================= */
 async function uploadImg(file, folder = 'products'){
   try{
     showLoading('Enviando imagem...');
@@ -1179,7 +1177,7 @@ function switchPanel(name){
     precos:['Preços','Visibilidade e ajustes em massa'],
     promocoes:['Promoções','Descontos temporários'],
     cupons:['Cupons','Códigos de desconto com prazo e limite'],
-    links:['Links de Campanha','Rastreamento de origem do público'], // 👈 NOVO
+    links:['Links de Campanha','Rastreamento de origem do público'],
     importacao:['Importação','Importação em lote via CSV'],
     cliques:['Cliques & metas','Engajamento dos produtos'],
     usuarios:['Usuários','Clientes cadastrados'],
@@ -1233,7 +1231,6 @@ function loadAllData(){
     const list=[]; snap.forEach(c=>list.push({id:c.key,...c.val()})); list.reverse();
     importHistoryCache=list; renderImportHistory();
   });
-  /* 👇 NOVO — Listener dos links de campanha */
   database.ref('trackingLinks').on('value', snap => {
     trackingLinks = snap.val() || {};
     renderLinks();
@@ -1928,11 +1925,11 @@ function saveCouponAdm(){
   else { const id = database.ref().child('cupons').push().key; database.ref(`cupons/${id}`).set(data).then(()=>{ showToast('Cupom criado'); closeModal('modalCupom'); }); }
 }
 
-/* ================= 👇 NOVO — LINKS DE CAMPANHA ================= */
+/* ================= LINKS DE CAMPANHA ================= */
+/* 👇 ATUALIZADO — gera URL curta via Vercel rewrites (ex: /jenny) */
 function buildTrackingUrl(slug){
-  const path = window.location.pathname;
-  const dir = path.substring(0, path.lastIndexOf('/') + 1);
-  return `${window.location.origin}${dir}index.html?ref=${encodeURIComponent(slug)}`;
+  // Ex: https://cimglobalparts.vercel.app/jenny
+  return `${window.location.origin}/${encodeURIComponent(slug)}`;
 }
 
 function sanitizeSlug(s){
@@ -1966,7 +1963,7 @@ function renderLinks(){
   }
 
   list.innerHTML = items.map(l=>{
-    const shortUrl = `?ref=${esc(l.slug)}`;
+    const shortUrl = `/${esc(l.slug)}`;
     return `<div class="mini-item" style="padding:14px 16px;gap:14px;">
       <img src="${l.image || DEFAULT_AVATAR}" style="width:52px;height:52px;border-radius:12px;object-fit:cover;background:#111;border:1px solid var(--border);"
         onerror="this.src='${DEFAULT_AVATAR}'" title="Clique para ver a imagem"
@@ -2512,7 +2509,6 @@ async function scanOrphanImagesAdm(){
     Object.values(contacts).forEach(c => { if(c.image && c.image.includes('firebasestorage.googleapis.com')) referencedUrls.add(c.image); });
     if(profileData.photo && profileData.photo.includes('firebasestorage.googleapis.com')) referencedUrls.add(profileData.photo);
     usersCache.forEach(u => { if(u.photoURL && u.photoURL.includes('firebasestorage.googleapis.com')) referencedUrls.add(u.photoURL); });
-    /* 👇 NOVO — incluir imagens dos links de campanha */
     Object.values(trackingLinks).forEach(l => { if(l.image && l.image.includes('firebasestorage.googleapis.com')) referencedUrls.add(l.image); });
 
     const allFiles = [];
