@@ -352,10 +352,8 @@
          HEADER FIXO - acompanha o scroll com efeito embaçado (névoa)
          ================================================================ -->
     <header id="main-header">
-        <!-- Camada de fundo embaçado com fade suave na parte inferior -->
         <div class="header-frost absolute inset-0 pointer-events-none" aria-hidden="true"></div>
 
-        <!-- Conteúdo do header -->
         <div class="relative flex items-center justify-between py-6 px-6 md:px-16">
             <div class="flex items-center">
                 <img src="assets/logo.webp" alt="CIM Global Parts" class="h-10 md:h-12 object-contain">
@@ -433,7 +431,6 @@
 
     <!-- Seção Peças -->
     <section id="produtos" class="py-20 relative bg-products-image min-h-[800px] flex flex-col justify-between overflow-hidden reveal">
-        <!-- Overlay removido (não é mais necessário, agora é fundo preto puro com brilhos) -->
 
         <!-- MONTADORAS -->
         <div class="w-full relative z-10 mb-8 pt-4">
@@ -861,17 +858,34 @@
         const database = firebase.database();
 
         /* ============================================================
-           👇 NOVO — RASTREAMENTO DE ENTRADA VIA LINK DE CAMPANHA (?ref=slug)
+           👇 RASTREAMENTO DE ENTRADA VIA LINK DE CAMPANHA
+           Suporta 2 formatos:
+             - Novo:   https://cimglobalparts.vercel.app/jenny
+             - Antigo: https://cimglobalparts.vercel.app/index.html?ref=jenny
            Contabiliza no Firebase quantas pessoas entraram por cada link
-           criado no painel admin. Usa cooldown de 24h (localStorage) para
-           não contar o mesmo visitante repetidamente.
+           criado no painel admin. Cooldown de 24h por visitante (localStorage).
            ============================================================ */
         (function trackCampaignEntry() {
+            // ---------- Detecta o slug ----------
+            let ref = null;
+
+            // Formato 1: ?ref=jenny (query string)
             const params = new URLSearchParams(window.location.search);
-            const ref = (params.get('ref') || '').trim().toLowerCase();
+            const fromQuery = (params.get('ref') || '').trim().toLowerCase();
+            if (fromQuery) {
+                ref = fromQuery;
+            } else {
+                // Formato 2: /jenny (path curto via Vercel rewrites)
+                const path = window.location.pathname.replace(/^\/+|\/+$/g, '');
+                const reserved = ['', 'index', 'index.html', 'admin', 'admin.html', 'login', 'login.html'];
+                if (path && !reserved.includes(path.toLowerCase()) && !path.includes('/') && !path.includes('.')) {
+                    ref = path.toLowerCase();
+                }
+            }
+
             if (!ref) return;
 
-            // Cooldown de 24h para não contar o mesmo visitante várias vezes
+            // ---------- Cooldown 24h ----------
             const storageKey = `cim_ref_${ref}`;
             const lastSeen = parseInt(localStorage.getItem(storageKey) || '0', 10);
             const COOLDOWN = 24 * 60 * 60 * 1000;
@@ -880,6 +894,7 @@
                 return;
             }
 
+            // ---------- Incrementa no Firebase ----------
             database.ref('trackingLinks').orderByChild('slug').equalTo(ref).once('value')
                 .then(snap => {
                     if (!snap.exists()) {
@@ -887,7 +902,6 @@
                         return;
                     }
                     const key = Object.keys(snap.val())[0];
-                    // transaction garante incremento atômico em acessos simultâneos
                     return database.ref(`trackingLinks/${key}/entries`).transaction(cur => (cur || 0) + 1);
                 })
                 .then(result => {
