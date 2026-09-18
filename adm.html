@@ -264,6 +264,12 @@ tbody tr:last-child td{border-bottom:none;}
 .featured-slot-num{width:34px;height:34px;border-radius:50%;background:var(--accent);color:#160b05;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-family:var(--font-mono);font-size:.9rem;}
 .featured-slot-num.empty{background:var(--panel-alt);color:var(--text-dim);border:1px dashed var(--border);}
 .gallery-slot-num{width:34px;height:34px;border-radius:50%;background:var(--ok);color:#04140c;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-family:var(--font-mono);font-size:.9rem;}
+
+/* 👇 NOVO — estilos da aba Links */
+.link-entries-badge{display:inline-flex;flex-direction:column;align-items:center;justify-content:center;min-width:74px;padding:6px 10px;background:var(--panel);border:1px solid var(--border);border-radius:10px;}
+.link-entries-badge .num{font-family:var(--font-mono);font-size:1.3rem;font-weight:700;color:var(--accent);line-height:1;}
+.link-entries-badge .lbl{font-size:.6rem;color:var(--text-dim);text-transform:uppercase;letter-spacing:.5px;margin-top:3px;}
+.link-slug-chip{font-family:var(--font-mono);font-size:.72rem;color:var(--accent);background:var(--accent-soft);padding:2px 8px;border-radius:6px;display:inline-block;margin-top:3px;}
 </style>
 </head>
 <body>
@@ -307,6 +313,8 @@ tbody tr:last-child td{border-bottom:none;}
       <div class="sb-item" data-panel="precos"><i class="fas fa-tag"></i> Preços</div>
       <div class="sb-item" data-panel="promocoes"><i class="fas fa-percent"></i> Promoções</div>
       <div class="sb-item" data-panel="cupons"><i class="fas fa-ticket"></i> Cupons <span class="badge" id="navBadgeCupons">0</span></div>
+      <!-- 👇 NOVO -->
+      <div class="sb-item" data-panel="links"><i class="fas fa-link"></i> Links <span class="badge" id="navBadgeLinks" style="display:none;">0</span></div>
     </div>
     <div class="sb-group">
       <div class="sb-group-label">Operações</div>
@@ -373,6 +381,8 @@ tbody tr:last-child td{border-bottom:none;}
             <button class="btn btn-ghost" style="justify-content:flex-start" onclick="switchPanel('importacao')"><i class="fas fa-file-import"></i> Importar CSV</button>
             <button class="btn btn-ghost" style="justify-content:flex-start" onclick="switchPanel('promocoes');openPromoModal()"><i class="fas fa-percent"></i> Nova promoção</button>
             <button class="btn btn-ghost" style="justify-content:flex-start" onclick="switchPanel('cupons');openCouponModal()"><i class="fas fa-ticket"></i> Novo cupom</button>
+            <!-- 👇 NOVO -->
+            <button class="btn btn-ghost" style="justify-content:flex-start" onclick="switchPanel('links');openLinkModal()"><i class="fas fa-link"></i> Novo link de campanha</button>
             <button class="btn btn-ghost" style="justify-content:flex-start" onclick="switchPanel('precos')"><i class="fas fa-tag"></i> Ajustar preços em massa</button>
             <button class="btn btn-ghost" style="justify-content:flex-start" onclick="openCreateClientModal()"><i class="fas fa-user-plus"></i> Criar cliente</button>
           </div>
@@ -532,6 +542,40 @@ tbody tr:last-child td{border-bottom:none;}
       </table></div></div>
     </section>
 
+    <!-- 👇 NOVO — Painel Links de Campanha -->
+    <section class="panel" id="panel-links">
+      <div class="panel-head">
+        <div>
+          <h1>Links de Campanha</h1>
+          <p>Crie links rastreáveis e veja de onde o público está vindo</p>
+        </div>
+        <div class="panel-actions">
+          <button class="btn btn-ghost" onclick="resetAllLinkCounts()"><i class="fas fa-undo"></i> Zerar todos</button>
+          <button class="btn btn-accent" onclick="openLinkModal()"><i class="fas fa-plus"></i> Novo link</button>
+        </div>
+      </div>
+
+      <div class="stats-grid" style="margin-bottom:20px;">
+        <div class="stat-card c-accent">
+          <div class="sc-top"><div class="sc-icon"><i class="fas fa-link"></i></div></div>
+          <div class="sc-val" id="statLinksTotal">0</div>
+          <div class="sc-label">Links cadastrados</div>
+        </div>
+        <div class="stat-card c-teal">
+          <div class="sc-top"><div class="sc-icon"><i class="fas fa-sign-in-alt"></i></div></div>
+          <div class="sc-val" id="statLinksEntries">0</div>
+          <div class="sc-label">Entradas totais</div>
+        </div>
+      </div>
+
+      <div class="block">
+        <div class="block-head">
+          <h3><i class="fas fa-link" style="color:var(--accent)"></i> Links ativos</h3>
+        </div>
+        <div class="block-body"><div class="mini-list" id="linksListAdm"></div></div>
+      </div>
+    </section>
+
     <section class="panel" id="panel-importacao">
       <div class="panel-head"><div><h1>Importação</h1><p>Importe peças em lote via CSV e gerencie o histórico</p></div></div>
       <div class="tabbar">
@@ -649,7 +693,6 @@ tbody tr:last-child td{border-bottom:none;}
         </div>
       </div>
 
-      <!-- ===== STORAGE ===== -->
       <div class="block" style="margin-top:16px;">
         <div class="block-head"><h3><i class="fas fa-database" style="color:var(--accent);"></i> Armazenamento (Firebase Storage)</h3></div>
         <div class="block-body">
@@ -800,6 +843,49 @@ tbody tr:last-child td{border-bottom:none;}
   <div class="modal-foot"><button class="btn btn-ghost" onclick="closeModal('modalCupom')">Cancelar</button><button class="btn btn-accent" onclick="saveCouponAdm()"><i class="fas fa-save"></i> Salvar cupom</button></div>
 </div></div>
 
+<!-- 👇 NOVO — Modal Link de Campanha -->
+<div class="modal-overlay" id="modalLink"><div class="modal">
+  <div class="modal-head">
+    <h3 id="modalLinkTitle">Novo link</h3>
+    <button class="modal-close" onclick="closeModal('modalLink')"><i class="fas fa-times"></i></button>
+  </div>
+  <div class="modal-body">
+    <div class="upload-box" id="lnkUploadBox" onclick="document.getElementById('lnkImgInput').click()">
+      <i class="fas fa-cloud-upload-alt"></i><p>Ícone / imagem do link</p>
+      <input type="file" id="lnkImgInput" accept="image/*" style="display:none;">
+    </div>
+    <div class="upload-preview" id="lnkPreview" style="display:none;">
+      <img id="lnkPreviewImg">
+      <div class="chg" onclick="document.getElementById('lnkImgInput').click()">Trocar imagem</div>
+    </div>
+
+    <div class="f-group">
+      <label>Nome da campanha <span class="req">*</span></label>
+      <input type="text" id="lnkName" placeholder="Ex: Instagram Bio, Facebook Ads, Google...">
+    </div>
+
+    <div class="f-group">
+      <label>Identificador na URL <span class="req">*</span></label>
+      <input type="text" id="lnkSlug" placeholder="Ex: instagram" maxlength="40" style="font-family:var(--font-mono);">
+      <small>Será usado como <strong>?ref=instagram</strong> no final do link.</small>
+    </div>
+
+    <div class="f-group">
+      <label>Link pronto para copiar</label>
+      <div style="display:flex;gap:8px;">
+        <input type="text" id="lnkFullUrl" readonly
+          style="flex:1;font-family:var(--font-mono);font-size:.78rem;cursor:pointer;"
+          onclick="this.select()" placeholder="Preencha o identificador acima...">
+        <button class="btn btn-ghost btn-icon" title="Copiar" onclick="copyLinkUrl()"><i class="fas fa-copy"></i></button>
+      </div>
+    </div>
+  </div>
+  <div class="modal-foot">
+    <button class="btn btn-ghost" onclick="closeModal('modalLink')">Cancelar</button>
+    <button class="btn btn-accent" onclick="saveLinkAdm()"><i class="fas fa-save"></i> Salvar link</button>
+  </div>
+</div></div>
+
 <!-- Contato -->
 <div class="modal-overlay" id="modalContato"><div class="modal">
   <div class="modal-head"><h3 id="modalContatoTitle">Novo contato</h3><button class="modal-close" onclick="closeModal('modalContato')"><i class="fas fa-times"></i></button></div>
@@ -901,7 +987,7 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const database = firebase.database();
 const auth = firebase.auth();
-const storage = firebase.storage();  // ✅ Firebase Storage
+const storage = firebase.storage();
 
 /* Placeholders */
 const PLACEHOLDER_IMG = 'https://i.ibb.co/F4dXSwVG/IMG-6495.jpg';
@@ -921,6 +1007,11 @@ let quickHideProductId = null;
 let featuredDraft = []; let featuredLoaded = false; let featuredDirty = false; let featuredSaveTimer = null;
 let galleryDraft = []; let galleryLoaded = false; let galleryDirty = false; let gallerySaveTimer = null;
 const GALLERY_MAX = 20;
+
+/* 👇 NOVO — State da aba Links */
+let trackingLinks = {};
+let editingLinkId = null;
+let uploadedLinkImg = null;
 
 /* ================= UTIL ================= */
 function esc(t){ if(!t) return ''; const d=document.createElement('div'); d.textContent=t; return d.innerHTML; }
@@ -975,7 +1066,6 @@ async function uploadImg(file, folder = 'products'){
   }
 }
 
-/* 🔥 Deleta arquivo do Storage a partir da URL */
 async function deleteImageByUrl(url){
   if(!url || typeof url !== 'string') return false;
   if(!url.includes('firebasestorage.googleapis.com')) return false;
@@ -1089,6 +1179,7 @@ function switchPanel(name){
     precos:['Preços','Visibilidade e ajustes em massa'],
     promocoes:['Promoções','Descontos temporários'],
     cupons:['Cupons','Códigos de desconto com prazo e limite'],
+    links:['Links de Campanha','Rastreamento de origem do público'], // 👈 NOVO
     importacao:['Importação','Importação em lote via CSV'],
     cliques:['Cliques & metas','Engajamento dos produtos'],
     usuarios:['Usuários','Clientes cadastrados'],
@@ -1141,6 +1232,13 @@ function loadAllData(){
   database.ref('importHistory').orderByChild('timestamp').limitToLast(50).on('value',snap=>{
     const list=[]; snap.forEach(c=>list.push({id:c.key,...c.val()})); list.reverse();
     importHistoryCache=list; renderImportHistory();
+  });
+  /* 👇 NOVO — Listener dos links de campanha */
+  database.ref('trackingLinks').on('value', snap => {
+    trackingLinks = snap.val() || {};
+    renderLinks();
+    updateLinkBadge();
+    updateLinksDashboard();
   });
   database.ref('.info/connected').on('value', snap => {
     if(snap.val() === true && currentAdmin){ database.ref(`users/${currentAdmin.uid}/lastAccess`).set(Date.now()); }
@@ -1360,14 +1458,11 @@ function saveProductAdm(){
 function toggleFeatureAdm(id){ const p=products.find(x=>x.id===id); if(p) database.ref(`products/${id}/featured`).set(!p.featured); }
 function toggleSoldOutAdm(id){ const p=products.find(x=>x.id===id); if(p) database.ref(`products/${id}/soldOut`).set(!p.soldOut); }
 
-/* 🔥 EXCLUIR PRODUTO → DELETA IMAGEM */
 async function deleteProductAdm(id){
   const p = products.find(x => x.id === id);
   if(!p) return;
   if(!confirm('Excluir esta peça? A imagem também será removida do Storage.')) return;
-
   if(p.image) await deleteImageByUrl(p.image);
-
   database.ref(`products/${id}`).remove().then(()=>showToast('Peça removida'));
 }
 
@@ -1458,7 +1553,6 @@ function openDeleteNoCategoryModalAdm(){
   openModal('modalDeleteNoCategory');
 }
 
-/* 🔥 DELETA IMAGENS DAS PEÇAS "SEM CATEGORIA" TAMBÉM */
 async function deleteNoCategoryProductsAdm(){
   const input = document.getElementById('noCatConfirmInput');
   if(input.value.trim() !== 'LIMPAR SEM CATEGORIA'){ showToast('Frase de confirmação incorreta', 'err'); return; }
@@ -1469,17 +1563,13 @@ async function deleteNoCategoryProductsAdm(){
 
   showLoading(`Excluindo ${list.length} peça(s)...`);
   try{
-    // 1) Deleta imagens do Storage
     await Promise.all(list.map(p => p.image ? deleteImageByUrl(p.image) : Promise.resolve()));
-
     const updates = {}; const deletedIds = new Set();
     list.forEach(p => { updates[`products/${p.id}`] = null; deletedIds.add(p.id); });
-
     if(alsoRemoveFeatured && featuredDraft.length > 0){
       const newFeatured = featuredDraft.filter(id => !deletedIds.has(id));
       if(newFeatured.length !== featuredDraft.length) updates['featured'] = newFeatured.length > 0 ? newFeatured : null;
     }
-
     await database.ref().update(updates);
     hideLoading(); closeModal('modalDeleteNoCategory');
     showToast(`${list.length} peça(s) sem categoria excluída(s) com sucesso`);
@@ -1526,7 +1616,6 @@ function editBrandAdm(id){
   openModal('modalMarca');
 }
 
-/* 🔥 EXCLUIR MARCA → DELETA IMAGEM DA MARCA + IMAGENS DAS PEÇAS VINCULADAS */
 async function deleteBrandAdm(id){
   const b = brands[id]; if(!b) return;
   const brandName = b.name || '';
@@ -1538,11 +1627,7 @@ async function deleteBrandAdm(id){
   if(!confirm(msg)) return;
 
   showLoading('Excluindo marca e peças...');
-
-  // 1) Deleta imagem da marca
   if(b.image) await deleteImageByUrl(b.image);
-
-  // 2) Deleta imagens das peças
   await Promise.all(productsToDelete.map(p => p.image ? deleteImageByUrl(p.image) : Promise.resolve()));
 
   const updates = {}; updates[`brands/${id}`] = null;
@@ -1613,15 +1698,12 @@ function editSessionAdm(id){
   setupUpload('sesImgInput','sesUploadBox','sesPreview','sesPreviewImg', url=>uploadedSesImg=url, 'sessions');
   openModal('modalSessao');
 }
-
-/* 🔥 EXCLUIR SESSÃO → DELETA IMAGEM */
 async function deleteSessionAdm(id){
   const s = sessions[id]; if(!s) return;
   if(!confirm('Excluir sessão? A imagem também será removida do Storage. As peças vinculadas não serão excluídas.')) return;
   if(s.image) await deleteImageByUrl(s.image);
   database.ref(`sessions/${id}`).remove().then(()=>showToast('Sessão removida'));
 }
-
 function saveSessionAdm(){
   const name=document.getElementById('sName').value.trim(); if(!name){ showToast('Nome obrigatório','err'); return; }
   const data={name, image:uploadedSesImg||DEFAULT_SESSION_IMG, order:Date.now(), hidePF:document.getElementById('sHidePF').checked, hidePJ:document.getElementById('sHidePJ').checked};
@@ -1846,6 +1928,179 @@ function saveCouponAdm(){
   else { const id = database.ref().child('cupons').push().key; database.ref(`cupons/${id}`).set(data).then(()=>{ showToast('Cupom criado'); closeModal('modalCupom'); }); }
 }
 
+/* ================= 👇 NOVO — LINKS DE CAMPANHA ================= */
+function buildTrackingUrl(slug){
+  const path = window.location.pathname;
+  const dir = path.substring(0, path.lastIndexOf('/') + 1);
+  return `${window.location.origin}${dir}index.html?ref=${encodeURIComponent(slug)}`;
+}
+
+function sanitizeSlug(s){
+  return (s || '').toString().trim().toLowerCase()
+    .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^a-z0-9-_]/g, '-')
+    .replace(/-+/g, '-').replace(/^-|-$/g, '');
+}
+
+function updateLinkBadge(){
+  const count = Object.keys(trackingLinks).length;
+  const b = document.getElementById('navBadgeLinks');
+  if(b){ b.textContent = count; b.style.display = count > 0 ? '' : 'none'; }
+}
+function updateLinksDashboard(){
+  const keys = Object.keys(trackingLinks);
+  const total = keys.reduce((s,id)=>s+(trackingLinks[id].entries||0),0);
+  const l1 = document.getElementById('statLinksTotal'); if(l1) l1.textContent = keys.length;
+  const l2 = document.getElementById('statLinksEntries'); if(l2) l2.textContent = total;
+}
+
+function renderLinks(){
+  const list = document.getElementById('linksListAdm');
+  if(!list) return;
+  const items = Object.keys(trackingLinks).map(id=>({id,...trackingLinks[id]}))
+    .sort((a,b)=>(b.createdAt||0)-(a.createdAt||0));
+
+  if(items.length === 0){
+    list.innerHTML = `<div class="empty-state"><i class="fas fa-link"></i><p>Nenhum link criado ainda. Clique em "Novo link" para começar.</p></div>`;
+    return;
+  }
+
+  list.innerHTML = items.map(l=>{
+    const shortUrl = `?ref=${esc(l.slug)}`;
+    return `<div class="mini-item" style="padding:14px 16px;gap:14px;">
+      <img src="${l.image || DEFAULT_AVATAR}" style="width:52px;height:52px;border-radius:12px;object-fit:cover;background:#111;border:1px solid var(--border);"
+        onerror="this.src='${DEFAULT_AVATAR}'" title="Clique para ver a imagem"
+        onclick="openImageViewer(this.src,'${esc(l.name)}')">
+      <div class="mi-t" style="display:flex;flex-direction:column;align-items:flex-start;gap:3px;overflow:visible;white-space:normal;">
+        <strong style="font-size:.95rem;">${esc(l.name)}</strong>
+        <span class="link-slug-chip">${shortUrl}</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:16px;flex-shrink:0;">
+        <div class="link-entries-badge">
+          <div class="num">${l.entries||0}</div>
+          <div class="lbl">Entradas</div>
+        </div>
+        <div class="mi-actions">
+          <button class="btn btn-icon btn-ghost" title="Copiar link" onclick="copyLinkFromRow('${l.id}')"><i class="fas fa-copy"></i></button>
+          <button class="btn btn-icon btn-ghost" title="Zerar contador" onclick="resetLinkCount('${l.id}')"><i class="fas fa-undo"></i></button>
+          <button class="btn btn-icon btn-ghost" title="Editar" onclick="editLinkAdm('${l.id}')"><i class="fas fa-pencil"></i></button>
+          <button class="btn btn-icon btn-danger" title="Excluir" onclick="deleteLinkAdm('${l.id}')"><i class="fas fa-trash"></i></button>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function openLinkModal(){
+  editingLinkId = null;
+  uploadedLinkImg = null;
+  document.getElementById('modalLinkTitle').textContent = 'Novo link';
+  document.getElementById('lnkName').value = '';
+  document.getElementById('lnkSlug').value = '';
+  document.getElementById('lnkFullUrl').value = '';
+  resetUpload('lnkUploadBox','lnkPreview');
+  setupUpload('lnkImgInput','lnkUploadBox','lnkPreview','lnkPreviewImg', url => uploadedLinkImg = url, 'links');
+  openModal('modalLink');
+}
+
+function editLinkAdm(id){
+  const l = trackingLinks[id]; if(!l) return;
+  editingLinkId = id;
+  uploadedLinkImg = l.image || null;
+  document.getElementById('modalLinkTitle').textContent = 'Editar link';
+  document.getElementById('lnkName').value = l.name || '';
+  document.getElementById('lnkSlug').value = l.slug || '';
+  document.getElementById('lnkFullUrl').value = buildTrackingUrl(l.slug || '');
+  if(l.image){
+    document.getElementById('lnkPreviewImg').src = l.image;
+    document.getElementById('lnkPreview').style.display = 'block';
+    document.getElementById('lnkUploadBox').style.display = 'none';
+  } else resetUpload('lnkUploadBox','lnkPreview');
+  setupUpload('lnkImgInput','lnkUploadBox','lnkPreview','lnkPreviewImg', url => uploadedLinkImg = url, 'links');
+  openModal('modalLink');
+}
+
+async function saveLinkAdm(){
+  const name = document.getElementById('lnkName').value.trim();
+  const slug = sanitizeSlug(document.getElementById('lnkSlug').value);
+  if(!name){ showToast('Nome é obrigatório','err'); return; }
+  if(!slug){ showToast('Identificador é obrigatório','err'); return; }
+  if(slug.length < 2){ showToast('Identificador deve ter pelo menos 2 caracteres','err'); return; }
+
+  const dup = Object.keys(trackingLinks).find(id => id !== editingLinkId && trackingLinks[id].slug === slug);
+  if(dup){ showToast('Este identificador já está em uso','err'); return; }
+
+  const data = { name, slug, image: uploadedLinkImg || '', updatedAt: Date.now() };
+
+  if(editingLinkId){
+    const old = trackingLinks[editingLinkId];
+    if(old && old.image && old.image !== uploadedLinkImg) deleteImageByUrl(old.image).catch(()=>{});
+    database.ref(`trackingLinks/${editingLinkId}`).update(data).then(()=>{
+      showToast('Link atualizado'); closeModal('modalLink');
+    });
+  } else {
+    const id = database.ref().child('trackingLinks').push().key;
+    data.id = id; data.entries = 0; data.createdAt = Date.now();
+    data.createdBy = currentAdmin?.uid || 'unknown';
+    database.ref(`trackingLinks/${id}`).set(data).then(()=>{
+      showToast('Link criado'); closeModal('modalLink');
+    });
+  }
+}
+
+async function deleteLinkAdm(id){
+  const l = trackingLinks[id]; if(!l) return;
+  if(!confirm(`Excluir o link "${l.name}"?\n\nO contador de entradas (${l.entries||0}) também será removido do Firebase.`)) return;
+  if(l.image) await deleteImageByUrl(l.image);
+  database.ref(`trackingLinks/${id}`).remove().then(()=>showToast('Link excluído'));
+}
+
+function resetLinkCount(id){
+  const l = trackingLinks[id]; if(!l) return;
+  if(!confirm(`Zerar o contador de "${l.name}"? (atual: ${l.entries||0})`)) return;
+  database.ref(`trackingLinks/${id}/entries`).set(0).then(()=>showToast('Contador zerado'));
+}
+
+function resetAllLinkCounts(){
+  const keys = Object.keys(trackingLinks);
+  if(keys.length === 0){ showToast('Nenhum link para zerar','err'); return; }
+  if(!confirm(`Zerar o contador de TODOS os ${keys.length} links?`)) return;
+  const updates = {};
+  keys.forEach(id => updates[`trackingLinks/${id}/entries`] = 0);
+  database.ref().update(updates).then(()=>showToast('Contadores zerados'));
+}
+
+function copyLinkUrl(){
+  const v = document.getElementById('lnkFullUrl').value;
+  if(!v){ showToast('Preencha o identificador primeiro','err'); return; }
+  copyToClipboard(v);
+}
+function copyLinkFromRow(id){
+  const l = trackingLinks[id]; if(!l) return;
+  copyToClipboard(buildTrackingUrl(l.slug));
+}
+function copyToClipboard(text){
+  if(navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(text).then(()=>showToast('Link copiado!')).catch(()=>fallbackCopy(text));
+  } else fallbackCopy(text);
+}
+function fallbackCopy(text){
+  const ta = document.createElement('textarea');
+  ta.value = text; ta.style.position='fixed'; ta.style.opacity='0';
+  document.body.appendChild(ta); ta.select();
+  try{ document.execCommand('copy'); showToast('Link copiado!'); }
+  catch(e){ showToast('Erro ao copiar','err'); }
+  document.body.removeChild(ta);
+}
+
+/* Auto-preview do link ao digitar o slug */
+document.addEventListener('input', e => {
+  if(e.target.id === 'lnkSlug'){
+    const slug = sanitizeSlug(e.target.value);
+    document.getElementById('lnkFullUrl').value = slug ? buildTrackingUrl(slug) : '';
+  }
+});
+
 /* ================= IMPORTAÇÃO ================= */
 function switchImportTab(tab){
   importTab=tab;
@@ -1965,7 +2220,6 @@ async function deleteImportAdm(historyId){
   showLoading('Excluindo...');
   const addedIds=h.addedProductIds||[];
   if(addedIds.length){
-    // Deleta imagens das peças que serão removidas
     await Promise.all(addedIds.map(id => {
       const p = products.find(x => x.id === id);
       return p && p.image ? deleteImageByUrl(p.image) : Promise.resolve();
@@ -2106,7 +2360,6 @@ function renderUsers(){
 }
 database.ref('settings/lastSeenNewUsers').on('value', snap => { window._lastSeenNewUsers = snap.val() || 0; if(usersTab === 'novos') renderUsers(); });
 
-/* 🔥 EXCLUIR USUÁRIO → DELETA AVATAR */
 async function deleteUserAdm(uid){
   if(!confirm('Excluir este usuário permanentemente?')) return;
   if(currentAdmin && uid===currentAdmin.uid){ showToast('Não é possível excluir o próprio usuário','err'); return; }
@@ -2162,7 +2415,6 @@ async function createClientAdm(){
 /* ================= PERFIL / CONTATOS ================= */
 setupUpload('profileImgInputAdm','profileUploadBoxAdm','profilePreviewAdm','profilePreviewImgAdm', url => { uploadedProfileImg=url; updateBrandLogo(url); }, 'profile');
 
-/* 🔥 SALVAR PERFIL → DELETA FOTO ANTIGA SE TROCOU */
 async function saveProfileAdm(){
   const data={
     name:document.getElementById('profNameAdm').value.trim()||'CIM Peças',
@@ -2170,13 +2422,10 @@ async function saveProfileAdm(){
     message:document.getElementById('profMsgAdm').value.trim(),
     photo:uploadedProfileImg||DEFAULT_AVATAR
   };
-
-  // Se trocou a foto, deleta a anterior
   const oldPhoto = profileData?.photo;
   if(oldPhoto && oldPhoto !== data.photo && oldPhoto.includes('firebasestorage.googleapis.com')){
     await deleteImageByUrl(oldPhoto);
   }
-
   database.ref('profile').set(data).then(()=>showToast('Perfil salvo'));
 }
 
@@ -2210,15 +2459,12 @@ function editContactAdm(id){
   setupUpload('ctImgInput','ctUploadBox','ctPreview','ctPreviewImg', url=>uploadedCtImg=url, 'contacts');
   openModal('modalContato');
 }
-
-/* 🔥 EXCLUIR CONTATO → DELETA IMAGEM */
 async function deleteContactAdm(id){
   const c = contacts[id]; if(!c) return;
   if(!confirm('Excluir este contato? A imagem também será removida do Storage.')) return;
   if(c.image) await deleteImageByUrl(c.image);
   database.ref(`contacts/${id}`).remove().then(()=>showToast('Contato removido'));
 }
-
 function saveContactAdm(){
   const name=document.getElementById('ctName').value.trim(), phone=document.getElementById('ctPhone').value.replace(/\D/g,''), msg=document.getElementById('ctMsg').value.trim();
   if(!name||!phone||!msg){ showToast('Preencha os campos obrigatórios','err'); return; }
@@ -2240,8 +2486,6 @@ function openDeleteAllModalAdm(){
   document.getElementById('deleteConfirmInputAdm').oninput=e=>{ document.getElementById('confirmDeleteAllBtnAdm').disabled=e.target.value!=='APAGAR PEÇAS'; };
   openModal('modalDeleteAll');
 }
-
-/* 🔥 APAGAR TODAS AS PEÇAS → DELETA TODAS AS IMAGENS */
 async function deleteAllDataAdm(){
   if(document.getElementById('deleteConfirmInputAdm').value!=='APAGAR PEÇAS'){ showToast('Frase incorreta','err'); return; }
   showLoading('Apagando peças e imagens...');
@@ -2260,35 +2504,27 @@ let orphanReport = { orphans: [], total: 0, kept: 0 };
 async function scanOrphanImagesAdm(){
   showLoading('Escaneando Storage...');
   try{
-    // 1) Coleta todas as URLs referenciadas no banco
     const referencedUrls = new Set();
 
-    // Produtos
     products.forEach(p => { if(p.image && p.image.includes('firebasestorage.googleapis.com')) referencedUrls.add(p.image); });
-    // Marcas
     Object.values(brands).forEach(b => { if(b.image && b.image.includes('firebasestorage.googleapis.com')) referencedUrls.add(b.image); });
-    // Sessões
     Object.values(sessions).forEach(s => { if(s.image && s.image.includes('firebasestorage.googleapis.com')) referencedUrls.add(s.image); });
-    // Contatos
     Object.values(contacts).forEach(c => { if(c.image && c.image.includes('firebasestorage.googleapis.com')) referencedUrls.add(c.image); });
-    // Perfil
     if(profileData.photo && profileData.photo.includes('firebasestorage.googleapis.com')) referencedUrls.add(profileData.photo);
-    // Usuários
     usersCache.forEach(u => { if(u.photoURL && u.photoURL.includes('firebasestorage.googleapis.com')) referencedUrls.add(u.photoURL); });
+    /* 👇 NOVO — incluir imagens dos links de campanha */
+    Object.values(trackingLinks).forEach(l => { if(l.image && l.image.includes('firebasestorage.googleapis.com')) referencedUrls.add(l.image); });
 
-    // 2) Lista TODOS os arquivos do Storage
     const allFiles = [];
-    const folders = ['products', 'sessions', 'brands', 'contacts', 'profile', 'avatars'];
+    const folders = ['products', 'sessions', 'brands', 'contacts', 'profile', 'avatars', 'links'];
     for(const folder of folders){
       try{
         const listRef = storage.ref(folder);
         const result = await listRef.listAll();
-        // Arquivos diretos
         for(const item of result.items){
           const url = await item.getDownloadURL();
           allFiles.push({ path: item.fullPath, url });
         }
-        // Subpastas (ex: avatars/{uid}/)
         for(const prefix of result.prefixes){
           const subResult = await prefix.listAll();
           for(const item of subResult.items){
@@ -2299,7 +2535,6 @@ async function scanOrphanImagesAdm(){
       }catch(e){ console.warn(`Pasta ${folder} não encontrada ou vazia:`, e.code); }
     }
 
-    // 3) Compara
     const orphans = allFiles.filter(f => !referencedUrls.has(f.url));
 
     orphanReport = {
@@ -2308,7 +2543,6 @@ async function scanOrphanImagesAdm(){
       kept: allFiles.length - orphans.length
     };
 
-    // 4) Renderiza relatório
     const report = document.getElementById('orphanReportAdm');
     report.style.display = 'block';
 
@@ -2366,8 +2600,6 @@ async function cleanOrphanImagesAdm(){
     }
     hideLoading();
     showToast(`${deleted} imagem(ns) removida(s)${failed > 0 ? ` · ${failed} falhou(aram)` : ''}`);
-
-    // Reescaneia automaticamente
     setTimeout(() => scanOrphanImagesAdm(), 800);
   }catch(err){
     hideLoading();
