@@ -845,7 +845,7 @@
     </script>
 
     <!-- ================================================================
-         SCRIPT INTERACTIVE SEARCH MODAL & FILTERING
+         SCRIPT INTERACTIVE SEARCH MODAL & FILTERING + TRACKING DE LINKS
          ================================================================ -->
     <script>
         const firebaseConfig = {
@@ -859,6 +859,48 @@
         };
         if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
         const database = firebase.database();
+
+        /* ============================================================
+           👇 NOVO — RASTREAMENTO DE ENTRADA VIA LINK DE CAMPANHA (?ref=slug)
+           Contabiliza no Firebase quantas pessoas entraram por cada link
+           criado no painel admin. Usa cooldown de 24h (localStorage) para
+           não contar o mesmo visitante repetidamente.
+           ============================================================ */
+        (function trackCampaignEntry() {
+            const params = new URLSearchParams(window.location.search);
+            const ref = (params.get('ref') || '').trim().toLowerCase();
+            if (!ref) return;
+
+            // Cooldown de 24h para não contar o mesmo visitante várias vezes
+            const storageKey = `cim_ref_${ref}`;
+            const lastSeen = parseInt(localStorage.getItem(storageKey) || '0', 10);
+            const COOLDOWN = 24 * 60 * 60 * 1000;
+            if (Date.now() - lastSeen < COOLDOWN) {
+                console.log('📊 Entrada já registrada recentemente para:', ref);
+                return;
+            }
+
+            database.ref('trackingLinks').orderByChild('slug').equalTo(ref).once('value')
+                .then(snap => {
+                    if (!snap.exists()) {
+                        console.warn('⚠️ Link de campanha não encontrado:', ref);
+                        return;
+                    }
+                    const key = Object.keys(snap.val())[0];
+                    // transaction garante incremento atômico em acessos simultâneos
+                    return database.ref(`trackingLinks/${key}/entries`).transaction(cur => (cur || 0) + 1);
+                })
+                .then(result => {
+                    if (result && result.committed) {
+                        localStorage.setItem(storageKey, String(Date.now()));
+                        console.log('✅ Entrada contabilizada via link:', ref, '→ total:', result.snapshot.val());
+                    }
+                })
+                .catch(err => console.error('❌ Erro ao contabilizar entrada:', err));
+        })();
+        /* ============================================================
+           FIM DO BLOCO DE RASTREAMENTO
+           ============================================================ */
 
         const DEFAULT_PLACEHOLDER_IMAGE = 'https://i.ibb.co/F4dXSwVG/IMG-6495.jpg';
         const QUANTIDADE_DESTAQUE = 5;
