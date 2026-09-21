@@ -719,7 +719,7 @@
                     <h3 class="text-white font-bold uppercase tracking-wider text-sm">Contato</h3>
                     <ul class="space-y-3 text-sm">
                         <li>
-                            <a href="https://wa.me/5511986866888" target="_blank" class="footer-contact flex items-center gap-3">
+                            <a href="https://wa.me/5511986866888" target="_blank" class="footer-contact flex items-center gap-3 js-track-contact" data-contact="whatsapp" data-origin="footer">
                                 <i class="fa-brands fa-whatsapp footer-contact-icon text-lg w-5 text-center"></i>
                                 <span>WhatsApp</span>
                             </a>
@@ -731,7 +731,7 @@
                             </a>
                         </li>
                         <li>
-                            <a href="tel:1123666785" class="footer-contact flex items-center gap-3">
+                            <a href="tel:1123666785" class="footer-contact flex items-center gap-3 js-track-contact" data-contact="phone" data-origin="footer">
                                 <i class="fa-solid fa-phone footer-contact-icon text-lg w-5 text-center"></i>
                                 <span>Telefone</span>
                             </a>
@@ -845,13 +845,13 @@
 
     <div class="fixed bottom-6 right-6 z-50 flex flex-col items-end">
         <div id="support-options" class="flex flex-col space-y-2 mb-3 opacity-0 translate-y-4 pointer-events-none transition-all duration-300">
-            <a href="https://wa.me/5511986866888" target="_blank" class="flex items-center justify-between gap-2 bg-black/85 hover:bg-black text-white pl-3 pr-1.5 py-1.5 rounded-full shadow-xl border border-neutral-800/80 transition group backdrop-blur-md hover:scale-105">
+            <a href="https://wa.me/5511986866888" target="_blank" class="js-track-contact flex items-center justify-between gap-2 bg-black/85 hover:bg-black text-white pl-3 pr-1.5 py-1.5 rounded-full shadow-xl border border-neutral-800/80 transition group backdrop-blur-md hover:scale-105" data-contact="whatsapp" data-origin="float-support">
                 <span class="text-xs font-semibold tracking-wide">WhatsApp</span>
                 <div class="w-8 h-8 rounded-full flex items-center justify-center shrink-0 bg-white/5 group-hover:bg-white/10 transition">
                     <i class="fa-brands fa-whatsapp text-base text-green-500"></i>
                 </div>
             </a>
-            <a href="tel:1123666785" class="flex items-center justify-between gap-2 bg-black/85 hover:bg-black text-white pl-3 pr-1.5 py-1.5 rounded-full shadow-xl border border-neutral-800/80 transition group backdrop-blur-md hover:scale-105">
+            <a href="tel:1123666785" class="js-track-contact flex items-center justify-between gap-2 bg-black/85 hover:bg-black text-white pl-3 pr-1.5 py-1.5 rounded-full shadow-xl border border-neutral-800/80 transition group backdrop-blur-md hover:scale-105" data-contact="phone" data-origin="float-support">
                 <span class="text-xs font-semibold tracking-wide">Ligar</span>
                 <div class="w-8 h-8 rounded-full flex items-center justify-center shrink-0 bg-white/5 group-hover:bg-white/10 transition">
                     <i class="fa-solid fa-phone text-sm text-white"></i>
@@ -908,6 +908,51 @@
         };
         if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
         const database = firebase.database();
+
+        /* ============================================================
+           🔥 REGISTRO DE CLIQUES DE VISITANTES
+           ============================================================ */
+        function logVisitorClick(type, data = {}) {
+            try {
+                const now = new Date();
+                const log = {
+                    type,
+                    source: data.source || 'unknown',
+                    productId: data.productId || null,
+                    productName: data.productName || null,
+                    userName: 'Visitante',
+                    userType: 'visitante',
+                    date: now.toLocaleDateString('pt-BR'),
+                    time: now.toLocaleTimeString('pt-BR'),
+                    timestamp: Date.now()
+                };
+
+                if (type === 'product') {
+                    database.ref('clickLogs').push(log);
+                    if (data.productId) {
+                        database.ref(`products/${data.productId}/clicks`)
+                            .transaction(c => (c || 0) + 1)
+                            .catch(() => {});
+                    }
+                } else if (type === 'whatsapp' || type === 'phone') {
+                    database.ref('contactClicks').push(log);
+                }
+            } catch (e) {
+                console.warn('Erro ao registrar clique:', e);
+            }
+        }
+
+        (function trackContactClicks(){
+            document.addEventListener('click', (e) => {
+                const link = e.target.closest('.js-track-contact');
+                if (!link) return;
+                const kind = link.dataset.contact;
+                const origin = link.dataset.origin || 'unknown';
+                if (kind === 'whatsapp' || kind === 'phone') {
+                    logVisitorClick(kind, { source: origin });
+                }
+            }, true);
+        })();
 
         (function trackCampaignEntry() {
             let ref = null;
@@ -1015,6 +1060,14 @@
                 const a = document.createElement('a');
                 a.href = 'login.html';
                 a.className = 'destaque-card group relative w-56 md:w-64 h-72 md:h-80 rounded-2xl overflow-hidden border border-neutral-800/80 hover:border-[#d23021] transition-all duration-500 shrink-0 bg-neutral-900/60 backdrop-blur-sm shadow-xl';
+
+                a.addEventListener('click', () => {
+                    logVisitorClick('product', {
+                        source: 'featured',
+                        productId: part.id,
+                        productName: part.name
+                    });
+                });
 
                 const img = document.createElement('img');
                 img.src = part.image || DEFAULT_PLACEHOLDER_IMAGE;
@@ -1238,6 +1291,14 @@
                 item.href = 'login.html';
                 item.className = 'flex items-stretch bg-black/60 hover:bg-black/85 border border-neutral-800/80 hover:border-[#d23021] rounded-2xl overflow-hidden transition duration-300 group shadow-lg cursor-pointer min-h-[100px] backdrop-blur-sm';
                 item.style.animation = `cardFadeIn 0.35s ease-out ${Math.min(i * 25, 400)}ms both`;
+
+                item.addEventListener('click', () => {
+                    logVisitorClick('product', {
+                        source: t ? 'search' : 'search-featured',
+                        productId: part.id,
+                        productName: part.name
+                    });
+                });
 
                 const imgContainer = document.createElement('div');
                 imgContainer.className = 'w-24 md:w-28 shrink-0 relative overflow-hidden bg-neutral-900/60 border-r border-neutral-800/60';
