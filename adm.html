@@ -270,6 +270,10 @@ tbody tr:last-child td{border-bottom:none;}
 .link-entries-badge .num{font-family:var(--font-mono);font-size:1.3rem;font-weight:700;color:var(--accent);line-height:1;}
 .link-entries-badge .lbl{font-size:.6rem;color:var(--text-dim);text-transform:uppercase;letter-spacing:.5px;margin-top:3px;}
 .link-slug-chip{font-family:var(--font-mono);font-size:.72rem;color:var(--accent);background:var(--accent-soft);padding:2px 8px;border-radius:6px;display:inline-block;margin-top:3px;}
+
+/* 👇 Estilos dos chips de contato */
+.contact-chip-wa{background:rgba(37,211,102,.12);color:#25d366;border:1px solid rgba(37,211,102,.25);}
+.contact-chip-ph{background:rgba(59,130,246,.12);color:#3b82f6;border:1px solid rgba(59,130,246,.25);}
 </style>
 </head>
 <body>
@@ -362,6 +366,16 @@ tbody tr:last-child td{border-bottom:none;}
         <div class="stat-card c-accent"><div class="sc-top"><div class="sc-icon"><i class="fas fa-users"></i></div></div><div class="sc-val" id="statUsuarios">0</div><div class="sc-label">Usuários cadastrados</div></div>
         <div class="stat-card c-teal"><div class="sc-top"><div class="sc-icon"><i class="fas fa-ban"></i></div></div><div class="sc-val" id="statEsgotados">0</div><div class="sc-label">Peças esgotadas</div></div>
         <div class="stat-card c-teal"><div class="sc-top"><div class="sc-icon"><i class="fas fa-eye-slash"></i></div></div><div class="sc-val" id="statPrecoOculto">0</div><div class="sc-label">Preços ocultos</div></div>
+        <div class="stat-card c-teal" style="border-color:rgba(37,211,102,.3);">
+          <div class="sc-top"><div class="sc-icon" style="color:#25d366;"><i class="fab fa-whatsapp"></i></div></div>
+          <div class="sc-val" id="statWhatsApp">0</div>
+          <div class="sc-label">Cliques WhatsApp</div>
+        </div>
+        <div class="stat-card c-teal" style="border-color:rgba(59,130,246,.3);">
+          <div class="sc-top"><div class="sc-icon" style="color:#3b82f6;"><i class="fas fa-phone"></i></div></div>
+          <div class="sc-val" id="statPhone">0</div>
+          <div class="sc-label">Cliques "Ligar"</div>
+        </div>
       </div>
       <div class="stats-grid" style="margin-top: 4px;">
         <div class="stat-card c-teal" data-period="7" onclick="showActiveUsersModal(7)"><div class="sc-top"><div class="sc-icon"><i class="fas fa-user-clock"></i></div></div><div class="sc-val" id="statActive7d">0</div><div class="sc-label">Ativos (7 dias)</div></div>
@@ -624,14 +638,45 @@ tbody tr:last-child td{border-bottom:none;}
       <div class="tabbar">
         <button class="active" data-cliktab="hist" onclick="switchClickTab('hist')">Histórico de cliques</button>
         <button data-cliktab="metas" onclick="switchClickTab('metas')">Metas batidas</button>
+        <button data-cliktab="contatos" onclick="switchClickTab('contatos')"><i class="fab fa-whatsapp"></i> Contatos (WhatsApp / Ligar)</button>
       </div>
       <div id="clickTabHist">
         <div class="block"><div class="block-head"><h3>Últimos cliques</h3><button class="btn btn-sm btn-ghost" onclick="clearClickHistoryAdm()"><i class="fas fa-trash"></i> Limpar</button></div>
-        <div class="block-body tight"><table><thead><tr><th>Peça</th><th>Usuário</th><th>Data</th></tr></thead><tbody id="clickHistoryBody"></tbody></table></div></div>
+        <div class="block-body tight"><table><thead><tr><th>Peça</th><th>Usuário</th><th>Origem</th><th>Data</th></tr></thead><tbody id="clickHistoryBody"></tbody></table></div></div>
       </div>
       <div id="clickTabMetas" style="display:none;">
         <div class="block"><div class="block-head"><h3>Metas batidas</h3><button class="btn btn-sm btn-ghost" onclick="clearMetaAchievementsAdm()"><i class="fas fa-trash"></i> Limpar</button></div>
         <div class="block-body tight"><table><thead><tr><th>Peça</th><th>Data</th></tr></thead><tbody id="metaAchBody"></tbody></table></div></div>
+      </div>
+      <div id="clickTabContatos" style="display:none;">
+        <div class="stats-grid" style="grid-template-columns:repeat(auto-fit,minmax(180px,1fr));">
+          <div class="stat-card c-teal" style="border-color:rgba(37,211,102,.3);">
+            <div class="sc-top"><div class="sc-icon" style="color:#25d366;"><i class="fab fa-whatsapp"></i></div></div>
+            <div class="sc-val" id="statContactWa">0</div>
+            <div class="sc-label">Cliques WhatsApp</div>
+          </div>
+          <div class="stat-card c-teal" style="border-color:rgba(59,130,246,.3);">
+            <div class="sc-top"><div class="sc-icon" style="color:#3b82f6;"><i class="fas fa-phone"></i></div></div>
+            <div class="sc-val" id="statContactPh">0</div>
+            <div class="sc-label">Cliques "Ligar"</div>
+          </div>
+        </div>
+        <div class="block">
+          <div class="block-head">
+            <h3>Histórico de cliques em contato</h3>
+            <div style="display:flex;gap:8px;flex-wrap:wrap;">
+              <button class="btn btn-sm btn-ghost" onclick="clearContactClicksAdm('whatsapp')"><i class="fas fa-trash"></i> Limpar WhatsApp</button>
+              <button class="btn btn-sm btn-ghost" onclick="clearContactClicksAdm('phone')"><i class="fas fa-trash"></i> Limpar Telefone</button>
+              <button class="btn btn-sm btn-danger" onclick="clearContactClicksAdm('all')"><i class="fas fa-trash"></i> Limpar tudo</button>
+            </div>
+          </div>
+          <div class="block-body tight">
+            <table>
+              <thead><tr><th>Tipo</th><th>Origem do clique</th><th>Data / Hora</th></tr></thead>
+              <tbody id="contactClicksBody"></tbody>
+            </table>
+          </div>
+        </div>
       </div>
     </section>
 
@@ -996,6 +1041,7 @@ const DEFAULT_SESSION_IMG = 'https://via.placeholder.com/200x200?text=Sess%C3%A3
 let products=[], sessions={}, brands={}, contacts={}, promocoes={}, cupons={}, categoryOrder=[];
 let categoryClicks={}, sessionClicks={}, brandClicks={};
 let clickHistory=[], metaAchievements=[], importHistoryCache=[], usersCache=[];
+let contactClicks=[];
 let pricesHidden=false, currentAdmin=null;
 let editingProductId=null, editingSessionId=null, editingBrandId=null, editingContactId=null, editingPromoId=null, editingCouponId=null;
 let uploadedProdImg=null, uploadedSesImg=null, uploadedBrImg=null, uploadedCtImg=null, uploadedProfileImg=null;
@@ -1215,6 +1261,12 @@ function loadAllData(){
   database.ref('metaAchievements').orderByChild('timestamp').limitToLast(300).on('value',snap=>{
     const d=snap.val(); metaAchievements = d? Object.values(d).reverse() : []; renderMetaAchievements();
   });
+  database.ref('contactClicks').orderByChild('timestamp').limitToLast(300).on('value',snap=>{
+    const d = snap.val();
+    contactClicks = d ? Object.keys(d).map(k => ({ id:k, ...d[k] })).reverse() : [];
+    renderContactClicks();
+    renderDashboard();
+  });
   database.ref('profile').on('value',snap=>{
     const d=snap.val()||{}; profileData = d;
     document.getElementById('profNameAdm').value=d.name||'CIM Peças';
@@ -1273,6 +1325,15 @@ function renderDashboard(){
   document.getElementById('navBadgeCupons').textContent = activeCoupons;
   document.getElementById('statUsuarios').textContent=usersCache.length;
   document.getElementById('statEsgotados').textContent=products.filter(p=>p.soldOut).length;
+
+  const waCount = contactClicks.filter(c => c.type === 'whatsapp').length;
+  const phCount = contactClicks.filter(c => c.type === 'phone').length;
+  document.getElementById('statWhatsApp').textContent = waCount;
+  document.getElementById('statPhone').textContent = phCount;
+  const statContactWa = document.getElementById('statContactWa');
+  const statContactPh = document.getElementById('statContactPh');
+  if(statContactWa) statContactWa.textContent = waCount;
+  if(statContactPh) statContactPh.textContent = phCount;
 
   const intervals = [{ id: 'statActive7d', days: 7 },{ id: 'statActive30d', days: 30 },{ id: 'statActive90d', days: 90 }];
   intervals.forEach(({ id, days }) => {
@@ -1926,9 +1987,7 @@ function saveCouponAdm(){
 }
 
 /* ================= LINKS DE CAMPANHA ================= */
-/* 👇 ATUALIZADO — gera URL curta via Vercel rewrites (ex: /jenny) */
 function buildTrackingUrl(slug){
-  // Ex: https://cimglobalparts.vercel.app/jenny
   return `${window.location.origin}/${encodeURIComponent(slug)}`;
 }
 
@@ -2232,13 +2291,31 @@ async function deleteImportAdm(historyId){
 /* ================= CLIQUES & METAS ================= */
 function switchClickTab(tab){
   document.querySelectorAll('[data-cliktab]').forEach(b=>b.classList.toggle('active',b.dataset.cliktab===tab));
-  document.getElementById('clickTabHist').style.display=tab==='hist'?'block':'none';
-  document.getElementById('clickTabMetas').style.display=tab==='metas'?'block':'none';
+  document.getElementById('clickTabHist').style.display     = tab === 'hist'     ? 'block' : 'none';
+  document.getElementById('clickTabMetas').style.display    = tab === 'metas'    ? 'block' : 'none';
+  document.getElementById('clickTabContatos').style.display = tab === 'contatos' ? 'block' : 'none';
 }
 function renderClickHistory(){
-  const body=document.getElementById('clickHistoryBody');
-  if(clickHistory.length===0){ body.innerHTML=`<tr><td colspan="3"><div class="empty-state"><i class="fas fa-clock"></i><p>Nenhum clique registrado</p></div></td></tr>`; return; }
-  body.innerHTML=clickHistory.slice(0,200).map(l=>`<tr><td class="td-name">${esc(l.productName||l.sessionName||'—')}</td><td>${esc(l.userName||'Visitante')}${l.userType?` (${l.userType})`:''}</td><td class="td-sub">${l.date||''} ${l.time||''}</td></tr>`).join('');
+  const body = document.getElementById('clickHistoryBody');
+  if(clickHistory.length === 0){
+    body.innerHTML = `<tr><td colspan="4"><div class="empty-state"><i class="fas fa-clock"></i><p>Nenhum clique registrado</p></div></td></tr>`;
+    return;
+  }
+  const sourceLabels = {
+    'search':          '🔍 Busca',
+    'search-featured': '🔍 Destaques da busca',
+    'featured':        '⭐ Carrossel de destaques',
+    'gallery':         '🖼️ Galeria'
+  };
+  body.innerHTML = clickHistory.slice(0, 200).map(l => {
+    const srcLabel = sourceLabels[l.source] || l.source || '—';
+    return `<tr>
+      <td class="td-name">${esc(l.productName || l.sessionName || '—')}</td>
+      <td>${esc(l.userName || 'Visitante')}${l.userType ? ` (${l.userType})` : ''}</td>
+      <td><span class="chip chip-mut">${srcLabel}</span></td>
+      <td class="td-sub">${l.date || ''} ${l.time || ''}</td>
+    </tr>`;
+  }).join('');
 }
 function clearClickHistoryAdm(){ if(confirm('Limpar todo o histórico de cliques?')) database.ref('clickLogs').remove().then(()=>showToast('Histórico limpo')); }
 function renderMetaAchievements(){
@@ -2247,6 +2324,46 @@ function renderMetaAchievements(){
   body.innerHTML=metaAchievements.map(a=>`<tr><td class="td-name">${esc(a.productName)}</td><td class="td-sub">${a.date||''} ${a.time||''}</td></tr>`).join('');
 }
 function clearMetaAchievementsAdm(){ if(confirm('Limpar todos os registros de metas?')) database.ref('metaAchievements').remove().then(()=>showToast('Registros limpos')); }
+
+/* 👇 ABA CONTATOS (WhatsApp / Ligar) */
+function renderContactClicks(){
+  const body = document.getElementById('contactClicksBody');
+  if(!body) return;
+  if(contactClicks.length === 0){
+    body.innerHTML = `<tr><td colspan="3"><div class="empty-state"><i class="fas fa-headset"></i><p>Nenhum clique em contato ainda</p></div></td></tr>`;
+    return;
+  }
+  const sourceLabels = {
+    'float-support': 'Botão flutuante (canto da tela)',
+    'footer':        'Rodapé (Contato)',
+    'header':        'Cabeçalho'
+  };
+  body.innerHTML = contactClicks.slice(0, 200).map(c => {
+    const chip = c.type === 'whatsapp'
+      ? '<span class="chip contact-chip-wa"><i class="fab fa-whatsapp"></i> WhatsApp</span>'
+      : '<span class="chip contact-chip-ph"><i class="fas fa-phone"></i> Ligar</span>';
+    return `<tr>
+      <td>${chip}</td>
+      <td>${esc(sourceLabels[c.source] || c.source || '—')}</td>
+      <td class="td-sub">${c.date || ''} ${c.time || ''}</td>
+    </tr>`;
+  }).join('');
+}
+
+function clearContactClicksAdm(mode){
+  const labels = { whatsapp: 'WhatsApp', phone: 'Telefone', all: 'todos os contatos' };
+  if(!confirm(`Limpar todos os cliques de ${labels[mode]}?`)) return;
+  if(mode === 'all'){
+    database.ref('contactClicks').remove().then(() => showToast('Histórico de contatos limpo'));
+    return;
+  }
+  const toRemove = contactClicks.filter(c => c.type === mode);
+  if(toRemove.length === 0){ showToast('Nada para limpar', 'err'); return; }
+  const updates = {};
+  toRemove.forEach(c => { updates[`contactClicks/${c.id}`] = null; });
+  database.ref().update(updates).then(() => showToast(`Cliques de ${labels[mode]} limpos`));
+}
+
 function resetProductClicksAdm(){
   if(products.length === 0){ showToast('Nenhum produto cadastrado para resetar', 'err'); return; }
   if(!confirm('Resetar os cliques de todas as peças? Isso removerá os destaques automáticos, mas manterá o histórico de cliques e metas.')) return;
@@ -2262,7 +2379,7 @@ function resetAllClicksAdm(){
   showLoading('Resetando tudo...');
   try{
     const updates={}; products.forEach(p=>{ updates[`products/${p.id}/clicks`]=0; updates[`products/${p.id}/featured`]=false; });
-    updates['categoryClicks']=null; updates['sessionClicks']=null; updates['brandClicks']=null; updates['clickLogs']=null; updates['metaAchievements']=null;
+    updates['categoryClicks']=null; updates['sessionClicks']=null; updates['brandClicks']=null; updates['clickLogs']=null; updates['metaAchievements']=null; updates['contactClicks']=null;
     database.ref().update(updates).then(()=>{ hideLoading(); showToast('Todos os cliques e históricos foram resetados'); renderDashboard(); renderProducts(); }).catch(err=>{ hideLoading(); showToast('Erro: '+err.message, 'err'); });
   } catch(e){ hideLoading(); showToast('Erro: '+e.message, 'err'); }
 }
