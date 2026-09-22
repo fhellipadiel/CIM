@@ -330,6 +330,7 @@ tbody tr:last-child td{border-bottom:none;}
     </div>
     <div class="sb-group">
       <div class="sb-group-label">Conteúdo</div>
+      <div class="sb-item" data-panel="quem-somos"><i class="fas fa-images"></i> Quem Somos</div>
       <div class="sb-item" data-panel="perfil"><i class="fas fa-store"></i> Perfil</div>
       <div class="sb-item" data-panel="contatos"><i class="fas fa-headset"></i> Contatos</div>
     </div>
@@ -554,7 +555,6 @@ tbody tr:last-child td{border-bottom:none;}
       </table></div></div>
     </section>
 
-    <!-- 👇 Painel Links de Campanha -->
     <section class="panel" id="panel-links">
       <div class="panel-head">
         <div>
@@ -694,6 +694,49 @@ tbody tr:last-child td{border-bottom:none;}
         <button data-usertab="manual" onclick="switchUsersTabAdm('manual')"><i class="fas fa-user-plus"></i> Manual</button>
       </div>
       <div id="usersListAdm"></div>
+    </section>
+
+    <!-- 👇 PAINEL QUEM SOMOS (NOVO) -->
+    <section class="panel" id="panel-quem-somos">
+      <div class="panel-head">
+        <div>
+          <h1>Quem Somos</h1>
+          <p>Fotos exibidas no carrossel da seção "Quem Somos" da vitrine institucional</p>
+        </div>
+        <div class="panel-actions">
+          <span class="chip chip-ok" id="aboutPhotosSavedChip" style="display:none;"><i class="fas fa-check"></i> Salvo</span>
+          <button class="btn btn-ghost" onclick="clearAllAboutPhotosAdm()"><i class="fas fa-eraser"></i> Limpar tudo</button>
+        </div>
+      </div>
+
+      <div class="block">
+        <div class="block-head">
+          <h3><i class="fas fa-images" style="color:var(--accent)"></i> Fotos cadastradas (<span id="aboutPhotosCountAdm">0</span>)</h3>
+        </div>
+        <div class="block-body">
+          <div id="aboutPhotosGridAdm"
+            style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px;">
+          </div>
+        </div>
+      </div>
+
+      <div class="block">
+        <div class="block-head">
+          <h3><i class="fas fa-plus-circle" style="color:var(--accent)"></i> Adicionar nova foto</h3>
+        </div>
+        <div class="block-body">
+          <div class="upload-box" onclick="document.getElementById('aboutPhotoInput').click()">
+            <i class="fas fa-cloud-upload-alt"></i>
+            <p>Clique para selecionar uma imagem (JPG, PNG ou WEBP)</p>
+            <input type="file" id="aboutPhotoInput" accept="image/*" style="display:none;">
+          </div>
+          <p style="color:var(--text-muted);font-size:.8rem;margin-top:12px;line-height:1.6;">
+            <i class="fas fa-info-circle" style="color:var(--accent);"></i>
+            As fotos são enviadas para o <strong>Firebase Storage</strong> (pasta <code class="mono">/about</code>) e aparecem automaticamente no carrossel da vitrine.
+            Use os botões <i class="fas fa-chevron-up"></i> / <i class="fas fa-chevron-down"></i> em cada foto para reordenar.
+          </p>
+        </div>
+      </div>
     </section>
 
     <section class="panel" id="panel-perfil">
@@ -1057,6 +1100,12 @@ let trackingLinks = {};
 let editingLinkId = null;
 let uploadedLinkImg = null;
 
+/* 👇 State da aba Quem Somos */
+let aboutPhotosDraft = [];
+let aboutPhotosLoaded = false;
+let aboutPhotosDirty = false;
+let aboutPhotosSaveTimer = null;
+
 /* ================= UTIL ================= */
 function esc(t){ if(!t) return ''; const d=document.createElement('div'); d.textContent=t; return d.innerHTML; }
 function showToast(msg,type='ok'){
@@ -1227,6 +1276,7 @@ function switchPanel(name){
     importacao:['Importação','Importação em lote via CSV'],
     cliques:['Cliques & metas','Engajamento dos produtos'],
     usuarios:['Usuários','Clientes cadastrados'],
+    'quem-somos':['Quem Somos','Fotos da seção institucional'],
     perfil:['Perfil da loja','Identidade exibida ao cliente'],
     contatos:['Contatos','Atendimento via WhatsApp'],
     config:['Configurações','Ações administrativas']
@@ -1235,6 +1285,7 @@ function switchPanel(name){
   document.getElementById('topbarCrumb').textContent=titles[name][1];
   document.getElementById('sidebar').classList.remove('open');
   if(name === 'destaques'){ renderFeaturedPanelAdm(); renderGalleryPanelAdm(); }
+  if(name === 'quem-somos') renderAboutPhotosPanelAdm();
 }
 function globalSearchHandler(v){ if(v.trim()==='') return; switchPanel('produtos'); document.getElementById('prodFilterText').value=v; renderProducts(); }
 
@@ -1296,6 +1347,7 @@ function loadAllData(){
   setInterval(checkPromoExpiration,30000);
   loadFeaturedAdm();
   loadGalleryAdm();
+  loadAboutPhotosAdm();
 }
 
 function updateOnlineUsersBadge(){
@@ -2627,9 +2679,10 @@ async function scanOrphanImagesAdm(){
     if(profileData.photo && profileData.photo.includes('firebasestorage.googleapis.com')) referencedUrls.add(profileData.photo);
     usersCache.forEach(u => { if(u.photoURL && u.photoURL.includes('firebasestorage.googleapis.com')) referencedUrls.add(u.photoURL); });
     Object.values(trackingLinks).forEach(l => { if(l.image && l.image.includes('firebasestorage.googleapis.com')) referencedUrls.add(l.image); });
+    aboutPhotosDraft.forEach(url => { if(url && url.includes('firebasestorage.googleapis.com')) referencedUrls.add(url); });
 
     const allFiles = [];
-    const folders = ['products', 'sessions', 'brands', 'contacts', 'profile', 'avatars', 'links'];
+    const folders = ['products', 'sessions', 'brands', 'contacts', 'profile', 'avatars', 'links', 'about'];
     for(const folder of folders){
       try{
         const listRef = storage.ref(folder);
@@ -2890,6 +2943,134 @@ function persistGalleryAdm(){
     }).catch(e => showToast('Erro ao salvar galeria: '+e.message,'err'));
   }, 250);
 }
+
+/* ============================================================
+   🖼️ QUEM SOMOS — Gerenciamento de fotos (Firebase /aboutPhotos)
+   ============================================================ */
+function loadAboutPhotosAdm(){
+  database.ref('aboutPhotos').on('value', snap => {
+    const data = snap.val();
+    let urls = [];
+    if(Array.isArray(data)) urls = data.filter(Boolean);
+    else if(data) urls = Object.keys(data).sort((a,b)=>Number(a)-Number(b)).map(k=>data[k]).filter(Boolean);
+
+    if(!aboutPhotosLoaded){
+      aboutPhotosDraft = [...urls];
+      aboutPhotosLoaded = true;
+      renderAboutPhotosPanelAdm();
+    } else if(!aboutPhotosDirty){
+      const same = JSON.stringify(urls) === JSON.stringify(aboutPhotosDraft);
+      if(!same){ aboutPhotosDraft = [...urls]; renderAboutPhotosPanelAdm(); }
+    }
+  });
+}
+
+function renderAboutPhotosPanelAdm(){
+  const grid = document.getElementById('aboutPhotosGridAdm');
+  const counter = document.getElementById('aboutPhotosCountAdm');
+  if(!grid) return;
+  counter.textContent = aboutPhotosDraft.length;
+
+  if(aboutPhotosDraft.length === 0){
+    grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1;">
+      <i class="fas fa-images"></i>
+      <p>Nenhuma foto cadastrada ainda. Use o bloco abaixo para adicionar.</p>
+    </div>`;
+    return;
+  }
+
+  grid.innerHTML = aboutPhotosDraft.map((url, idx) => `
+    <div style="position:relative;border-radius:12px;overflow:hidden;border:1px solid var(--border);background:var(--panel-alt);aspect-ratio:4/3;">
+      <img src="${esc(url)}" alt="Foto ${idx+1}"
+        style="width:100%;height:100%;object-fit:cover;cursor:zoom-in;"
+        onclick="openImageViewer(this.src,'Foto #' + ${idx+1})"
+        onerror="this.src='${PLACEHOLDER_IMG}'">
+      <div style="position:absolute;top:6px;right:6px;display:flex;gap:4px;">
+        ${idx > 0 ? `<button class="btn btn-icon btn-ghost" style="background:rgba(0,0,0,.75);" title="Mover para cima" onclick="moveAboutPhotoAdm(${idx},-1)"><i class="fas fa-chevron-up"></i></button>` : ''}
+        ${idx < aboutPhotosDraft.length-1 ? `<button class="btn btn-icon btn-ghost" style="background:rgba(0,0,0,.75);" title="Mover para baixo" onclick="moveAboutPhotoAdm(${idx},1)"><i class="fas fa-chevron-down"></i></button>` : ''}
+        <button class="btn btn-icon btn-danger" style="background:rgba(0,0,0,.75);" title="Remover" onclick="removeAboutPhotoAdm(${idx})"><i class="fas fa-trash"></i></button>
+      </div>
+      <div style="position:absolute;bottom:0;left:0;right:0;background:linear-gradient(to top, rgba(0,0,0,.8), transparent);padding:6px 10px;color:#fff;font-size:.72rem;font-weight:600;">
+        Foto #${idx+1}
+      </div>
+    </div>
+  `).join('');
+}
+
+async function handleAboutPhotoUpload(file){
+  if(!file){ return; }
+  if(!file.type.startsWith('image/')){
+    showToast('Arquivo não é uma imagem', 'err'); return;
+  }
+  if(file.size > 8 * 1024 * 1024){
+    showToast('Imagem muito grande (máx 8MB)', 'err'); return;
+  }
+  const url = await uploadImg(file, 'about');
+  if(!url) return;
+  aboutPhotosDraft.push(url);
+  aboutPhotosDirty = true;
+  renderAboutPhotosPanelAdm();
+  persistAboutPhotosAdm();
+  showToast('Foto adicionada com sucesso');
+}
+
+function removeAboutPhotoAdm(idx){
+  const url = aboutPhotosDraft[idx];
+  if(!url) return;
+  if(!confirm('Remover esta foto? A imagem também será excluída do Firebase Storage.')) return;
+  aboutPhotosDraft.splice(idx, 1);
+  aboutPhotosDirty = true;
+  renderAboutPhotosPanelAdm();
+  persistAboutPhotosAdm();
+  deleteImageByUrl(url).catch(()=>{});
+}
+
+function moveAboutPhotoAdm(idx, dir){
+  const ni = idx + dir;
+  if(ni < 0 || ni >= aboutPhotosDraft.length) return;
+  [aboutPhotosDraft[idx], aboutPhotosDraft[ni]] = [aboutPhotosDraft[ni], aboutPhotosDraft[idx]];
+  aboutPhotosDirty = true;
+  renderAboutPhotosPanelAdm();
+  persistAboutPhotosAdm();
+}
+
+async function clearAllAboutPhotosAdm(){
+  if(aboutPhotosDraft.length === 0){ showToast('Nada para limpar', 'err'); return; }
+  if(!confirm(`Remover TODAS as ${aboutPhotosDraft.length} fotos? As imagens também serão excluídas do Storage.`)) return;
+  const urls = [...aboutPhotosDraft];
+  aboutPhotosDraft = [];
+  aboutPhotosDirty = true;
+  renderAboutPhotosPanelAdm();
+  persistAboutPhotosAdm();
+  await Promise.all(urls.map(u => deleteImageByUrl(u)));
+  showToast('Todas as fotos foram removidas');
+}
+
+function persistAboutPhotosAdm(){
+  const chip = document.getElementById('aboutPhotosSavedChip');
+  if(chip) chip.style.display = 'none';
+  clearTimeout(aboutPhotosSaveTimer);
+  aboutPhotosSaveTimer = setTimeout(() => {
+    database.ref('aboutPhotos').set(aboutPhotosDraft).then(() => {
+      aboutPhotosDirty = false;
+      if(chip){
+        chip.style.display = 'inline-flex';
+        setTimeout(()=>{ chip.style.display = 'none'; }, 1500);
+      }
+    }).catch(e => showToast('Erro ao salvar fotos: ' + e.message, 'err'));
+  }, 250);
+}
+
+/* Listener do input file */
+(function bindAboutPhotoInput(){
+  const inp = document.getElementById('aboutPhotoInput');
+  if(!inp) return;
+  inp.addEventListener('change', (e) => {
+    const file = e.target.files && e.target.files[0];
+    if(file) handleAboutPhotoUpload(file);
+    e.target.value = '';
+  });
+})();
 </script>
 </body>
 </html>
