@@ -110,32 +110,28 @@
         .carousel-track:hover .brand-item { opacity: 0.3; }
         .carousel-track .brand-item:hover { opacity: 1 !important; }
 
+        /* 👇 MÁSCARA nos carrosséis: revela o fundo real da seção (sem sombra preta) */
         .carousel-container {
             position: relative;
             overflow: hidden;
             width: 100%;
             transform: translateZ(0);
+            -webkit-mask-image: linear-gradient(to right,
+                transparent 0%,
+                #000 8%,
+                #000 92%,
+                transparent 100%);
+            mask-image: linear-gradient(to right,
+                transparent 0%,
+                #000 8%,
+                #000 92%,
+                transparent 100%);
         }
 
+        /* Overlays antigos desativados */
         .carousel-container::before,
         .carousel-container::after {
-            content: '';
-            position: absolute;
-            top: 0;
-            bottom: 0;
-            width: 120px;
-            z-index: 10;
-            pointer-events: none;
-        }
-
-        .carousel-container::before {
-            left: 0;
-            background: linear-gradient(to right, #0b0b0b, transparent);
-        }
-
-        .carousel-container::after {
-            right: 0;
-            background: linear-gradient(to left, #0b0b0b, transparent);
+            display: none !important;
         }
 
         .reveal {
@@ -492,13 +488,13 @@
         </div>
     </main>
 
-    <!-- Seção Peças em Destaque -->
+    <!-- Seção Peças em Destaque (título centralizado) -->
     <section id="destaques" class="py-16 md:py-20 bg-[#0a0a0a] relative z-10 overflow-hidden reveal">
-        <div class="container mx-auto px-6 md:px-16 mb-8">
+        <div class="container mx-auto px-6 md:px-16 mb-8 text-center">
             <h2 class="text-2xl md:text-4xl font-black uppercase tracking-tight text-white">
                 Peças em <span class="text-[#d23021]">Destaque</span>
             </h2>
-            <div class="w-16 h-1 bg-[#d23021] mt-3"></div>
+            <div class="w-16 h-1 bg-[#d23021] mt-3 mx-auto"></div>
         </div>
 
         <div class="carousel-container carousel-track py-4 cursor-pointer">
@@ -564,6 +560,7 @@
             <div class="md:col-span-4 lg:col-span-5"></div>
         </div>
 
+        <!-- 👇 Navegue pelas Marcas — DINÂMICO (Firebase /brands) -->
         <div class="w-full relative z-10 mt-8 pb-4">
             <div class="container mx-auto px-6 md:px-16 mb-6 text-center">
                 <h3 class="text-2xl md:text-3xl font-black uppercase tracking-tight text-white">
@@ -573,27 +570,8 @@
             </div>
 
             <div class="carousel-container carousel-track py-4 cursor-pointer">
-                <div class="animate-carousel-right flex items-center space-x-12 md:space-x-16">
-                    <div class="flex items-center space-x-12 md:space-x-16 shrink-0">
-                        <div class="brand-item transition-all duration-300 px-4 flex items-center justify-center"><img src="https://i.postimg.cc/yNPRSgcd/allen.png" alt="Allen" loading="lazy" class="h-14 md:h-20 object-contain"></div>
-                        <div class="brand-item transition-all duration-300 px-4 flex items-center justify-center"><img src="https://i.postimg.cc/ZqcNyBpB/Autotec.png" alt="Autotec" loading="lazy" class="h-14 md:h-20 object-contain"></div>
-                        <div class="brand-item transition-all duration-300 px-4 flex items-center justify-center"><img src="https://i.postimg.cc/435ch7Vn/DLZ.png" alt="DLZ" loading="lazy" class="h-14 md:h-20 object-contain"></div>
-                        <div class="brand-item transition-all duration-300 px-4 flex items-center justify-center"><img src="https://i.postimg.cc/3wBGD4m0/drive-tec.png" alt="Drive Tec" loading="lazy" class="h-14 md:h-20 object-contain"></div>
-                        <div class="brand-item transition-all duration-300 px-4 flex items-center justify-center"><img src="https://i.postimg.cc/hGrm7zT7/Frontier.png" alt="Frontier" loading="lazy" class="h-14 md:h-20 object-contain"></div>
-                        <div class="brand-item transition-all duration-300 px-4 flex items-center justify-center"><img src="https://i.postimg.cc/LsTPZYL1/japan-Parts.png" alt="Japan Parts" loading="lazy" class="h-14 md:h-20 object-contain"></div>
-                        <div class="brand-item transition-all duration-300 px-4 flex items-center justify-center"><img src="https://i.postimg.cc/Pq4D8pYY/Mecarm.png" alt="Mecarm" loading="lazy" class="h-14 md:h-20 object-contain"></div>
-                        <div class="brand-item transition-all duration-300 px-4 flex items-center justify-center"><img src="https://i.postimg.cc/3wBGD4m2/Roc.png" alt="Roc" loading="lazy" class="h-14 md:h-20 object-contain"></div>
-                    </div>
-                    <div class="flex items-center space-x-12 md:space-x-16 shrink-0">
-                        <div class="brand-item transition-all duration-300 px-4 flex items-center justify-center"><img src="https://i.postimg.cc/yNPRSgcd/allen.png" alt="Allen" loading="lazy" class="h-14 md:h-20 object-contain"></div>
-                        <div class="brand-item transition-all duration-300 px-4 flex items-center justify-center"><img src="https://i.postimg.cc/ZqcNyBpB/Autotec.png" alt="Autotec" loading="lazy" class="h-14 md:h-20 object-contain"></div>
-                        <div class="brand-item transition-all duration-300 px-4 flex items-center justify-center"><img src="https://i.postimg.cc/435ch7Vn/DLZ.png" alt="DLZ" loading="lazy" class="h-14 md:h-20 object-contain"></div>
-                        <div class="brand-item transition-all duration-300 px-4 flex items-center justify-center"><img src="https://i.postimg.cc/3wBGD4m0/drive-tec.png" alt="Drive Tec" loading="lazy" class="h-14 md:h-20 object-contain"></div>
-                        <div class="brand-item transition-all duration-300 px-4 flex items-center justify-center"><img src="https://i.postimg.cc/hGrm7zT7/Frontier.png" alt="Frontier" loading="lazy" class="h-14 md:h-20 object-contain"></div>
-                        <div class="brand-item transition-all duration-300 px-4 flex items-center justify-center"><img src="https://i.postimg.cc/LsTPZYL1/japan-Parts.png" alt="Japan Parts" loading="lazy" class="h-14 md:h-20 object-contain"></div>
-                        <div class="brand-item transition-all duration-300 px-4 flex items-center justify-center"><img src="https://i.postimg.cc/Pq4D8pYY/Mecarm.png" alt="Mecarm" loading="lazy" class="h-14 md:h-20 object-contain"></div>
-                        <div class="brand-item transition-all duration-300 px-4 flex items-center justify-center"><img src="https://i.postimg.cc/3wBGD4m2/Roc.png" alt="Roc" loading="lazy" class="h-14 md:h-20 object-contain"></div>
-                    </div>
+                <div id="marcas-track" class="animate-carousel-right flex items-center space-x-12 md:space-x-16">
+                    <!-- Preenchido dinamicamente pelo JS (Firebase → brands) -->
                 </div>
             </div>
         </div>
@@ -648,48 +626,10 @@
             </div>
         </div>
 
+        <!-- 👇 Carrossel "Quem Somos" — DINÂMICO (Firebase /aboutPhotos) -->
         <div class="about-carousel-container carousel-container py-4">
-            <div class="animate-about-carousel flex items-center space-x-6">
-                <div class="flex items-center space-x-6 shrink-0">
-                    <div class="w-72 md:w-96 h-64 md:h-80 rounded-2xl overflow-hidden border border-gray-800 shadow-2xl shrink-0">
-                        <img src="https://i.postimg.cc/dQ2fkc9V/image.png" alt="CIM Peça 1" loading="lazy" class="w-full h-full object-cover">
-                    </div>
-                    <div class="w-72 md:w-96 h-64 md:h-80 rounded-2xl overflow-hidden border border-gray-800 shadow-2xl shrink-0">
-                        <img src="https://i.postimg.cc/Dy7M1pCH/image.png" alt="CIM Peça 2" loading="lazy" class="w-full h-full object-cover">
-                    </div>
-                    <div class="w-72 md:w-96 h-64 md:h-80 rounded-2xl overflow-hidden border border-gray-800 shadow-2xl shrink-0">
-                        <img src="https://i.postimg.cc/K8zpHkhT/image.png" alt="CIM Peça 3" loading="lazy" class="w-full h-full object-cover">
-                    </div>
-                    <div class="w-72 md:w-96 h-64 md:h-80 rounded-2xl overflow-hidden border border-gray-800 shadow-2xl shrink-0">
-                        <img src="https://i.postimg.cc/pL6cbW2t/image.png" alt="CIM Peça 4" loading="lazy" class="w-full h-full object-cover">
-                    </div>
-                    <div class="w-72 md:w-96 h-64 md:h-80 rounded-2xl overflow-hidden border border-gray-800 shadow-2xl shrink-0">
-                        <img src="https://i.postimg.cc/3RMLNt4y/image.png" alt="CIM Peça 5" loading="lazy" class="w-full h-full object-cover">
-                    </div>
-                    <div class="w-72 md:w-96 h-64 md:h-80 rounded-2xl overflow-hidden border border-gray-800 shadow-2xl shrink-0">
-                        <img src="https://i.postimg.cc/mDQmH77W/image.png" alt="CIM Peça 6" loading="lazy" class="w-full h-full object-cover">
-                    </div>
-                </div>
-                <div class="flex items-center space-x-6 shrink-0">
-                    <div class="w-72 md:w-96 h-64 md:h-80 rounded-2xl overflow-hidden border border-gray-800 shadow-2xl shrink-0">
-                        <img src="https://i.postimg.cc/dQ2fkc9V/image.png" alt="CIM Peça 1" loading="lazy" class="w-full h-full object-cover">
-                    </div>
-                    <div class="w-72 md:w-96 h-64 md:h-80 rounded-2xl overflow-hidden border border-gray-800 shadow-2xl shrink-0">
-                        <img src="https://i.postimg.cc/Dy7M1pCH/image.png" alt="CIM Peça 2" loading="lazy" class="w-full h-full object-cover">
-                    </div>
-                    <div class="w-72 md:w-96 h-64 md:h-80 rounded-2xl overflow-hidden border border-gray-800 shadow-2xl shrink-0">
-                        <img src="https://i.postimg.cc/K8zpHkhT/image.png" alt="CIM Peça 3" loading="lazy" class="w-full h-full object-cover">
-                    </div>
-                    <div class="w-72 md:w-96 h-64 md:h-80 rounded-2xl overflow-hidden border border-gray-800 shadow-2xl shrink-0">
-                        <img src="https://i.postimg.cc/pL6cbW2t/image.png" alt="CIM Peça 4" loading="lazy" class="w-full h-full object-cover">
-                    </div>
-                    <div class="w-72 md:w-96 h-64 md:h-80 rounded-2xl overflow-hidden border border-gray-800 shadow-2xl shrink-0">
-                        <img src="https://i.postimg.cc/3RMLNt4y/image.png" alt="CIM Peça 5" loading="lazy" class="w-full h-full object-cover">
-                    </div>
-                    <div class="w-72 md:w-96 h-64 md:h-80 rounded-2xl overflow-hidden border border-gray-800 shadow-2xl shrink-0">
-                        <img src="https://i.postimg.cc/mDQmH77W/image.png" alt="CIM Peça 6" loading="lazy" class="w-full h-full object-cover">
-                    </div>
-                </div>
+            <div id="about-carousel-track" class="animate-about-carousel flex items-center space-x-6">
+                <!-- Preenchido dinamicamente pelo JS (Firebase → aboutPhotos) -->
             </div>
         </div>
     </section>
@@ -1379,6 +1319,110 @@
                 fecharBusca();
             }
         });
+    </script>
+
+    <!-- ============================================================
+         🔥 CARROSSÉIS DINÂMICOS (Marcas + Quem Somos)
+         ============================================================ -->
+    <script>
+        /* ============================================================
+           🏷️ CARROSSEL DE MARCAS DINÂMICO (Firebase /brands)
+           ============================================================ */
+        (function loadBrandsCarousel(){
+            const track = document.getElementById('marcas-track');
+            if(!track) return;
+
+            const DEFAULT_BRAND_IMG = 'https://i.ibb.co/F4dXSwVG/IMG-6495.jpg';
+
+            function buildSet(list){
+                const set = document.createElement('div');
+                set.className = 'flex items-center space-x-12 md:space-x-16 shrink-0';
+                list.forEach(b => {
+                    const item = document.createElement('div');
+                    item.className = 'brand-item transition-all duration-300 px-4 flex items-center justify-center';
+                    const img = document.createElement('img');
+                    img.src = b.image || DEFAULT_BRAND_IMG;
+                    img.alt = b.name || 'Marca';
+                    img.loading = 'lazy';
+                    img.decoding = 'async';
+                    img.className = 'h-14 md:h-20 object-contain';
+                    img.onerror = function(){ this.src = DEFAULT_BRAND_IMG; };
+                    item.appendChild(img);
+                    set.appendChild(item);
+                });
+                return set;
+            }
+
+            function render(data){
+                const list = Object.values(data || {})
+                    .filter(b => b && (b.image || b.name))
+                    .sort((a,b) => (a.order||0) - (b.order||0));
+
+                track.innerHTML = '';
+                const wrap = track.closest('.carousel-container');
+                if(list.length === 0){
+                    if(wrap) wrap.style.display = 'none';
+                    return;
+                }
+                if(wrap) wrap.style.display = '';
+
+                track.appendChild(buildSet(list));
+                track.appendChild(buildSet(list));
+            }
+
+            database.ref('brands').on('value', snap => render(snap.val()));
+        })();
+
+        /* ============================================================
+           🖼️ CARROSSEL "QUEM SOMOS" DINÂMICO (Firebase /aboutPhotos)
+           ============================================================ */
+        (function loadAboutCarousel(){
+            const track = document.getElementById('about-carousel-track');
+            if(!track) return;
+
+            const DEFAULT_PHOTO = 'https://i.ibb.co/F4dXSwVG/IMG-6495.jpg';
+
+            function buildSet(urls){
+                const set = document.createElement('div');
+                set.className = 'flex items-center space-x-6 shrink-0';
+                urls.forEach((url, i) => {
+                    const box = document.createElement('div');
+                    box.className = 'w-72 md:w-96 h-64 md:h-80 rounded-2xl overflow-hidden border border-gray-800 shadow-2xl shrink-0';
+                    const img = document.createElement('img');
+                    img.src = url || DEFAULT_PHOTO;
+                    img.alt = `CIM Foto ${i+1}`;
+                    img.loading = 'lazy';
+                    img.decoding = 'async';
+                    img.className = 'w-full h-full object-cover';
+                    img.onerror = function(){ this.src = DEFAULT_PHOTO; };
+                    box.appendChild(img);
+                    set.appendChild(box);
+                });
+                return set;
+            }
+
+            function parse(val){
+                if(!val) return [];
+                if(Array.isArray(val)) return val.filter(Boolean);
+                return Object.keys(val).sort((a,b)=>Number(a)-Number(b)).map(k=>val[k]).filter(Boolean);
+            }
+
+            function render(data){
+                const urls = parse(data);
+                track.innerHTML = '';
+                const wrap = track.closest('.about-carousel-container');
+                if(urls.length === 0){
+                    if(wrap) wrap.style.display = 'none';
+                    return;
+                }
+                if(wrap) wrap.style.display = '';
+
+                track.appendChild(buildSet(urls));
+                track.appendChild(buildSet(urls));
+            }
+
+            database.ref('aboutPhotos').on('value', snap => render(snap.val()));
+        })();
     </script>
 
 </body>
