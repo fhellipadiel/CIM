@@ -118,7 +118,8 @@ h1,h2,h3,h4{font-family:var(--font-head)}
 .btn-icon{width:32px;height:32px;padding:0;justify-content:center;border-radius:10px;}
 
 .stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:14px;margin-bottom:26px;}
-.stat-card{background:var(--panel);border:1px solid var(--border);border-radius:var(--radius);padding:18px;transition:.15s;cursor:pointer;}
+.stat-card{background:var(--panel);border:1px solid var(--border);border-radius:var(--radius);padding:18px;transition:border-color .15s, transform .15s, background .15s;cursor:pointer;}
+.stat-card:hover{border-color:var(--accent);transform:translateY(-2px);background:var(--panel-alt);}
 .stat-card .sc-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px;}
 .stat-card .sc-icon{width:34px;height:34px;border-radius:var(--radius-sm);display:flex;align-items:center;justify-content:center;font-size:.9rem;color:var(--accent);background:transparent!important;}
 .stat-card .sc-val{font-family:var(--font-mono);font-size:1.7rem;font-weight:600;line-height:1;}
@@ -272,6 +273,7 @@ tbody tr:last-child td{border-bottom:none;}
 .analytics-filters .tab-pill{padding:6px 14px;border-radius:20px;font-size:.78rem;font-weight:600;background:var(--panel-alt);border:1px solid var(--border);color:var(--text-muted);cursor:pointer;transition:.15s;}
 .analytics-filters .tab-pill:hover{border-color:var(--accent);color:var(--accent);}
 .analytics-filters .tab-pill.active{background:var(--accent);color:#160b05;border-color:var(--accent);}
+.analytics-filters .tab-pill i{margin-right:5px;font-size:.72rem;}
 .chart-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;}
 @media(max-width:1000px){.chart-grid{grid-template-columns:1fr;}}
 .chart-card{background:var(--panel);border:1px solid var(--border);border-radius:var(--radius);padding:18px;position:relative;}
@@ -279,6 +281,7 @@ tbody tr:last-child td{border-bottom:none;}
 .chart-card h3{font-size:.92rem;font-weight:600;margin-bottom:4px;display:flex;align-items:center;gap:8px;}
 .chart-card h3 i{color:var(--accent);}
 .chart-card .chart-sub{font-size:.75rem;color:var(--text-dim);margin-bottom:14px;}
+.chart-card .chart-sub i{color:var(--accent);margin-right:4px;}
 .chart-wrap{position:relative;height:300px;width:100%;}
 .chart-wrap.tall{height:360px;}
 .analytics-kpi{display:flex;align-items:center;gap:8px;font-size:.82rem;color:var(--text-muted);background:var(--panel-alt);padding:8px 14px;border-radius:10px;border:1px solid var(--border);}
@@ -373,21 +376,45 @@ tbody tr:last-child td{border-bottom:none;}
     <section class="panel active" id="panel-dashboard">
       <div class="panel-head"><div><h1>Visão geral</h1><p>Resumo do desempenho e status da loja</p></div></div>
       <div class="stats-grid">
-        <div class="stat-card"><div class="sc-top"><div class="sc-icon"><i class="fas fa-box"></i></div></div><div class="sc-val" id="statProdutos">0</div><div class="sc-label">Peças cadastradas</div></div>
-        <div class="stat-card"><div class="sc-top"><div class="sc-icon"><i class="fas fa-eye"></i></div></div><div class="sc-val" id="statCliques">0</div><div class="sc-label">Cliques totais</div></div>
-        <div class="stat-card"><div class="sc-top"><div class="sc-icon"><i class="fas fa-exclamation-triangle"></i></div></div><div class="sc-val" id="statSemPreco">0</div><div class="sc-label">Sem preço definido</div></div>
-        <div class="stat-card"><div class="sc-top"><div class="sc-icon"><i class="fas fa-percent"></i></div></div><div class="sc-val" id="statPromosAtivas">0</div><div class="sc-label">Promoções ativas</div></div>
-        <div class="stat-card"><div class="sc-top"><div class="sc-icon"><i class="fas fa-ticket"></i></div></div><div class="sc-val" id="statCupons">0</div><div class="sc-label">Cupons ativos</div></div>
-        <div class="stat-card"><div class="sc-top"><div class="sc-icon"><i class="fas fa-users"></i></div></div><div class="sc-val" id="statUsuarios">0</div><div class="sc-label">Usuários cadastrados</div></div>
-        <div class="stat-card"><div class="sc-top"><div class="sc-icon"><i class="fas fa-ban"></i></div></div><div class="sc-val" id="statEsgotados">0</div><div class="sc-label">Peças esgotadas</div></div>
-        <div class="stat-card"><div class="sc-top"><div class="sc-icon"><i class="fas fa-eye-slash"></i></div></div><div class="sc-val" id="statPrecoOculto">0</div><div class="sc-label">Preços ocultos</div></div>
-        <div class="stat-card" style="border-color:rgba(37,211,102,.3);">
-          <div class="sc-top"><div class="sc-icon" style="color:#25d366;"><i class="fab fa-whatsapp"></i></div></div>
+        <div class="stat-card" onclick="goToPanel('produtos')">
+          <div class="sc-top"><div class="sc-icon"><i class="fas fa-box"></i></div><i class="fas fa-arrow-up-right-from-square" style="color:var(--text-dim);font-size:.7rem;"></i></div>
+          <div class="sc-val" id="statProdutos">0</div><div class="sc-label">Peças cadastradas</div>
+        </div>
+        <div class="stat-card" onclick="goToPanel('cliques',{clickTab:'hist'})">
+          <div class="sc-top"><div class="sc-icon"><i class="fas fa-eye"></i></div><i class="fas fa-arrow-up-right-from-square" style="color:var(--text-dim);font-size:.7rem;"></i></div>
+          <div class="sc-val" id="statCliques">0</div><div class="sc-label">Cliques totais</div>
+        </div>
+        <div class="stat-card" onclick="goToPanel('precos')">
+          <div class="sc-top"><div class="sc-icon"><i class="fas fa-exclamation-triangle"></i></div><i class="fas fa-arrow-up-right-from-square" style="color:var(--text-dim);font-size:.7rem;"></i></div>
+          <div class="sc-val" id="statSemPreco">0</div><div class="sc-label">Sem preço definido</div>
+        </div>
+        <div class="stat-card" onclick="goToPanel('promocoes')">
+          <div class="sc-top"><div class="sc-icon"><i class="fas fa-percent"></i></div><i class="fas fa-arrow-up-right-from-square" style="color:var(--text-dim);font-size:.7rem;"></i></div>
+          <div class="sc-val" id="statPromosAtivas">0</div><div class="sc-label">Promoções ativas</div>
+        </div>
+        <div class="stat-card" onclick="goToPanel('cupons')">
+          <div class="sc-top"><div class="sc-icon"><i class="fas fa-ticket"></i></div><i class="fas fa-arrow-up-right-from-square" style="color:var(--text-dim);font-size:.7rem;"></i></div>
+          <div class="sc-val" id="statCupons">0</div><div class="sc-label">Cupons ativos</div>
+        </div>
+        <div class="stat-card" onclick="goToPanel('usuarios')">
+          <div class="sc-top"><div class="sc-icon"><i class="fas fa-users"></i></div><i class="fas fa-arrow-up-right-from-square" style="color:var(--text-dim);font-size:.7rem;"></i></div>
+          <div class="sc-val" id="statUsuarios">0</div><div class="sc-label">Usuários cadastrados</div>
+        </div>
+        <div class="stat-card" onclick="goToPanel('produtos',{prodStatus:'soldout'})">
+          <div class="sc-top"><div class="sc-icon"><i class="fas fa-ban"></i></div><i class="fas fa-arrow-up-right-from-square" style="color:var(--text-dim);font-size:.7rem;"></i></div>
+          <div class="sc-val" id="statEsgotados">0</div><div class="sc-label">Peças esgotadas</div>
+        </div>
+        <div class="stat-card" onclick="goToPanel('produtos',{prodStatus:'hidden'})">
+          <div class="sc-top"><div class="sc-icon"><i class="fas fa-eye-slash"></i></div><i class="fas fa-arrow-up-right-from-square" style="color:var(--text-dim);font-size:.7rem;"></i></div>
+          <div class="sc-val" id="statPrecoOculto">0</div><div class="sc-label">Preços ocultos</div>
+        </div>
+        <div class="stat-card" style="border-color:rgba(37,211,102,.3);" onclick="goToPanel('cliques',{clickTab:'contatos'})">
+          <div class="sc-top"><div class="sc-icon" style="color:#25d366;"><i class="fab fa-whatsapp"></i></div><i class="fas fa-arrow-up-right-from-square" style="color:var(--text-dim);font-size:.7rem;"></i></div>
           <div class="sc-val" id="statWhatsApp">0</div>
           <div class="sc-label">Cliques WhatsApp</div>
         </div>
-        <div class="stat-card" style="border-color:rgba(59,130,246,.3);">
-          <div class="sc-top"><div class="sc-icon" style="color:#3b82f6;"><i class="fas fa-phone"></i></div></div>
+        <div class="stat-card" style="border-color:rgba(59,130,246,.3);" onclick="goToPanel('cliques',{clickTab:'contatos'})">
+          <div class="sc-top"><div class="sc-icon" style="color:#3b82f6;"><i class="fas fa-phone"></i></div><i class="fas fa-arrow-up-right-from-square" style="color:var(--text-dim);font-size:.7rem;"></i></div>
           <div class="sc-val" id="statPhone">0</div>
           <div class="sc-label">Cliques "Ligar"</div>
         </div>
@@ -442,8 +469,8 @@ tbody tr:last-child td{border-bottom:none;}
         <div style="width:1px;height:24px;background:var(--border);margin:0 8px;"></div>
         <span class="filter-tag">Fonte:</span>
         <button class="tab-pill active" data-ana-source="all" onclick="setAnalyticsSource('all')">Geral</button>
-        <button class="tab-pill" data-ana-source="products" onclick="setAnalyticsSource('products')">📦 Produtos</button>
-        <button class="tab-pill" data-ana-source="contacts" onclick="setAnalyticsSource('contacts')">📱 Contatos</button>
+        <button class="tab-pill" data-ana-source="products" onclick="setAnalyticsSource('products')"><i class="fas fa-box"></i> Produtos</button>
+        <button class="tab-pill" data-ana-source="contacts" onclick="setAnalyticsSource('contacts')"><i class="fas fa-headset"></i> Contatos</button>
       </div>
 
       <div class="chart-grid">
@@ -512,7 +539,7 @@ tbody tr:last-child td{border-bottom:none;}
       <div class="chart-grid">
         <div class="chart-card wide">
           <h3><i class="fas fa-calendar-week"></i> Entradas por dia da semana</h3>
-          <div class="chart-sub">📍 Qual dia da semana (Seg a Dom) seu link recebe mais cliques</div>
+          <div class="chart-sub"><i class="fas fa-map-pin"></i> Qual dia da semana (Seg a Dom) seu link recebe mais cliques</div>
           <div class="chart-wrap tall"><canvas id="chartDowLinks"></canvas></div>
         </div>
         <div class="chart-card wide">
@@ -804,6 +831,12 @@ tbody tr:last-child td{border-bottom:none;}
       <div class="panel-head">
         <div><h1>Usuários</h1><p>Clientes pessoa física e jurídica cadastrados</p></div>
         <div class="panel-actions"><button class="btn btn-accent" onclick="openCreateClientModal()"><i class="fas fa-user-plus"></i> Criar cliente</button></div>
+      </div>
+      <div class="filter-bar">
+        <input type="text" id="userFilterText" placeholder="Buscar por nome, e-mail, telefone, CPF/CNPJ..." oninput="renderUsers()">
+        <button class="btn btn-sm btn-ghost" onclick="document.getElementById('userFilterText').value='';renderUsers();">
+          <i class="fas fa-eraser"></i> Limpar
+        </button>
       </div>
       <div class="tabbar">
         <button class="active" data-usertab="PF" onclick="switchUsersTabAdm('PF')">Pessoa física</button>
@@ -1150,6 +1183,15 @@ let aboutPhotosSaveTimer = null;
 
 /* ================= UTIL ================= */
 function esc(t){ if(!t) return ''; const d=document.createElement('div'); d.textContent=t; return d.innerHTML; }
+
+/* 👇 NOVO: busca inteligente por tokens (qualquer ordem de palavras) */
+function matchTokens(haystack, query){
+  if(!query || !query.trim()) return true;
+  const tokens = query.toLowerCase().trim().split(/\s+/).filter(Boolean);
+  const hay = (haystack || '').toLowerCase();
+  return tokens.every(t => hay.includes(t));
+}
+
 function showToast(msg,type='ok'){
   const t=document.createElement('div'); t.className='toast'+(type==='err'?' err':'');
   t.style.animation='toastin .25s ease';
@@ -1320,6 +1362,19 @@ function switchPanel(name){
   if(name === 'analises-links'){ updateLinkSlugFilter(); renderLinksAnalytics(); }
 }
 function globalSearchHandler(v){ if(v.trim()==='') return; switchPanel('produtos'); document.getElementById('prodFilterText').value=v; renderProducts(); }
+
+/* 👇 NOVO: navegação inteligente dos cards do dashboard */
+function goToPanel(panel, opts = {}){
+  switchPanel(panel);
+  setTimeout(() => {
+    if(opts.prodStatus){
+      const el = document.getElementById('prodFilterStatus');
+      if(el){ el.value = opts.prodStatus; renderProducts(); }
+    }
+    if(opts.clickTab) switchClickTab(opts.clickTab);
+    if(opts.userTab) switchUsersTabAdm(opts.userTab);
+  }, 60);
+}
 
 /* ================= LOAD DATA ================= */
 function loadAllData(){
@@ -1499,7 +1554,8 @@ function renderProducts(){
   const cat=document.getElementById('prodFilterCategory')?.value||'';
   const status=document.getElementById('prodFilterStatus')?.value||'';
   let list=[...products];
-  if(text) list=list.filter(p=>[p.name,p.codigo,p.brand,p.category].join(' ').toLowerCase().includes(text));
+  /* 👇 ATUALIZADO: busca inteligente por tokens */
+  if(text) list=list.filter(p => matchTokens([p.name,p.codigo,p.brand,p.category].join(' '), text));
   if(cat) list=list.filter(p=>p.category===cat);
   if(status==='featured') list=list.filter(p=>p.featured);
   if(status==='soldout') list=list.filter(p=>p.soldOut);
@@ -1684,7 +1740,7 @@ function openDeleteNoCategoryModalAdm(){
   const confirmInput = document.getElementById('noCatConfirmInput');
   chip.textContent = list.length; confirmInput.value = ''; confirmBtn.disabled = true;
   if(list.length === 0){
-    previewList.innerHTML = `<div class="empty-state" style="padding:20px;"><i class="fas fa-circle-check" style="color:var(--ok);"></i><p>Nada para limpar! 🎉</p></div>`;
+    previewList.innerHTML = `<div class="empty-state" style="padding:20px;"><i class="fas fa-circle-check" style="color:var(--ok);"></i><p>Nada para limpar!</p></div>`;
     confirmInput.disabled = true;
   } else {
     confirmInput.disabled = false;
@@ -1762,7 +1818,7 @@ async function deleteBrandAdm(id){
   const productsToDelete = products.filter(p => (p.brand||'') === brandName);
   const count = productsToDelete.length;
   let msg = `Excluir a marca "${brandName}"?`;
-  if(count > 0) msg += `\n\n⚠️ ${count} peça(s) vinculadas também serão excluídas.`;
+  if(count > 0) msg += `\n\nATENÇÃO: ${count} peça(s) vinculadas também serão excluídas.`;
   if(!confirm(msg)) return;
   showLoading('Excluindo...');
   if(b.image) await deleteImageByUrl(b.image);
@@ -2149,12 +2205,29 @@ async function saveLinkAdm(){
     database.ref(`trackingLinks/${id}`).set(data).then(()=>{ showToast('Link criado'); closeModal('modalLink'); });
   }
 }
+
+/* 👇 ATUALIZADO: ao excluir link, também apaga os logs de tracking (some do gráfico) */
 async function deleteLinkAdm(id){
   const l = trackingLinks[id]; if(!l) return;
   if(!confirm(`Excluir o link "${l.name}"?`)) return;
   if(l.image) await deleteImageByUrl(l.image);
-  database.ref(`trackingLinks/${id}`).remove().then(()=>showToast('Link excluído'));
+
+  showLoading('Excluindo link e histórico...');
+  try{
+    // Remove todos os logs de tracking desse slug (some do gráfico também)
+    const logsSnap = await database.ref('trackingLinkLogs').orderByChild('slug').equalTo(l.slug).once('value');
+    const updates = {};
+    updates[`trackingLinks/${id}`] = null;
+    logsSnap.forEach(c => { updates[`trackingLinkLogs/${c.key}`] = null; });
+    await database.ref().update(updates);
+    hideLoading();
+    showToast('Link e histórico removidos');
+  }catch(err){
+    hideLoading();
+    showToast('Erro: ' + err.message, 'err');
+  }
 }
+
 function resetLinkCount(id){
   const l = trackingLinks[id]; if(!l) return;
   if(!confirm(`Zerar o contador de "${l.name}"?`)) return;
@@ -2335,7 +2408,12 @@ function renderClickHistory(){
   const body = document.getElementById('clickHistoryBody');
   if(!body) return;
   if(clickHistory.length === 0){ body.innerHTML = `<tr><td colspan="4"><div class="empty-state"><i class="fas fa-clock"></i><p>Nenhum clique registrado</p></div></td></tr>`; return; }
-  const sourceLabels = { 'search': '🔍 Busca', 'search-featured': '🔍 Destaques', 'featured': '⭐ Carrossel', 'gallery': '🖼️ Galeria' };
+  const sourceLabels = {
+    'search':          '<i class="fas fa-search"></i> Busca',
+    'search-featured': '<i class="fas fa-search"></i> Destaques',
+    'featured':        '<i class="fas fa-star"></i> Carrossel',
+    'gallery':         '<i class="fas fa-images"></i> Galeria'
+  };
   body.innerHTML = clickHistory.slice(0, 200).map(l => {
     const srcLabel = sourceLabels[l.source] || l.source || '—';
     return `<tr><td class="td-name">${esc(l.productName || l.sessionName || '—')}</td><td>${esc(l.userName || 'Visitante')}${l.userType ? ` (${l.userType})` : ''}</td><td><span class="chip chip-mut">${srcLabel}</span></td><td class="td-sub">${l.date || ''} ${l.time || ''}</td></tr>`;
@@ -2424,10 +2502,21 @@ function renderUsers(){
   else if(usersTab==='google'){ filtered = usersCache.filter(u => getUserOrigin(u) === 'google.com' && !u.isAdmin); }
   else if(usersTab==='manual'){ filtered = usersCache.filter(u => getUserOrigin(u) !== 'google.com' && !u.isAdmin); }
   else { filtered = usersCache.filter(u => u.userType===usersTab); }
+
+  /* 👇 NOVO: filtro por texto (nome, email, telefone, CPF/CNPJ) */
+  const userQuery = (document.getElementById('userFilterText')?.value || '').trim();
+  if(userQuery){
+    filtered = filtered.filter(u => matchTokens(
+      [u.name, u.email, u.telefone, u.cpf, u.cnpj, u.userType].join(' '),
+      userQuery
+    ));
+  }
+
   filtered.sort((a,b) => { const aO=(now-(a.lastAccess||0))<5*60*1000; const bO=(now-(b.lastAccess||0))<5*60*1000;
     if(aO && !bO) return -1; if(!aO && bO) return 1; return (b.lastAccess||0) - (a.lastAccess||0); });
   if(filtered.length===0){
     let msg = usersTab==='online' ? 'Nenhum usuário online' : usersTab==='novos' ? 'Nenhum novo cliente' : usersTab==='google' ? 'Nenhum usuário Google' : usersTab==='manual' ? 'Nenhum manual' : `Nenhum usuário ${usersTab}`;
+    if(userQuery) msg = 'Nenhum usuário encontrado para essa busca';
     list.innerHTML=`<div class="empty-state"><i class="fas fa-users"></i><p>${msg}</p></div>`; return;
   }
   let html = `<div class="block"><div class="block-body tight"><table>
@@ -2700,7 +2789,8 @@ function renderFeaturedPickerAdm(){
   const el = document.getElementById('featuredPickerAdm'); if(!el) return;
   const q = (document.getElementById('featuredSearchInput')?.value || '').toLowerCase().trim();
   let list = products.filter(p => !featuredDraft.includes(p.id));
-  if(q) list = list.filter(p => [p.name, p.codigo, p.brand, p.category].join(' ').toLowerCase().includes(q));
+  /* 👇 ATUALIZADO: busca inteligente */
+  if(q) list = list.filter(p => matchTokens([p.name, p.codigo, p.brand, p.category].join(' '), q));
   list.sort((a,b) => (a.name||'').localeCompare(b.name||''));
   if(list.length === 0){ el.innerHTML = `<div class="empty-state"><i class="fas fa-search"></i><p>Nenhuma peça encontrada</p></div>`; return; }
   const full = featuredDraft.length >= 5;
@@ -2782,7 +2872,8 @@ function renderGalleryPickerAdm(){
   const el = document.getElementById('galleryPickerAdm'); if(!el) return;
   const q = (document.getElementById('gallerySearchInput')?.value || '').toLowerCase().trim();
   let list = products.filter(p => !galleryDraft.includes(p.id));
-  if(q) list = list.filter(p => [p.name, p.codigo, p.brand, p.category].join(' ').toLowerCase().includes(q));
+  /* 👇 ATUALIZADO: busca inteligente */
+  if(q) list = list.filter(p => matchTokens([p.name, p.codigo, p.brand, p.category].join(' '), q));
   list.sort((a,b) => (a.name||'').localeCompare(b.name||''));
   if(list.length === 0){ el.innerHTML = `<div class="empty-state"><i class="fas fa-search"></i><p>Nenhuma peça</p></div>`; return; }
   const full = galleryDraft.length >= GALLERY_MAX;
@@ -3016,12 +3107,11 @@ function renderAnalytics(){
   renderHorizontalBar('chartTopProducts', top.map(t=>t[0]), top.map(t=>t[1]), ACCENT_ANA);
 }
 
-/* 👇 AJUSTADO: agora mostra TODOS os links criados (mesmo sem cliques) */
+/* 👇 Ajustado: agora mostra TODOS os links criados (mesmo sem cliques) */
 function updateLinkSlugFilter(){
   const sel = document.getElementById('linksAnaSlugFilter'); if(!sel) return;
   const cur = sel.value;
 
-  // Pega slugs dos logs (com cliques) E dos links cadastrados (mesmo sem cliques)
   const slugsFromLogs  = analyticsLinkLogs.map(l => l.slug).filter(Boolean);
   const slugsFromLinks = Object.values(trackingLinks).map(l => l.slug).filter(Boolean);
   const slugs = [...new Set([...slugsFromLogs, ...slugsFromLinks])].sort();
@@ -3036,7 +3126,7 @@ function updateLinkSlugFilter(){
   else { sel.value = 'all'; linksAnalyticsSlug = 'all'; }
 }
 
-/* 👇 AJUSTADO: mostra total acumulado + todos os links no ranking */
+/* 👇 Ajustado: mostra total acumulado + todos os links no ranking */
 function renderLinksAnalytics(){
   if(typeof Chart === 'undefined') return;
   const cutoff = anaPeriodCutoff(linksAnalyticsPeriod);
@@ -3044,11 +3134,9 @@ function renderLinksAnalytics(){
   let logs = analyticsLinkLogs.filter(l => (l.timestamp||0) >= cutoff);
   if(linksAnalyticsSlug !== 'all') logs = logs.filter(l => l.slug === linksAnalyticsSlug);
 
-  // KPI: entradas no período
   const kpi = document.getElementById('linksAnaTotal');
   if(kpi) kpi.textContent = logs.length.toLocaleString('pt-BR');
 
-  // KPI: total acumulado (do trackingLinks, respeitando o filtro)
   const elGeral = document.getElementById('linksAnaTotalGeral');
   if(elGeral){
     let totalAcumulado = 0;
@@ -3061,25 +3149,20 @@ function renderLinksAnalytics(){
     elGeral.textContent = totalAcumulado.toLocaleString('pt-BR');
   }
 
-  // Gráfico por dia da semana
   const dow = [0,0,0,0,0,0,0];
   logs.forEach(l => { if(l.timestamp) dow[anaDowIndex(l.timestamp)]++; });
   renderBarChart('chartDowLinks', DOW_LABELS, dow, 'Entradas', ACCENT_ANA, true);
 
-  // Linha do tempo
   const timeline = aggregateTimeline(logs, linksAnalyticsPeriod);
   renderTimelineChart('chartTimelineLinks', timeline.labels, timeline.values, OK_ANA);
 
-  // Top links: mostra TODOS os links cadastrados (mesmo com 0)
   const bySlug = {};
 
-  // 1) Conta cliques reais dos logs
   analyticsLinkLogs.filter(l => (l.timestamp||0) >= cutoff).forEach(l => {
     const s = l.slug || 'desconhecido';
     bySlug[s] = (bySlug[s]||0)+1;
   });
 
-  // 2) Garante que TODO link cadastrado apareça (mesmo com 0)
   Object.values(trackingLinks).forEach(l => {
     if(l.slug && bySlug[l.slug] === undefined) bySlug[l.slug] = 0;
   });
