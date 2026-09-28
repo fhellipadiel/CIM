@@ -286,6 +286,26 @@ tbody tr:last-child td{border-bottom:none;}
 .chart-wrap.tall{height:360px;}
 .analytics-kpi{display:flex;align-items:center;gap:8px;font-size:.82rem;color:var(--text-muted);background:var(--panel-alt);padding:8px 14px;border-radius:10px;border:1px solid var(--border);}
 .analytics-kpi strong{color:var(--accent);font-family:var(--font-mono);font-size:1.05rem;}
+
+/* Navegador de semanas dos gráficos DOW */
+.week-nav{
+  display:flex;align-items:center;gap:4px;
+  background:var(--panel-alt);border:1px solid var(--border);
+  border-radius:20px;padding:3px;
+}
+.week-nav button{
+  width:28px;height:28px;border-radius:50%;background:transparent;
+  border:none;color:var(--text-muted);
+  display:flex;align-items:center;justify-content:center;
+  font-size:.72rem;transition:.15s;cursor:pointer;
+}
+.week-nav button:hover:not(:disabled){background:var(--accent);color:#160b05;}
+.week-nav button:disabled{opacity:.25;cursor:not-allowed;}
+.week-nav .week-label{
+  font-size:.75rem;font-weight:600;color:var(--text);
+  min-width:130px;text-align:center;padding:0 6px;
+  font-family:var(--font-head);letter-spacing:.2px;
+}
 </style>
 </head>
 <body>
@@ -475,8 +495,17 @@ tbody tr:last-child td{border-bottom:none;}
 
       <div class="chart-grid">
         <div class="chart-card">
-          <h3><i class="fas fa-calendar-week"></i> Cliques por dia da semana</h3>
-          <div class="chart-sub">Qual dia da semana tem mais movimento</div>
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px;flex-wrap:wrap;margin-bottom:14px;">
+            <div>
+              <h3 style="margin-bottom:4px;"><i class="fas fa-calendar-week"></i> Cliques por dia da semana</h3>
+              <div class="chart-sub" style="margin-bottom:0;">Navegue pelas setas para comparar semanas</div>
+            </div>
+            <div class="week-nav">
+              <button type="button" onclick="changeWeekGeneral(-1)" title="Semana anterior"><i class="fas fa-chevron-left"></i></button>
+              <span class="week-label" id="weekLabelGeneral">Esta semana</span>
+              <button type="button" id="weekNextGeneral" onclick="changeWeekGeneral(1)" title="Próxima semana"><i class="fas fa-chevron-right"></i></button>
+            </div>
+          </div>
           <div class="chart-wrap"><canvas id="chartDowGeneral"></canvas></div>
         </div>
         <div class="chart-card">
@@ -538,8 +567,17 @@ tbody tr:last-child td{border-bottom:none;}
 
       <div class="chart-grid">
         <div class="chart-card wide">
-          <h3><i class="fas fa-calendar-week"></i> Entradas por dia da semana</h3>
-          <div class="chart-sub"><i class="fas fa-map-pin"></i> Qual dia da semana (Seg a Dom) seu link recebe mais cliques</div>
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px;flex-wrap:wrap;margin-bottom:14px;">
+            <div>
+              <h3 style="margin-bottom:4px;"><i class="fas fa-calendar-week"></i> Entradas por dia da semana</h3>
+              <div class="chart-sub" style="margin-bottom:0;"><i class="fas fa-map-pin"></i> Navegue pelas setas para comparar semanas</div>
+            </div>
+            <div class="week-nav">
+              <button type="button" onclick="changeWeekLinks(-1)" title="Semana anterior"><i class="fas fa-chevron-left"></i></button>
+              <span class="week-label" id="weekLabelLinks">Esta semana</span>
+              <button type="button" id="weekNextLinks" onclick="changeWeekLinks(1)" title="Próxima semana"><i class="fas fa-chevron-right"></i></button>
+            </div>
+          </div>
           <div class="chart-wrap tall"><canvas id="chartDowLinks"></canvas></div>
         </div>
         <div class="chart-card wide">
@@ -3016,6 +3054,9 @@ let analyticsPeriod        = '7d';
 let analyticsSource        = 'all';
 let linksAnalyticsPeriod   = '7d';
 let linksAnalyticsSlug     = 'all';
+/* 👇 NOVO: navegação por semana (0 = semana atual, -1 = semana passada...) */
+let analyticsWeekOffset      = 0;
+let linksAnalyticsWeekOffset = 0;
 let chartDowGeneral, chartDomGeneral, chartTimelineGeneral, chartTopProducts;
 let chartDowLinks, chartTimelineLinks, chartLinkComparison;
 const DOW_LABELS = ['Seg','Ter','Qua','Qui','Sex','Sáb','Dom'];
@@ -3036,6 +3077,41 @@ function anaDowIndex(ts){ const d = new Date(ts).getDay(); return d === 0 ? 6 : 
 function anaDateKey(ts){ const d = new Date(ts); return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; }
 function anaDateLabel(ts){ const d = new Date(ts); return `${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}`; }
 function destroyChart(c){ if(c && typeof c.destroy === 'function') c.destroy(); }
+
+/* 👇 NOVO: retorna o range (Seg→Dom) de uma semana relativa */
+function getWeekRange(offset){
+  const now = new Date();
+  const dow = now.getDay(); // 0=Dom, 1=Seg...
+  const daysToMonday = dow === 0 ? 6 : dow - 1;
+  const monday = new Date(now);
+  monday.setDate(now.getDate() - daysToMonday + (offset * 7));
+  monday.setHours(0,0,0,0);
+  const sunday = new Date(monday);
+  sunday.setDate(monday.getDate() + 6);
+  sunday.setHours(23,59,59,999);
+  return { start: monday.getTime(), end: sunday.getTime(), monday, sunday };
+}
+
+function formatWeekLabel(range, offset){
+  if(offset === 0)  return 'Esta semana';
+  if(offset === -1) return 'Semana passada';
+  const fmt = d => `${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}`;
+  return `${fmt(range.monday)} – ${fmt(range.sunday)}`;
+}
+
+function changeWeekGeneral(delta){
+  const newOffset = analyticsWeekOffset + delta;
+  if(newOffset > 0) return; // não permite ir para o futuro
+  analyticsWeekOffset = newOffset;
+  renderAnalytics();
+}
+
+function changeWeekLinks(delta){
+  const newOffset = linksAnalyticsWeekOffset + delta;
+  if(newOffset > 0) return;
+  linksAnalyticsWeekOffset = newOffset;
+  renderLinksAnalytics();
+}
 
 function baseOptions(extra = {}){
   return Object.assign({
@@ -3086,20 +3162,35 @@ function setLinksAnalyticsSlug(v){ linksAnalyticsSlug = v; renderLinksAnalytics(
 function renderAnalytics(){
   if(typeof Chart === 'undefined') return;
   const cutoff = anaPeriodCutoff(analyticsPeriod);
-  let logs = [];
-  if(analyticsSource === 'all' || analyticsSource === 'products') logs = logs.concat(analyticsClickLogs);
-  if(analyticsSource === 'all' || analyticsSource === 'contacts') logs = logs.concat(analyticsContactClicks);
-  logs = logs.filter(l => (l.timestamp || 0) >= cutoff);
+  let allLogs = [];
+  if(analyticsSource === 'all' || analyticsSource === 'products') allLogs = allLogs.concat(analyticsClickLogs);
+  if(analyticsSource === 'all' || analyticsSource === 'contacts') allLogs = allLogs.concat(analyticsContactClicks);
+  const logs = allLogs.filter(l => (l.timestamp || 0) >= cutoff);
+
   const kpi = document.getElementById('analyticsTotalClicks');
   if(kpi) kpi.textContent = logs.length.toLocaleString('pt-BR');
+
+  /* 👇 DOW: usa a SEMANA selecionada via setas (ignora o filtro de período) */
+  const weekRange = getWeekRange(analyticsWeekOffset);
+  const weekLogs  = allLogs.filter(l => (l.timestamp||0) >= weekRange.start && (l.timestamp||0) <= weekRange.end);
   const dow = [0,0,0,0,0,0,0];
-  logs.forEach(l => { if(l.timestamp) dow[anaDowIndex(l.timestamp)]++; });
+  weekLogs.forEach(l => { if(l.timestamp) dow[anaDowIndex(l.timestamp)]++; });
   renderBarChart('chartDowGeneral', DOW_LABELS, dow, 'Cliques', ACCENT_ANA);
+
+  // Label + botão "próxima" desabilitado quando já está na semana atual
+  const weekLabelEl = document.getElementById('weekLabelGeneral');
+  if(weekLabelEl) weekLabelEl.textContent = formatWeekLabel(weekRange, analyticsWeekOffset);
+  const nextBtn = document.getElementById('weekNextGeneral');
+  if(nextBtn) nextBtn.disabled = analyticsWeekOffset >= 0;
+
+  /* Dia do mês — continua respeitando o filtro de período */
   const dom = new Array(31).fill(0);
   logs.forEach(l => { if(l.timestamp){ const d = new Date(l.timestamp).getDate(); dom[d-1]++; } });
   renderBarChart('chartDomGeneral', Array.from({length:31}, (_,i) => String(i+1)), dom, 'Cliques', 'rgba(62,207,142,.75)');
+
   const timeline = aggregateTimeline(logs, analyticsPeriod);
   renderTimelineChart('chartTimelineGeneral', timeline.labels, timeline.values, ACCENT_ANA);
+
   const prodCutoffLogs = analyticsClickLogs.filter(l => (l.timestamp||0) >= cutoff);
   const counts = {};
   prodCutoffLogs.forEach(l => { const n = l.productName || l.sessionName || 'Desconhecido'; counts[n] = (counts[n]||0)+1; });
@@ -3131,8 +3222,9 @@ function renderLinksAnalytics(){
   if(typeof Chart === 'undefined') return;
   const cutoff = anaPeriodCutoff(linksAnalyticsPeriod);
 
-  let logs = analyticsLinkLogs.filter(l => (l.timestamp||0) >= cutoff);
-  if(linksAnalyticsSlug !== 'all') logs = logs.filter(l => l.slug === linksAnalyticsSlug);
+  let allLogs = analyticsLinkLogs;
+  if(linksAnalyticsSlug !== 'all') allLogs = allLogs.filter(l => l.slug === linksAnalyticsSlug);
+  const logs = allLogs.filter(l => (l.timestamp||0) >= cutoff);
 
   const kpi = document.getElementById('linksAnaTotal');
   if(kpi) kpi.textContent = logs.length.toLocaleString('pt-BR');
@@ -3149,9 +3241,17 @@ function renderLinksAnalytics(){
     elGeral.textContent = totalAcumulado.toLocaleString('pt-BR');
   }
 
+  /* 👇 DOW: usa a SEMANA selecionada via setas */
+  const weekRange = getWeekRange(linksAnalyticsWeekOffset);
+  const weekLogs  = allLogs.filter(l => (l.timestamp||0) >= weekRange.start && (l.timestamp||0) <= weekRange.end);
   const dow = [0,0,0,0,0,0,0];
-  logs.forEach(l => { if(l.timestamp) dow[anaDowIndex(l.timestamp)]++; });
+  weekLogs.forEach(l => { if(l.timestamp) dow[anaDowIndex(l.timestamp)]++; });
   renderBarChart('chartDowLinks', DOW_LABELS, dow, 'Entradas', ACCENT_ANA, true);
+
+  const weekLabelEl = document.getElementById('weekLabelLinks');
+  if(weekLabelEl) weekLabelEl.textContent = formatWeekLabel(weekRange, linksAnalyticsWeekOffset);
+  const nextBtn = document.getElementById('weekNextLinks');
+  if(nextBtn) nextBtn.disabled = linksAnalyticsWeekOffset >= 0;
 
   const timeline = aggregateTimeline(logs, linksAnalyticsPeriod);
   renderTimelineChart('chartTimelineLinks', timeline.labels, timeline.values, OK_ANA);
