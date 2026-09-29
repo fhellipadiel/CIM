@@ -807,7 +807,7 @@ tbody tr:last-child td{border-bottom:none;}
               <input type="file" id="csvFileAdm" accept=".csv,.txt" style="display:none;">
             </div>
             <div id="importPreviewAdm" style="display:none;">
-              <div class="mini-list" id="importPreviewListAdm" style="max-height:220px;overflow-y:auto;margin-bottom:12px;"></div>
+              <div class="mini-list" id="importPreviewListAdm" style="max-height:280px;overflow-y:auto;margin-bottom:12px;"></div>
               <p style="color:var(--text-muted);font-size:.82rem;margin-bottom:12px;" id="importCountAdm"></p>
               <div class="f-check"><input type="checkbox" id="confirmImportAdm"><label for="confirmImportAdm">Confirmo a importação</label></div>
               <button class="btn btn-accent" id="importBtnAdm" disabled onclick="importNamesAdm()"><i class="fas fa-file-import"></i> Importar peças</button>
@@ -1205,6 +1205,101 @@ tbody tr:last-child td{border-bottom:none;}
   <div class="modal-foot"><button class="btn btn-ghost" onclick="closeModal('modalDeleteNoCategory')">Cancelar</button><button class="btn btn-danger" id="noCatConfirmBtn" disabled onclick="deleteNoCategoryProductsAdm()"><i class="fas fa-trash-alt"></i> Excluir</button></div>
 </div></div>
 
+<div class="modal-overlay" id="modalDeleteBrand"><div class="modal">
+  <div class="modal-head">
+    <h3><i class="fas fa-award" style="color:var(--danger)"></i> Excluir marca</h3>
+    <button class="modal-close" onclick="closeModal('modalDeleteBrand')"><i class="fas fa-times"></i></button>
+  </div>
+  <div class="modal-body">
+    <p style="color:var(--text-muted);font-size:.85rem;margin-bottom:14px;">
+      Marca: <strong id="delBrandName" style="color:var(--text);"></strong>
+    </p>
+    <div style="background:var(--danger-soft);border:1px solid var(--danger);border-radius:8px;padding:12px 14px;margin-bottom:14px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+        <span style="font-size:.78rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px;">
+          Peças que serão excluídas junto
+        </span>
+        <span class="chip chip-danger" id="delBrandCountChip">0</span>
+      </div>
+      <div class="mini-list" id="delBrandPreviewList" style="max-height:220px;overflow-y:auto;"></div>
+    </div>
+    <div class="f-check">
+      <input type="checkbox" id="delBrandAlsoFeatured" checked>
+      <label for="delBrandAlsoFeatured">Remover também dos <strong>Destaques da Busca</strong></label>
+    </div>
+    <p style="color:var(--text-muted);font-size:.85rem;margin:14px 0 10px;">
+      Digite <strong style="color:var(--accent);">EXCLUIR MARCA</strong> para confirmar:
+    </p>
+    <input type="text" id="delBrandConfirmInput" placeholder="Digite a frase exata"
+      style="width:100%;padding:11px;background:var(--panel-alt);border:1px solid var(--border);border-radius:8px;color:var(--text);">
+  </div>
+  <div class="modal-foot">
+    <button class="btn btn-ghost" onclick="closeModal('modalDeleteBrand')">Cancelar</button>
+    <button class="btn btn-danger" id="delBrandConfirmBtn" disabled onclick="confirmDeleteBrandAdm()">
+      <i class="fas fa-trash-alt"></i> Excluir marca + peças
+    </button>
+  </div>
+</div></div>
+
+<div class="modal-overlay" id="modalDeleteImport"><div class="modal">
+  <div class="modal-head">
+    <h3><i class="fas fa-file-csv" style="color:var(--danger)"></i> Excluir importação</h3>
+    <button class="modal-close" onclick="closeModal('modalDeleteImport')"><i class="fas fa-times"></i></button>
+  </div>
+  <div class="modal-body">
+    <p style="color:var(--text-muted);font-size:.85rem;margin-bottom:14px;">
+      Arquivo: <strong id="delImpFileName" style="color:var(--text);"></strong><br>
+      <span style="font-size:.78rem;">Importado em <span id="delImpDate" class="mono"></span></span>
+    </p>
+
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px;">
+      <div class="mini-item" style="justify-content:center;flex-direction:column;gap:2px;padding:10px;">
+        <div style="font-family:var(--font-mono);font-size:1.3rem;color:var(--ok);font-weight:700;" id="delImpNewCount">0</div>
+        <div style="font-size:.68rem;color:var(--text-dim);text-transform:uppercase;">Novas</div>
+      </div>
+      <div class="mini-item" style="justify-content:center;flex-direction:column;gap:2px;padding:10px;">
+        <div style="font-family:var(--font-mono);font-size:1.3rem;color:var(--warn);font-weight:700;" id="delImpUpdCount">0</div>
+        <div style="font-size:.68rem;color:var(--text-dim);text-transform:uppercase;">Atualizadas</div>
+      </div>
+      <div class="mini-item" style="justify-content:center;flex-direction:column;gap:2px;padding:10px;">
+        <div style="font-family:var(--font-mono);font-size:1.3rem;color:var(--text-muted);font-weight:700;" id="delImpSkipCount">0</div>
+        <div style="font-size:.68rem;color:var(--text-dim);text-transform:uppercase;">Ignoradas</div>
+      </div>
+    </div>
+
+    <div style="background:var(--danger-soft);border:1px solid var(--danger);border-radius:8px;padding:12px 14px;margin-bottom:14px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+        <span style="font-size:.78rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px;">
+          Peças que serão excluídas
+        </span>
+        <span class="chip chip-danger" id="delImpCountChip">0</span>
+      </div>
+      <div class="mini-list" id="delImpPreviewList" style="max-height:220px;overflow-y:auto;"></div>
+    </div>
+
+    <div class="f-check">
+      <input type="checkbox" id="delImpAlsoFeatured" checked>
+      <label for="delImpAlsoFeatured">Remover também dos <strong>Destaques da Busca</strong></label>
+    </div>
+    <div class="f-check">
+      <input type="checkbox" id="delImpDeleteImages" checked>
+      <label for="delImpDeleteImages">Apagar imagens do <strong>Storage</strong> (recomendado)</label>
+    </div>
+
+    <p style="color:var(--text-muted);font-size:.85rem;margin:14px 0 10px;">
+      Digite <strong style="color:var(--accent);">EXCLUIR IMPORTAÇÃO</strong> para confirmar:
+    </p>
+    <input type="text" id="delImpConfirmInput" placeholder="Digite a frase exata"
+      style="width:100%;padding:11px;background:var(--panel-alt);border:1px solid var(--border);border-radius:8px;color:var(--text);">
+  </div>
+  <div class="modal-foot">
+    <button class="btn btn-ghost" onclick="closeModal('modalDeleteImport')">Cancelar</button>
+    <button class="btn btn-danger" id="delImpConfirmBtn" disabled onclick="confirmDeleteImportAdm()">
+      <i class="fas fa-trash-alt"></i> Excluir importação + peças
+    </button>
+  </div>
+</div></div>
+
 <div class="modal-overlay" id="modalActiveUsers"><div class="modal large">
   <div class="modal-head"><h3 id="activeUsersModalTitle">Clientes ativos</h3><button class="modal-close" onclick="closeModal('modalActiveUsers')"><i class="fas fa-times"></i></button></div>
   <div class="modal-body"><div class="mini-list" id="activeUsersList"></div></div>
@@ -1269,6 +1364,49 @@ function matchTokens(haystack, query){
   const tokens = query.toLowerCase().trim().split(/\s+/).filter(Boolean);
   const hay = (haystack || '').toLowerCase();
   return tokens.every(t => hay.includes(t));
+}
+
+/* Parser CSV tolerante a aspas */
+function parseCSVLine(line){
+  const result = [];
+  let current = '';
+  let inQuotes = false;
+  for(let i = 0; i < line.length; i++){
+    const ch = line[i];
+    if(ch === '"'){
+      if(inQuotes && line[i+1] === '"'){ current += '"'; i++; }
+      else inQuotes = !inQuotes;
+    } else if((ch === ',' || ch === ';' || ch === '\t') && !inQuotes){
+      result.push(current); current = '';
+    } else {
+      current += ch;
+    }
+  }
+  result.push(current);
+  return result.map(c => c.trim());
+}
+
+/* Normalização robusta de URLs de imagem */
+function normalizeImageUrl(url){
+  if(!url) return '';
+  let u = String(url).trim();
+  if(!u) return '';
+  u = u.replace(/^["'\s;]+|["'\s;]+$/g, '').trim();
+  if(!u) return '';
+
+  const gd = u.match(/drive\.google\.com\/(?:file\/d\/|open\?id=|uc\?[^#]*id=|thumbnail\?id=)([a-zA-Z0-9_-]{20,})/);
+  if(gd) return `https://lh3.googleusercontent.com/d/${gd[1]}`;
+
+  if(/dropbox\.com/i.test(u)){
+    u = u.replace(/([?&])dl=\d/, '$1raw=1');
+    if(!/[?&]raw=1/.test(u)) u += (u.includes('?') ? '&' : '?') + 'raw=1';
+    return u;
+  }
+
+  if(!/^https?:\/\//i.test(u)){
+    u = 'https://' + u.replace(/^\/+/, '');
+  }
+  return u;
 }
 
 function showToast(msg,type='ok'){
@@ -1863,15 +2001,25 @@ function renderBrands(){
   const list=document.getElementById('brandsList');
   if(!list) return;
   if(arr.length===0){ list.innerHTML=`<div class="empty-state"><i class="fas fa-award"></i><p>Nenhuma marca cadastrada</p></div>`; return; }
-  list.innerHTML=arr.map((b,idx)=>`<div class="mini-item">
+  list.innerHTML=arr.map((b,idx)=>{
+    const pieceCount = products.filter(p => (p.brand||'') === (b.name||'')).length;
+    const clickCount = brandClicks[b.name]||0;
+    return `<div class="mini-item">
     <img src="${b.image||PLACEHOLDER_IMG}" style="object-fit:contain;background:#0e0f11;">
-    <div class="mi-t">${esc(b.name||'Sem nome')} <span style="color:var(--text-dim);font-weight:400;">· ${brandClicks[b.name]||0} cliques</span></div>
+    <div class="mi-t" style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;overflow:visible;">
+      <strong>${esc(b.name||'Sem nome')}</strong>
+      <span class="chip ${pieceCount>0?'chip-warn':'chip-mut'}" title="Peças vinculadas a esta marca">
+        <i class="fas fa-box"></i> ${pieceCount} peça(s)
+      </span>
+      <span style="color:var(--text-dim);font-weight:400;font-size:.78rem;">· ${clickCount} cliques</span>
+    </div>
     <div class="mi-actions">
       ${idx>0?`<button class="btn btn-icon btn-ghost" onclick="moveBrandAdm('${b.id}',-1)"><i class="fas fa-chevron-up"></i></button>`:''}
       ${idx<arr.length-1?`<button class="btn btn-icon btn-ghost" onclick="moveBrandAdm('${b.id}',1)"><i class="fas fa-chevron-down"></i></button>`:''}
       <button class="btn btn-icon btn-ghost" onclick="editBrandAdm('${b.id}')"><i class="fas fa-pencil"></i></button>
       <button class="btn btn-icon btn-danger" onclick="deleteBrandAdm('${b.id}')"><i class="fas fa-trash"></i></button>
-    </div></div>`).join('');
+    </div></div>`;
+  }).join('');
 }
 function moveBrandAdm(id,dir){
   const arr=Object.keys(brands).map(k=>({id:k,...brands[k]})).sort((a,b)=>(a.order||0)-(b.order||0));
@@ -1893,28 +2041,83 @@ function editBrandAdm(id){
   setupUpload('brImgInput','brUploadBox','brPreview','brPreviewImg', url=>uploadedBrImg=url, 'brands');
   openModal('modalMarca');
 }
-async function deleteBrandAdm(id){
+let deletingBrandId = null;
+
+function deleteBrandAdm(id){
+  const b = brands[id]; if(!b) return;
+  deletingBrandId = id;
+  const brandName = b.name || '';
+  const list = products.filter(p => (p.brand||'') === brandName);
+
+  document.getElementById('delBrandName').textContent = brandName || '(sem nome)';
+  document.getElementById('delBrandCountChip').textContent = list.length;
+  document.getElementById('delBrandConfirmInput').value = '';
+  document.getElementById('delBrandConfirmBtn').disabled = true;
+  document.getElementById('delBrandAlsoFeatured').checked = true;
+
+  const previewEl = document.getElementById('delBrandPreviewList');
+  if(list.length === 0){
+    previewEl.innerHTML = `<div class="empty-state" style="padding:20px;">
+      <i class="fas fa-circle-check" style="color:var(--ok);"></i>
+      <p>Nenhuma peça vinculada a esta marca.</p></div>`;
+  } else {
+    previewEl.innerHTML = list.slice(0, 60).map(p => `
+      <div class="mini-item">
+        <img src="${p.image || PLACEHOLDER_IMG}" onerror="this.src='${PLACEHOLDER_IMG}'"
+             style="width:34px;height:34px;border-radius:6px;object-fit:cover;">
+        <div class="mi-t">${esc(p.name || 'Sem nome')}
+          <div style="color:var(--text-dim);font-size:.72rem;font-weight:400;">
+            ${esc(p.category || 'sem categoria')} · ${esc(p.codigo || 'sem código')}
+          </div>
+        </div>
+      </div>`).join('') +
+      (list.length > 60 ? `<div class="td-sub" style="padding:6px 0;">... e mais ${list.length - 60}</div>` : '');
+  }
+
+  const input = document.getElementById('delBrandConfirmInput');
+  const btn = document.getElementById('delBrandConfirmBtn');
+  input.oninput = (e) => { btn.disabled = e.target.value.trim() !== 'EXCLUIR MARCA'; };
+
+  openModal('modalDeleteBrand');
+}
+
+async function confirmDeleteBrandAdm(){
+  const input = document.getElementById('delBrandConfirmInput');
+  if(input.value.trim() !== 'EXCLUIR MARCA'){ showToast('Frase incorreta','err'); return; }
+
+  const id = deletingBrandId; if(!id) return;
   const b = brands[id]; if(!b) return;
   const brandName = b.name || '';
   const productsToDelete = products.filter(p => (p.brand||'') === brandName);
-  const count = productsToDelete.length;
-  let msg = `Excluir a marca "${brandName}"?`;
-  if(count > 0) msg += `\n\nATENÇÃO: ${count} peça(s) vinculadas também serão excluídas.`;
-  if(!confirm(msg)) return;
-  showLoading('Excluindo...');
-  if(b.image) await deleteImageByUrl(b.image);
-  await Promise.all(productsToDelete.map(p => p.image ? deleteImageByUrl(p.image) : Promise.resolve()));
-  const updates = {}; updates[`brands/${id}`] = null;
-  const deletedIds = new Set();
-  productsToDelete.forEach(p => { updates[`products/${p.id}`] = null; deletedIds.add(p.id); });
-  if(featuredDraft && featuredDraft.length > 0){
-    const newFeatured = featuredDraft.filter(fid => !deletedIds.has(fid));
-    if(newFeatured.length !== featuredDraft.length) updates['featured'] = newFeatured.length > 0 ? newFeatured : null;
+  const alsoRemoveFeatured = document.getElementById('delBrandAlsoFeatured').checked;
+
+  showLoading('Excluindo marca e peças...');
+  try{
+    if(b.image) await deleteImageByUrl(b.image);
+    await Promise.all(productsToDelete.map(p => p.image ? deleteImageByUrl(p.image) : Promise.resolve()));
+
+    const updates = {};
+    updates[`brands/${id}`] = null;
+    const deletedIds = new Set();
+    productsToDelete.forEach(p => { updates[`products/${p.id}`] = null; deletedIds.add(p.id); });
+
+    if(alsoRemoveFeatured && featuredDraft && featuredDraft.length > 0){
+      const newFeatured = featuredDraft.filter(fid => !deletedIds.has(fid));
+      if(newFeatured.length !== featuredDraft.length){
+        updates['featured'] = newFeatured.length > 0 ? newFeatured : null;
+      }
+    }
+    if(brandClicks[brandName]) updates[`brandClicks/${brandName}`] = null;
+
+    await database.ref().update(updates);
+    hideLoading();
+    closeModal('modalDeleteBrand');
+    deletingBrandId = null;
+    showToast(`Marca excluída${productsToDelete.length > 0 ? ` + ${productsToDelete.length} peça(s)` : ''}`);
+  }catch(err){
+    hideLoading();
+    showToast('Erro: ' + err.message, 'err');
   }
-  if(brandClicks[brandName]) updates[`brandClicks/${brandName}`] = null;
-  database.ref().update(updates).then(()=>{
-    hideLoading(); showToast(`Marca excluída${count > 0 ? ` + ${count} peça(s)` : ''}`);
-  }).catch(err => { hideLoading(); showToast('Erro: ' + err.message, 'err'); });
 }
 function saveBrandAdm(){
   if(!uploadedBrImg){ showToast('Selecione uma imagem para a marca','err'); return; }
@@ -2286,10 +2489,6 @@ async function saveLinkAdm(){
     database.ref(`trackingLinks/${id}`).set(data).then(()=>{ showToast('Link criado'); closeModal('modalLink'); });
   }
 }
-
-/* ============================================================
-   EXCLUSAO DE LINK - REMOVE TAMBÉM CLICKLOGS E CONTACTCLICKS
-   ============================================================ */
 async function deleteLinkAdm(id){
   const l = trackingLinks[id]; if(!l) return;
   if(!confirm(`Excluir o link "${l.name}"?\n\nTodos os cliques e contatos vinculados a essa campanha também serão removidos.`)) return;
@@ -2300,19 +2499,16 @@ async function deleteLinkAdm(id){
     const updates = {};
     updates[`trackingLinks/${id}`] = null;
 
-    /* 1. Entradas de campanha (trackingLinkLogs) */
     const logsSnap = await database.ref('trackingLinkLogs')
       .orderByChild('slug').equalTo(l.slug).once('value');
     logsSnap.forEach(c => { updates[`trackingLinkLogs/${c.key}`] = null; });
 
-    /* 2. Cliques em produtos (clickLogs) com essa campanha */
     try {
       const clicksSnap = await database.ref('clickLogs')
         .orderByChild('campaignRef').equalTo(l.slug).once('value');
       clicksSnap.forEach(c => { updates[`clickLogs/${c.key}`] = null; });
     } catch(e){ console.warn('clickLogs cleanup:', e.code); }
 
-    /* 3. Cliques em contatos (contactClicks) com essa campanha */
     try {
       const contactSnap = await database.ref('contactClicks')
         .orderByChild('campaignRef').equalTo(l.slug).once('value');
@@ -2327,7 +2523,6 @@ async function deleteLinkAdm(id){
     showToast('Erro: ' + err.message, 'err');
   }
 }
-
 function resetLinkCount(id){
   const l = trackingLinks[id]; if(!l) return;
   if(!confirm(`Zerar o contador de "${l.name}"?`)) return;
@@ -2380,72 +2575,207 @@ document.getElementById('filterByColHAdm').onchange=function(){
 };
 document.getElementById('csvFileAdm').onchange=async(e)=>{
   const file=e.target.files[0]; if(!file) return;
-  const text=await file.text(); const lines=text.split('\n').filter(l=>l.trim()!=='');
-  const items=[]; const filterH=document.getElementById('filterByColHAdm').checked;
-  lines.forEach(line=>{
-    const cols=line.split(/[,;]/).map(c=>c.replace(/["']/g,'').trim());
-    if(cols.length<1) return; const name=cols[0]; if(!name) return;
-    if(filterH){ const hVal=cols[7]?cols[7].toUpperCase().trim():''; if(hVal!=='A'&&hVal!=='B') return; }
-    items.push({ name, pricePF: cols[1]?parseFloat(cols[1].replace(',','.'))||0:0, pricePJ: cols[2]?parseFloat(cols[2].replace(',','.'))||0:0,
-      category: cols[3]?cols[3].trim():'', codigo: cols[4]?cols[4].trim():'', brand: cols[5]?cols[5].trim():'', image: cols[6]?cols[6].trim():'' });
+  const text = await file.text();
+  const lines = text.split(/\r?\n/).filter(l => l.trim() !== '');
+  const items = [];
+  const filterH = document.getElementById('filterByColHAdm').checked;
+
+  lines.forEach((line, lineIdx) => {
+    const cols = parseCSVLine(line);
+    if(cols.length < 1) return;
+    const name = cols[0];
+    if(!name) return;
+
+    if(lineIdx === 0 && /^(nome|name|produto|pe[çc]a)$/i.test(String(name).trim())) return;
+
+    if(filterH){
+      const hVal = (cols[7] || '').toUpperCase().trim();
+      if(hVal !== 'A' && hVal !== 'B') return;
+    }
+
+    const rawImage = cols[6] || '';
+    const image = normalizeImageUrl(rawImage);
+
+    items.push({
+      name,
+      pricePF: cols[1] ? parseFloat(String(cols[1]).replace(',', '.')) || 0 : 0,
+      pricePJ: cols[2] ? parseFloat(String(cols[2]).replace(',', '.')) || 0 : 0,
+      category: cols[3] ? cols[3].trim() : '',
+      codigo:   cols[4] ? cols[4].trim() : '',
+      brand:    cols[5] ? cols[5].trim() : '',
+      image
+    });
   });
-  if(items.length===0){ showToast('Nenhuma peça válida encontrada','err'); return; }
-  document.getElementById('importPreviewListAdm').innerHTML = items.slice(0,12).map(it=>`<div class="mini-item"><div class="mi-t">${esc(it.name)}</div><span class="chip chip-mut">PF ${it.pricePF} / PJ ${it.pricePJ}</span></div>`).join('') + (items.length>12?`<div class="td-sub" style="padding:6px 0;">... e mais ${items.length-12}</div>`:'');
+
+  if(items.length === 0){ showToast('Nenhuma peça válida encontrada','err'); return; }
+
+  document.getElementById('importPreviewListAdm').innerHTML = items.slice(0,12).map(it => `
+    <div class="mini-item">
+      <img src="${it.image || PLACEHOLDER_IMG}" onerror="this.src='${PLACEHOLDER_IMG}'"
+           style="width:38px;height:38px;border-radius:6px;object-fit:cover;background:#111;border:1px solid var(--border);">
+      <div class="mi-t">${esc(it.name)}
+        <div style="color:var(--text-dim);font-size:.7rem;font-weight:400;word-break:break-all;">
+          ${it.image ? esc(it.image.slice(0, 70)) + (it.image.length > 70 ? '…' : '') : '<span style="color:var(--danger);">sem imagem</span>'}
+        </div>
+      </div>
+      <span class="chip chip-mut">PF ${it.pricePF} / PJ ${it.pricePJ}</span>
+    </div>`).join('') +
+    (items.length > 12 ? `<div class="td-sub" style="padding:6px 0;">... e mais ${items.length - 12}</div>` : '');
+
   document.getElementById('importCountAdm').innerHTML=`<strong>${items.length}</strong> peças encontradas`;
   document.getElementById('importPreviewAdm').style.display='block';
-  window.importItemsAdm=items; window.importFileNameAdm=file.name;
+  window.importItemsAdm=items;
+  window.importFileNameAdm=file.name;
 };
 document.getElementById('confirmImportAdm').onchange=(e)=>{ document.getElementById('importBtnAdm').disabled=!e.target.checked; };
+
+/* ==== IMPORTAÇÃO ROBUSTA (cria histórico primeiro, mostra na hora, captura erros) ==== */
 async function importNamesAdm(){
-  const items=window.importItemsAdm; if(!items||items.length===0) return;
-  const sessionId=document.getElementById('impSessionAdm').value||null;
-  const category=document.getElementById('impCategoryAdm').value||null;
-  const brand=document.getElementById('impBrandAdm').value||null;
-  const impHidePF = document.getElementById('impHidePF').checked;
-  const impHidePJ = document.getElementById('impHidePJ').checked;
+  const items = window.importItemsAdm;
+  if(!items || items.length === 0){ showToast('Nenhum item para importar','err'); return; }
+
+  const sessionId   = document.getElementById('impSessionAdm').value || null;
+  const category    = document.getElementById('impCategoryAdm').value || null;
+  const brand       = document.getElementById('impBrandAdm').value || null;
+  const impHidePF   = document.getElementById('impHidePF').checked;
+  const impHidePJ   = document.getElementById('impHidePJ').checked;
+
   showLoading('Importando peças...');
-  const snap=await database.ref('products').once('value');
-  const map={}; snap.forEach(c=>{ const p=c.val(); map[`${p.name}|${p.category||''}`]={id:c.key,...p}; });
-  const historyEntry={ fileName:window.importFileNameAdm||'arquivo.csv', timestamp:Date.now(), date:new Date().toLocaleDateString('pt-BR'), time:new Date().toLocaleTimeString('pt-BR'),
-    totalItems:items.length, newItems:0, updatedItems:0, skippedItems:0, userId:currentAdmin?.uid||'unknown', userName:currentAdmin?.name||'Admin', addedProductIds:[], updatedProductIds:[],
-    organization:{ sessionId: sessionId || '', category: category || '', brand: brand || '' }, hidePricePF:impHidePF, hidePricePJ:impHidePJ };
-  let historyRef, historyKey;
-  try { historyRef = await database.ref('importHistory').push(historyEntry); historyKey = historyRef.key; }
-  catch(err) { hideLoading(); showToast('Erro: ' + err.message, 'err'); return; }
-  const updates={}; let added=0,updated=0,skipped=0; const addedIds=[],updatedIds=[];
-  items.forEach(item=>{
-    const key=`${item.name}|${item.category||''}`; const existing=map[key];
-    if(existing){
-      const hideChanged = (existing.hidePricePF||false)!==impHidePF || (existing.hidePricePJ||false)!==impHidePJ;
-      updates[`products/${existing.id}/hidePricePF`]=impHidePF;
-      updates[`products/${existing.id}/hidePricePJ`]=impHidePJ;
-      const changed = existing.prices?.PF!==item.pricePF || existing.prices?.PJ!==item.pricePJ || existing.brand!==item.brand || existing.codigo!==item.codigo || existing.image!==item.image || hideChanged;
-      if(changed){
-        if(item.pricePF!==undefined) updates[`products/${existing.id}/prices/PF`]=item.pricePF;
-        if(item.pricePJ!==undefined) updates[`products/${existing.id}/prices/PJ`]=item.pricePJ;
-        if(item.brand) updates[`products/${existing.id}/brand`]=item.brand;
-        if(item.codigo) updates[`products/${existing.id}/codigo`]=item.codigo;
-        if(item.image) updates[`products/${existing.id}/image`]=item.image;
-        if(!existing.importedFrom) updates[`products/${existing.id}/importedFrom`]=historyKey;
-        updated++; updatedIds.push(existing.id);
-      } else skipped++;
-    }else{
-      const id=database.ref().child('products').push().key;
-      updates[`products/${id}`]={ id, name:item.name, category:category||item.category||'', brand:brand||item.brand||'', codigo:item.codigo||'', description:'',
-        image:item.image||PLACEHOLDER_IMG, featured:false, pinned:false, soldOut:false, sessionId, clicks:0, metaClicks:0,
-        hidePricePF: impHidePF, hidePricePJ: impHidePJ,
-        prices:{PF:item.pricePF||0,PJ:item.pricePJ||0}, importedFrom:historyKey };
-      added++; addedIds.push(id);
+
+  const historyEntry = {
+    fileName: window.importFileNameAdm || 'arquivo.csv',
+    timestamp: Date.now(),
+    date: new Date().toLocaleDateString('pt-BR'),
+    time: new Date().toLocaleTimeString('pt-BR'),
+    totalItems: items.length,
+    newItems: 0,
+    updatedItems: 0,
+    skippedItems: 0,
+    userId: currentAdmin?.uid || 'unknown',
+    userName: currentAdmin?.name || 'Admin',
+    addedProductIds: [],
+    updatedProductIds: [],
+    organization: { sessionId: sessionId || '', category: category || '', brand: brand || '' },
+    hidePricePF: impHidePF,
+    hidePricePJ: impHidePJ
+  };
+
+  let historyKey;
+  try {
+    const ref = await database.ref('importHistory').push(historyEntry);
+    historyKey = ref.key;
+  } catch(err){
+    hideLoading();
+    console.error('Falha ao criar histórico:', err);
+    showToast('Erro ao registrar histórico: ' + (err.code || err.message), 'err');
+    return;
+  }
+
+  try {
+    const snap = await database.ref('products').once('value');
+    const map = {};
+    snap.forEach(c => { const p = c.val(); map[`${p.name}|${p.category||''}`] = { id: c.key, ...p }; });
+
+    const updates = {};
+    let added = 0, updated = 0, skipped = 0;
+    const addedIds = [], updatedIds = [];
+
+    items.forEach(item => {
+      const key = `${item.name}|${item.category||''}`;
+      const existing = map[key];
+
+      if(existing){
+        const hideChanged = (existing.hidePricePF||false) !== impHidePF || (existing.hidePricePJ||false) !== impHidePJ;
+        updates[`products/${existing.id}/hidePricePF`] = impHidePF;
+        updates[`products/${existing.id}/hidePricePJ`] = impHidePJ;
+
+        const changed =
+          existing.prices?.PF !== item.pricePF ||
+          existing.prices?.PJ !== item.pricePJ ||
+          existing.brand      !== item.brand ||
+          existing.codigo     !== item.codigo ||
+          existing.image      !== item.image ||
+          hideChanged;
+
+        if(changed){
+          if(item.pricePF !== undefined) updates[`products/${existing.id}/prices/PF`] = item.pricePF;
+          if(item.pricePJ !== undefined) updates[`products/${existing.id}/prices/PJ`] = item.pricePJ;
+          if(item.brand)  updates[`products/${existing.id}/brand`]  = item.brand;
+          if(item.codigo) updates[`products/${existing.id}/codigo`] = item.codigo;
+          if(item.image)  updates[`products/${existing.id}/image`]  = item.image;
+          if(!existing.importedFrom) updates[`products/${existing.id}/importedFrom`] = historyKey;
+          updated++; updatedIds.push(existing.id);
+        } else {
+          skipped++;
+        }
+      } else {
+        const id = database.ref().child('products').push().key;
+        updates[`products/${id}`] = {
+          id,
+          name: item.name,
+          category: category || item.category || '',
+          brand: brand || item.brand || '',
+          codigo: item.codigo || '',
+          description: '',
+          image: item.image || PLACEHOLDER_IMG,
+          featured: false, pinned: false, soldOut: false,
+          sessionId,
+          clicks: 0, metaClicks: 0,
+          hidePricePF: impHidePF,
+          hidePricePJ: impHidePJ,
+          prices: { PF: item.pricePF || 0, PJ: item.pricePJ || 0 },
+          importedFrom: historyKey
+        };
+        added++; addedIds.push(id);
+      }
+    });
+
+    if(Object.keys(updates).length > 0){
+      await database.ref().update(updates);
     }
-  });
-  await database.ref().update(updates);
-  await database.ref(`importHistory/${historyKey}`).update({newItems:added,updatedItems:updated,skippedItems:skipped,addedProductIds:addedIds,updatedProductIds:updatedIds});
-  hideLoading();
-  showToast(`Importação: ${added} novas, ${updated} atualizadas, ${skipped} ignoradas`);
-  document.getElementById('importPreviewAdm').style.display='none';
-  document.getElementById('csvFileAdm').value=''; document.getElementById('confirmImportAdm').checked=false; document.getElementById('importBtnAdm').disabled=true;
-  document.getElementById('impHidePF').checked=false; document.getElementById('impHidePJ').checked=false;
+
+    await database.ref(`importHistory/${historyKey}`).update({
+      newItems: added,
+      updatedItems: updated,
+      skippedItems: skipped,
+      addedProductIds: addedIds,
+      updatedProductIds: updatedIds,
+      finishedAt: Date.now()
+    });
+
+    importHistoryCache.unshift({
+      id: historyKey,
+      ...historyEntry,
+      newItems: added,
+      updatedItems: updated,
+      skippedItems: skipped,
+      addedProductIds: addedIds,
+      updatedProductIds: updatedIds,
+      finishedAt: Date.now()
+    });
+
+    hideLoading();
+    showToast(`Importação: ${added} novas, ${updated} atualizadas, ${skipped} ignoradas`);
+
+  } catch(err){
+    hideLoading();
+    console.error('Erro na importação:', err);
+    showToast('Erro na importação: ' + (err.code || err.message), 'err');
+  }
+
+  document.getElementById('importPreviewAdm').style.display = 'none';
+  document.getElementById('csvFileAdm').value = '';
+  document.getElementById('confirmImportAdm').checked = false;
+  document.getElementById('importBtnAdm').disabled = true;
+  document.getElementById('impHidePF').checked = false;
+  document.getElementById('impHidePJ').checked = false;
+  window.importItemsAdm = null;
+  window.importFileNameAdm = null;
+
+  switchImportTab('hist');
+  renderImportHistory();
 }
+
 function renderImportHistory(){
   const list=document.getElementById('importHistoryListAdm');
   if(!list) return;
@@ -2481,20 +2811,99 @@ function unfixImportAdm(historyId){
   const updates={}; ids.forEach(id=>updates[`products/${id}/topPriority`]=false);
   database.ref().update(updates).then(()=>showToast('Fixação removida'));
 }
-async function deleteImportAdm(historyId){
-  const snap=await database.ref(`importHistory/${historyId}`).once('value'); const h=snap.val();
+let deletingImportId = null;
+
+function deleteImportAdm(historyId){
+  const h = importHistoryCache.find(x => x.id === historyId);
   if(!h){ showToast('Registro não encontrado','err'); return; }
-  if(!confirm(`Excluir "${h.fileName}"? Isso removerá ${h.newItems} peças adicionadas.`)) return;
-  showLoading('Excluindo...');
-  const addedIds=h.addedProductIds||[];
-  if(addedIds.length){
-    await Promise.all(addedIds.map(id => { const p = products.find(x => x.id === id); return p && p.image ? deleteImageByUrl(p.image) : Promise.resolve(); }));
-    const du={}; addedIds.forEach(id=>du[`products/${id}`]=null); await database.ref().update(du);
+  deletingImportId = historyId;
+
+  const addedIds = h.addedProductIds || [];
+  const list = addedIds.map(id => products.find(p => p.id === id)).filter(Boolean);
+
+  document.getElementById('delImpFileName').textContent = h.fileName || 'arquivo.csv';
+  document.getElementById('delImpDate').textContent = `${h.date || ''} ${h.time || ''}`;
+  document.getElementById('delImpNewCount').textContent  = h.newItems || 0;
+  document.getElementById('delImpUpdCount').textContent  = h.updatedItems || 0;
+  document.getElementById('delImpSkipCount').textContent = h.skippedItems || 0;
+  document.getElementById('delImpCountChip').textContent = list.length;
+  document.getElementById('delImpConfirmInput').value = '';
+  document.getElementById('delImpConfirmBtn').disabled = true;
+  document.getElementById('delImpAlsoFeatured').checked = true;
+  document.getElementById('delImpDeleteImages').checked = true;
+
+  const preview = document.getElementById('delImpPreviewList');
+  if(list.length === 0){
+    preview.innerHTML = `<div class="empty-state" style="padding:20px;">
+      <i class="fas fa-circle-check" style="color:var(--ok);"></i>
+      <p>Nenhuma peça nova foi adicionada por esta importação (somente atualizações).</p></div>`;
+  } else {
+    preview.innerHTML = list.slice(0, 60).map(p => `
+      <div class="mini-item">
+        <img src="${p.image || PLACEHOLDER_IMG}" onerror="this.src='${PLACEHOLDER_IMG}'"
+             style="width:34px;height:34px;border-radius:6px;object-fit:cover;">
+        <div class="mi-t">${esc(p.name || 'Sem nome')}
+          <div style="color:var(--text-dim);font-size:.72rem;font-weight:400;">
+            ${esc(p.brand || 'sem marca')} · ${esc(p.codigo || 'sem código')}
+          </div>
+        </div>
+      </div>`).join('') +
+      (list.length > 60 ? `<div class="td-sub" style="padding:6px 0;">... e mais ${list.length - 60}</div>` : '');
   }
-  const updatedIds=h.updatedProductIds||[];
-  if(updatedIds.length){ const cu={}; updatedIds.forEach(id=>cu[`products/${id}/importedFrom`]=null); await database.ref().update(cu); }
-  await database.ref(`importHistory/${historyId}`).remove();
-  hideLoading(); showToast('Arquivo excluído');
+
+  const input = document.getElementById('delImpConfirmInput');
+  const btn = document.getElementById('delImpConfirmBtn');
+  input.oninput = (e) => { btn.disabled = e.target.value.trim() !== 'EXCLUIR IMPORTAÇÃO'; };
+
+  openModal('modalDeleteImport');
+}
+
+async function confirmDeleteImportAdm(){
+  const input = document.getElementById('delImpConfirmInput');
+  if(input.value.trim() !== 'EXCLUIR IMPORTAÇÃO'){ showToast('Frase incorreta','err'); return; }
+
+  const historyId = deletingImportId; if(!historyId) return;
+  const h = importHistoryCache.find(x => x.id === historyId); if(!h) return;
+
+  const alsoRemoveFeatured = document.getElementById('delImpAlsoFeatured').checked;
+  const deleteImgs = document.getElementById('delImpDeleteImages').checked;
+
+  showLoading('Excluindo importação...');
+  try{
+    const addedIds   = h.addedProductIds   || [];
+    const updatedIds = h.updatedProductIds || [];
+
+    if(deleteImgs && addedIds.length){
+      await Promise.all(addedIds.map(id => {
+        const p = products.find(x => x.id === id);
+        return p && p.image ? deleteImageByUrl(p.image) : Promise.resolve();
+      }));
+    }
+
+    const updates = {};
+
+    addedIds.forEach(id => { updates[`products/${id}`] = null; });
+    updatedIds.forEach(id => { updates[`products/${id}/importedFrom`] = null; });
+
+    if(alsoRemoveFeatured && featuredDraft && featuredDraft.length > 0){
+      const deletedIds = new Set(addedIds);
+      const newFeatured = featuredDraft.filter(fid => !deletedIds.has(fid));
+      if(newFeatured.length !== featuredDraft.length){
+        updates['featured'] = newFeatured.length > 0 ? newFeatured : null;
+      }
+    }
+
+    updates[`importHistory/${historyId}`] = null;
+
+    await database.ref().update(updates);
+    hideLoading();
+    closeModal('modalDeleteImport');
+    deletingImportId = null;
+    showToast(`Importação excluída${addedIds.length > 0 ? ` + ${addedIds.length} peça(s)` : ''}`);
+  }catch(err){
+    hideLoading();
+    showToast('Erro: ' + err.message, 'err');
+  }
 }
 
 /* ================= CLIQUES & METAS ================= */
@@ -2509,7 +2918,6 @@ function renderClickHistory(){
   const body = document.getElementById('clickHistoryBody');
   if(!body) return;
 
-  /* ---------- Filtro de campanha (select) ---------- */
   const sel = document.getElementById('clickCampaignFilter');
   if (sel) {
     const slugSet = new Set();
