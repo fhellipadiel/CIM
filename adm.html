@@ -287,7 +287,6 @@ tbody tr:last-child td{border-bottom:none;}
 .analytics-kpi{display:flex;align-items:center;gap:8px;font-size:.82rem;color:var(--text-muted);background:var(--panel-alt);padding:8px 14px;border-radius:10px;border:1px solid var(--border);}
 .analytics-kpi strong{color:var(--accent);font-family:var(--font-mono);font-size:1.05rem;}
 
-/* Navegador de semanas dos gráficos DOW */
 .week-nav{
   display:flex;align-items:center;gap:4px;
   background:var(--panel-alt);border:1px solid var(--border);
@@ -829,8 +828,41 @@ tbody tr:last-child td{border-bottom:none;}
         <button data-cliktab="contatos" onclick="switchClickTab('contatos')"><i class="fab fa-whatsapp"></i> Contatos</button>
       </div>
       <div id="clickTabHist">
-        <div class="block"><div class="block-head"><h3>Últimos cliques</h3><button class="btn btn-sm btn-ghost" onclick="clearClickHistoryAdm()"><i class="fas fa-trash"></i> Limpar</button></div>
-        <div class="block-body tight"><table><thead><tr><th>Peça</th><th>Usuário</th><th>Origem</th><th>Data</th></tr></thead><tbody id="clickHistoryBody"></tbody></table></div></div>
+        <div class="block">
+          <div class="block-head">
+            <h3>Últimos cliques</h3>
+            <button class="btn btn-sm btn-ghost" onclick="clearClickHistoryAdm()"><i class="fas fa-trash"></i> Limpar</button>
+          </div>
+          <div class="block-body">
+            <div class="filter-bar" style="margin-bottom:12px;padding:0 0 12px;border-bottom:1px solid var(--border-soft);">
+              <span class="filter-tag" style="font-size:.72rem;color:var(--text-dim);text-transform:uppercase;letter-spacing:.4px;margin-right:6px;">
+                <i class="fas fa-link" style="color:var(--accent);"></i> Campanha:
+              </span>
+              <select id="clickCampaignFilter" onchange="renderClickHistory()"
+                      style="background:var(--panel-alt);border:1px solid var(--border);color:var(--text);padding:8px 12px;border-radius:8px;font-size:.82rem;min-width:260px;">
+                <option value="">Todas as campanhas</option>
+              </select>
+              <button class="btn btn-sm btn-ghost" onclick="document.getElementById('clickCampaignFilter').value='';renderClickHistory();">
+                <i class="fas fa-eraser"></i> Limpar filtro
+              </button>
+              <span id="clickFilteredCount" class="chip chip-mut" style="margin-left:auto;"></span>
+            </div>
+            <div class="block-body tight" style="padding:0;">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Peça</th>
+                    <th>Usuário</th>
+                    <th>Origem</th>
+                    <th>Campanha</th>
+                    <th>Data</th>
+                  </tr>
+                </thead>
+                <tbody id="clickHistoryBody"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
       </div>
       <div id="clickTabMetas" style="display:none;">
         <div class="block"><div class="block-head"><h3>Metas batidas</h3><button class="btn btn-sm btn-ghost" onclick="clearMetaAchievementsAdm()"><i class="fas fa-trash"></i> Limpar</button></div>
@@ -859,7 +891,17 @@ tbody tr:last-child td{border-bottom:none;}
             </div>
           </div>
           <div class="block-body tight">
-            <table><thead><tr><th>Tipo</th><th>Origem</th><th>Data / Hora</th></tr></thead><tbody id="contactClicksBody"></tbody></table>
+            <table>
+              <thead>
+                <tr>
+                  <th>Tipo</th>
+                  <th>Origem</th>
+                  <th>Campanha</th>
+                  <th>Data / Hora</th>
+                </tr>
+              </thead>
+              <tbody id="contactClicksBody"></tbody>
+            </table>
           </div>
         </div>
       </div>
@@ -1222,7 +1264,6 @@ let aboutPhotosSaveTimer = null;
 /* ================= UTIL ================= */
 function esc(t){ if(!t) return ''; const d=document.createElement('div'); d.textContent=t; return d.innerHTML; }
 
-/* 👇 NOVO: busca inteligente por tokens (qualquer ordem de palavras) */
 function matchTokens(haystack, query){
   if(!query || !query.trim()) return true;
   const tokens = query.toLowerCase().trim().split(/\s+/).filter(Boolean);
@@ -1270,7 +1311,7 @@ async function uploadImg(file, folder = 'products'){
     return url;
   } catch(e){
     hideLoading();
-    console.error('❌ upload:', e);
+    console.error('upload:', e);
     showToast('Erro ao enviar imagem: ' + (e.message||e.code), 'err');
     return null;
   }
@@ -1280,7 +1321,7 @@ async function deleteImageByUrl(url){
   if(!url || typeof url !== 'string') return false;
   if(!url.includes('firebasestorage.googleapis.com')) return false;
   try{ const ref = storage.refFromURL(url); await ref.delete(); return true; }
-  catch(e){ console.warn('⚠️ delete:', e.code); return false; }
+  catch(e){ console.warn('delete:', e.code); return false; }
 }
 
 function setupUpload(inputId, boxId, previewId, previewImgId, setter, folder='products'){
@@ -1398,10 +1439,10 @@ function switchPanel(name){
   if(name === 'quem-somos') renderAboutPhotosPanelAdm();
   if(name === 'analises'){ renderAnalytics(); }
   if(name === 'analises-links'){ updateLinkSlugFilter(); renderLinksAnalytics(); }
+  if(name === 'cliques'){ renderClickHistory(); renderContactClicks(); renderMetaAchievements(); }
 }
 function globalSearchHandler(v){ if(v.trim()==='') return; switchPanel('produtos'); document.getElementById('prodFilterText').value=v; renderProducts(); }
 
-/* 👇 NOVO: navegação inteligente dos cards do dashboard */
 function goToPanel(panel, opts = {}){
   switchPanel(panel);
   setTimeout(() => {
@@ -1465,6 +1506,10 @@ function loadAllData(){
     updateLinkBadge();
     updateLinksDashboard();
     updateLinkSlugFilter();
+    /* Re-renderiza o filtro do histórico de cliques sempre que links mudarem */
+    if (document.getElementById('panel-cliques').classList.contains('active')) {
+      renderClickHistory();
+    }
   });
   database.ref('.info/connected').on('value', snap => {
     if(snap.val() === true && currentAdmin){ database.ref(`users/${currentAdmin.uid}/lastAccess`).set(Date.now()); }
@@ -1592,7 +1637,6 @@ function renderProducts(){
   const cat=document.getElementById('prodFilterCategory')?.value||'';
   const status=document.getElementById('prodFilterStatus')?.value||'';
   let list=[...products];
-  /* 👇 ATUALIZADO: busca inteligente por tokens */
   if(text) list=list.filter(p => matchTokens([p.name,p.codigo,p.brand,p.category].join(' '), text));
   if(cat) list=list.filter(p=>p.category===cat);
   if(status==='featured') list=list.filter(p=>p.featured);
@@ -2244,7 +2288,6 @@ async function saveLinkAdm(){
   }
 }
 
-/* 👇 ATUALIZADO: ao excluir link, também apaga os logs de tracking (some do gráfico) */
 async function deleteLinkAdm(id){
   const l = trackingLinks[id]; if(!l) return;
   if(!confirm(`Excluir o link "${l.name}"?`)) return;
@@ -2252,7 +2295,6 @@ async function deleteLinkAdm(id){
 
   showLoading('Excluindo link e histórico...');
   try{
-    // Remove todos os logs de tracking desse slug (some do gráfico também)
     const logsSnap = await database.ref('trackingLinkLogs').orderByChild('slug').equalTo(l.slug).once('value');
     const updates = {};
     updates[`trackingLinks/${id}`] = null;
@@ -2442,19 +2484,102 @@ function switchClickTab(tab){
   document.getElementById('clickTabMetas').style.display    = tab === 'metas'    ? 'block' : 'none';
   document.getElementById('clickTabContatos').style.display = tab === 'contatos' ? 'block' : 'none';
 }
+
+/* 👇 CORRIGIDO: filtro agora puxa também dos trackingLinks cadastrados */
 function renderClickHistory(){
   const body = document.getElementById('clickHistoryBody');
   if(!body) return;
-  if(clickHistory.length === 0){ body.innerHTML = `<tr><td colspan="4"><div class="empty-state"><i class="fas fa-clock"></i><p>Nenhum clique registrado</p></div></td></tr>`; return; }
+
+  /* ---------- Filtro de campanha (select) ---------- */
+  const sel = document.getElementById('clickCampaignFilter');
+  if (sel) {
+    // Fonte 1: slugs que já apareceram em cliques
+    const slugSet = new Set();
+    clickHistory.forEach(l => { if (l.campaignRef) slugSet.add(l.campaignRef); });
+
+    // Fonte 2: TODOS os links cadastrados (mesmo sem cliques ainda)
+    Object.values(trackingLinks).forEach(lk => {
+      if (lk.slug) slugSet.add(lk.slug);
+    });
+
+    const slugs = [...slugSet].sort();
+    const cur = sel.value;
+
+    sel.innerHTML = '<option value="">Todas as campanhas</option>' +
+      slugs.map(s => {
+        const linkObj  = Object.values(trackingLinks).find(l => l.slug === s);
+        const clickObj = clickHistory.find(l => l.campaignRef === s);
+        const nome = (linkObj && linkObj.name) || (clickObj && clickObj.campaignName) || s;
+
+        const qtd = clickHistory.filter(l => l.campaignRef === s).length;
+        const contador = qtd > 0 ? ` (${qtd})` : '';
+
+        return `<option value="${esc(s)}">${esc(nome)} — /${esc(s)}${contador}</option>`;
+      }).join('');
+
+    if (slugs.includes(cur)) sel.value = cur;
+    else sel.value = '';
+  }
+
+  /* ---------- Aplica filtro ---------- */
+  const filtroCamp = sel ? sel.value : '';
+  let lista = clickHistory;
+  if (filtroCamp) lista = lista.filter(l => l.campaignRef === filtroCamp);
+
+  /* ---------- Contador ---------- */
+  const counter = document.getElementById('clickFilteredCount');
+  if (counter) {
+    if (filtroCamp) {
+      counter.textContent = `${lista.length} de ${clickHistory.length}`;
+    } else {
+      counter.textContent = `${lista.length}`;
+    }
+    counter.style.display = 'inline-flex';
+  }
+
+  if(lista.length === 0){
+    const msgEmpty = filtroCamp
+      ? `Nenhum clique ainda vindo desta campanha. Compartilhe o link /${esc(filtroCamp)} para começar a rastrear.`
+      : 'Nenhum clique registrado';
+    body.innerHTML = `<tr><td colspan="5"><div class="empty-state"><i class="fas fa-clock"></i><p>${msgEmpty}</p></div></td></tr>`;
+    return;
+  }
+
+  /* ---------- Rótulos de origem ---------- */
   const sourceLabels = {
     'search':          '<i class="fas fa-search"></i> Busca',
     'search-featured': '<i class="fas fa-search"></i> Destaques',
     'featured':        '<i class="fas fa-star"></i> Carrossel',
-    'gallery':         '<i class="fas fa-images"></i> Galeria'
+    'gallery':         '<i class="fas fa-images"></i> Galeria',
+    'footer':          '<i class="fas fa-headset"></i> Rodapé',
+    'float-support':   '<i class="fas fa-headset"></i> Botão flutuante'
   };
-  body.innerHTML = clickHistory.slice(0, 200).map(l => {
+
+  body.innerHTML = lista.slice(0, 300).map(l => {
     const srcLabel = sourceLabels[l.source] || l.source || '—';
-    return `<tr><td class="td-name">${esc(l.productName || l.sessionName || '—')}</td><td>${esc(l.userName || 'Visitante')}${l.userType ? ` (${l.userType})` : ''}</td><td><span class="chip chip-mut">${srcLabel}</span></td><td class="td-sub">${l.date || ''} ${l.time || ''}</td></tr>`;
+
+    /* ---------- Coluna Campanha ---------- */
+    let campaignHtml;
+    if (l.campaignName) {
+      campaignHtml = `<span class="chip" style="background:rgba(255,107,53,.12);color:var(--accent);border:1px solid rgba(255,107,53,.25);">
+                        <i class="fas fa-bullhorn"></i> ${esc(l.campaignName)}
+                      </span>`;
+      if (l.campaignRef && l.campaignRef !== l.campaignName) {
+        campaignHtml += ` <span class="td-sub" style="font-family:var(--font-mono);font-size:.68rem;display:block;margin-top:2px;">/${esc(l.campaignRef)}</span>`;
+      }
+    } else if (l.campaignRef) {
+      campaignHtml = `<span class="chip chip-mut"><i class="fas fa-link"></i> /${esc(l.campaignRef)}</span>`;
+    } else {
+      campaignHtml = `<span style="color:var(--text-dim);font-size:.72rem;"><i class="fas fa-globe"></i> Direto</span>`;
+    }
+
+    return `<tr>
+      <td class="td-name">${esc(l.productName || l.sessionName || '—')}</td>
+      <td>${esc(l.userName || 'Visitante')}${l.userType ? ` <span style="color:var(--text-dim);font-size:.72rem;">(${l.userType})</span>` : ''}</td>
+      <td><span class="chip chip-mut">${srcLabel}</span></td>
+      <td>${campaignHtml}</td>
+      <td class="td-sub">${l.date || ''} ${l.time || ''}</td>
+    </tr>`;
   }).join('');
 }
 function clearClickHistoryAdm(){ if(confirm('Limpar histórico de cliques?')) database.ref('clickLogs').remove().then(()=>showToast('Histórico limpo')); }
@@ -2465,14 +2590,37 @@ function renderMetaAchievements(){
   body.innerHTML=metaAchievements.map(a=>`<tr><td class="td-name">${esc(a.productName)}</td><td class="td-sub">${a.date||''} ${a.time||''}</td></tr>`).join('');
 }
 function clearMetaAchievementsAdm(){ if(confirm('Limpar metas?')) database.ref('metaAchievements').remove().then(()=>showToast('Registros limpos')); }
+
 function renderContactClicks(){
   const body = document.getElementById('contactClicksBody');
   if(!body) return;
-  if(contactClicks.length === 0){ body.innerHTML = `<tr><td colspan="3"><div class="empty-state"><i class="fas fa-headset"></i><p>Nenhum clique em contato</p></div></td></tr>`; return; }
+  if(contactClicks.length === 0){
+    body.innerHTML = `<tr><td colspan="4"><div class="empty-state"><i class="fas fa-headset"></i><p>Nenhum clique em contato</p></div></td></tr>`;
+    return;
+  }
   const sourceLabels = { 'float-support': 'Botão flutuante', 'footer': 'Rodapé', 'header': 'Cabeçalho' };
   body.innerHTML = contactClicks.slice(0, 200).map(c => {
-    const chip = c.type === 'whatsapp' ? '<span class="chip contact-chip-wa"><i class="fab fa-whatsapp"></i> WhatsApp</span>' : '<span class="chip contact-chip-ph"><i class="fas fa-phone"></i> Ligar</span>';
-    return `<tr><td>${chip}</td><td>${esc(sourceLabels[c.source] || c.source || '—')}</td><td class="td-sub">${c.date || ''} ${c.time || ''}</td></tr>`;
+    const chip = c.type === 'whatsapp'
+      ? '<span class="chip contact-chip-wa"><i class="fab fa-whatsapp"></i> WhatsApp</span>'
+      : '<span class="chip contact-chip-ph"><i class="fas fa-phone"></i> Ligar</span>';
+
+    let campaignHtml;
+    if (c.campaignName) {
+      campaignHtml = `<span class="chip" style="background:rgba(255,107,53,.12);color:var(--accent);border:1px solid rgba(255,107,53,.25);">
+                        <i class="fas fa-bullhorn"></i> ${esc(c.campaignName)}
+                      </span>`;
+    } else if (c.campaignRef) {
+      campaignHtml = `<span class="chip chip-mut"><i class="fas fa-link"></i> /${esc(c.campaignRef)}</span>`;
+    } else {
+      campaignHtml = `<span style="color:var(--text-dim);font-size:.72rem;"><i class="fas fa-globe"></i> Direto</span>`;
+    }
+
+    return `<tr>
+      <td>${chip}</td>
+      <td>${esc(sourceLabels[c.source] || c.source || '—')}</td>
+      <td>${campaignHtml}</td>
+      <td class="td-sub">${c.date || ''} ${c.time || ''}</td>
+    </tr>`;
   }).join('');
 }
 function clearContactClicksAdm(mode){
@@ -2541,7 +2689,6 @@ function renderUsers(){
   else if(usersTab==='manual'){ filtered = usersCache.filter(u => getUserOrigin(u) !== 'google.com' && !u.isAdmin); }
   else { filtered = usersCache.filter(u => u.userType===usersTab); }
 
-  /* 👇 NOVO: filtro por texto (nome, email, telefone, CPF/CNPJ) */
   const userQuery = (document.getElementById('userFilterText')?.value || '').trim();
   if(userQuery){
     filtered = filtered.filter(u => matchTokens(
@@ -2827,7 +2974,6 @@ function renderFeaturedPickerAdm(){
   const el = document.getElementById('featuredPickerAdm'); if(!el) return;
   const q = (document.getElementById('featuredSearchInput')?.value || '').toLowerCase().trim();
   let list = products.filter(p => !featuredDraft.includes(p.id));
-  /* 👇 ATUALIZADO: busca inteligente */
   if(q) list = list.filter(p => matchTokens([p.name, p.codigo, p.brand, p.category].join(' '), q));
   list.sort((a,b) => (a.name||'').localeCompare(b.name||''));
   if(list.length === 0){ el.innerHTML = `<div class="empty-state"><i class="fas fa-search"></i><p>Nenhuma peça encontrada</p></div>`; return; }
@@ -2910,7 +3056,6 @@ function renderGalleryPickerAdm(){
   const el = document.getElementById('galleryPickerAdm'); if(!el) return;
   const q = (document.getElementById('gallerySearchInput')?.value || '').toLowerCase().trim();
   let list = products.filter(p => !galleryDraft.includes(p.id));
-  /* 👇 ATUALIZADO: busca inteligente */
   if(q) list = list.filter(p => matchTokens([p.name, p.codigo, p.brand, p.category].join(' '), q));
   list.sort((a,b) => (a.name||'').localeCompare(b.name||''));
   if(list.length === 0){ el.innerHTML = `<div class="empty-state"><i class="fas fa-search"></i><p>Nenhuma peça</p></div>`; return; }
@@ -3045,7 +3190,7 @@ function persistAboutPhotosAdm(){
 })();
 
 /* ============================================================
-   📊 MÓDULO DE ANÁLISES
+   MODULO DE ANALISES
    ============================================================ */
 let analyticsClickLogs     = [];
 let analyticsContactClicks = [];
@@ -3054,7 +3199,6 @@ let analyticsPeriod        = '7d';
 let analyticsSource        = 'all';
 let linksAnalyticsPeriod   = '7d';
 let linksAnalyticsSlug     = 'all';
-/* 👇 NOVO: navegação por semana (0 = semana atual, -1 = semana passada...) */
 let analyticsWeekOffset      = 0;
 let linksAnalyticsWeekOffset = 0;
 let chartDowGeneral, chartDomGeneral, chartTimelineGeneral, chartTopProducts;
@@ -3078,10 +3222,9 @@ function anaDateKey(ts){ const d = new Date(ts); return `${d.getFullYear()}-${St
 function anaDateLabel(ts){ const d = new Date(ts); return `${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}`; }
 function destroyChart(c){ if(c && typeof c.destroy === 'function') c.destroy(); }
 
-/* 👇 NOVO: retorna o range (Seg→Dom) de uma semana relativa */
 function getWeekRange(offset){
   const now = new Date();
-  const dow = now.getDay(); // 0=Dom, 1=Seg...
+  const dow = now.getDay();
   const daysToMonday = dow === 0 ? 6 : dow - 1;
   const monday = new Date(now);
   monday.setDate(now.getDate() - daysToMonday + (offset * 7));
@@ -3101,7 +3244,7 @@ function formatWeekLabel(range, offset){
 
 function changeWeekGeneral(delta){
   const newOffset = analyticsWeekOffset + delta;
-  if(newOffset > 0) return; // não permite ir para o futuro
+  if(newOffset > 0) return;
   analyticsWeekOffset = newOffset;
   renderAnalytics();
 }
@@ -3170,20 +3313,17 @@ function renderAnalytics(){
   const kpi = document.getElementById('analyticsTotalClicks');
   if(kpi) kpi.textContent = logs.length.toLocaleString('pt-BR');
 
-  /* 👇 DOW: usa a SEMANA selecionada via setas (ignora o filtro de período) */
   const weekRange = getWeekRange(analyticsWeekOffset);
   const weekLogs  = allLogs.filter(l => (l.timestamp||0) >= weekRange.start && (l.timestamp||0) <= weekRange.end);
   const dow = [0,0,0,0,0,0,0];
   weekLogs.forEach(l => { if(l.timestamp) dow[anaDowIndex(l.timestamp)]++; });
   renderBarChart('chartDowGeneral', DOW_LABELS, dow, 'Cliques', ACCENT_ANA);
 
-  // Label + botão "próxima" desabilitado quando já está na semana atual
   const weekLabelEl = document.getElementById('weekLabelGeneral');
   if(weekLabelEl) weekLabelEl.textContent = formatWeekLabel(weekRange, analyticsWeekOffset);
   const nextBtn = document.getElementById('weekNextGeneral');
   if(nextBtn) nextBtn.disabled = analyticsWeekOffset >= 0;
 
-  /* Dia do mês — continua respeitando o filtro de período */
   const dom = new Array(31).fill(0);
   logs.forEach(l => { if(l.timestamp){ const d = new Date(l.timestamp).getDate(); dom[d-1]++; } });
   renderBarChart('chartDomGeneral', Array.from({length:31}, (_,i) => String(i+1)), dom, 'Cliques', 'rgba(62,207,142,.75)');
@@ -3198,7 +3338,6 @@ function renderAnalytics(){
   renderHorizontalBar('chartTopProducts', top.map(t=>t[0]), top.map(t=>t[1]), ACCENT_ANA);
 }
 
-/* 👇 Ajustado: agora mostra TODOS os links criados (mesmo sem cliques) */
 function updateLinkSlugFilter(){
   const sel = document.getElementById('linksAnaSlugFilter'); if(!sel) return;
   const cur = sel.value;
@@ -3217,7 +3356,6 @@ function updateLinkSlugFilter(){
   else { sel.value = 'all'; linksAnalyticsSlug = 'all'; }
 }
 
-/* 👇 Ajustado: mostra total acumulado + todos os links no ranking */
 function renderLinksAnalytics(){
   if(typeof Chart === 'undefined') return;
   const cutoff = anaPeriodCutoff(linksAnalyticsPeriod);
@@ -3241,7 +3379,6 @@ function renderLinksAnalytics(){
     elGeral.textContent = totalAcumulado.toLocaleString('pt-BR');
   }
 
-  /* 👇 DOW: usa a SEMANA selecionada via setas */
   const weekRange = getWeekRange(linksAnalyticsWeekOffset);
   const weekLogs  = allLogs.filter(l => (l.timestamp||0) >= weekRange.start && (l.timestamp||0) <= weekRange.end);
   const dow = [0,0,0,0,0,0,0];
