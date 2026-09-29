@@ -21,7 +21,7 @@
 
     <style>
         /* ============================================================
-           ⚡ BASE
+           BASE
            ============================================================ */
         html, body {
             -ms-overflow-style: none;
@@ -48,11 +48,7 @@
         }
 
         /* ============================================================
-           🖼️ IMAGENS
-           ============================================================ */
-
-        /* ============================================================
-           🎨 FUNDOS
+           FUNDOS
            ============================================================ */
         .bg-custom-image {
             background-image: url('assets/sessao1.webp');
@@ -78,7 +74,7 @@
         }
 
         /* ============================================================
-           🔄 KEYFRAMES
+           KEYFRAMES
            ============================================================ */
         @keyframes scrollLeft {
             from { transform: translate3d(0, 0, 0); }
@@ -106,7 +102,7 @@
         }
 
         /* ============================================================
-           🎞️ CARROSSÉIS
+           CARROSSEIS
            ============================================================ */
         .animate-carousel-left,
         .animate-carousel-right,
@@ -142,7 +138,7 @@
         .carousel-track .brand-item:hover { opacity: 1 !important; }
 
         /* ============================================================
-           📦 CONTAINERS DE CARROSSEL
+           CONTAINERS DE CARROSSEL
            ============================================================ */
         .carousel-container,
         .about-carousel-container {
@@ -152,7 +148,6 @@
             contain: layout paint;
         }
 
-        /* Máscara lateral só em telas pequenas (economiza GPU no PC) */
         @media (max-width: 1023px) {
             .carousel-container,
             .about-carousel-container {
@@ -216,7 +211,7 @@
         }
 
         /* ============================================================
-           ✨ REVEAL
+           REVEAL
            ============================================================ */
         .reveal {
             opacity: 0.4;
@@ -232,7 +227,7 @@
         }
 
         /* ============================================================
-           🎯 BOTÕES E LINKS — SEM will-change em hover (era o vilão do PC)
+           BOTOES E LINKS
            ============================================================ */
         button, a, .clickable {
             transition:
@@ -248,7 +243,7 @@
         }
 
         /* ============================================================
-           🎈 BOTÃO "VER PEÇAS"
+           BOTAO "VER PECAS"
            ============================================================ */
         .animate-bounce-pecas {
             animation: bouncePecas 1.8s ease-in-out infinite;
@@ -261,7 +256,7 @@
         }
 
         /* ============================================================
-           🔍 MODAL DE BUSCA
+           MODAL DE BUSCA
            ============================================================ */
         #search-modal {
             opacity: 0;
@@ -298,14 +293,14 @@
         }
 
         /* ============================================================
-           🎴 CARDS DE DESTAQUE
+           CARDS DE DESTAQUE
            ============================================================ */
         .destaque-card {
             contain: layout paint;
         }
 
         /* ============================================================
-           📞 FOOTER
+           FOOTER
            ============================================================ */
         .footer-contact {
             color: #9ca3af;
@@ -318,7 +313,7 @@
         .footer-contact:hover .footer-contact-icon { color: #ffffff; }
 
         /* ============================================================
-           🧊 HEADER — ✅ SEM backdrop-filter (era o MAIOR vilão do PC)
+           HEADER
            ============================================================ */
         #main-header {
             position: fixed;
@@ -329,9 +324,6 @@
         }
 
         .header-frost {
-            /* Antes: backdrop-filter: blur(18px) saturate(140%) + mask gradiente
-               → Isso forçava o navegador a LER E BLUR o framebuffer inteiro a cada frame
-               Agora: só um gradiente opaco — visualmente parecido, ZERO custo de GPU */
             background: linear-gradient(
                 to bottom,
                 rgba(0, 0, 0, 0.92) 0%,
@@ -342,7 +334,7 @@
         }
 
         /* ============================================================
-           🧭 NAV
+           NAV
            ============================================================ */
         .nav-link {
             position: relative;
@@ -396,7 +388,7 @@
         #see-all-btn:hover::after { width: calc(100% - 22px); }
 
         /* ============================================================
-           📐 MODAL EXPANDIDO
+           MODAL EXPANDIDO
            ============================================================ */
         #search-left-col { transition: opacity 0.35s ease; }
         #search-modal.expanded #search-left-col { display: none; }
@@ -405,7 +397,7 @@
         #search-results { transition: grid-template-columns 0.3s ease; }
 
         /* ============================================================
-           ♿ ACESSIBILIDADE
+           ACESSIBILIDADE
            ============================================================ */
         @media (prefers-reduced-motion: reduce) {
             *, *::before, *::after {
@@ -416,19 +408,11 @@
             }
         }
 
-        /* ============================================================
-           🖥️ TELAS GRANDES — Desktop: desliga efeitos caros
-           ============================================================ */
         @media (min-width: 1024px) {
-            /* Em telas grandes, imagens de fundo fixas são caras.
-               `background-attachment: fixed` causaria repaint total;
-               não usamos. Mas prevenimos `backdrop-filter` residual. */
             * {
                 -webkit-backdrop-filter: none !important;
                 backdrop-filter: none !important;
             }
-            /* Reabilita o backdrop-blur APENAS no modal quando aberto,
-               porque é uma tela isolada (não afeta scroll da página) */
             #search-modal.flex {
                 -webkit-backdrop-filter: blur(12px) !important;
                 backdrop-filter: blur(12px) !important;
@@ -466,7 +450,6 @@
         </div>
     </header>
 
-    <!-- Modal — usando bg-black/85 ao invés de backdrop-blur-md (que travava no PC) -->
     <div id="search-modal" class="fixed inset-0 z-50 bg-black/85 hidden flex-col items-center pt-20 md:pt-24 px-4 md:px-12 lg:px-16 overflow-y-auto">
         <div class="search-panel w-full max-w-6xl relative pb-10">
             <button id="close-search-modal" class="absolute -top-10 md:-top-12 right-0 text-gray-400 hover:text-white text-2xl p-2 transition cursor-pointer hover:rotate-90 z-10">
@@ -535,7 +518,6 @@
         </div>
     </main>
 
-    <!-- Seção Peças em Destaque -->
     <section id="destaques" class="py-16 md:py-20 bg-[#0a0a0a] relative z-10 overflow-hidden reveal">
         <div class="container mx-auto px-6 md:px-16 mb-8 text-center">
             <h2 class="text-2xl md:text-4xl font-black uppercase tracking-tight text-white">
@@ -754,7 +736,7 @@
             }, { threshold: 0.15, rootMargin: '-40px 0px -60px 0px' });
             reveals.forEach(el => revealObserver.observe(el));
 
-            /* PAUSA CARROSSÉIS FORA DA VIEWPORT */
+            /* PAUSA CARROSSEIS FORA DA VIEWPORT */
             const carouselTracks = document.querySelectorAll(
                 '.animate-carousel-left, .animate-carousel-right, .animate-destaques, .animate-about-carousel'
             );
@@ -884,6 +866,9 @@
     </script>
 
     <script>
+        /* ============================================================
+           FIREBASE
+           ============================================================ */
         const firebaseConfig = {
             apiKey: "AIzaSyBVtlnA85ugvll5hLAvOF8FuM4BGnKEovM",
             authDomain: "redx-6b53f.firebaseapp.com",
@@ -896,47 +881,19 @@
         if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
         const database = firebase.database();
 
-        function logVisitorClick(type, data = {}) {
-            try {
-                const now = new Date();
-                const log = {
-                    type,
-                    source: data.source || 'unknown',
-                    productId: data.productId || null,
-                    productName: data.productName || null,
-                    userName: 'Visitante',
-                    userType: 'visitante',
-                    date: now.toLocaleDateString('pt-BR'),
-                    time: now.toLocaleTimeString('pt-BR'),
-                    timestamp: Date.now()
-                };
-                if (type === 'product') {
-                    database.ref('clickLogs').push(log);
-                    if (data.productId) {
-                        database.ref(`products/${data.productId}/clicks`)
-                            .transaction(c => (c || 0) + 1)
-                            .catch(() => {});
-                    }
-                } else if (type === 'whatsapp' || type === 'phone') {
-                    database.ref('contactClicks').push(log);
-                }
-            } catch (e) { console.warn('Erro ao registrar clique:', e); }
-        }
+        /* ============================================================
+           RASTREAMENTO DE CAMPANHA + CLIQUES (CORRELACIONADO)
+           ============================================================ */
+        window.campaignRef      = null;   // slug atual (ex: "instagram")
+        window.campaignName     = null;   // nome amigável (ex: "Instagram Bio")
+        window.trackingLinksMap = {};     // { slug: { id, name } }
 
-        (function trackContactClicks(){
-            document.addEventListener('click', (e) => {
-                const link = e.target.closest('.js-track-contact');
-                if (!link) return;
-                const kind = link.dataset.contact;
-                const origin = link.dataset.origin || 'unknown';
-                if (kind === 'whatsapp' || kind === 'phone') logVisitorClick(kind, { source: origin });
-            }, true);
-        })();
-
-        (function trackCampaignEntry() {
+        /* ---------- 1) Detecta o slug da URL ---------- */
+        (function detectCampaignRef() {
             let ref = null;
             const params = new URLSearchParams(window.location.search);
             const fromQuery = (params.get('ref') || '').trim().toLowerCase();
+
             if (fromQuery) {
                 ref = fromQuery;
             } else {
@@ -946,28 +903,114 @@
                     ref = path.toLowerCase();
                 }
             }
+
+            if (ref) {
+                sessionStorage.setItem('campaignRef', ref);
+                window.campaignRef = ref;
+            } else {
+                const stored = sessionStorage.getItem('campaignRef');
+                if (stored) window.campaignRef = stored;
+            }
+        })();
+
+        /* ---------- 2) Carrega mapa slug para nome amigável ---------- */
+        (function loadTrackingLinksMap() {
+            database.ref('trackingLinks').once('value').then(snap => {
+                const d = snap.val() || {};
+                Object.values(d).forEach(link => {
+                    if (link.slug) {
+                        window.trackingLinksMap[link.slug] = {
+                            id:   link.id,
+                            name: link.name || link.slug
+                        };
+                    }
+                });
+                if (window.campaignRef && window.trackingLinksMap[window.campaignRef]) {
+                    window.campaignName = window.trackingLinksMap[window.campaignRef].name;
+                }
+            }).catch(() => {});
+        })();
+
+        /* ---------- 3) Registra a entrada da campanha ---------- */
+        (function trackCampaignEntry() {
+            const ref = window.campaignRef;
             if (!ref) return;
 
             database.ref('trackingLinks').orderByChild('slug').equalTo(ref).once('value')
                 .then(snap => {
-                    if (!snap.exists()) { console.warn('Link não encontrado:', ref); return; }
+                    if (!snap.exists()) return;
                     const data = snap.val();
-                    const key = Object.keys(data)[0];
-                    const linkData = data[key] || {};
+                    const key  = Object.keys(data)[0];
+                    const link = data[key] || {};
                     const nowTs = Date.now();
+
                     database.ref('trackingLinkLogs').push({
-                        linkId: key,
-                        slug: linkData.slug || ref,
-                        name: linkData.name || ref,
+                        linkId:    key,
+                        slug:      link.slug || ref,
+                        name:      link.name || ref,
                         timestamp: nowTs,
-                        date: new Date(nowTs).toLocaleDateString('pt-BR'),
-                        time: new Date(nowTs).toLocaleTimeString('pt-BR')
+                        date:      new Date(nowTs).toLocaleDateString('pt-BR'),
+                        time:      new Date(nowTs).toLocaleTimeString('pt-BR')
                     }).catch(() => {});
-                    return database.ref(`trackingLinks/${key}/entries`).transaction(cur => (cur || 0) + 1);
+
+                    return database.ref(`trackingLinks/${key}/entries`)
+                        .transaction(cur => (cur || 0) + 1);
                 })
-                .catch(err => console.error('Erro:', err));
+                .catch(err => console.warn('Campanha:', err));
         })();
 
+        /* ---------- 4) Log de clique COM campaignRef ---------- */
+        function logVisitorClick(type, data = {}) {
+            try {
+                const now = new Date();
+                const ref = window.campaignRef || sessionStorage.getItem('campaignRef') || null;
+                const refName = (ref && window.trackingLinksMap[ref])
+                    ? window.trackingLinksMap[ref].name
+                    : ref;
+
+                const log = {
+                    type,
+                    source:       data.source       || 'unknown',
+                    productId:    data.productId    || null,
+                    productName:  data.productName  || null,
+                    campaignRef:  ref       || null,
+                    campaignName: refName   || null,
+                    userName:     'Visitante',
+                    userType:     'visitante',
+                    date:         now.toLocaleDateString('pt-BR'),
+                    time:         now.toLocaleTimeString('pt-BR'),
+                    timestamp:    Date.now()
+                };
+
+                if (type === 'product') {
+                    database.ref('clickLogs').push(log).catch(() => {});
+                    if (data.productId) {
+                        database.ref(`products/${data.productId}/clicks`)
+                            .transaction(c => (c || 0) + 1)
+                            .catch(() => {});
+                    }
+                } else if (type === 'whatsapp' || type === 'phone') {
+                    database.ref('contactClicks').push(log).catch(() => {});
+                }
+            } catch (e) { console.warn('Erro ao registrar clique:', e); }
+        }
+
+        /* ---------- 5) Delegação de cliques em contatos ---------- */
+        (function trackContactClicks(){
+            document.addEventListener('click', (e) => {
+                const link = e.target.closest('.js-track-contact');
+                if (!link) return;
+                const kind = link.dataset.contact;
+                const origin = link.dataset.origin || 'unknown';
+                if (kind === 'whatsapp' || kind === 'phone') {
+                    logVisitorClick(kind, { source: origin });
+                }
+            }, true);
+        })();
+
+        /* ============================================================
+           PRODUTOS E BUSCA
+           ============================================================ */
         const DEFAULT_PLACEHOLDER_IMAGE = 'https://i.ibb.co/F4dXSwVG/IMG-6495.jpg';
         const QUANTIDADE_DESTAQUE = 8;
         const QUANTIDADE_SUGESTOES = 6;
