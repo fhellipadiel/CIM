@@ -1506,7 +1506,6 @@ function loadAllData(){
     updateLinkBadge();
     updateLinksDashboard();
     updateLinkSlugFilter();
-    /* Re-renderiza o filtro do histórico de cliques sempre que links mudarem */
     if (document.getElementById('panel-cliques').classList.contains('active')) {
       renderClickHistory();
     }
@@ -2288,20 +2287,41 @@ async function saveLinkAdm(){
   }
 }
 
+/* ============================================================
+   EXCLUSAO DE LINK - REMOVE TAMBÉM CLICKLOGS E CONTACTCLICKS
+   ============================================================ */
 async function deleteLinkAdm(id){
   const l = trackingLinks[id]; if(!l) return;
-  if(!confirm(`Excluir o link "${l.name}"?`)) return;
+  if(!confirm(`Excluir o link "${l.name}"?\n\nTodos os cliques e contatos vinculados a essa campanha também serão removidos.`)) return;
   if(l.image) await deleteImageByUrl(l.image);
 
   showLoading('Excluindo link e histórico...');
   try{
-    const logsSnap = await database.ref('trackingLinkLogs').orderByChild('slug').equalTo(l.slug).once('value');
     const updates = {};
     updates[`trackingLinks/${id}`] = null;
+
+    /* 1. Entradas de campanha (trackingLinkLogs) */
+    const logsSnap = await database.ref('trackingLinkLogs')
+      .orderByChild('slug').equalTo(l.slug).once('value');
     logsSnap.forEach(c => { updates[`trackingLinkLogs/${c.key}`] = null; });
+
+    /* 2. Cliques em produtos (clickLogs) com essa campanha */
+    try {
+      const clicksSnap = await database.ref('clickLogs')
+        .orderByChild('campaignRef').equalTo(l.slug).once('value');
+      clicksSnap.forEach(c => { updates[`clickLogs/${c.key}`] = null; });
+    } catch(e){ console.warn('clickLogs cleanup:', e.code); }
+
+    /* 3. Cliques em contatos (contactClicks) com essa campanha */
+    try {
+      const contactSnap = await database.ref('contactClicks')
+        .orderByChild('campaignRef').equalTo(l.slug).once('value');
+      contactSnap.forEach(c => { updates[`contactClicks/${c.key}`] = null; });
+    } catch(e){ console.warn('contactClicks cleanup:', e.code); }
+
     await database.ref().update(updates);
     hideLoading();
-    showToast('Link e histórico removidos');
+    showToast('Link, cliques e contatos removidos');
   }catch(err){
     hideLoading();
     showToast('Erro: ' + err.message, 'err');
@@ -2485,7 +2505,6 @@ function switchClickTab(tab){
   document.getElementById('clickTabContatos').style.display = tab === 'contatos' ? 'block' : 'none';
 }
 
-/* 👇 CORRIGIDO: filtro agora puxa também dos trackingLinks cadastrados */
 function renderClickHistory(){
   const body = document.getElementById('clickHistoryBody');
   if(!body) return;
@@ -2493,11 +2512,9 @@ function renderClickHistory(){
   /* ---------- Filtro de campanha (select) ---------- */
   const sel = document.getElementById('clickCampaignFilter');
   if (sel) {
-    // Fonte 1: slugs que já apareceram em cliques
     const slugSet = new Set();
     clickHistory.forEach(l => { if (l.campaignRef) slugSet.add(l.campaignRef); });
 
-    // Fonte 2: TODOS os links cadastrados (mesmo sem cliques ainda)
     Object.values(trackingLinks).forEach(lk => {
       if (lk.slug) slugSet.add(lk.slug);
     });
@@ -2521,12 +2538,10 @@ function renderClickHistory(){
     else sel.value = '';
   }
 
-  /* ---------- Aplica filtro ---------- */
   const filtroCamp = sel ? sel.value : '';
   let lista = clickHistory;
   if (filtroCamp) lista = lista.filter(l => l.campaignRef === filtroCamp);
 
-  /* ---------- Contador ---------- */
   const counter = document.getElementById('clickFilteredCount');
   if (counter) {
     if (filtroCamp) {
@@ -2545,7 +2560,6 @@ function renderClickHistory(){
     return;
   }
 
-  /* ---------- Rótulos de origem ---------- */
   const sourceLabels = {
     'search':          '<i class="fas fa-search"></i> Busca',
     'search-featured': '<i class="fas fa-search"></i> Destaques',
@@ -2558,7 +2572,6 @@ function renderClickHistory(){
   body.innerHTML = lista.slice(0, 300).map(l => {
     const srcLabel = sourceLabels[l.source] || l.source || '—';
 
-    /* ---------- Coluna Campanha ---------- */
     let campaignHtml;
     if (l.campaignName) {
       campaignHtml = `<span class="chip" style="background:rgba(255,107,53,.12);color:var(--accent);border:1px solid rgba(255,107,53,.25);">
