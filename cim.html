@@ -6,8 +6,7 @@
     <meta name="color-scheme" content="dark">
     <meta name="theme-color" content="#000000">
     <title>CIM - Peças Mecânicas</title>
-    
-     <!-- Favicon -->
+
     <link rel="icon" type="image/webp" href="assets/logo.webp">
     <link rel="shortcut icon" type="image/webp" href="assets/logo.webp">
     <link rel="apple-touch-icon" href="assets/logo.webp">
@@ -61,7 +60,8 @@
         .search-header.expanded { background: #111; }
         .search-header.focused { background: #0a0a0a; max-width: 100%; }
         .search-header .search-icon-btn { background: transparent; border: none; color: #fff; font-size: 1.1rem; cursor: pointer; padding: 0 10px; height: 100%; display: flex; align-items: center; flex-shrink: 0; min-height: 38px; }
-        .search-header .search-input-header { background: transparent; border: none; outline: none; color: #fff; font-size: 0.9rem; flex: 1; min-width: 0; height: 100%; padding: 0 5px; display: block; }
+        /* FIX: font-size 16px para evitar auto-zoom em inputs no mobile */
+        .search-header .search-input-header { background: transparent; border: none; outline: none; color: #fff; font-size: 16px; flex: 1; min-width: 0; height: 100%; padding: 0 5px; display: block; touch-action: manipulation; -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
         .search-header .search-input-header::placeholder { color: #666; }
         .search-header .search-clear-header { color: #666; cursor: pointer; padding: 0 12px; display: none; flex-shrink: 0; min-height: 38px; align-items: center; }
         .search-header .search-clear-header.visible { display: flex; }
@@ -324,7 +324,7 @@
         .coupon-section { margin-top: 16px; padding-top: 16px; border-top: 1px solid rgba(255,255,255,0.08); }
         .coupon-section .section-title { font-size: var(--fs-xs); color: #888; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between; }
         .coupon-input-wrap { display: flex; align-items: center; background: #1a1a1a; border-radius: 50px; padding: 5px 5px 5px 20px; gap: 8px; border: none; outline: none; }
-        .coupon-input-wrap input { flex: 1; min-width: 0; background: transparent; border: none; outline: none; color: #fff; font-size: 0.9rem; padding: 9px 0; text-transform: uppercase; font-family: inherit; letter-spacing: 1.5px; font-weight: 500; }
+        .coupon-input-wrap input { flex: 1; min-width: 0; background: transparent; border: none; outline: none; color: #fff; font-size: 16px; padding: 9px 0; text-transform: uppercase; font-family: inherit; letter-spacing: 1.5px; font-weight: 500; touch-action: manipulation; }
         .coupon-input-wrap input::placeholder { color: #555; text-transform: none; letter-spacing: 0; font-weight: 400; }
         .coupon-apply-btn { background: #ff6b00; color: #000; border: none; border-radius: 50px; padding: 9px 18px; font-weight: 600; font-size: 0.82rem; cursor: pointer; display: flex; align-items: center; gap: 6px; transition: background-color 0.2s; flex-shrink: 0; white-space: nowrap; min-height: 40px; }
         .coupon-apply-btn:hover { background: #e05e00; }
@@ -338,11 +338,15 @@
         .coupon-active-desc { font-size: 0.75rem; color: #aaa; margin-top: 2px; }
         .coupon-remove-btn { background: transparent; border: 1px solid #dc3545; color: #dc3545; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: background-color 0.2s, color 0.2s; flex-shrink: 0; }
         .coupon-remove-btn:hover { background: #dc3545; color: #fff; }
-        .results-info { display: flex; justify-content: space-between; align-items: center; margin: 16px 0 12px; padding: 0 5px; }
+        .results-info { display: flex; justify-content: space-between; align-items: center; margin: 16px 0 12px; padding: 0 5px; gap: 8px; flex-wrap: wrap; }
         .results-count { color: #999; font-size: var(--fs-sm); }
         .results-count strong { color: #ff6b00; }
+        .results-actions { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
         .clear-search { color: #ff6b00; cursor: pointer; font-size: var(--fs-sm); display: flex; align-items: center; gap: 5px; padding: 8px 14px; border-radius: 20px; transition: background-color 0.2s, color 0.2s; background: #1a1a1a; min-height: 40px; }
         .clear-search:hover { background: #ff6b00; color: #000; }
+        .clear-filters { color: #fff; cursor: pointer; font-size: var(--fs-sm); display: none; align-items: center; gap: 5px; padding: 8px 14px; border-radius: 20px; transition: background-color 0.2s, color 0.2s; background: #333; min-height: 40px; font-weight: 500; }
+        .clear-filters:hover { background: #dc3545; color: #fff; }
+        .clear-filters.visible { display: flex; }
         .sessions-carousel-wrapper { margin: 0 0 8px 0; padding: 5px 0; position: relative; }
         .sessions-carousel-wrapper.hidden { display: none; }
         .sessions-carousel { display: flex; gap: 10px; overflow-x: auto; padding: 8px 5px 12px 5px; scrollbar-width: none; -ms-overflow-style: none; -webkit-overflow-scrolling: touch; scroll-behavior: smooth; justify-content: flex-start; cursor: grab; scroll-snap-type: x proximity; }
@@ -384,7 +388,7 @@
             .menu-toggle { padding: 6px 8px; }
             .menu-toggle i { font-size: 1.2rem; }
             .search-header { height: 34px; margin-left: 4px; }
-            .search-header .search-input-header { font-size: 0.8rem !important; }
+            .search-header .search-input-header { font-size: 16px !important; }
             .search-header .search-icon-btn { padding: 0 5px; min-height: 34px; }
             .main-container { padding: 8px 6px 80px; }
             .sticky-category-bar { margin: 0 -6px; padding-left: 6px; padding-right: 6px; }
@@ -413,6 +417,7 @@
             .logo-img { height: 38px; }
             .profile-btn { width: 36px; height: 36px; }
             .search-header { margin-left: 6px; height: 36px; }
+            .search-header .search-input-header { font-size: 16px !important; }
             .search-header .search-icon-btn { min-height: 36px; }
             .product-actions .action-row { flex-direction: column; gap: 6px; }
             .product-actions .action-row .btn { width: 100%; }
@@ -437,7 +442,7 @@
             .profile-btn { width: 42px; height: 42px; }
             .menu-toggle span { display: inline; }
             .search-header { max-width: 380px; height: 42px; margin-left: 14px; }
-            .search-header .search-input-header { font-size: 0.92rem !important; }
+            .search-header .search-input-header { font-size: 16px !important; }
             .search-header .search-icon-btn { min-height: 42px; }
             .main-container { padding: 18px 18px 80px; }
             .sticky-category-bar { margin: 0 -18px; padding-left: 18px; padding-right: 18px; }
@@ -725,8 +730,9 @@
         <div id="productsView">
             <div class="results-info" id="resultsInfo">
                 <div class="results-count"><strong id="resultsCount">0</strong> peças encontradas</div>
-                <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+                <div class="results-actions">
                     <div class="clear-search" id="clearSearchBtn" onclick="clearSearch()" style="display: none;"><i class="fas fa-times"></i> Limpar busca</div>
+                    <div class="clear-filters" id="clearFiltersBtn" onclick="clearAllFilters()"><i class="fas fa-filter-circle-xmark"></i> Limpar filtros</div>
                 </div>
             </div>
             <div class="products-grid" id="productsGrid"></div>
@@ -817,9 +823,6 @@
         const DEFAULT_PROFILE_IMAGE   = 'assets/logo.webp';
         const DEFAULT_USER_AVATAR     = 'assets/logo.webp';
 
-        // ⛔ ========== BLOQUEIO DE IMGBB ==========
-        // ⭐ ALTERADO: agora só bloqueia imgbb (denylist).
-        // Aceita QUALQUER outro domínio externo (Google Drive, Dropbox, fornecedores, etc.)
         const IMGBB_BLOCKLIST = ['ibb.co', 'imgbb.com'];
 
         function isAllowedImageUrl(url) {
@@ -827,7 +830,6 @@
             const u = url.trim().toLowerCase();
             if (u.length < 8) return false;
 
-            // Precisa ter um prefixo válido
             const hasValidPrefix =
                 u.startsWith('http://') ||
                 u.startsWith('https://') ||
@@ -836,7 +838,6 @@
                 u.startsWith('blob:');
             if (!hasValidPrefix) return false;
 
-            // ⛔ Só bloqueia imgbb (motivo original do bloqueio)
             for (const bad of IMGBB_BLOCKLIST) {
                 if (u.includes(bad)) return false;
             }
@@ -920,6 +921,7 @@
         const cartTotal = document.getElementById('cartTotal');
         const resultsCount = document.getElementById('resultsCount');
         const clearSearchBtn = document.getElementById('clearSearchBtn');
+        const clearFiltersBtn = document.getElementById('clearFiltersBtn');
         const categoryTabs = document.getElementById('categoryTabs');
         const brandTabs = document.getElementById('brandTabs');
         const sessionsCarousel = document.getElementById('sessionsCarousel');
@@ -1032,7 +1034,7 @@
                 filterProducts();
                 updateCart();
 
-                console.log('⚡ [cache] renderizado com', products.length, 'produtos');
+                console.log('[cache] renderizado com', products.length, 'produtos');
                 return true;
             } catch (e) { return false; }
         }
@@ -1100,7 +1102,7 @@
                 return url;
             } catch (e) {
                 hideLoading();
-                console.error('❌ [storage] erro upload avatar:', e);
+                console.error('[storage] erro upload avatar:', e);
                 showToast('Erro ao enviar imagem: ' + (e.message || e.code), 'error');
                 return null;
             }
@@ -1457,15 +1459,43 @@
         }
 
         function clearSearch() {
-            searchTerm = ''; selectedCategory = ''; selectedBrand = '';
+            searchTerm = '';
             searchInputHeader.value = '';
             suggestionsDropdown.classList.remove('open');
             searchClearHeader.classList.remove('visible');
-            updateCategoryTabs();
-            updateBrandTabs();
             filterProducts();
             headerActions.classList.remove('hide-buttons');
             searchHeader.classList.remove('focused');
+        }
+
+        // NOVO: reseta TODOS os filtros (busca, categoria, marca e sessao) e mistura tudo
+        function clearAllFilters() {
+            searchTerm = '';
+            selectedCategory = '';
+            selectedBrand = '';
+            selectedSessionId = null;
+            searchInputHeader.value = '';
+            suggestionsDropdown.classList.remove('open');
+            searchClearHeader.classList.remove('visible');
+            headerActions.classList.remove('hide-buttons');
+            searchHeader.classList.remove('focused');
+            updateSessionsCarousel();
+            updateCategoryTabs();
+            updateBrandTabs();
+            filterProducts();
+            renderPromotionBadgesOnly();
+            showToast('Filtros limpos');
+        }
+
+        function updateClearFiltersVisibility() {
+            if (!clearFiltersBtn) return;
+            const hasFilter =
+                (searchTerm && searchTerm.trim() !== '') ||
+                (selectedCategory && selectedCategory !== '') ||
+                (selectedBrand && selectedBrand !== '') ||
+                (selectedSessionId !== null);
+            if (hasFilter) clearFiltersBtn.classList.add('visible');
+            else clearFiltersBtn.classList.remove('visible');
         }
 
         function verificarExpiracao() {
@@ -1850,6 +1880,7 @@
                 preloadImages(filtered.slice(0, 6).map(p => p.image).filter(Boolean));
             }
             clearSearchBtn.style.display = searchTerm ? 'flex' : 'none';
+            updateClearFiltersVisibility();
         }
 
         function createProductCard(product, eagerLoad = false) {
@@ -1961,23 +1992,52 @@
             if (id && sessions[id]) {
                 database.ref(`sessionClicks/${id}`).transaction(v => (v || 0) + 1);
             }
-            selectedSessionId = id; selectedCategory = ''; selectedBrand = '';
+            selectedSessionId = id;
             updateSessionsCarousel();
-            filterProducts();
             updateCategoryTabs();
             updateBrandTabs();
+            filterProducts();
             document.getElementById('productsView').scrollIntoView({ behavior: 'smooth', block: 'start' });
             renderPromotionBadgesOnly();
         }
 
         let lastBrandsHash = '';
 
+        // Regra das marcas:
+        // - Sem categoria e sem sessao: mostra TODAS as marcas do cadastro (brands)
+        // - Com categoria ou sessao: mostra apenas marcas que possuem produtos nesse contexto
+        // - Se a marca selecionada nao existir mais no contexto, reseta
         function updateBrandTabs() {
             if (!brandTabs) return;
-            const brandArray = Object.keys(brands).map(id => ({ id, ...brands[id] }));
+
+            const hasCategoryFilter = selectedCategory && selectedCategory !== '';
+            const hasSessionFilter = selectedSessionId !== null;
+
+            let brandArray;
+
+            if (!hasCategoryFilter && !hasSessionFilter) {
+                brandArray = Object.keys(brands).map(id => ({ id, ...brands[id] }));
+            } else {
+                let filtered = products;
+                if (hasSessionFilter) filtered = filtered.filter(p => p.sessionId === selectedSessionId);
+                if (hasCategoryFilter) filtered = filtered.filter(p => p.category === selectedCategory);
+
+                const validBrandNames = new Set(
+                    filtered.map(p => p.brand).filter(b => b && b.trim() !== '')
+                );
+
+                if (selectedBrand && selectedBrand !== '' && !validBrandNames.has(selectedBrand)) {
+                    selectedBrand = '';
+                }
+
+                brandArray = Object.keys(brands)
+                    .map(id => ({ id, ...brands[id] }))
+                    .filter(b => validBrandNames.has(b.name));
+            }
+
             brandArray.sort((a, b) => (a.order || 0) - (b.order || 0));
 
-            const hash = JSON.stringify(brandArray.map(b => `${b.id}|${b.name}|${b.image || ''}`));
+            const hash = JSON.stringify(brandArray.map(b => `${b.id}|${b.name}|${b.image || ''}`)) + '|' + selectedBrand;
             if (hash === lastBrandsHash) return;
             lastBrandsHash = hash;
 
@@ -1987,6 +2047,7 @@
                 return;
             }
             brandTitle.classList.add('visible');
+
             const doubled = brandArray.concat(brandArray);
             const frag = document.createDocumentFragment();
             doubled.forEach((brand) => {
@@ -2018,14 +2079,26 @@
                 selectedBrand = b;
                 database.ref(`brandClicks/${b}`).transaction(v => (v || 0) + 1);
             }
+            updateCategoryTabs();
             updateBrandTabs();
             filterProducts();
+            renderPromotionBadgesOnly();
         }
 
+        // Regra das categorias:
+        // - Filtrar pelas categorias que existem na marca selecionada (se houver) e na sessao ativa
+        // - Se a categoria selecionada nao existir mais no contexto, reseta
         function updateCategoryTabs() {
             let filtered = products;
             if (selectedSessionId !== null) filtered = filtered.filter(p => p.sessionId === selectedSessionId);
+            if (selectedBrand && selectedBrand !== '') filtered = filtered.filter(p => p.brand === selectedBrand);
+
             const cats = [...new Set(filtered.map(p => p.category).filter(c => c && c.trim() !== ''))];
+
+            if (selectedCategory && selectedCategory !== '' && !cats.includes(selectedCategory)) {
+                selectedCategory = '';
+            }
+
             let html = `<div class="category-tab ${!selectedCategory ? 'active' : ''}" data-category="" onclick="selectCategory('')">Todos</div>`;
             let ordered = [...cats];
             if (categoryOrder && categoryOrder.length) {
@@ -2044,11 +2117,12 @@
         }
 
         function selectCategory(cat) {
-            if (cat === '') { selectedCategory = ''; selectedBrand = ''; updateBrandTabs(); }
+            if (cat === '') selectedCategory = '';
             else {
                 selectedCategory = cat;
                 database.ref(`categoryClicks/${cat}`).transaction(v => (v || 0) + 1);
             }
+            updateBrandTabs();
             updateCategoryTabs();
             filterProducts();
             renderPromotionBadgesOnly();
@@ -2249,7 +2323,7 @@
 
                 let userPhoto = data.photoURL || DEFAULT_USER_AVATAR;
                 if (isImgbbUrl(userPhoto)) {
-                    console.warn('🚫 [imgbb] URL imgbb detectada no photoURL do usuário — limpando:', userPhoto);
+                    console.warn('[imgbb] URL imgbb detectada no photoURL do usuário - limpando:', userPhoto);
                     database.ref(`users/${uid}/photoURL`).set(DEFAULT_USER_AVATAR).catch(() => {});
                     userPhoto = DEFAULT_USER_AVATAR;
                 }
@@ -2319,7 +2393,7 @@
                     const probe = new Image();
                     probe.onload = () => showCustomPhoto(photoURL);
                     probe.onerror = () => {
-                        console.warn('⚠️ Foto inválida — usando ícone laranja');
+                        console.warn('Foto inválida - usando ícone laranja');
                         showIconFallback();
                         currentUser.photoURL = DEFAULT_USER_AVATAR;
                         database.ref(`users/${currentUser.uid}/photoURL`)
@@ -2329,7 +2403,7 @@
                 } else {
                     showIconFallback();
                     if (isCustom && !isAllowedImageUrl(photoURL)) {
-                        console.warn('🚫 URL bloqueada detectada (imgbb/externo):', photoURL);
+                        console.warn('URL bloqueada detectada (imgbb/externo):', photoURL);
                         currentUser.photoURL = DEFAULT_USER_AVATAR;
                         database.ref(`users/${currentUser.uid}/photoURL`)
                             .set(DEFAULT_USER_AVATAR).catch(() => {});
@@ -2394,7 +2468,7 @@
             if (oldPhoto && oldPhoto.includes('firebasestorage.googleapis.com')) {
                 try {
                     await storage.refFromURL(oldPhoto).delete();
-                    console.log('✅ Foto antiga removida do Storage');
+                    console.log('Foto antiga removida do Storage');
                 } catch (_) {}
             }
 
@@ -2442,10 +2516,10 @@
         }
 
         auth.onAuthStateChanged(async (user) => {
-            console.log('🔍 [cim] auth state →', user ? user.uid : 'NULL');
+            console.log('[cim] auth state ->', user ? user.uid : 'NULL');
 
             if (!user) {
-                console.warn('❌ [cim] Sem usuário → voltando ao login');
+                console.warn('[cim] Sem usuario - voltando ao login');
                 redirectToLogin();
                 return;
             }
@@ -2495,13 +2569,13 @@
                         redirectToLogin();
                     }
                 } else {
-                    console.warn('⚠️ [cim] Usuário logado mas SEM perfil no banco → completo o cadastro');
+                    console.warn('[cim] Usuário logado mas SEM perfil no banco - completo o cadastro');
                     window.location.replace('login.html?complete=true');
                 }
                 return;
             }
 
-            console.log('✅ [cim] Perfil encontrado. Carregando loja...');
+            console.log('[cim] Perfil encontrado. Carregando loja...');
             database.ref(`users/${uid}/lastAccess`).set(Date.now()).catch(() => {});
             loadUserData(uid);
             unlockPage();
@@ -2519,7 +2593,7 @@
                 _productsLoaded = true;
                 products.forEach(p => {
                     if (isImgbbUrl(p.image)) {
-                        console.warn('🚫 [imgbb] produto com URL imgbb:', p.id, p.image);
+                        console.warn('[imgbb] produto com URL imgbb:', p.id, p.image);
                         p.image = DEFAULT_PLACEHOLDER_IMAGE;
                     }
                 });
@@ -2598,7 +2672,7 @@
                     const data = s.val() || {};
                     let photo = data.photo || DEFAULT_PROFILE_IMAGE;
                     if (isImgbbUrl(photo)) {
-                        console.warn('🚫 [imgbb] perfil da loja com URL imgbb — limpando');
+                        console.warn('[imgbb] perfil da loja com URL imgbb - limpando');
                         photo = DEFAULT_PROFILE_IMAGE;
                         database.ref('profile/photo').set(DEFAULT_PROFILE_IMAGE).catch(() => {});
                     }
@@ -2628,7 +2702,7 @@
 
         Object.assign(window, {
             toggleBottomMenu, closeBottomMenu, toggleSearch, debouncedSearch,
-            selectSuggestion, clearSearchHeader, clearSearch, toggleCart, addToCart,
+            selectSuggestion, clearSearchHeader, clearSearch, clearAllFilters, toggleCart, addToCart,
             clearCart, updateQuantity, finalizePurchase, showDetails, closeModal, addFromModal,
             openFullscreenImage, closeFullscreenImage, selectSession, selectCategory, selectBrand,
             logoutUser, handleProfileBtnClick, applyCoupon, removeCoupon,
@@ -2656,7 +2730,7 @@
         })();
 
         window.purgeAllImgbb = async function() {
-            console.log('🧹 Iniciando limpeza total de URLs imgbb...');
+            console.log('Iniciando limpeza total de URLs imgbb...');
             const updates = {};
             let count = 0;
 
@@ -2691,14 +2765,14 @@
                 }
             });
 
-            if (count === 0) { console.log('✅ Nada para limpar — banco limpo!'); return; }
-            console.log(`🔍 ${count} URLs imgbb encontradas. Removendo...`);
+            if (count === 0) { console.log('Nada para limpar - banco limpo!'); return; }
+            console.log(`${count} URLs imgbb encontradas. Removendo...`);
             await database.ref().update(updates);
-            console.log(`✅ ${count} URLs imgbb removidas com sucesso!`);
+            console.log(`${count} URLs imgbb removidas com sucesso!`);
             showToast(`${count} URLs imgbb limpas`);
         };
 
-        console.log('✅ CIM carregada — imagens externas liberadas (exceto imgbb)');
+        console.log('CIM carregada - imagens externas liberadas (exceto imgbb)');
     });
     </script>
 </body>
