@@ -173,6 +173,7 @@
             justify-content: center;
             flex-shrink: 0;
             padding: 0 !important;
+            transition: transform 0.3s ease, opacity 0.3s ease;
         }
         @media (min-width: 768px) {
             .carousel-container .brand-item { width: 180px; height: 80px; }
@@ -185,6 +186,12 @@
             height: auto;
             object-fit: contain;
             content-visibility: visible !important;
+        }
+
+        /* Hover em itens clicáveis de marca/montadora */
+        .brand-item.cursor-pointer:hover {
+            transform: scale(1.08);
+            opacity: 1 !important;
         }
 
         .about-carousel-container .about-photo-item {
@@ -884,11 +891,10 @@
         /* ============================================================
            RASTREAMENTO DE CAMPANHA + CLIQUES (CORRELACIONADO)
            ============================================================ */
-        window.campaignRef      = null;   // slug atual (ex: "instagram")
-        window.campaignName     = null;   // nome amigável (ex: "Instagram Bio")
-        window.trackingLinksMap = {};     // { slug: { id, name } }
+        window.campaignRef      = null;
+        window.campaignName     = null;
+        window.trackingLinksMap = {};
 
-        /* ---------- 1) Detecta o slug da URL ---------- */
         (function detectCampaignRef() {
             let ref = null;
             const params = new URLSearchParams(window.location.search);
@@ -913,7 +919,6 @@
             }
         })();
 
-        /* ---------- 2) Carrega mapa slug para nome amigável ---------- */
         (function loadTrackingLinksMap() {
             database.ref('trackingLinks').once('value').then(snap => {
                 const d = snap.val() || {};
@@ -931,7 +936,6 @@
             }).catch(() => {});
         })();
 
-        /* ---------- 3) Registra a entrada da campanha ---------- */
         (function trackCampaignEntry() {
             const ref = window.campaignRef;
             if (!ref) return;
@@ -959,7 +963,6 @@
                 .catch(err => console.warn('Campanha:', err));
         })();
 
-        /* ---------- 4) Log de clique COM campaignRef ---------- */
         function logVisitorClick(type, data = {}) {
             try {
                 const now = new Date();
@@ -995,7 +998,6 @@
             } catch (e) { console.warn('Erro ao registrar clique:', e); }
         }
 
-        /* ---------- 5) Delegação de cliques em contatos ---------- */
         (function trackContactClicks(){
             document.addEventListener('click', (e) => {
                 const link = e.target.closest('.js-track-contact');
@@ -1334,6 +1336,40 @@
                 fecharBusca();
             }
         });
+
+        /* ============================================================
+           CLIQUE EM MONTADORA/MARCA → BUSCA EXPANDIDA FILTRADA
+           ============================================================ */
+        function openBrandSearch(brand) {
+            const termo = (brand || '').toString().trim();
+            if (!termo) return;
+
+            // Abre o modal
+            searchModal.classList.remove('hidden');
+            requestAnimationFrame(() => searchModal.classList.add('flex'));
+            searchModal.scrollTo({ top: 0 });
+
+            // Preenche o input
+            searchInput.value = termo;
+
+            // Aguarda a transição de abertura e ativa modo expandido + busca
+            setTimeout(() => {
+                setExpanded(true);
+                refreshSearch(termo);
+                searchInput.focus();
+            }, 350);
+        }
+        // Expõe globalmente para outros scripts (carrossel de marcas dinâmicas)
+        window.openBrandSearch = openBrandSearch;
+
+        /* ----- Montadoras (HTML estático) ----- */
+        document.querySelectorAll('.animate-carousel-left .brand-item').forEach(item => {
+            item.classList.add('cursor-pointer');
+            item.addEventListener('click', () => {
+                const brand = item.querySelector('span')?.textContent?.trim();
+                if (brand) openBrandSearch(brand);
+            });
+        });
     </script>
 
     <script>
@@ -1348,7 +1384,13 @@
                 set.className = 'flex items-center space-x-12 md:space-x-16 shrink-0';
                 list.forEach(b => {
                     const item = document.createElement('div');
-                    item.className = 'brand-item transition-all duration-300';
+                    item.className = 'brand-item transition-all duration-300 cursor-pointer';
+                    // Clique na marca → abre busca expandida filtrada
+                    item.addEventListener('click', () => {
+                        if (b.name && typeof window.openBrandSearch === 'function') {
+                            window.openBrandSearch(b.name);
+                        }
+                    });
                     const img = document.createElement('img');
                     img.src = b.image || DEFAULT_BRAND_IMG;
                     img.alt = b.name || 'Marca';
