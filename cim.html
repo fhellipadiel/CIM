@@ -60,7 +60,6 @@
         .search-header.expanded { background: #111; }
         .search-header.focused { background: #0a0a0a; max-width: 100%; }
         .search-header .search-icon-btn { background: transparent; border: none; color: #fff; font-size: 1.1rem; cursor: pointer; padding: 0 10px; height: 100%; display: flex; align-items: center; flex-shrink: 0; min-height: 38px; }
-        /* FIX: font-size 16px para evitar auto-zoom em inputs no mobile */
         .search-header .search-input-header { background: transparent; border: none; outline: none; color: #fff; font-size: 16px; flex: 1; min-width: 0; height: 100%; padding: 0 5px; display: block; touch-action: manipulation; -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
         .search-header .search-input-header::placeholder { color: #666; }
         .search-header .search-clear-header { color: #666; cursor: pointer; padding: 0 12px; display: none; flex-shrink: 0; min-height: 38px; align-items: center; }
@@ -392,11 +391,12 @@
             .search-header .search-icon-btn { padding: 0 5px; min-height: 34px; }
             .main-container { padding: 8px 6px 80px; }
             .sticky-category-bar { margin: 0 -6px; padding-left: 6px; padding-right: 6px; }
-            .brand-filters-area { padding: 4px 0; }
-            .brand-marquee-wrapper { margin: 0 -6px; }
+            .brand-filters-area { padding: 6px 0 10px; }
+            .brand-marquee-wrapper { margin: 0 -6px; padding: 12px 0; }
             .brand-marquee-wrapper .gradient-left, .brand-marquee-wrapper .gradient-right { width: 32px; }
-            .brand-marquee-track { gap: 28px; animation-duration: 16s; }
-            .brand-marquee-item img { height: 42px; }
+            .brand-marquee-track { gap: 34px; animation-duration: 20s; }
+            .brand-marquee-item { min-height: 68px; padding: 6px; }
+            .brand-marquee-item img { height: 60px; max-width: 110px; }
             .session-avatar-circle { width: 72px; height: 72px; }
             .session-item { min-width: 72px; }
             .session-name-label { max-width: 72px; }
@@ -419,6 +419,9 @@
             .search-header { margin-left: 6px; height: 36px; }
             .search-header .search-input-header { font-size: 16px !important; }
             .search-header .search-icon-btn { min-height: 36px; }
+            .brand-marquee-item { min-height: 72px; padding: 6px; }
+            .brand-marquee-item img { height: 64px; max-width: 115px; }
+            .brand-marquee-track { gap: 36px; }
             .product-actions .action-row { flex-direction: column; gap: 6px; }
             .product-actions .action-row .btn { width: 100%; }
         }
@@ -429,7 +432,10 @@
             .profile-btn { width: 40px; height: 40px; }
             .main-container { padding: 14px 14px 80px; }
             .sticky-category-bar { margin: 0 -14px; padding-left: 14px; padding-right: 14px; }
-            .brand-marquee-wrapper { margin: 0 -14px; }
+            .brand-marquee-wrapper { margin: 0 -14px; padding: 12px 0; }
+            .brand-marquee-item { min-height: 78px; padding: 6px; }
+            .brand-marquee-item img { height: 70px; max-width: 130px; }
+            .brand-marquee-track { gap: 44px; animation-duration: 24s; }
             .session-avatar-circle { width: 84px; height: 84px; }
             .session-item { min-width: 84px; max-width: 104px; }
             .product-actions .action-row { flex-direction: column; gap: 6px; }
@@ -447,8 +453,9 @@
             .main-container { padding: 18px 18px 80px; }
             .sticky-category-bar { margin: 0 -18px; padding-left: 18px; padding-right: 18px; }
             .brand-marquee-wrapper { margin: 0 -18px; }
-            .brand-marquee-track { animation-duration: 26s; gap: 50px; }
-            .brand-marquee-item img { height: 58px; }
+            .brand-marquee-track { animation-duration: 28s; gap: 56px; }
+            .brand-marquee-item { min-height: 86px; }
+            .brand-marquee-item img { height: 78px; max-width: 140px; }
             .brand-marquee-wrapper .gradient-left, .brand-marquee-wrapper .gradient-right { width: 70px; }
             .session-avatar-circle { width: 90px; height: 90px; }
             .session-item { min-width: 90px; max-width: 110px; }
@@ -500,7 +507,8 @@
             .session-avatar-circle { width: 60px; height: 60px; }
             .session-item { min-width: 60px; max-width: 72px; }
             .session-name-label { max-width: 72px; }
-            .brand-marquee-item img { height: 40px; }
+            .brand-marquee-item { min-height: 56px; }
+            .brand-marquee-item img { height: 48px; }
         }
         @media (hover: hover) and (min-width: 1024px) {
             .product-card:hover { transform: translate3d(0,-6px,0); box-shadow: 0 20px 40px rgba(255,107,0,0.12); }
@@ -1468,7 +1476,6 @@
             searchHeader.classList.remove('focused');
         }
 
-        // NOVO: reseta TODOS os filtros (busca, categoria, marca e sessao) e mistura tudo
         function clearAllFilters() {
             searchTerm = '';
             selectedCategory = '';
@@ -2003,27 +2010,22 @@
 
         let lastBrandsHash = '';
 
-        // Regra das marcas:
-        // - Sem categoria e sem sessao: mostra TODAS as marcas do cadastro (brands)
-        // - Com categoria ou sessao: mostra apenas marcas que possuem produtos nesse contexto
-        // - Se a marca selecionada nao existir mais no contexto, reseta
+        // REGRA DAS MARCAS:
+        // - Marcas NUNCA sao filtradas por categoria. Sempre mostra todas (ou por sessao).
+        // - Ao clicar numa marca, as CATEGORIAS sao filtradas (relacao unidirecional).
         function updateBrandTabs() {
             if (!brandTabs) return;
 
-            const hasCategoryFilter = selectedCategory && selectedCategory !== '';
             const hasSessionFilter = selectedSessionId !== null;
 
             let brandArray;
 
-            if (!hasCategoryFilter && !hasSessionFilter) {
+            if (!hasSessionFilter) {
                 brandArray = Object.keys(brands).map(id => ({ id, ...brands[id] }));
             } else {
-                let filtered = products;
-                if (hasSessionFilter) filtered = filtered.filter(p => p.sessionId === selectedSessionId);
-                if (hasCategoryFilter) filtered = filtered.filter(p => p.category === selectedCategory);
-
+                const filteredBySession = products.filter(p => p.sessionId === selectedSessionId);
                 const validBrandNames = new Set(
-                    filtered.map(p => p.brand).filter(b => b && b.trim() !== '')
+                    filteredBySession.map(p => p.brand).filter(b => b && b.trim() !== '')
                 );
 
                 if (selectedBrand && selectedBrand !== '' && !validBrandNames.has(selectedBrand)) {
@@ -2085,9 +2087,10 @@
             renderPromotionBadgesOnly();
         }
 
-        // Regra das categorias:
-        // - Filtrar pelas categorias que existem na marca selecionada (se houver) e na sessao ativa
-        // - Se a categoria selecionada nao existir mais no contexto, reseta
+        // REGRA DAS CATEGORIAS:
+        // - Filtra pelas categorias que existem na MARCA selecionada (relacao unidirecional)
+        // - Sessao tambem filtra
+        // - Se a categoria selecionada nao existir mais, reseta
         function updateCategoryTabs() {
             let filtered = products;
             if (selectedSessionId !== null) filtered = filtered.filter(p => p.sessionId === selectedSessionId);
@@ -2122,8 +2125,8 @@
                 selectedCategory = cat;
                 database.ref(`categoryClicks/${cat}`).transaction(v => (v || 0) + 1);
             }
-            updateBrandTabs();
             updateCategoryTabs();
+            updateBrandTabs();
             filterProducts();
             renderPromotionBadgesOnly();
         }
