@@ -276,6 +276,9 @@
         }
         #search-modal > .search-panel {
             transform: translate3d(0, -20px, 0);
+            will-change: transform;
+            backface-visibility: hidden;
+            -webkit-backface-visibility: hidden;
             transition:
                 transform 0.35s cubic-bezier(0.2, 0.9, 0.4, 1.1),
                 max-width 0.35s cubic-bezier(0.2, 0.9, 0.4, 1.1);
@@ -1259,7 +1262,7 @@
                 const item = document.createElement('a');
                 item.href = 'login.html';
                 item.className = 'flex items-stretch bg-black/60 hover:bg-black/85 border border-neutral-800/80 hover:border-[#d23021] rounded-2xl overflow-hidden transition duration-300 group shadow-lg cursor-pointer min-h-[100px]';
-                item.style.animation = `cardFadeIn 0.35s ease-out ${Math.min(i * 25, 400)}ms both`;
+                item.style.animation = `cardFadeIn 0.3s ease-out ${Math.min(i * 18, 260)}ms both`;
                 item.addEventListener('click', () => {
                     logVisitorClick('product', { source: t ? 'search' : 'search-featured', productId: part.id, productName: part.name });
                 });
@@ -1290,7 +1293,7 @@
                 item.appendChild(rightDiv);
                 frag.appendChild(item);
             });
-            searchResults.appendChild(frag);
+            searchResults.replaceChildren(frag);
         }
 
         document.getElementById('open-search-modal').addEventListener('click', abrirBusca);
@@ -1338,28 +1341,39 @@
         });
 
         /* ============================================================
-           CLIQUE EM MONTADORA/MARCA → BUSCA EXPANDIDA FILTRADA
+           CLIQUE EM MONTADORA/MARCA → BUSCA EXPANDIDA FILTRADA (SEM TRAVAMENTO)
            ============================================================ */
         function openBrandSearch(brand) {
             const termo = (brand || '').toString().trim();
             if (!termo) return;
 
-            // Abre o modal
+            /* -------- FASE 1: Preparar estado ANTES de mostrar o modal --------
+               O modal ainda está com display:none, então nenhuma mudança de layout
+               é visível. Isso evita o "engasgo" quando a transição começa. */
+            searchInput.value = termo;
+            setExpanded(true);
+            searchSuggestions.innerHTML = '';
+            searchResults.innerHTML = '';
+            resultsCount.textContent = '';
+
+            /* -------- FASE 2: Revelar o modal com transição limpa --------
+               Apenas opacity do overlay + slide do painel. Sem reflow pesado. */
             searchModal.classList.remove('hidden');
-            requestAnimationFrame(() => searchModal.classList.add('flex'));
+            requestAnimationFrame(() => {
+                searchModal.classList.add('flex');
+            });
             searchModal.scrollTo({ top: 0 });
 
-            // Preenche o input
-            searchInput.value = termo;
-
-            // Aguarda a transição de abertura e ativa modo expandido + busca
+            /* -------- FASE 3: Renderizar os cards DEPOIS do fade --------
+               Os cards entram com animação própria (cardFadeIn), então o
+               conteúdo aparece de forma intencional e fluida. */
             setTimeout(() => {
-                setExpanded(true);
-                refreshSearch(termo);
+                renderTextSuggestions('');
+                renderResults(termo);
+                updateSeeAllButton();
                 searchInput.focus();
-            }, 350);
+            }, 360);
         }
-        // Expõe globalmente para outros scripts (carrossel de marcas dinâmicas)
         window.openBrandSearch = openBrandSearch;
 
         /* ----- Montadoras (HTML estático) ----- */
