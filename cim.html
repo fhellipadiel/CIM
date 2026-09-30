@@ -36,7 +36,7 @@
             --fs-lg: clamp(1rem, 0.95rem + 0.3vw, 1.15rem);
             --fs-xl: clamp(1.1rem, 1rem + 0.5vw, 1.4rem);
             --fs-2xl: clamp(1.4rem, 1.2rem + 1vw, 2rem);
-            --fs-3xl: clamp(1.8rem, 1.5rem + 1.5vw, 2.8rem);
+            --fs-3xl: clamp(1.8rem, 1.5rem + 1.5vw, 2.4rem);
             --header-h: 60px;
             --safe-top: env(safe-area-inset-top, 0px);
             --safe-bottom: env(safe-area-inset-bottom, 0px);
@@ -509,281 +509,57 @@
             *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
         }
 
-        /* ==========================================================
-           MODAL PRODUTO — LAYOUT 2 COLUNAS (SÓ NO DESKTOP ≥768px)
-           Foto à esquerda · Conteúdo à direita
-           ========================================================== */
-        .modal-product-layout {
-            display: flex;
-            flex-direction: column;
-            gap: 18px;
-        }
-
+        .modal-product-layout { display: flex; flex-direction: column; gap: 18px; }
         .modal-product-image-side { width: 100%; }
-
-        .modal-product-image-side .modal-image {
-            width: 100%;
-            aspect-ratio: 1 / 1;
-            border-radius: 14px;
-            overflow: hidden;
-            margin: 0;
-            border: 1px solid #2a2a2a;
-            cursor: pointer;
-            position: relative;
-            background: #0a0a0a;
-        }
-
-        .modal-product-image-side .modal-image img {
-            width: 100%;
-            height: 100%;
-            object-fit: contain;
-            transition: transform 0.3s ease;
-            background: #0a0a0a;
-        }
-
+        .modal-product-image-side .modal-image { width: 100%; aspect-ratio: 1 / 1; border-radius: 14px; overflow: hidden; margin: 0; border: 1px solid #2a2a2a; cursor: pointer; position: relative; background: #0a0a0a; }
+        .modal-product-image-side .modal-image img { width: 100%; height: 100%; object-fit: contain; transition: transform 0.3s ease; background: #0a0a0a; }
         .modal-product-image-side .modal-image:hover img { transform: scale(1.04); }
-
-        .modal-product-image-side .modal-image .fullscreen-icon {
-            opacity: 1;
-            background: rgba(0,0,0,0.75);
-        }
-
-        .modal-product-info-side {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            min-width: 0;
-        }
-
-        .modal-product-category {
-            color: #ff6b00;
-            font-size: 0.72rem;
-            text-transform: uppercase;
-            letter-spacing: 1.6px;
-            font-weight: 600;
-        }
-
-        .modal-product-title {
-            color: #fff;
-            font-size: clamp(1.3rem, 1.1rem + 0.9vw, 1.9rem);
-            font-weight: 700;
-            line-height: 1.2;
-            margin: 0;
-        }
-
-        .modal-price-inline {
-            display: flex;
-            align-items: baseline;
-            flex-wrap: wrap;
-            gap: 10px;
-            margin: 6px 0 4px;
-        }
-
-        .modal-price-inline .price-label-inline {
-            color: #888;
-            font-size: 0.7rem;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            font-weight: 500;
-        }
-
-        .modal-price-inline .price-value-inline {
-            color: #ff6b00;
-            font-size: clamp(1.4rem, 1.2rem + 1vw, 2rem);
-            font-weight: 700;
-        }
-
-        .modal-price-inline .price-value-inline.original {
-            color: #777;
-            text-decoration: line-through;
-            font-size: 1rem;
-            font-weight: 500;
-        }
-
-        .modal-price-inline .price-value-inline.promocional {
-            color: #ff6b00;
-            font-size: clamp(1.6rem, 1.3rem + 1.2vw, 2.3rem);
-        }
-
-        .modal-codigo-inline {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            color: #aaa;
-            font-size: 0.82rem;
-            padding: 6px 0;
-            border-top: 1px solid #222;
-            border-bottom: 1px solid #222;
-            margin: 4px 0;
-        }
-
+        .modal-product-image-side .modal-image .fullscreen-icon { opacity: 1; background: rgba(0,0,0,0.75); }
+        .modal-product-info-side { flex: 1; display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+        .modal-product-category { color: #ff6b00; font-size: 0.72rem; text-transform: uppercase; letter-spacing: 1.6px; font-weight: 600; }
+        .modal-product-title { color: #fff; font-size: clamp(1.3rem, 1.1rem + 0.9vw, 1.9rem); font-weight: 700; line-height: 1.2; margin: 0; }
+        .modal-price-inline { display: flex; align-items: baseline; flex-wrap: wrap; gap: 10px; margin: 6px 0 4px; }
+        .modal-price-inline .price-label-inline { color: #888; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1px; font-weight: 500; }
+        .modal-price-inline .price-value-inline { color: #ff6b00; font-size: clamp(1.4rem, 1.2rem + 1vw, 2rem); font-weight: 700; }
+        .modal-price-inline .price-value-inline.original { color: #777; text-decoration: line-through; font-size: 1rem; font-weight: 500; }
+        .modal-price-inline .price-value-inline.promocional { color: #ff6b00; font-size: clamp(1.6rem, 1.3rem + 1.2vw, 2.3rem); }
+        .modal-codigo-inline { display: flex; align-items: center; gap: 8px; color: #aaa; font-size: 0.82rem; padding: 6px 0; border-top: 1px solid #222; border-bottom: 1px solid #222; margin: 4px 0; }
         .modal-codigo-inline i { color: #ff6b00; }
         .modal-codigo-inline strong { color: #fff; letter-spacing: 0.5px; }
-
-        .modal-description-inline {
-            color: #bbb;
-            font-size: 0.9rem;
-            line-height: 1.65;
-            margin: 6px 0;
-        }
-
-        .modal-add-link {
-            background: transparent !important;
-            border: none !important;
-            color: #ff6b00;
-            font-size: 0.95rem;
-            font-weight: 600;
-            text-align: left;
-            padding: 14px 0;
-            cursor: pointer;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            transition: color 0.2s ease, transform 0.2s ease;
-            align-self: flex-start;
-            margin-top: auto;
-            font-family: inherit;
-        }
-
+        .modal-description-inline { color: #bbb; font-size: 0.9rem; line-height: 1.65; margin: 6px 0; }
+        .modal-add-link { background: transparent !important; border: none !important; color: #ff6b00; font-size: 0.95rem; font-weight: 600; text-align: left; padding: 14px 0; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; transition: color 0.2s ease, transform 0.2s ease; align-self: flex-start; margin-top: auto; font-family: inherit; }
         .modal-add-link:hover { color: #ff8c33; transform: translateX(5px); }
         .modal-add-link:active { transform: translateX(2px) scale(0.98); }
         .modal-add-link i { font-size: 1.05rem; }
-
-        /* ====== DESKTOP ≥768px: GRID 2 COLUNAS SEM STICKY ====== */
         @media (min-width: 768px) {
-            .modal-content.modal-product {
-                max-width: 900px;
-                padding: 26px;
-                background: #111;
-            }
-            .modal-product-layout {
-                display: grid;
-                grid-template-columns: 1fr 1fr;
-                grid-template-rows: auto auto;
-                gap: 28px;
-                align-items: start;
-            }
-            .modal-product-image-side {
-                grid-column: 1;
-                grid-row: 1;
-                position: relative;
-                align-self: start;
-                width: 100%;
-            }
-            .modal-product-info-side {
-                grid-column: 2;
-                grid-row: 1;
-                min-height: 100%;
-                display: flex;
-                flex-direction: column;
-            }
+            .modal-content.modal-product { max-width: 900px; padding: 26px; background: #111; }
+            .modal-product-layout { display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: auto auto; gap: 28px; align-items: start; }
+            .modal-product-image-side { grid-column: 1; grid-row: 1; position: relative; align-self: start; width: 100%; }
+            .modal-product-info-side { grid-column: 2; grid-row: 1; min-height: 100%; display: flex; flex-direction: column; }
             .modal-add-link { margin-top: 20px; }
         }
-
         @media (min-width: 1024px) {
             .modal-content.modal-product { max-width: 1020px; padding: 30px; }
-            .modal-product-layout {
-                grid-template-columns: 1.05fr 1fr;
-                gap: 38px;
-            }
+            .modal-product-layout { grid-template-columns: 1.05fr 1fr; gap: 38px; }
             .modal-description-inline { font-size: 0.95rem; }
         }
-
-        /* ========== PRODUTOS RELACIONADOS NO MODAL ========== */
-        .modal-related {
-            margin-top: 26px;
-            padding-top: 20px;
-            border-top: 1px solid #222;
-            width: 100%;
-        }
-        @media (min-width: 768px) {
-            .modal-related {
-                grid-column: 1 / -1;
-                grid-row: 2;
-            }
-        }
-        .modal-related-title {
-            font-size: 0.95rem;
-            font-weight: 600;
-            color: #fff;
-            margin-bottom: 12px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            letter-spacing: 0.3px;
-        }
+        .modal-related { margin-top: 26px; padding-top: 20px; border-top: 1px solid #222; width: 100%; }
+        @media (min-width: 768px) { .modal-related { grid-column: 1 / -1; grid-row: 2; } }
+        .modal-related-title { font-size: 0.95rem; font-weight: 600; color: #fff; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; letter-spacing: 0.3px; }
         .modal-related-title i { color: #ff6b00; }
-        .modal-related-scroll {
-            display: flex;
-            gap: 10px;
-            overflow-x: auto;
-            padding-bottom: 8px;
-            scrollbar-width: none;
-            -ms-overflow-style: none;
-            scroll-snap-type: x proximity;
-            -webkit-overflow-scrolling: touch;
-            cursor: grab;
-        }
+        .modal-related-scroll { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 8px; scrollbar-width: none; -ms-overflow-style: none; scroll-snap-type: x proximity; -webkit-overflow-scrolling: touch; cursor: grab; }
         .modal-related-scroll:active { cursor: grabbing; }
         .modal-related-scroll::-webkit-scrollbar { display: none; }
-
-        .related-card {
-            flex: 0 0 132px;
-            background: #1a1a1a;
-            border-radius: 12px;
-            overflow: hidden;
-            cursor: pointer;
-            transition: transform 0.2s ease, border-color 0.2s ease;
-            border: 1px solid #2a2a2a;
-            scroll-snap-align: start;
-        }
-        .related-card:hover {
-            transform: translateY(-3px);
-            border-color: #ff6b00;
-        }
+        .related-card { flex: 0 0 132px; background: #1a1a1a; border-radius: 12px; overflow: hidden; cursor: pointer; transition: transform 0.2s ease, border-color 0.2s ease; border: 1px solid #2a2a2a; scroll-snap-align: start; }
+        .related-card:hover { transform: translateY(-3px); border-color: #ff6b00; }
         .related-card:active { transform: scale(0.97); }
-
-        .related-card-image {
-            aspect-ratio: 1 / 1;
-            background: #0a0a0a;
-            overflow: hidden;
-        }
-        .related-card-image img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            display: block;
-            transition: transform 0.3s ease;
-        }
+        .related-card-image { aspect-ratio: 1 / 1; background: #0a0a0a; overflow: hidden; }
+        .related-card-image img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform 0.3s ease; }
         .related-card:hover .related-card-image img { transform: scale(1.06); }
-
         .related-card-info { padding: 8px 9px 10px; }
-        .related-card-name {
-            font-size: 0.76rem;
-            color: #fff;
-            font-weight: 500;
-            line-height: 1.3;
-            display: -webkit-box;
-            -webkit-line-clamp: 2;
-            -webkit-box-orient: vertical;
-            overflow: hidden;
-            min-height: 2.1em;
-        }
-        .related-card-price {
-            font-size: 0.85rem;
-            color: #ff6b00;
-            font-weight: 700;
-            margin-top: 5px;
-        }
-        .related-card-original {
-            color: #666;
-            text-decoration: line-through;
-            font-size: 0.7rem;
-            font-weight: 400;
-            margin-right: 4px;
-        }
-
+        .related-card-name { font-size: 0.76rem; color: #fff; font-weight: 500; line-height: 1.3; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; min-height: 2.1em; }
+        .related-card-price { font-size: 0.85rem; color: #ff6b00; font-weight: 700; margin-top: 5px; }
+        .related-card-original { color: #666; text-decoration: line-through; font-size: 0.7rem; font-weight: 400; margin-right: 4px; }
         @media (min-width: 768px) {
             .related-card { flex: 0 0 150px; }
             .related-card-name { font-size: 0.82rem; }
@@ -957,7 +733,6 @@
         </div>
     </div>
 
-    <!-- ========== MODAL DE PRODUTO ========== -->
     <div class="modal" id="productModal">
         <div class="modal-content modal-product">
             <button class="modal-close" onclick="closeModal()"><i class="fas fa-times"></i></button>
@@ -1022,7 +797,6 @@
     <script>
     document.addEventListener('DOMContentLoaded', function () {
 
-        // ========== FIREBASE CONFIG ==========
         const firebaseConfig = {
             apiKey: "AIzaSyBVtlnA85ugvll5hLAvOF8FuM4BGnKEovM",
             authDomain: "redx-6b53f.firebaseapp.com",
@@ -1043,22 +817,30 @@
         const DEFAULT_PROFILE_IMAGE   = 'assets/logo.webp';
         const DEFAULT_USER_AVATAR     = 'assets/logo.webp';
 
-        // ⛔ ========== BLOQUEIO TOTAL DE IMGBB ==========
+        // ⛔ ========== BLOQUEIO DE IMGBB ==========
+        // ⭐ ALTERADO: agora só bloqueia imgbb (denylist).
+        // Aceita QUALQUER outro domínio externo (Google Drive, Dropbox, fornecedores, etc.)
         const IMGBB_BLOCKLIST = ['ibb.co', 'imgbb.com'];
 
         function isAllowedImageUrl(url) {
             if (!url || typeof url !== 'string') return false;
             const u = url.trim().toLowerCase();
-            if (u.length < 4) return false;
+            if (u.length < 8) return false;
+
+            // Precisa ter um prefixo válido
+            const hasValidPrefix =
+                u.startsWith('http://') ||
+                u.startsWith('https://') ||
+                u.startsWith('assets/') ||
+                u.startsWith('data:image/') ||
+                u.startsWith('blob:');
+            if (!hasValidPrefix) return false;
+
+            // ⛔ Só bloqueia imgbb (motivo original do bloqueio)
             for (const bad of IMGBB_BLOCKLIST) {
                 if (u.includes(bad)) return false;
             }
-            if (u.startsWith('assets/')) return true;
-            if (u.startsWith('data:image/')) return true;
-            if (u.includes('firebasestorage.googleapis.com')) return true;
-            if (u.includes('firebasestorage.app')) return true;
-            if (u.startsWith('blob:')) return true;
-            return false;
+            return true;
         }
 
         function sanitizeImageUrl(url, fallback = DEFAULT_PLACEHOLDER_IMAGE) {
@@ -1071,7 +853,6 @@
             return IMGBB_BLOCKLIST.some(b => u.includes(b));
         }
 
-        // ========== VARIÁVEIS GLOBAIS ==========
         let cart = [];
         let products = [];
         let pricesHidden = false;
@@ -1095,7 +876,6 @@
         let currentProduct = null;
         let lastProductsJson = '';
 
-        // ⚡ PERFORMANCE: SCHEDULERS + CACHE DE DESCONTO
         let _filterScheduled = false;
         let _categoryTabsScheduled = false;
         let _priceRefreshScheduled = false;
@@ -1165,7 +945,6 @@
         const sessionGate = document.getElementById('sessionGate');
         const stickyCategoryBar = document.getElementById('stickyCategoryBar');
 
-        // ========== SCROLL: STICKY CATEGORY BAR + BACK TO TOP ==========
         let _scrollTicking = false;
         function handlePageScroll() {
             if (stickyCategoryBar) {
@@ -1192,7 +971,6 @@
             }
         }, { passive: true });
 
-        // ========== CACHE LOCAL ==========
         const CACHE_KEY = 'cim_cache_v4';
         const CACHE_TTL = 1000 * 60 * 60 * 24;
 
@@ -1274,7 +1052,6 @@
             });
         }
 
-        // ========== UTILITÁRIOS ==========
         function showToast(msg, type = 'success') {
             const toast = document.createElement('div');
             toast.className = 'toast';
@@ -1388,12 +1165,10 @@
             productsGrid.replaceChildren(frag);
         }
 
-        // ========== CARRINHO ==========
         function saveCart() { try { localStorage.setItem('cim_cart', JSON.stringify(cart)); } catch (e) {} }
         function loadCart() { try { const saved = localStorage.getItem('cim_cart'); if (saved) { const parsed = JSON.parse(saved); if (Array.isArray(parsed)) cart = parsed; } } catch (e) {} }
         function clearCartStorage() { localStorage.removeItem('cim_cart'); }
 
-        // ========== REGISTRO DE CLIQUES ==========
         async function registerClick(product, origem = 'detalhes') {
             if (!product || !product.id) return;
             const now = Date.now();
@@ -1526,7 +1301,6 @@
         }
         function toggleCart() { cartPanel.classList.toggle('open'); }
 
-        // ========== FINALIZAR COMPRA ==========
         function finalizePurchase() {
             if (cart.length === 0) { showToast('Carrinho vazio'); return; }
             let target = contactInfo.whatsapp || '5511986866888';
@@ -1551,7 +1325,6 @@
             window.open(`https://wa.me/${target.replace(/\D/g, '')}?text=${encodeURIComponent(msg)}`, '_blank');
         }
 
-        // ========== MENU INFERIOR ==========
         function toggleBottomMenu() {
             const isOpen = bottomMenu.classList.contains('open');
             if (isOpen) closeBottomMenu();
@@ -1568,7 +1341,6 @@
             document.body.style.overflow = '';
         }
 
-        // ========== PERFIL DA LOJA ==========
         function updateProfileUI() {
             const el = document.getElementById('profileImage');
             if (el) el.src = sanitizeImageUrl(profileData.photo, DEFAULT_PROFILE_IMAGE);
@@ -1583,7 +1355,6 @@
             if (msgEl) msgEl.textContent = profileData.message;
         }
 
-        // ========== CONTATOS ==========
         function renderContacts() {
             const container = document.getElementById('contactsList');
             if (!container) return;
@@ -1617,7 +1388,6 @@
             return true;
         }
 
-        // ========== BUSCA ==========
         let searchTimer = null;
         function debouncedSearch(value) {
             clearTimeout(searchTimer);
@@ -1698,7 +1468,6 @@
             searchHeader.classList.remove('focused');
         }
 
-        // ========== PROMOÇÕES ==========
         function verificarExpiracao() {
             const now = Date.now();
             let expiradas = [];
@@ -1787,7 +1556,6 @@
             return preco * (1 - descontoPercent / 100);
         }
 
-        // ========== CUPONS ==========
         function validateActiveCoupon() {
             if (!cupomAtivo || !currentUser) return;
             if (Object.keys(cupons).length === 0) return;
@@ -1962,7 +1730,6 @@
             }
         }
 
-        // ========== OCULTAÇÃO DE PREÇOS ==========
         function shouldHidePriceForUser(product, userType) {
             if (!userType) return true;
             if (pricesHidden === 'both') return true;
@@ -1985,7 +1752,6 @@
             if (currentProduct) showDetails(currentProduct.id);
         }
 
-        // ========== FILTRAR PRODUTOS ==========
         let renderToken = 0;
 
         async function filterProducts(force = false) {
@@ -2086,7 +1852,6 @@
             clearSearchBtn.style.display = searchTerm ? 'flex' : 'none';
         }
 
-        // ========== CRIAR CARD DE PRODUTO ==========
         function createProductCard(product, eagerLoad = false) {
             const card = document.createElement('div');
             const discountInfo = getEffectiveDiscount(product);
@@ -2156,7 +1921,6 @@
             return card;
         }
 
-        // ========== SESSÕES ==========
         function updateSessionsCarousel() {
             if (!sessionsCarousel) return;
             const sessionArray = Object.keys(sessions).map(id => ({ id, ...sessions[id] }));
@@ -2206,7 +1970,6 @@
             renderPromotionBadgesOnly();
         }
 
-        // ========== MARCAS (MARQUEE) ==========
         let lastBrandsHash = '';
 
         function updateBrandTabs() {
@@ -2259,7 +2022,6 @@
             filterProducts();
         }
 
-        // ========== CATEGORIAS ==========
         function updateCategoryTabs() {
             let filtered = products;
             if (selectedSessionId !== null) filtered = filtered.filter(p => p.sessionId === selectedSessionId);
@@ -2292,7 +2054,6 @@
             renderPromotionBadgesOnly();
         }
 
-        // ========== PRODUTOS RELACIONADOS ==========
         function renderRelatedProducts(product) {
             const container = document.getElementById('modalRelated');
             const scroll = document.getElementById('modalRelatedScroll');
@@ -2379,7 +2140,6 @@
             container.style.display = 'block';
         }
 
-        // ========== DETALHES DO PRODUTO ==========
         function showDetails(id) {
             const product = products.find(p => p.id === id);
             if (!product) return;
@@ -2464,7 +2224,6 @@
         }
         function addFromModal() { if (currentProduct) { addToCart(currentProduct.id); closeModal(); } }
 
-        // ========== FULLSCREEN IMAGE ==========
         function openFullscreenImage(url) {
             if (!url) return;
             const safeUrl = isAllowedImageUrl(url) ? url : DEFAULT_PLACEHOLDER_IMAGE;
@@ -2473,7 +2232,6 @@
         }
         function closeFullscreenImage() { document.getElementById('fullscreenImageModal').classList.remove('active'); }
 
-        // ========== CONTATO E HORÁRIOS ==========
         function updateMenuContactInfo() {
             if (contactInfo.instagram) instagramLink.href = contactInfo.instagram;
             if (contactInfo.address) {
@@ -2484,7 +2242,6 @@
             hoursValue.textContent = hours;
         }
 
-        // ========== USUÁRIOS ==========
         function loadUserData(uid) {
             if (!uid) return;
             database.ref(`users/${uid}`).once('value').then((snapshot) => {
@@ -2656,7 +2413,6 @@
             e.target.value = '';
         });
 
-        // ========== LOGOUT ==========
         function logoutUser() {
             if (confirm('Deseja sair?')) {
                 showLoading('Saindo...');
@@ -2669,7 +2425,6 @@
             }
         }
 
-        // ========== GATE DE SESSÃO ==========
         function unlockPage() {
             if (sessionGate) sessionGate.remove();
             if (!dataLoaded) {
@@ -2686,7 +2441,6 @@
             window.location.replace('login.html');
         }
 
-        // ========== AUTH STATE ==========
         auth.onAuthStateChanged(async (user) => {
             console.log('🔍 [cim] auth state →', user ? user.uid : 'NULL');
 
@@ -2753,7 +2507,6 @@
             unlockPage();
         });
 
-        // ========== LOAD DATA ==========
         function loadData() {
             loadCart();
 
@@ -2873,7 +2626,6 @@
             else setTimeout(subscribeDeferred, 1200);
         }
 
-        // ========== EXPOR FUNÇÕES ==========
         Object.assign(window, {
             toggleBottomMenu, closeBottomMenu, toggleSearch, debouncedSearch,
             selectSuggestion, clearSearchHeader, clearSearch, toggleCart, addToCart,
@@ -2883,7 +2635,6 @@
             onSearchFocus, onSearchBlur, openWhatsApp, handleInstagramClick
         });
 
-        // ========== DRAG-TO-SCROLL NOS RELACIONADOS ==========
         (function initRelatedDrag() {
             const el = document.getElementById('modalRelatedScroll');
             if (!el) return;
@@ -2904,7 +2655,6 @@
             });
         })();
 
-        // ========== LIMPEZA MANUAL DE IMGBB (via console) ==========
         window.purgeAllImgbb = async function() {
             console.log('🧹 Iniciando limpeza total de URLs imgbb...');
             const updates = {};
@@ -2948,8 +2698,7 @@
             showToast(`${count} URLs imgbb limpas`);
         };
 
-        console.log('✅ CIM carregada — produtos visíveis no 1º render + bloqueio imgbb ativo');
-        console.log('💡 Dica: execute window.purgeAllImgbb() no console para limpar o banco inteiro');
+        console.log('✅ CIM carregada — imagens externas liberadas (exceto imgbb)');
     });
     </script>
 </body>
