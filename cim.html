@@ -577,6 +577,242 @@
             .related-card { flex: 0 0 150px; }
             .related-card-name { font-size: 0.82rem; }
         }
+
+        /* ===== TELA DE CONFIGURACOES DO USUARIO (dentro do menu) ===== */
+        .settings-topbar {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            margin-bottom: 20px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid rgba(255,255,255,0.08);
+        }
+        .settings-back-btn {
+            background: #1a1a1a;
+            border: 1px solid #333;
+            border-radius: 30px;
+            color: #fff;
+            padding: 8px 14px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: background-color 0.2s, color 0.2s, border-color 0.2s;
+            min-height: 40px;
+        }
+        .settings-back-btn:hover {
+            background: #ffffff;
+            color: #000;
+            border-color: #ffffff;
+        }
+        .settings-topbar h3 {
+            color: #fff;
+            font-size: 1rem;
+            font-weight: 600;
+            letter-spacing: 0.3px;
+        }
+        .settings-user-type {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(255,255,255,0.08);
+            color: #ffffff;
+            border: 1px solid rgba(255,255,255,0.25);
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin-bottom: 18px;
+        }
+        .settings-user-type i {
+            color: #ffffff;
+        }
+        .settings-field {
+            margin-bottom: 14px;
+        }
+        .settings-field label {
+            display: block;
+            color: #999;
+            font-size: 0.75rem;
+            margin-bottom: 5px;
+            font-weight: 500;
+            letter-spacing: 0.2px;
+        }
+        .settings-field input {
+            width: 100%;
+            padding: 11px 14px;
+            background: #1a1a1a;
+            border: 1px solid #333;
+            border-radius: 10px;
+            color: #fff;
+            font-size: 0.9rem;
+            font-family: inherit;
+            transition: border-color 0.2s, background-color 0.2s;
+        }
+        .settings-field input:focus {
+            outline: none;
+            border-color: #ffffff;
+            background: #111;
+            box-shadow: 0 0 0 3px rgba(255,255,255,0.06);
+        }
+        .settings-field input:disabled {
+            opacity: 0.55;
+            cursor: not-allowed;
+            background: #0a0a0a;
+            color: #bbb;
+        }
+        .settings-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+        .settings-save-btn {
+            width: 100%;
+            padding: 13px;
+            background: #ffffff;
+            color: #000;
+            border: none;
+            border-radius: 10px;
+            font-weight: 700;
+            font-size: 0.92rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            margin-top: 10px;
+            transition: background-color 0.2s, transform 0.15s;
+            min-height: 48px;
+            letter-spacing: 0.3px;
+        }
+        .settings-save-btn:hover {
+            background: #e6e6e6;
+            transform: translateY(-1px);
+        }
+        .settings-save-btn:disabled {
+            background: #555;
+            color: #999;
+            cursor: not-allowed;
+            transform: none;
+        }
+        .settings-why-link {
+            display: inline-block;
+            color: #ffffff;
+            font-size: 0.82rem;
+            font-weight: 500;
+            margin-top: 12px;
+            cursor: pointer;
+            text-decoration: underline;
+            text-underline-offset: 3px;
+            text-decoration-color: rgba(255,255,255,0.4);
+            transition: text-decoration-color 0.2s, color 0.2s;
+        }
+        .settings-why-link:hover {
+            color: #ffffff;
+            text-decoration-color: #ffffff;
+        }
+
+        /* ===== MODAL EXPLICATIVO DO PJ ===== */
+        .pj-explain-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.85);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            z-index: 10050;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            animation: pjFadeIn 0.2s ease;
+        }
+        .pj-explain-overlay.active {
+            display: flex;
+        }
+        @keyframes pjFadeIn {
+            from { opacity: 0; }
+            to   { opacity: 1; }
+        }
+        .pj-explain-box {
+            background: #1a1a1a;
+            border: 1px solid #333;
+            border-radius: 20px;
+            padding: 26px 22px 22px;
+            max-width: 440px;
+            width: 100%;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.7);
+            animation: pjSlideUp 0.3s cubic-bezier(0.22,1,0.36,1);
+            position: relative;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        @keyframes pjSlideUp {
+            from { transform: translateY(20px) scale(0.97); opacity: 0; }
+            to   { transform: translateY(0) scale(1); opacity: 1; }
+        }
+        .pj-explain-icon {
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.06);
+            border: 1px solid rgba(255,255,255,0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 16px;
+        }
+        .pj-explain-icon i {
+            font-size: 1.5rem;
+            color: #ffffff;
+        }
+        .pj-explain-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #ffffff;
+            text-align: center;
+            margin-bottom: 14px;
+            letter-spacing: 0.2px;
+        }
+        .pj-explain-text {
+            color: #bbb;
+            font-size: 0.88rem;
+            line-height: 1.65;
+            margin-bottom: 12px;
+            text-align: left;
+        }
+        .pj-explain-text strong {
+            color: #ffffff;
+            font-weight: 600;
+        }
+        .pj-explain-highlight {
+            background: rgba(255,255,255,0.05);
+            border-left: 3px solid #ffffff;
+            border-radius: 6px;
+            padding: 12px 14px;
+            color: #ddd;
+            font-size: 0.84rem;
+            line-height: 1.6;
+            margin: 14px 0 18px;
+        }
+        .pj-explain-close {
+            width: 100%;
+            padding: 12px;
+            background: #ffffff;
+            color: #000;
+            border: none;
+            border-radius: 10px;
+            font-weight: 700;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            min-height: 46px;
+            letter-spacing: 0.3px;
+        }
+        .pj-explain-close:hover {
+            background: #e6e6e6;
+        }
     </style>
 </head>
 <body>
@@ -642,76 +878,107 @@
     <div class="bottom-overlay" id="bottomOverlay" onclick="closeBottomMenu()"></div>
     <div class="bottom-menu" id="bottomMenu">
         <div class="menu-handle"></div>
-        <div class="profile-section">
-            <div class="profile-avatar">
-                <img src="assets/logo.webp" alt="Perfil" id="profileImage">
-            </div>
-            <div class="profile-info">
-                <div class="profile-name" id="profileName">CIM Peças</div>
-                <div class="profile-subtitle" id="profileSubtitle">Mecânica de confiança</div>
-                <div class="profile-message" id="profileMessage">Sua peça com qualidade e rapidez</div>
-                <div class="profile-doc" id="profileDoc" style="display:none;"></div>
-            </div>
-        </div>
 
-        <div class="coupon-section">
-            <div class="section-title">
-                <span><i class="fas fa-ticket"></i> Cupom de Desconto</span>
+        <!-- ============ CONTEUDO PRINCIPAL DO MENU ============ -->
+        <div id="menuMainContent">
+
+            <div class="profile-section">
+                <div class="profile-avatar">
+                    <img src="assets/logo.webp" alt="Perfil" id="profileImage">
+                </div>
+                <div class="profile-info">
+                    <div class="profile-name" id="profileName">CIM Peças</div>
+                    <div class="profile-subtitle" id="profileSubtitle">Mecânica de confiança</div>
+                    <div class="profile-message" id="profileMessage">Sua peça com qualidade e rapidez</div>
+                    <div class="profile-doc" id="profileDoc" style="display:none;"></div>
+                </div>
             </div>
 
-            <div id="couponActiveBox" style="display:none;">
-                <div class="coupon-active">
-                    <div class="coupon-active-info">
-                        <i class="fas fa-ticket"></i>
-                        <div style="min-width:0;">
-                            <div class="coupon-active-code" id="couponActiveCode"></div>
-                            <div class="coupon-active-desc" id="couponActiveDesc"></div>
+            <div class="coupon-section">
+                <div class="section-title">
+                    <span><i class="fas fa-ticket"></i> Cupom de Desconto</span>
+                </div>
+
+                <div id="couponActiveBox" style="display:none;">
+                    <div class="coupon-active">
+                        <div class="coupon-active-info">
+                            <i class="fas fa-ticket"></i>
+                            <div style="min-width:0;">
+                                <div class="coupon-active-code" id="couponActiveCode"></div>
+                                <div class="coupon-active-desc" id="couponActiveDesc"></div>
+                            </div>
                         </div>
+                        <button class="coupon-remove-btn" onclick="removeCoupon()" title="Remover cupom"><i class="fas fa-times"></i></button>
                     </div>
-                    <button class="coupon-remove-btn" onclick="removeCoupon()" title="Remover cupom"><i class="fas fa-times"></i></button>
+                </div>
+
+                <div id="couponInputBox">
+                    <div class="coupon-input-wrap">
+                        <input type="text" id="couponInput" placeholder="Digite seu cupom" maxlength="30" autocomplete="off" onkeydown="if(event.key==='Enter'){event.preventDefault();applyCoupon();}">
+                        <button class="coupon-apply-btn" onclick="applyCoupon()"><i class="fas fa-check"></i> Aplicar</button>
+                    </div>
+                    <div class="coupon-message" id="couponMessage"></div>
                 </div>
             </div>
 
-            <div id="couponInputBox">
-                <div class="coupon-input-wrap">
-                    <input type="text" id="couponInput" placeholder="Digite seu cupom" maxlength="30" autocomplete="off" onkeydown="if(event.key==='Enter'){event.preventDefault();applyCoupon();}">
-                    <button class="coupon-apply-btn" onclick="applyCoupon()"><i class="fas fa-check"></i> Aplicar</button>
+            <a href="#" target="_blank" class="menu-item" id="menuInstagram" onclick="return handleInstagramClick(event)">
+                <i class="fab fa-instagram"></i>
+                <div class="item-content"><div class="item-label">Instagram</div></div>
+            </a>
+
+            <div class="menu-item">
+                <i class="fas fa-map-marker-alt"></i>
+                <div class="item-content">
+                    <div class="item-label">Endereço da loja</div>
+                    <a href="#" target="_blank" id="addressLink"><div class="item-value" id="addressValue">R. Nicolau Ancona Lopez - Cambuci, SP</div></a>
                 </div>
-                <div class="coupon-message" id="couponMessage"></div>
             </div>
-        </div>
 
-        <a href="#" target="_blank" class="menu-item" id="menuInstagram" onclick="return handleInstagramClick(event)">
-            <i class="fab fa-instagram"></i>
-            <div class="item-content"><div class="item-label">Instagram</div></div>
-        </a>
-        <div class="menu-item">
-            <i class="fas fa-map-marker-alt"></i>
-            <div class="item-content">
-                <div class="item-label">Endereço</div>
-                <a href="#" target="_blank" id="addressLink"><div class="item-value" id="addressValue">R. Nicolau Ancona Lopez - Cambuci, SP</div></a>
+            <div class="menu-item" style="cursor:default;">
+                <i class="fas fa-clock"></i>
+                <div class="item-content">
+                    <div class="item-label">Horário de Funcionamento</div>
+                    <div class="item-value hours" id="hoursValue">Seg-Sex 08:00-18:00 | Sáb 08:00-13:00</div>
+                </div>
             </div>
-        </div>
-        <div class="menu-item" style="cursor:default;">
-            <i class="fas fa-clock"></i>
-            <div class="item-content">
-                <div class="item-label">Horário de Funcionamento</div>
-                <div class="item-value hours" id="hoursValue">Seg-Sex 08:00-18:00 | Sáb 08:00-13:00</div>
-            </div>
-        </div>
-        <div class="contacts-section">
-            <div class="section-title"><span><i class="fas fa-headset"></i> Atendimento</span></div>
-            <div id="contactsList"></div>
-        </div>
 
-        <div id="menuChangePhoto" class="menu-item" style="display:none;" onclick="document.getElementById('dropdownAvatarInput').click()">
-            <i class="fas fa-camera"></i>
-            <div class="item-content"><div class="item-label">Alterar Foto de Perfil</div></div>
+            <div class="contacts-section">
+                <div class="section-title"><span><i class="fas fa-headset"></i> Atendimento</span></div>
+                <div id="contactsList"></div>
+            </div>
+
+            <!-- NOVO: item Configuracoes -->
+            <div id="menuSettings" class="menu-item" style="display:none;" onclick="openUserSettings()">
+                <i class="fas fa-gear"></i>
+                <div class="item-content"><div class="item-label">Configurações</div></div>
+            </div>
+
+            <div id="menuChangePhoto" class="menu-item" style="display:none;" onclick="document.getElementById('dropdownAvatarInput').click()">
+                <i class="fas fa-camera"></i>
+                <div class="item-content"><div class="item-label">Alterar Foto de Perfil</div></div>
+            </div>
+
+            <div id="menuLogout" class="menu-item" style="display:none;" onclick="logoutUser()">
+                <i class="fas fa-sign-out-alt"></i>
+                <div class="item-content"><div class="item-label">Sair da Conta</div></div>
+            </div>
+
         </div>
-        <div id="menuLogout" class="menu-item" style="display:none;" onclick="logoutUser()">
-            <i class="fas fa-sign-out-alt"></i>
-            <div class="item-content"><div class="item-label">Sair da Conta</div></div>
+        <!-- ============ FIM DO CONTEUDO PRINCIPAL ============ -->
+
+
+        <!-- ============ TELA DE CONFIGURACOES DO USUARIO ============ -->
+        <div id="menuSettingsContent" style="display:none;">
+            <div class="settings-topbar">
+                <button class="settings-back-btn" onclick="closeUserSettings()">
+                    <i class="fas fa-arrow-left"></i> Voltar
+                </button>
+                <h3>Meus Dados</h3>
+            </div>
+            <div id="settingsBody"></div>
         </div>
+        <!-- ============ FIM DA TELA DE CONFIGURACOES ============ -->
+
     </div>
 
     <div class="main-container">
@@ -790,6 +1057,39 @@
         <div class="modal-content fullscreen-modal">
             <button class="modal-close" onclick="closeFullscreenImage()"><i class="fas fa-times"></i></button>
             <div class="fullscreen-image-container"><img id="fullscreenImage" src="" alt="Imagem em tela cheia"></div>
+        </div>
+    </div>
+
+    <!-- ===== MODAL: Por que PJ nao pode editar ===== -->
+    <div class="pj-explain-overlay" id="pjExplainOverlay" onclick="if(event.target === this) closePjExplanation();">
+        <div class="pj-explain-box">
+            <div class="pj-explain-icon">
+                <i class="fas fa-shield-alt"></i>
+            </div>
+            <div class="pj-explain-title">Proteção do seu CNPJ</div>
+
+            <p class="pj-explain-text">
+                Contas do tipo <strong>Pessoa Jurídica</strong> têm os dados cadastrais
+                protegidos e <strong>não podem ser alterados diretamente</strong> por aqui.
+            </p>
+
+            <div class="pj-explain-highlight">
+                Permitir a edição livre de endereço em contas vinculadas a um CNPJ abriria
+                espaço para uso indevido do documento de terceiros — alguém poderia
+                cadastrar o CNPJ de outra empresa apontando para um endereço que não é dela.
+                Isso poderia gerar entregas, cobranças e responsabilidades jurídicas em nome
+                de quem não autorizou.
+            </div>
+
+            <p class="pj-explain-text">
+                Para sua segurança e da sua empresa, qualquer atualização de dados de PJ
+                passa pela conferência do nosso time. Entre em contato pelo WhatsApp de
+                atendimento e faremos a alteração com a devida validação.
+            </p>
+
+            <button class="pj-explain-close" onclick="closePjExplanation()">
+                Entendi
+            </button>
         </div>
     </div>
 
@@ -2332,9 +2632,21 @@
                 }
 
                 currentUser = {
-                    uid: uid, email: data.email || '', name: data.name || '',
+                    uid: uid,
+                    email: data.email || '',
+                    name: data.name || '',
                     photoURL: userPhoto,
-                    userType: data.userType || null, cpf: data.cpf || '', cnpj: data.cnpj || ''
+                    userType: data.userType || null,
+                    cpf: data.cpf || '',
+                    cnpj: data.cnpj || '',
+                    telefone: data.telefone || '',
+                    cep: data.cep || '',
+                    logradouro: data.logradouro || '',
+                    numero: data.numero || '',
+                    complemento: data.complemento || '',
+                    bairro: data.bairro || '',
+                    cidade: data.cidade || '',
+                    uf: data.uf || ''
                 };
                 updateProfileUIUser();
                 updatePriceDisplay();
@@ -2423,6 +2735,7 @@
                 dropdownUserDoc.style.display = docStr ? 'block' : 'none';
                 menuChangePhoto.style.display = 'flex';
                 menuLogout.style.display = 'flex';
+                document.getElementById('menuSettings').style.display = 'flex';
                 if (docStr) { profileDoc.textContent = currentUser.userType === 'PF' ? `CPF: ${docStr}` : `CNPJ: ${docStr}`; profileDoc.style.display = 'block'; }
                 else profileDoc.style.display = 'none';
             } else {
@@ -2431,6 +2744,7 @@
                 document.getElementById('dropdownLogged').style.display = 'none';
                 document.getElementById('profileDropdown').classList.remove('open');
                 menuChangePhoto.style.display = 'none'; menuLogout.style.display = 'none';
+                document.getElementById('menuSettings').style.display = 'none';
                 profileDoc.style.display = 'none'; dropdownUserDoc.style.display = 'none';
             }
             renderContacts();
@@ -2493,6 +2807,8 @@
         function logoutUser() {
             if (confirm('Deseja sair?')) {
                 showLoading('Saindo...');
+                closeUserSettings();
+                closePjExplanation();
                 auth.signOut().then(() => {
                     hideLoading();
                     currentUser = null; cupomAtivo = null;
@@ -2516,6 +2832,197 @@
         function redirectToLogin() {
             currentUser = null;
             window.location.replace('login.html');
+        }
+
+        /* ==================== CONFIGURACOES DO USUARIO ==================== */
+
+        function openUserSettings() {
+            if (!currentUser || !currentUser.uid) {
+                showToast('Você precisa estar logado', 'error');
+                return;
+            }
+            const main = document.getElementById('menuMainContent');
+            const set  = document.getElementById('menuSettingsContent');
+            if (main) main.style.display = 'none';
+            if (set)  set.style.display  = 'block';
+
+            renderUserSettings();
+
+            if (bottomMenu) bottomMenu.scrollTop = 0;
+        }
+
+        function closeUserSettings() {
+            closePjExplanation();
+            const main = document.getElementById('menuMainContent');
+            const set  = document.getElementById('menuSettingsContent');
+            if (set)  set.style.display  = 'none';
+            if (main) main.style.display = 'block';
+            if (bottomMenu) bottomMenu.scrollTop = 0;
+        }
+
+        function renderUserSettings() {
+            const body = document.getElementById('settingsBody');
+            if (!body || !currentUser) return;
+
+            const isPF = currentUser.userType === 'PF';
+            const isPJ = currentUser.userType === 'PJ';
+            const disabled = isPF ? '' : 'disabled';
+
+            const docLabel = isPF ? 'CPF' : (isPJ ? 'CNPJ' : 'Documento');
+            let docValue = '';
+            if (isPF) docValue = formatCpfCnpj(currentUser.cpf || '', 'PF');
+            if (isPJ) docValue = formatCpfCnpj(currentUser.cnpj || '', 'PJ');
+
+            const typeLabel = isPF ? 'Pessoa Física' : (isPJ ? 'Pessoa Jurídica' : 'Tipo não definido');
+
+            body.innerHTML = `
+                <div class="settings-user-type">
+                    <i class="fas ${isPF ? 'fa-user' : 'fa-building'}"></i>
+                    ${escapeHtml(typeLabel)}
+                </div>
+
+                <div class="settings-field">
+                    <label>Nome completo</label>
+                    <input type="text" id="setName" value="${escapeHtml(currentUser.name || '')}" ${disabled}>
+                </div>
+
+                <div class="settings-field">
+                    <label>E-mail</label>
+                    <input type="email" value="${escapeHtml(currentUser.email || '')}" disabled>
+                </div>
+
+                <div class="settings-field">
+                    <label>${docLabel}</label>
+                    <input type="text" value="${escapeHtml(docValue)}" disabled>
+                </div>
+
+                <div class="settings-field">
+                    <label>Telefone</label>
+                    <input type="tel" id="setTelefone" value="${escapeHtml(currentUser.telefone || '')}" ${disabled} inputmode="numeric">
+                </div>
+
+                <div class="settings-field">
+                    <label>CEP</label>
+                    <input type="text" id="setCep" value="${escapeHtml(currentUser.cep || '')}" ${disabled} maxlength="9" inputmode="numeric">
+                </div>
+
+                <div class="settings-field">
+                    <label>Logradouro</label>
+                    <input type="text" id="setLogradouro" value="${escapeHtml(currentUser.logradouro || '')}" ${disabled}>
+                </div>
+
+                <div class="settings-row">
+                    <div class="settings-field">
+                        <label>Número</label>
+                        <input type="text" id="setNumero" value="${escapeHtml(currentUser.numero || '')}" ${disabled}>
+                    </div>
+                    <div class="settings-field">
+                        <label>Complemento</label>
+                        <input type="text" id="setComplemento" value="${escapeHtml(currentUser.complemento || '')}" ${disabled}>
+                    </div>
+                </div>
+
+                <div class="settings-field">
+                    <label>Bairro</label>
+                    <input type="text" id="setBairro" value="${escapeHtml(currentUser.bairro || '')}" ${disabled}>
+                </div>
+
+                <div class="settings-row">
+                    <div class="settings-field">
+                        <label>Cidade</label>
+                        <input type="text" id="setCidade" value="${escapeHtml(currentUser.cidade || '')}" ${disabled}>
+                    </div>
+                    <div class="settings-field">
+                        <label>UF</label>
+                        <input type="text" id="setUf" value="${escapeHtml(currentUser.uf || '')}" ${disabled} maxlength="2">
+                    </div>
+                </div>
+
+                ${isPF
+                    ? `<button class="settings-save-btn" id="settingsSaveBtn" onclick="saveUserSettings()">
+                           <i class="fas fa-save"></i> Salvar Alterações
+                       </button>`
+                    : `<div style="text-align:center;">
+                           <span class="settings-why-link" onclick="openPjExplanation()">Por que não posso editar?</span>
+                       </div>`
+                }
+            `;
+
+            if (isPF) {
+                const cepEl = document.getElementById('setCep');
+                const telEl = document.getElementById('setTelefone');
+                if (cepEl) cepEl.addEventListener('input', function () {
+                    let v = this.value.replace(/\D/g, '').slice(0, 8);
+                    if (v.length > 5) v = v.replace(/^(\d{5})(\d{0,3})/, '$1-$2');
+                    this.value = v;
+                });
+                if (telEl) telEl.addEventListener('input', function () {
+                    this.value = this.value.replace(/[^\d\s()-]/g, '').slice(0, 20);
+                });
+            }
+        }
+
+        async function saveUserSettings() {
+            if (!currentUser || currentUser.userType !== 'PF') return;
+
+            const btn = document.getElementById('settingsSaveBtn');
+            if (btn) { btn.disabled = true; }
+
+            const data = {
+                name:        (document.getElementById('setName').value || '').trim(),
+                telefone:    (document.getElementById('setTelefone').value || '').replace(/\D/g, ''),
+                cep:         (document.getElementById('setCep').value || '').replace(/\D/g, ''),
+                logradouro:  (document.getElementById('setLogradouro').value || '').trim(),
+                numero:      (document.getElementById('setNumero').value || '').trim(),
+                complemento: (document.getElementById('setComplemento').value || '').trim(),
+                bairro:      (document.getElementById('setBairro').value || '').trim(),
+                cidade:      (document.getElementById('setCidade').value || '').trim(),
+                uf:          (document.getElementById('setUf').value || '').trim().toUpperCase()
+            };
+
+            if (!data.name) {
+                showToast('Nome é obrigatório', 'error');
+                if (btn) btn.disabled = false;
+                return;
+            }
+            if (data.telefone && data.telefone.length < 10) {
+                showToast('Telefone inválido', 'error');
+                if (btn) btn.disabled = false;
+                return;
+            }
+            if (data.cep && data.cep.length !== 8) {
+                showToast('CEP inválido', 'error');
+                if (btn) btn.disabled = false;
+                return;
+            }
+
+            showLoading('Salvando...');
+            try {
+                await database.ref(`users/${currentUser.uid}`).update(data);
+                Object.assign(currentUser, data);
+                hideLoading();
+                showToast('Dados atualizados com sucesso');
+                if (btn) btn.disabled = false;
+            } catch (err) {
+                hideLoading();
+                console.error('[saveUserSettings] erro:', err);
+                showToast('Erro ao salvar. Tente novamente.', 'error');
+                if (btn) btn.disabled = false;
+            }
+        }
+
+        /* ==================== EXPLICACAO PJ (seguranca) ==================== */
+
+        function openPjExplanation() {
+            const el = document.getElementById('pjExplainOverlay');
+            if (el) el.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closePjExplanation() {
+            const el = document.getElementById('pjExplainOverlay');
+            if (el) el.classList.remove('active');
+            document.body.style.overflow = '';
         }
 
         auth.onAuthStateChanged(async (user) => {
@@ -2709,7 +3216,9 @@
             clearCart, updateQuantity, finalizePurchase, showDetails, closeModal, addFromModal,
             openFullscreenImage, closeFullscreenImage, selectSession, selectCategory, selectBrand,
             logoutUser, handleProfileBtnClick, applyCoupon, removeCoupon,
-            onSearchFocus, onSearchBlur, openWhatsApp, handleInstagramClick
+            onSearchFocus, onSearchBlur, openWhatsApp, handleInstagramClick,
+            openUserSettings, closeUserSettings, saveUserSettings,
+            openPjExplanation, closePjExplanation
         });
 
         (function initRelatedDrag() {
