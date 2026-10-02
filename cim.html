@@ -522,41 +522,293 @@
             *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
         }
 
-        .modal-product-layout { display: flex; flex-direction: column; gap: 18px; }
-        .modal-product-image-side { width: 100%; }
-        .modal-product-image-side .modal-image { width: 100%; aspect-ratio: 1 / 1; border-radius: 14px; overflow: hidden; margin: 0; border: 1px solid #2a2a2a; cursor: pointer; position: relative; background: #0a0a0a; }
-        .modal-product-image-side .modal-image img { width: 100%; height: 100%; object-fit: contain; transition: transform 0.3s ease; background: #0a0a0a; }
+        /* ============================================================
+           MODAL DE PRODUTO FULLSCREEN — CORRIGIDO
+           Centralização vertical usa margin:auto (não corta o topo)
+           ============================================================ */
+        #productModal {
+            background: #0a0a0a;
+            align-items: stretch;
+            justify-content: stretch;
+            padding: 0;
+            backdrop-filter: none;
+            -webkit-backdrop-filter: none;
+        }
+        #productModal.active { animation: none; }
+        #productModal .modal-content.modal-product {
+            background: #0a0a0a;
+            border: none;
+            border-radius: 0;
+            max-width: 100vw;
+            width: 100vw;
+            max-height: 100vh;
+            height: 100vh;
+            padding: 0;
+            margin: 0;
+            overflow: hidden;
+            transform: translate3d(0,0,0);
+            transition: opacity 0.25s ease;
+            opacity: 0;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+        }
+        #productModal.active .modal-content.modal-product {
+            opacity: 1;
+            transform: translate3d(0,0,0);
+        }
+        #productModal .modal-content.modal-product::before { display: none; }
+
+        /* Botões fixos no topo do modal fullscreen */
+        #productModal .modal-close {
+            position: fixed;
+            top: calc(16px + var(--safe-top));
+            right: calc(16px + var(--safe-right));
+            z-index: 30;
+            width: 44px;
+            height: 44px;
+            background: rgba(34,34,34,0.85);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+        }
+        #productModal .modal-share-btn {
+            position: fixed;
+            top: calc(16px + var(--safe-top));
+            right: calc(72px + var(--safe-right));
+            z-index: 30;
+            background: rgba(34,34,34,0.85);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            border: 1px solid #333;
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            cursor: pointer;
+            color: #ff6b00;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background-color 0.2s, color 0.2s, transform 0.2s, border-color 0.2s;
+            font-size: 1rem;
+        }
+        #productModal .modal-share-btn:hover {
+            background: #ff6b00;
+            color: #000;
+            transform: scale(1.08);
+            border-color: #ff6b00;
+        }
+
+        /* Wrapper interno com scroll + CENTRALIZAÇÃO CORRETA (margin:auto) */
+        .modal-product-inner {
+            width: 100%;
+            height: 100%;
+            overflow-y: auto;
+            overflow-x: hidden;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+            padding: calc(100px + var(--safe-top)) 20px calc(50px + var(--safe-bottom));
+            -webkit-overflow-scrolling: touch;
+            display: flex;
+            flex-direction: column;
+            box-sizing: border-box;
+        }
+        .modal-product-inner::-webkit-scrollbar { display: none; }
+
+        .modal-product-layout {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            max-width: 1400px;
+            width: 100%;
+            margin: auto;
+            padding: 0;
+        }
+
+        /* MOBILE: imagem em cima, info embaixo */
+        .modal-product-image-side {
+            width: 100%;
+            order: -1;
+            display: flex;
+            justify-content: center;
+        }
+        .modal-product-image-side .modal-image {
+            width: 100%;
+            max-width: 520px;
+            aspect-ratio: 1 / 1;
+            border-radius: 16px;
+            overflow: hidden;
+            margin: 0 auto;
+            border: none;
+            cursor: pointer;
+            position: relative;
+            background: #111;
+        }
+        .modal-product-image-side .modal-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            transition: transform 0.3s ease;
+            background: #111;
+        }
         .modal-product-image-side .modal-image:hover img { transform: scale(1.04); }
-        .modal-product-image-side .modal-image .fullscreen-icon { opacity: 1; background: rgba(0,0,0,0.75); }
-        .modal-product-info-side { flex: 1; display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+        .modal-product-image-side .modal-image .fullscreen-icon {
+            opacity: 1;
+            background: rgba(0,0,0,0.75);
+        }
+
+        .modal-product-info-side {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            min-width: 0;
+            width: 100%;
+        }
+
         .modal-product-category { color: #ff6b00; font-size: 0.72rem; text-transform: uppercase; letter-spacing: 1.6px; font-weight: 600; }
-        .modal-product-title { color: #fff; font-size: clamp(1.3rem, 1.1rem + 0.9vw, 1.9rem); font-weight: 700; line-height: 1.2; margin: 0; }
+        .modal-product-title { color: #fff; font-size: clamp(1.4rem, 1.2rem + 1.2vw, 2.2rem); font-weight: 700; line-height: 1.2; margin: 0; }
         .modal-price-inline { display: flex; align-items: baseline; flex-wrap: wrap; gap: 10px; margin: 6px 0 4px; }
         .modal-price-inline .price-label-inline { color: #888; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1px; font-weight: 500; }
-        .modal-price-inline .price-value-inline { color: #ff6b00; font-size: clamp(1.4rem, 1.2rem + 1vw, 2rem); font-weight: 700; }
+        .modal-price-inline .price-value-inline { color: #ff6b00; font-size: clamp(1.5rem, 1.3rem + 1.2vw, 2.2rem); font-weight: 700; }
         .modal-price-inline .price-value-inline.original { color: #777; text-decoration: line-through; font-size: 1rem; font-weight: 500; }
-        .modal-price-inline .price-value-inline.promocional { color: #ff6b00; font-size: clamp(1.6rem, 1.3rem + 1.2vw, 2.3rem); }
-        .modal-codigo-inline { display: flex; align-items: center; gap: 8px; color: #aaa; font-size: 0.82rem; padding: 6px 0; border-top: 1px solid #222; border-bottom: 1px solid #222; margin: 4px 0; }
+        .modal-price-inline .price-value-inline.promocional { color: #ff6b00; font-size: clamp(1.7rem, 1.4rem + 1.4vw, 2.5rem); }
+
+        .modal-codigo-inline { display: flex; align-items: center; gap: 8px; color: #aaa; font-size: 0.85rem; padding: 10px 0; border-top: 1px solid #1e1e1e; border-bottom: 1px solid #1e1e1e; margin: 6px 0; }
         .modal-codigo-inline i { color: #ff6b00; }
         .modal-codigo-inline strong { color: #fff; letter-spacing: 0.5px; }
-        .modal-description-inline { color: #bbb; font-size: 0.9rem; line-height: 1.65; margin: 6px 0; }
-        .modal-add-link { background: transparent !important; border: none !important; color: #ff6b00; font-size: 0.95rem; font-weight: 600; text-align: left; padding: 14px 0; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; transition: color 0.2s ease, transform 0.2s ease; align-self: flex-start; margin-top: auto; font-family: inherit; }
-        .modal-add-link:hover { color: #ff8c33; transform: translateX(5px); }
-        .modal-add-link:active { transform: translateX(2px) scale(0.98); }
-        .modal-add-link i { font-size: 1.05rem; }
+
+        .modal-description-inline { color: #bbb; font-size: 0.95rem; line-height: 1.7; margin: 6px 0; }
+
+        .modal-add-link {
+            background: #ff6b00 !important;
+            border: none !important;
+            color: #000;
+            font-size: 1rem;
+            font-weight: 700;
+            text-align: center;
+            padding: 15px 22px;
+            border-radius: 50px;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            transition: background-color 0.2s ease, transform 0.2s ease;
+            align-self: flex-start;
+            margin-top: 10px;
+            font-family: inherit;
+            min-height: 52px;
+            letter-spacing: 0.3px;
+        }
+        .modal-add-link:hover { background: #ff8c33 !important; transform: translateY(-2px); }
+        .modal-add-link:active { transform: translateY(0) scale(0.98); }
+
+        .modal-share-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: transparent;
+            border: 1px solid #333;
+            color: #ccc;
+            padding: 12px 18px;
+            border-radius: 50px;
+            font-size: 0.88rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            align-self: flex-start;
+            font-family: inherit;
+            min-height: 46px;
+        }
+        .modal-share-link:hover { border-color: #ff6b00; color: #ff6b00; }
+        .modal-share-link i { font-size: 0.9rem; }
+
+        /* ==================== DESKTOP ==================== */
         @media (min-width: 768px) {
-            .modal-content.modal-product { max-width: 900px; padding: 26px; background: #111; }
-            .modal-product-layout { display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: auto auto; gap: 28px; align-items: start; }
-            .modal-product-image-side { grid-column: 1; grid-row: 1; position: relative; align-self: start; width: 100%; }
-            .modal-product-info-side { grid-column: 2; grid-row: 1; min-height: 100%; display: flex; flex-direction: column; }
-            .modal-add-link { margin-top: 20px; }
+            .modal-product-inner {
+                padding: calc(110px + var(--safe-top)) 40px calc(60px + var(--safe-bottom));
+            }
+            .modal-product-layout {
+                display: grid;
+                grid-template-columns: minmax(300px, 1fr) minmax(0, 1.2fr);
+                grid-template-rows: auto auto;
+                gap: 48px;
+                align-items: center;
+                max-width: 1200px;
+                width: 100%;
+                margin: auto;
+            }
+            .modal-product-image-side {
+                grid-column: 2;
+                grid-row: 1;
+                position: relative;
+                align-self: center;
+                justify-self: center;
+                width: 100%;
+                max-width: 520px;
+                order: 0;
+            }
+            .modal-product-image-side .modal-image {
+                max-width: 520px;
+                width: 100%;
+                margin: 0;
+            }
+            .modal-product-info-side {
+                grid-column: 1;
+                grid-row: 1;
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+                align-self: center;
+                padding-right: 10px;
+            }
+            .modal-add-link { margin-top: 18px; }
         }
+
         @media (min-width: 1024px) {
-            .modal-content.modal-product { max-width: 1020px; padding: 30px; }
-            .modal-product-layout { grid-template-columns: 1.05fr 1fr; gap: 38px; }
-            .modal-description-inline { font-size: 0.95rem; }
+            .modal-product-inner {
+                padding: calc(120px + var(--safe-top)) 60px calc(70px + var(--safe-bottom));
+            }
+            .modal-product-layout {
+                max-width: 1300px;
+                grid-template-columns: minmax(340px, 1fr) minmax(0, 1.2fr);
+                gap: 60px;
+            }
+            .modal-product-image-side { max-width: 600px; }
+            .modal-product-image-side .modal-image { max-width: 600px; }
+            .modal-product-title { font-size: clamp(1.7rem, 1.4rem + 1.5vw, 2.4rem); }
+            .modal-description-inline { font-size: 1rem; }
         }
-        .modal-related { margin-top: 26px; padding-top: 20px; border-top: 1px solid #222; width: 100%; }
+
+        @media (min-width: 1600px) {
+            .modal-product-inner {
+                padding: calc(130px + var(--safe-top)) 80px calc(80px + var(--safe-bottom));
+            }
+            .modal-product-layout {
+                max-width: 1400px;
+                grid-template-columns: minmax(380px, 1fr) minmax(0, 1.2fr);
+                gap: 80px;
+            }
+            .modal-product-image-side { max-width: 660px; }
+            .modal-product-image-side .modal-image { max-width: 660px; }
+        }
+
+        /* Orientação paisagem em mobile com pouca altura */
+        @media (orientation: landscape) and (max-height: 600px) and (max-width: 900px) {
+            .modal-product-inner {
+                padding: calc(70px + var(--safe-top)) 30px 30px;
+            }
+            .modal-product-layout {
+                grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+                gap: 24px;
+                align-items: center;
+            }
+            .modal-product-image-side { max-width: 340px; }
+            .modal-product-image-side .modal-image { max-width: 340px; }
+            .modal-product-title { font-size: 1.2rem; }
+            .modal-add-link { padding: 11px 18px; min-height: 44px; font-size: 0.9rem; }
+        }
+
+        .modal-related { margin-top: 40px; padding-top: 24px; border-top: 1px solid #1a1a1a; width: 100%; }
         @media (min-width: 768px) { .modal-related { grid-column: 1 / -1; grid-row: 2; } }
         .modal-related-title { font-size: 0.95rem; font-weight: 600; color: #fff; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; letter-spacing: 0.3px; }
         .modal-related-title i { color: #ff6b00; }
@@ -578,7 +830,7 @@
             .related-card-name { font-size: 0.82rem; }
         }
 
-        /* ===== TELA DE CONFIGURACOES DO USUARIO (dentro do menu) ===== */
+        /* ===== TELA DE CONFIGURACOES DO USUARIO ===== */
         .settings-topbar {
             display: flex;
             align-items: center;
@@ -879,9 +1131,7 @@
     <div class="bottom-menu" id="bottomMenu">
         <div class="menu-handle"></div>
 
-        <!-- ============ CONTEUDO PRINCIPAL DO MENU ============ -->
         <div id="menuMainContent">
-
             <div class="profile-section">
                 <div class="profile-avatar">
                     <img src="assets/logo.webp" alt="Perfil" id="profileImage">
@@ -947,7 +1197,6 @@
                 <div id="contactsList"></div>
             </div>
 
-            <!-- NOVO: item Configuracoes -->
             <div id="menuSettings" class="menu-item" style="display:none;" onclick="openUserSettings()">
                 <i class="fas fa-gear"></i>
                 <div class="item-content"><div class="item-label">Configurações</div></div>
@@ -962,12 +1211,8 @@
                 <i class="fas fa-sign-out-alt"></i>
                 <div class="item-content"><div class="item-label">Sair da Conta</div></div>
             </div>
-
         </div>
-        <!-- ============ FIM DO CONTEUDO PRINCIPAL ============ -->
 
-
-        <!-- ============ TELA DE CONFIGURACOES DO USUARIO ============ -->
         <div id="menuSettingsContent" style="display:none;">
             <div class="settings-topbar">
                 <button class="settings-back-btn" onclick="closeUserSettings()">
@@ -977,8 +1222,6 @@
             </div>
             <div id="settingsBody"></div>
         </div>
-        <!-- ============ FIM DA TELA DE CONFIGURACOES ============ -->
-
     </div>
 
     <div class="main-container">
@@ -1014,40 +1257,48 @@
         </div>
     </div>
 
+    <!-- ============ MODAL DE PRODUTO FULLSCREEN ============ -->
     <div class="modal" id="productModal">
         <div class="modal-content modal-product">
-            <button class="modal-close" onclick="closeModal()"><i class="fas fa-times"></i></button>
+            <button class="modal-close" onclick="closeModal()" title="Fechar"><i class="fas fa-times"></i></button>
+            <button class="modal-share-btn" onclick="shareCurrentProduct()" title="Compartilhar esta peça"><i class="fas fa-share-alt"></i></button>
 
-            <div class="modal-product-layout">
-                <div class="modal-product-image-side">
-                    <div class="modal-image" id="modalImage">
-                        <div class="fullscreen-icon"><i class="fas fa-expand"></i></div>
-                    </div>
-                </div>
-
-                <div class="modal-product-info-side">
-                    <div class="modal-product-category" id="modalCategory"></div>
-                    <h2 class="modal-product-title" id="modalTitle"></h2>
-                    <div class="modal-price-inline" id="modalPriceBox"></div>
-
-                    <div id="modalCodigoContainer" class="modal-codigo-inline" style="display:none;">
-                        <i class="fas fa-barcode"></i>
-                        <span>Código:</span>
-                        <strong id="modalCodigo"></strong>
+            <div class="modal-product-inner">
+                <div class="modal-product-layout">
+                    <div class="modal-product-image-side">
+                        <div class="modal-image" id="modalImage">
+                            <div class="fullscreen-icon"><i class="fas fa-expand"></i></div>
+                        </div>
                     </div>
 
-                    <p class="modal-description-inline" id="modalDescription"></p>
+                    <div class="modal-product-info-side">
+                        <div class="modal-product-category" id="modalCategory"></div>
+                        <h2 class="modal-product-title" id="modalTitle"></h2>
+                        <div class="modal-price-inline" id="modalPriceBox"></div>
 
-                    <button class="modal-add-link" id="modalAddButton" onclick="addFromModal()">
-                        <i class="fas fa-cart-plus"></i> Adicionar no carrinho
-                    </button>
-                </div>
+                        <div id="modalCodigoContainer" class="modal-codigo-inline" style="display:none;">
+                            <i class="fas fa-barcode"></i>
+                            <span>Código:</span>
+                            <strong id="modalCodigo"></strong>
+                        </div>
 
-                <div class="modal-related" id="modalRelated" style="display:none;">
-                    <h3 class="modal-related-title">
-                        <i class="fas fa-layer-group"></i> Produtos Relacionados
-                    </h3>
-                    <div class="modal-related-scroll" id="modalRelatedScroll"></div>
+                        <p class="modal-description-inline" id="modalDescription"></p>
+
+                        <button class="modal-add-link" id="modalAddButton" onclick="addFromModal()">
+                            <i class="fas fa-cart-plus"></i> Adicionar no carrinho
+                        </button>
+
+                        <button class="modal-share-link" onclick="shareCurrentProduct()">
+                            <i class="fas fa-share-alt"></i> Compartilhar esta peça
+                        </button>
+                    </div>
+
+                    <div class="modal-related" id="modalRelated" style="display:none;">
+                        <h3 class="modal-related-title">
+                            <i class="fas fa-layer-group"></i> Produtos Relacionados
+                        </h3>
+                        <div class="modal-related-scroll" id="modalRelatedScroll"></div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -1060,7 +1311,6 @@
         </div>
     </div>
 
-    <!-- ===== MODAL: Por que PJ nao pode editar ===== -->
     <div class="pj-explain-overlay" id="pjExplainOverlay" onclick="if(event.target === this) closePjExplanation();">
         <div class="pj-explain-box">
             <div class="pj-explain-icon">
@@ -1191,6 +1441,7 @@
         let _lastFilterSignature = '';
         let _hasRenderedOnce = false;
         let _productsLoaded = false;
+        let _sharedProductHandled = false;
         const _discountCache = new Map();
 
         function scheduleFilter() {
@@ -1254,6 +1505,7 @@
         const brandTitle = document.getElementById('brandTitle');
         const sessionGate = document.getElementById('sessionGate');
         const stickyCategoryBar = document.getElementById('stickyCategoryBar');
+        const productModal = document.getElementById('productModal');
 
         let _scrollTicking = false;
         function handlePageScroll() {
@@ -2310,9 +2562,6 @@
 
         let lastBrandsHash = '';
 
-        // REGRA DAS MARCAS:
-        // - Marcas NUNCA sao filtradas por categoria. Sempre mostra todas (ou por sessao).
-        // - Ao clicar numa marca, as CATEGORIAS sao filtradas (relacao unidirecional).
         function updateBrandTabs() {
             if (!brandTabs) return;
 
@@ -2387,10 +2636,6 @@
             renderPromotionBadgesOnly();
         }
 
-        // REGRA DAS CATEGORIAS:
-        // - Filtra pelas categorias que existem na MARCA selecionada (relacao unidirecional)
-        // - Sessao tambem filtra
-        // - Se a categoria selecionada nao existir mais, reseta
         function updateCategoryTabs() {
             let filtered = products;
             if (selectedSessionId !== null) filtered = filtered.filter(p => p.sessionId === selectedSessionId);
@@ -2583,17 +2828,19 @@
             document.getElementById('modalAddButton').style.display =
                 (!hideForUser && userType && priceHtml) ? 'inline-flex' : 'none';
 
-            document.getElementById('productModal').classList.add('active');
+            productModal.classList.add('active');
+            document.body.style.overflow = 'hidden';
 
             renderRelatedProducts(product);
 
-            const modalScroll = document.querySelector('.modal-product');
-            if (modalScroll) modalScroll.scrollTop = 0;
+            const inner = document.querySelector('.modal-product-inner');
+            if (inner) inner.scrollTop = 0;
         }
 
         function closeModal() {
-            document.getElementById('productModal').classList.remove('active');
+            productModal.classList.remove('active');
             currentProduct = null;
+            document.body.style.overflow = '';
             const related = document.getElementById('modalRelated');
             if (related) related.style.display = 'none';
             const scroll = document.getElementById('modalRelatedScroll');
@@ -2608,6 +2855,102 @@
             document.getElementById('fullscreenImageModal').classList.add('active');
         }
         function closeFullscreenImage() { document.getElementById('fullscreenImageModal').classList.remove('active'); }
+
+        /* ==================== COMPARTILHAMENTO DE PRODUTO ==================== */
+
+        function buildShareUrl(productId) {
+            const url = new URL(window.location.href);
+            url.search = '';
+            url.hash = '';
+            url.searchParams.set('p', productId);
+            return url.toString();
+        }
+
+        function shareCurrentProduct() {
+            if (!currentProduct) return;
+            shareProduct(currentProduct.id);
+        }
+
+        async function shareProduct(id) {
+            const p = products.find(x => x.id === id);
+            if (!p) return;
+
+            const shareUrl = buildShareUrl(id);
+            const shareData = {
+                title: `${p.name || 'Peça'} - CIM Peças Mecânicas`,
+                text: `Olha essa peça na CIM: ${p.name || 'Peça'}`,
+                url: shareUrl
+            };
+
+            if (navigator.share) {
+                try {
+                    await navigator.share(shareData);
+                    return;
+                } catch (err) {
+                    if (err && err.name === 'AbortError') return;
+                }
+            }
+            copyShareLink(shareUrl);
+        }
+
+        function copyShareLink(url) {
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(url).then(() => {
+                    showToast('Link copiado!');
+                }).catch(() => fallbackCopy(url));
+            } else {
+                fallbackCopy(url);
+            }
+        }
+
+        function fallbackCopy(url) {
+            const input = document.createElement('textarea');
+            input.value = url;
+            input.style.position = 'fixed';
+            input.style.top = '-1000px';
+            input.style.opacity = '0';
+            document.body.appendChild(input);
+            input.select();
+            try {
+                document.execCommand('copy');
+                showToast('Link copiado!');
+            } catch (e) {
+                showToast('Não foi possível copiar o link', 'error');
+            }
+            input.remove();
+        }
+
+        function checkSharedProduct() {
+            if (_sharedProductHandled) return;
+            const params = new URLSearchParams(window.location.search);
+            const pid = params.get('p');
+            if (!pid) return;
+
+            const tryOpen = () => {
+                const prod = products.find(x => x.id === pid);
+                if (prod) {
+                    _sharedProductHandled = true;
+                    showDetails(pid);
+                    const url = new URL(window.location.href);
+                    url.searchParams.delete('p');
+                    window.history.replaceState({}, '', url.toString());
+                    return true;
+                }
+                return false;
+            };
+
+            if (tryOpen()) return;
+
+            let attempts = 0;
+            const interval = setInterval(() => {
+                attempts++;
+                if (tryOpen() || attempts >= 50) {
+                    clearInterval(interval);
+                }
+            }, 200);
+        }
+
+        /* ==================== FIM COMPARTILHAMENTO ==================== */
 
         function updateMenuContactInfo() {
             if (contactInfo.instagram) instagramLink.href = contactInfo.instagram;
@@ -3011,7 +3354,7 @@
             }
         }
 
-        /* ==================== EXPLICACAO PJ (seguranca) ==================== */
+        /* ==================== EXPLICACAO PJ ==================== */
 
         function openPjExplanation() {
             const el = document.getElementById('pjExplainOverlay');
@@ -3113,6 +3456,7 @@
                 filterProducts(true);
                 updateCart();
                 saveCache();
+                checkSharedProduct();
             });
 
             database.ref('sessions').on('value', (snapshot) => {
@@ -3208,6 +3552,8 @@
             };
             if ('requestIdleCallback' in window) requestIdleCallback(subscribeDeferred, { timeout: 2500 });
             else setTimeout(subscribeDeferred, 1200);
+
+            checkSharedProduct();
         }
 
         Object.assign(window, {
@@ -3218,7 +3564,8 @@
             logoutUser, handleProfileBtnClick, applyCoupon, removeCoupon,
             onSearchFocus, onSearchBlur, openWhatsApp, handleInstagramClick,
             openUserSettings, closeUserSettings, saveUserSettings,
-            openPjExplanation, closePjExplanation
+            openPjExplanation, closePjExplanation,
+            shareCurrentProduct, shareProduct
         });
 
         (function initRelatedDrag() {
