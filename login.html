@@ -4,27 +4,31 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Tela de Login e Cadastro — CIM</title>
- <!-- Favicon -->
+
+    <!-- Favicon -->
     <link rel="icon" type="image/webp" href="assets/logo.webp">
     <link rel="shortcut icon" type="image/webp" href="assets/logo.webp">
     <link rel="apple-touch-icon" href="assets/logo.webp">
-    
     <link rel="preload" as="image" href="assets/logo.webp" fetchpriority="high" type="image/webp">
 
+    <!-- Preconnect -->
     <link rel="preconnect" href="https://cdn.tailwindcss.com" crossorigin>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
     <link rel="preconnect" href="https://www.gstatic.com" crossorigin>
 
+    <!-- Libs -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
+    <!-- Firebase -->
     <script defer src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script defer src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
     <script defer src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
 
+    <!-- Tailwind config -->
     <script>
         tailwind.config = {
             theme: {
@@ -35,12 +39,15 @@
             }
         }
     </script>
+
     <style>
+        /* Base */
         html, body {
             overflow-x: hidden;
             max-width: 100vw;
         }
 
+        /* Animações da galeria */
         @keyframes scrollUp {
             0% { transform: translateY(0); }
             100% { transform: translateY(-50%); }
@@ -52,9 +59,11 @@
         .animate-scroll-up { animation: scrollUp 30s linear infinite; }
         .animate-scroll-down { animation: scrollDown 35s linear infinite; }
 
+        /* Esconde scrollbar */
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
+        /* Fade-in */
         @keyframes fadeInUp {
             from { opacity: 0; transform: translateY(20px); }
             to { opacity: 1; transform: translateY(0); }
@@ -72,6 +81,7 @@
         .delay-5 { animation-delay: 0.5s; }
         .delay-6 { animation-delay: 0.6s; }
 
+        /* Botões */
         .btn-glow {
             transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1),
                         box-shadow 0.4s cubic-bezier(0.4, 0, 0.2, 1),
@@ -88,6 +98,7 @@
             box-shadow: 0 2px 8px rgba(255, 255, 255, 0.18);
         }
 
+        /* Inputs */
         @keyframes inputGlow {
             0%, 100% { box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.15); }
             50% { box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.08); }
@@ -95,6 +106,7 @@
         .input-anim { transition: all 0.3s ease; }
         .input-anim:focus { animation: inputGlow 2s ease-in-out infinite; transform: translateY(-1px); }
 
+        /* Shake */
         @keyframes shake {
             0%, 100% { transform: translateX(0); }
             20% { transform: translateX(-8px); }
@@ -104,6 +116,7 @@
         }
         .anim-shake { animation: shake 0.5s ease-in-out; }
 
+        /* Bounce sucesso */
         @keyframes successBounce {
             0% { transform: scale(0.8); opacity: 0; }
             50% { transform: scale(1.05); }
@@ -111,36 +124,42 @@
         }
         .anim-bounce { animation: successBounce 0.5s ease-out; }
 
+        /* Botões soft */
         .btn-soft { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
         .btn-soft:hover { transform: translateY(-2px); box-shadow: 0 10px 25px -5px rgba(255, 255, 255, 0.15); }
         .btn-soft:active { transform: translateY(0) scale(0.98); }
 
+        /* Card select */
         .card-select { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
         .card-select:hover { transform: translateY(-3px) scale(1.02); box-shadow: 0 8px 20px -5px rgba(255, 255, 255, 0.1); }
         .card-select:active { transform: translateY(-1px) scale(0.99); }
 
+        /* Logo flutuante */
         @keyframes floatLogo {
             0%, 100% { transform: translateY(0); }
             50% { transform: translateY(-5px); }
         }
         .anim-float { animation: floatLogo 4s ease-in-out infinite; }
 
+        /* Seta botão */
         .btn-arrow i { transition: transform 0.3s ease; }
         .btn-arrow:hover i { transform: translateX(4px); }
 
+        /* Transição forms */
         .form-transition {
             transition: opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1),
                         transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
+        /* Olho senha */
         .eye-toggle { transition: all 0.2s ease; }
         .eye-toggle:hover { color: #ffffff; transform: scale(1.1); }
 
+        /* Glow balls */
         @keyframes pulseBall {
             0%, 100% { opacity: 0.7; transform: scale(1); }
             50% { opacity: 0.9; transform: scale(1.08); }
         }
-
         .glow-ball {
             position: absolute;
             bottom: -120px;
@@ -199,12 +218,7 @@
             .glow-ball-sm.moved-left { left: -110px; }
         }
 
-        @keyframes cooldownPulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.6; }
-        }
-        .cooldown-active { animation: cooldownPulse 2s ease-in-out infinite; }
-
+        /* Inputs mobile */
         @media screen and (max-width: 768px) {
             input[type="text"], input[type="password"], input[type="email"],
             input[type="number"], select, textarea { font-size: 16px !important; }
@@ -213,9 +227,10 @@
 </head>
 <body class="h-full bg-darkbg text-white flex overflow-hidden font-sans relative">
 
-    <!-- LADO ESQUERDO -->
+    <!-- COLUNA ESQUERDA: FORMULÁRIOS -->
     <div class="w-full lg:w-[45%] h-full relative z-20 overflow-y-auto overflow-x-hidden no-scrollbar bg-gradient-to-r from-darkbg via-darkbg/95 to-transparent">
 
+        <!-- Cabeçalho hero -->
         <div id="heroHeader" class="px-5 sm:px-8 lg:px-20 pt-10 pb-4">
             <div class="max-w-md mx-auto text-center lg:text-left lg:mx-0">
                 <div class="flex justify-center lg:justify-start mb-4 anim-fade-left">
@@ -231,14 +246,16 @@
         <div class="px-5 sm:px-8 lg:px-20 pb-10 relative">
             <div class="w-full max-w-md mx-auto lg:mx-0 relative pt-2">
 
+                <!-- Caixa de erro geral (topo) -->
                 <div id="messageBox" class="hidden mb-6 p-4 rounded-2xl text-sm flex items-center gap-3 transition-all duration-150">
                     <i id="messageIcon" class="fa-solid fa-circle-info text-lg"></i>
                     <span id="messageText" class="font-medium"></span>
                 </div>
 
-                <!-- ==================== LOGIN FORM ==================== -->
-                <form id="loginForm" class="space-y-5 form-transition" onsubmit="handleLogin(event)">
+                <!-- ================= FORM LOGIN ================= -->
+                <form id="loginForm" class="space-y-5 form-transition" onsubmit="handleLogin(event)" novalidate>
 
+                    <!-- Botão Google -->
                     <button type="button" onclick="handleGoogleLogin()"
                         class="w-full py-3 px-4 bg-white hover:bg-gray-100 text-black font-medium border border-transparent rounded-full shadow-sm btn-soft flex items-center justify-center gap-3 text-sm focus:outline-none focus:ring-2 focus:ring-white/50 anim-fade-up delay-3">
                         <svg class="w-4 h-4" viewBox="0 0 24 24">
@@ -256,34 +273,36 @@
                         <div class="flex-grow border-t border-white/10"></div>
                     </div>
 
+                    <!-- Campo e-mail -->
                     <div class="space-y-1 anim-fade-up delay-4">
                         <label for="email" class="block text-xs font-semibold uppercase tracking-wider text-gray-400">E-mail</label>
-                        <div class="relative">
-                            <input type="email" id="email" required placeholder="E-MAIL"
-                                class="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-full text-white text-sm focus:outline-none focus:ring-2 focus:ring-white/50 focus:bg-white/10 input-anim placeholder-gray-500">
-                        </div>
+                        <input type="email" id="email" placeholder="E-MAIL"
+                            class="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-full text-white text-sm focus:outline-none focus:ring-2 focus:ring-white/50 focus:bg-white/10 input-anim placeholder-gray-500">
+                        <p id="emailError" class="hidden text-[11px] text-rose-400 mt-1 font-medium"></p>
                     </div>
 
+                    <!-- Campo senha -->
                     <div class="space-y-1 anim-fade-up delay-5">
                         <div class="flex items-center justify-between">
                             <label for="password" class="block text-xs font-semibold uppercase tracking-wider text-gray-400">Senha</label>
                         </div>
                         <div class="relative">
-                            <input type="password" id="password" required placeholder="••••••••"
+                            <input type="password" id="password" placeholder="••••••••"
                                 class="w-full pl-4 pr-12 py-3 bg-white/5 border border-white/10 rounded-full text-white text-sm focus:outline-none focus:ring-2 focus:ring-white/50 focus:bg-white/10 input-anim placeholder-gray-500">
                             <button type="button" onclick="togglePassword('password', this)" class="eye-toggle absolute inset-y-0 right-0 pr-4 flex items-center text-gray-500" tabindex="-1" aria-label="Mostrar senha">
                                 <i class="fa-regular fa-eye text-base"></i>
                             </button>
                         </div>
-                        <p id="loginCooldownMsg" class="hidden text-[11px] font-medium mt-1"></p>
+                        <p id="passwordError" class="hidden text-[11px] text-rose-400 mt-1 font-medium"></p>
                     </div>
 
                     <p class="text-[11px] text-gray-500 leading-relaxed text-center lg:text-left anim-fade-up delay-5">
-                        Ao continuar, você concorda com a 
-                        <a href="#" onclick="openPrivacy(event)" class="text-gray-300 underline hover:text-white transition-colors">Política de Privacidade e os Termos</a> 
+                        Ao continuar, você concorda com a
+                        <a href="#" onclick="event.preventDefault()" class="text-gray-300 underline hover:text-white transition-colors">Política de Privacidade e os Termos</a>
                         de Serviço da CIM.
                     </p>
 
+                    <!-- Botão Entrar -->
                     <button type="submit" id="submitBtn"
                         class="w-full mt-2 py-3 px-4 bg-white hover:bg-gray-100 text-black font-semibold rounded-full shadow-md btn-glow btn-arrow flex items-center justify-center gap-2 text-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-white focus:ring-offset-darkbg anim-fade-up delay-6">
                         <span>Entrar</span>
@@ -291,12 +310,12 @@
                     </button>
 
                     <p class="text-center text-xs text-gray-400 pt-3 anim-fade-up delay-6">
-                        Não tem uma conta? 
+                        Não tem uma conta?
                         <a href="#" onclick="switchView('register')" class="text-white font-semibold hover:underline transition-all hover:tracking-wide">Cadastre-se</a>
                     </p>
                 </form>
 
-                <!-- ==================== REGISTER FORM ==================== -->
+                <!-- ================= FORM CADASTRO ================= -->
                 <form id="registerForm" class="hidden space-y-4 form-transition" onsubmit="handleRegister(event)">
 
                     <div class="flex items-center justify-between pb-1">
@@ -306,6 +325,7 @@
                         </button>
                     </div>
 
+                    <!-- Google -->
                     <button type="button" onclick="handleGoogleLogin()"
                         class="w-full py-3 px-4 bg-white hover:bg-gray-100 text-black font-medium border border-transparent rounded-full shadow-sm btn-soft flex items-center justify-center gap-3 text-sm focus:outline-none focus:ring-2 focus:ring-white/50">
                         <svg class="w-4 h-4" viewBox="0 0 24 24">
@@ -323,6 +343,7 @@
                         <div class="flex-grow border-t border-white/10"></div>
                     </div>
 
+                    <!-- Tipo de pessoa -->
                     <div id="personTypeContainer" class="space-y-1">
                         <label class="block text-xs font-semibold uppercase tracking-wider text-gray-400">Selecione o Tipo de Cadastro</label>
                         <div id="personTypeGrid" class="grid grid-cols-2 gap-3">
@@ -337,8 +358,10 @@
                         </div>
                     </div>
 
+                    <!-- Campos cadastro -->
                     <div id="registerFieldsContainer" class="hidden opacity-0 transform translate-y-2 transition-all duration-300 ease-in-out border-t border-white/10 pt-3 space-y-3 pr-1">
 
+                        <!-- Documento (CPF/CNPJ) -->
                         <div class="space-y-1">
                             <label for="regDoc" id="labelDoc" class="block text-xs font-semibold uppercase tracking-wider text-gray-400">CPF</label>
                             <div class="relative">
@@ -351,20 +374,21 @@
                             <p id="docApiFeedback" class="text-[11px] text-gray-400 hidden mt-1 font-medium"></p>
                         </div>
 
+                        <!-- Nome -->
                         <div class="space-y-1">
                             <label for="regName" id="labelName" class="block text-xs font-semibold uppercase tracking-wider text-gray-400">Nome Completo</label>
                             <input type="text" id="regName" placeholder="Seu nome completo"
                                 class="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-full text-white text-sm focus:outline-none focus:ring-2 focus:ring-white/50 focus:bg-white/10 input-anim placeholder-gray-500">
                         </div>
 
+                        <!-- Telefone -->
                         <div class="space-y-1">
                             <label for="regPhone" class="block text-xs font-semibold uppercase tracking-wider text-gray-400">Telefone / Celular</label>
-                            <div class="relative">
-                                <input type="text" id="regPhone" placeholder="(00) 00000-0000" maxlength="15" oninput="formatPhone(this)"
-                                    class="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-full text-white text-sm focus:outline-none focus:ring-2 focus:ring-white/50 focus:bg-white/10 input-anim placeholder-gray-500">
-                            </div>
+                            <input type="text" id="regPhone" placeholder="(00) 00000-0000" maxlength="15" oninput="formatPhone(this)"
+                                class="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-full text-white text-sm focus:outline-none focus:ring-2 focus:ring-white/50 focus:bg-white/10 input-anim placeholder-gray-500">
                         </div>
 
+                        <!-- CEP -->
                         <div id="cepContainer" class="space-y-1">
                             <label for="regCep" class="block text-xs font-semibold uppercase tracking-wider text-gray-400">CEP</label>
                             <div class="relative">
@@ -377,6 +401,7 @@
                             <p id="cepApiFeedback" class="text-[11px] text-gray-400 hidden mt-1 font-medium"></p>
                         </div>
 
+                        <!-- Endereço extra -->
                         <div id="addressExtraFields" class="space-y-3 pt-1 border-t border-dashed border-white/10">
                             <div id="juridicaExtraHeader" class="hidden">
                                 <div class="grid grid-cols-2 gap-2 mb-2">
@@ -441,12 +466,14 @@
                             </div>
                         </div>
 
+                        <!-- E-mail -->
                         <div class="space-y-1 pt-1">
                             <label for="regEmail" class="block text-xs font-semibold uppercase tracking-wider text-gray-400">E-mail</label>
                             <input type="email" id="regEmail" placeholder="E-MAIL"
                                 class="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-full text-white text-sm focus:outline-none focus:ring-2 focus:ring-white/50 focus:bg-white/10 input-anim placeholder-gray-500">
                         </div>
 
+                        <!-- Senha -->
                         <div class="space-y-1" id="senhaContainer">
                             <label for="regPassword" class="block text-xs font-semibold uppercase tracking-wider text-gray-400">Senha</label>
                             <div class="relative">
@@ -458,6 +485,7 @@
                             </div>
                         </div>
 
+                        <!-- Botão finalizar -->
                         <button type="submit" id="registerBtn"
                             class="w-full mt-2 py-3 px-4 bg-white hover:bg-gray-100 text-black font-semibold rounded-full shadow-md btn-glow btn-arrow flex items-center justify-center gap-2 text-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-white focus:ring-offset-darkbg">
                             <span>Finalizar Cadastro</span>
@@ -465,20 +493,20 @@
                         </button>
 
                         <div class="text-center pt-2">
-                            <a href="#" onclick="openPrivacy(event)" class="text-[11px] text-gray-500 hover:text-gray-300 transition-colors underline">Termo de privacidade</a>
+                            <a href="#" onclick="event.preventDefault()" class="text-[11px] text-gray-500 hover:text-gray-300 transition-colors underline">Termo de privacidade</a>
                         </div>
                     </div>
                 </form>
             </div>
 
+            <!-- Glow balls -->
             <div class="glow-ball" id="glowBall"></div>
             <div class="glow-ball-sm" id="glowBallSm"></div>
         </div>
     </div>
 
-    <!-- LADO DIREITO: GALERIA DINÂMICA -->
+    <!-- COLUNA DIREITA: GALERIA -->
     <div class="hidden lg:flex lg:w-[55%] h-full relative overflow-hidden items-center justify-center bg-darkbg">
-
         <div class="absolute inset-y-0 left-0 w-64 bg-gradient-to-r from-darkbg via-darkbg/80 to-transparent z-10 pointer-events-none"></div>
         <div class="absolute inset-y-0 right-0 w-32 bg-gradient-to-l from-darkbg to-transparent z-10 pointer-events-none"></div>
         <div class="absolute inset-x-0 top-0 h-32 bg-gradient-to-b from-darkbg to-transparent z-10 pointer-events-none"></div>
@@ -490,9 +518,9 @@
     </div>
 
     <script>
-        /* =========================================================
-           CONFIGURAÇÃO FIREBASE
-           ========================================================= */
+        /* ============================================================
+           1. CONFIGURAÇÃO FIREBASE
+           ============================================================ */
         const firebaseConfig = {
             apiKey: "AIzaSyBVtlnA85ugvll5hLAvOF8FuM4BGnKEovM",
             authDomain: "redx-6b53f.firebaseapp.com",
@@ -506,163 +534,134 @@
         let auth = null;
         let database = null;
 
+        /* ============================================================
+           2. ESTADO GLOBAL
+           ============================================================ */
         let currentPersonType = '';
         let currentView = 'login';
         let modoGoogleCadastro = false;
         let usuarioGoogle = null;
 
-        /* 🔥 MUDADO: foto padrão agora usa asset local */
         const DEFAULT_USER_AVATAR = 'assets/logo.webp';
 
-        /* =========================================================
-           SISTEMA DE COOLDOWN
-           ========================================================= */
+        /* ============================================================
+           3. COOLDOWN SILENCIOSO (login e doc)
+           Regras: 3 tentativas erradas = 3 min bloqueado.
+           Nunca mostra contador nem tempo ao usuário.
+           ============================================================ */
         const COOLDOWN_ATTEMPTS = 3;
-        const COOLDOWN_MINUTES = 3;
-        const COOLDOWN_STORAGE_KEY = 'cim_cooldowns';
+        const COOLDOWN_MS = 3 * 60 * 1000;
+        const COOLDOWN_KEY = 'cim_cooldowns';
 
+        // Lê cooldowns salvos
         function loadCooldowns() {
-            try { return JSON.parse(localStorage.getItem(COOLDOWN_STORAGE_KEY)) || {}; }
+            try { return JSON.parse(localStorage.getItem(COOLDOWN_KEY)) || {}; }
             catch (e) { return {}; }
         }
+
+        // Salva cooldowns
         function saveCooldowns(data) {
-            try { localStorage.setItem(COOLDOWN_STORAGE_KEY, JSON.stringify(data)); } catch (e) {}
+            try { localStorage.setItem(COOLDOWN_KEY, JSON.stringify(data)); } catch (e) {}
         }
 
         let cooldowns = loadCooldowns();
-        const cooldownTickers = {};
 
-        function getRemainingMs(key) {
+        // Verifica se está bloqueado
+        function isBlocked(key) {
             const cd = cooldowns[key];
-            if (!cd || !cd.blockedUntil) return 0;
-            return Math.max(0, cd.blockedUntil - Date.now());
-        }
-        function isBlocked(key) { return getRemainingMs(key) > 0; }
-
-        function formatRemaining(ms) {
-            const totalSec = Math.ceil(ms / 1000);
-            const min = Math.floor(totalSec / 60);
-            const sec = totalSec % 60;
-            return `${String(min).padStart(2, '0')}:${String(sec).padStart(2, '0')}`;
+            if (!cd || !cd.blockedUntil) return false;
+            return Date.now() < cd.blockedUntil;
         }
 
+        // Registra tentativa errada
         function registerError(key) {
             const cd = cooldowns[key] || { attempts: 0, blockedUntil: 0 };
             cd.attempts = (cd.attempts || 0) + 1;
 
             if (cd.attempts >= COOLDOWN_ATTEMPTS) {
-                cd.blockedUntil = Date.now() + COOLDOWN_MINUTES * 60 * 1000;
+                cd.blockedUntil = Date.now() + COOLDOWN_MS;
                 cd.attempts = 0;
-                cooldowns[key] = cd;
-                saveCooldowns(cooldowns);
-                return { blocked: true };
             }
             cooldowns[key] = cd;
             saveCooldowns(cooldowns);
-            return { blocked: false, remainingAttempts: COOLDOWN_ATTEMPTS - cd.attempts };
+            return isBlocked(key);
         }
 
+        // Limpa cooldown (após sucesso)
         function registerSuccess(key) {
             if (cooldowns[key]) {
                 delete cooldowns[key];
                 saveCooldowns(cooldowns);
             }
-            stopCooldownTicker(key);
         }
 
-        function startCooldownTicker(key, feedbackEl) {
-            stopCooldownTicker(key);
-            const tick = () => {
-                const remaining = getRemainingMs(key);
-                if (remaining <= 0) {
-                    stopCooldownTicker(key);
-                    if (feedbackEl) {
-                        feedbackEl.textContent = 'Você já pode tentar novamente.';
-                        feedbackEl.className = 'text-[11px] text-emerald-400 mt-1 font-medium block anim-bounce';
-                        setTimeout(() => {
-                            if (feedbackEl.textContent.startsWith('Você já pode')) feedbackEl.classList.add('hidden');
-                        }, 4000);
-                    }
-                    return;
-                }
-                const text = `⏳ Bloqueado por tentativas excessivas. Tente novamente em ${formatRemaining(remaining)}.`;
-                if (feedbackEl) {
-                    feedbackEl.textContent = text;
-                    feedbackEl.className = 'text-[11px] text-amber-400 mt-1 font-medium block cooldown-active';
-                    feedbackEl.classList.remove('hidden');
-                }
-            };
-            tick();
-            cooldownTickers[key] = setInterval(tick, 1000);
-        }
-
-        function stopCooldownTicker(key) {
-            if (cooldownTickers[key]) {
-                clearInterval(cooldownTickers[key]);
-                delete cooldownTickers[key];
-            }
-        }
-
-        function restoreCooldowns() {
-            const map = {
-                cnpj: document.getElementById('docApiFeedback'),
-                cpf: document.getElementById('docApiFeedback'),
-                login: document.getElementById('loginCooldownMsg'),
-            };
+        // Limpa cooldowns expirados ao carregar
+        function cleanExpiredCooldowns() {
+            let dirty = false;
             for (const key of Object.keys(cooldowns)) {
-                if (isBlocked(key) && map[key]) {
-                    startCooldownTicker(key, map[key]);
-                } else if (!isBlocked(key)) {
+                const cd = cooldowns[key];
+                if (cd.blockedUntil && Date.now() >= cd.blockedUntil) {
                     delete cooldowns[key];
+                    dirty = true;
                 }
             }
-            saveCooldowns(cooldowns);
+            if (dirty) saveCooldowns(cooldowns);
         }
 
-        /* =========================================================
-           MENSAGENS (apenas erro agora)
-           ========================================================= */
-        function showMessage(message, type = 'error') {
-            const messageBox = document.getElementById('messageBox');
-            const messageText = document.getElementById('messageText');
-            const messageIcon = document.getElementById('messageIcon');
+        /* ============================================================
+           4. UTILITÁRIOS BÁSICOS
+           ============================================================ */
+        // Mostra mensagem de erro no topo
+        function showMessage(message) {
+            const box = document.getElementById('messageBox');
+            const text = document.getElementById('messageText');
+            const icon = document.getElementById('messageIcon');
 
-            messageText.textContent = message;
-            messageBox.classList.remove('anim-shake', 'anim-bounce');
+            text.textContent = message;
+            box.classList.remove('anim-shake', 'anim-bounce');
 
-            messageBox.className = 'mb-6 p-4 rounded-2xl text-sm flex items-center gap-3 bg-rose-500/10 border border-rose-500/20 text-rose-400 transition-all duration-300 anim-shake';
-            messageIcon.className = 'fa-solid fa-triangle-exclamation text-lg text-rose-400';
+            box.className = 'mb-6 p-4 rounded-2xl text-sm flex items-center gap-3 bg-rose-500/10 border border-rose-500/20 text-rose-400 transition-all duration-300 anim-shake';
+            icon.className = 'fa-solid fa-triangle-exclamation text-lg text-rose-400';
 
-            messageBox.classList.remove('hidden');
-            void messageBox.offsetWidth;
+            box.classList.remove('hidden');
+            void box.offsetWidth;
         }
 
+        // Esconde mensagem do topo
         function hideMessage() {
             document.getElementById('messageBox').classList.add('hidden');
         }
 
-        /* =========================================================
-           UTILITÁRIOS
-           ========================================================= */
+        // Mostra texto de erro embaixo do input
+        function setFieldError(fieldId, message) {
+            const el = document.getElementById(fieldId);
+            if (!el) return;
+            el.textContent = message;
+            el.classList.remove('hidden');
+        }
+
+        // Limpa erro de campo
+        function clearFieldError(fieldId) {
+            const el = document.getElementById(fieldId);
+            if (!el) return;
+            el.textContent = '';
+            el.classList.add('hidden');
+        }
+
+        // Alterna visibilidade de senha
         function togglePassword(inputId, button) {
             const input = document.getElementById(inputId);
             const icon = button.querySelector('i');
             if (input.type === 'password') {
                 input.type = 'text';
-                icon.classList.remove('fa-eye');
-                icon.classList.add('fa-eye-slash');
+                icon.classList.replace('fa-eye', 'fa-eye-slash');
             } else {
                 input.type = 'password';
-                icon.classList.remove('fa-eye-slash');
-                icon.classList.add('fa-eye');
+                icon.classList.replace('fa-eye-slash', 'fa-eye');
             }
         }
 
-        function openPrivacy(event) {
-            if (event) event.preventDefault();
-            alert('Termo de Privacidade da CIM\n\nSubstitua este alert pela página real do termo.');
-        }
-
+        // Move glow balls ao trocar de tela
         function moveGlowBalls(view) {
             const glowBall = document.getElementById('glowBall');
             const glowBallSm = document.getElementById('glowBallSm');
@@ -676,9 +675,9 @@
             }
         }
 
-        /* =========================================================
-           NAVEGAÇÃO
-           ========================================================= */
+        /* ============================================================
+           5. NAVEGAÇÃO ENTRE LOGIN E CADASTRO
+           ============================================================ */
         function switchView(view) {
             if (currentView === view) return;
 
@@ -688,17 +687,19 @@
             const heroHeader = document.getElementById('heroHeader');
 
             messageBox.classList.add('hidden');
+            clearFieldError('emailError');
+            clearFieldError('passwordError');
 
             const goingToRegister = view === 'register';
             currentView = view;
             moveGlowBalls(view);
 
             const outForm = goingToRegister ? loginForm : registerForm;
-            const inForm  = goingToRegister ? registerForm : loginForm;
+            const inForm = goingToRegister ? registerForm : loginForm;
 
             const isMobile = window.innerWidth < 1024;
             const slideOut = isMobile ? 'translateY(-20px)' : (goingToRegister ? 'translateX(-40px)' : 'translateX(40px)');
-            const slideIn  = isMobile ? 'translateY(20px)'  : (goingToRegister ? 'translateX(40px)'  : 'translateX(-40px)');
+            const slideIn = isMobile ? 'translateY(20px)' : (goingToRegister ? 'translateX(40px)' : 'translateX(-40px)');
 
             outForm.classList.add('form-transition');
             outForm.style.opacity = '0';
@@ -752,9 +753,9 @@
             }
         }
 
-        /* =========================================================
-           SELEÇÃO DE TIPO DE PESSOA
-           ========================================================= */
+        /* ============================================================
+           6. SELEÇÃO TIPO DE PESSOA
+           ============================================================ */
         function resetPersonTypeSelection() {
             currentPersonType = '';
 
@@ -787,10 +788,6 @@
             document.getElementById('juridicaExtraHeader').classList.add('hidden');
             document.getElementById('cepContainer').classList.remove('hidden');
 
-            document.getElementById('regName').readOnly = false;
-            document.getElementById('regName').classList.remove('bg-white/5', 'cursor-not-allowed');
-            document.getElementById('regName').classList.add('bg-white/5');
-
             document.getElementById('docApiFeedback').classList.add('hidden');
             document.getElementById('cepApiFeedback').classList.add('hidden');
             document.getElementById('noNumberCheckbox').checked = false;
@@ -799,6 +796,7 @@
             document.getElementById('regComplemento').disabled = false;
         }
 
+        // Voltar dentro do cadastro
         function handleRegisterBack() {
             const fieldsContainer = document.getElementById('registerFieldsContainer');
             const isFieldsHidden = fieldsContainer.classList.contains('hidden');
@@ -810,6 +808,7 @@
             }
         }
 
+        // Define PF/PJ
         function setPersonType(type) {
             currentPersonType = type;
             const btnFisica = document.getElementById('btnFisica');
@@ -825,11 +824,6 @@
             regDoc.value = '';
             document.getElementById('docApiFeedback').classList.add('hidden');
             document.getElementById('cepApiFeedback').classList.add('hidden');
-
-            const cooldownKey = type === 'fisica' ? 'cpf' : 'cnpj';
-            if (isBlocked(cooldownKey)) {
-                startCooldownTicker(cooldownKey, document.getElementById('docApiFeedback'));
-            }
 
             if (type === 'fisica') {
                 btnFisica.className = 'card-select py-3 px-3 border-2 rounded-2xl text-xs font-semibold flex flex-col items-center justify-center gap-2 border-white bg-white/10 text-white shadow-lg col-span-2 w-full';
@@ -864,9 +858,10 @@
             }, 10);
         }
 
-        /* =========================================================
-           MÁSCARAS E VALIDAÇÕES
-           ========================================================= */
+        /* ============================================================
+           7. MÁSCARAS E VALIDAÇÕES
+           ============================================================ */
+        // Máscara CPF/CNPJ
         function formatDocument(input) {
             let value = input.value.replace(/\D/g, '');
 
@@ -888,6 +883,7 @@
             }
         }
 
+        // Máscara CEP
         function formatCep(input) {
             let value = input.value.replace(/\D/g, '');
             if (value.length > 8) value = value.slice(0, 8);
@@ -896,6 +892,7 @@
             if (value.replace(/\D/g, '').length === 8) fetchCepData(value.replace(/\D/g, ''));
         }
 
+        // Máscara telefone
         function formatPhone(input) {
             let value = input.value.replace(/\D/g, '');
             if (value.length > 11) value = value.slice(0, 11);
@@ -906,6 +903,7 @@
             input.value = value;
         }
 
+        // Valida CPF
         function validateCpfAlgorithm(strCPF) {
             let sum = 0, remainder;
             if (strCPF === "00000000000" || strCPF.length !== 11) return false;
@@ -921,6 +919,7 @@
             return true;
         }
 
+        // Valida CNPJ
         function validateCnpjAlgorithm(cnpj) {
             cnpj = cnpj.replace(/\D/g, '');
             if (cnpj.length !== 14) return false;
@@ -942,15 +941,20 @@
             return cnpj === base + d1.toString() + d2.toString();
         }
 
-        /* =========================================================
-           CPF
-           ========================================================= */
+        /* ============================================================
+           8. VALIDAÇÃO CPF (com cooldown silencioso)
+           ============================================================ */
         async function verifyCpfData(cpf) {
             const loadingIndicator = document.getElementById('docLoading');
             const feedback = document.getElementById('docApiFeedback');
             const KEY = 'cpf';
 
-            if (isBlocked(KEY)) { startCooldownTicker(KEY, feedback); return; }
+            // Se bloqueado, mostra erro comum sem detalhes
+            if (isBlocked(KEY)) {
+                feedback.textContent = 'CPF inválido.';
+                feedback.className = 'text-[11px] text-rose-400 mt-1 font-medium block anim-shake';
+                return;
+            }
 
             loadingIndicator.classList.remove('hidden');
             feedback.classList.add('hidden');
@@ -961,50 +965,48 @@
                     feedback.textContent = 'CPF válido.';
                     feedback.className = 'text-[11px] text-emerald-400 mt-1 font-medium block anim-bounce';
                 } else {
-                    const result = registerError(KEY);
-                    if (result.blocked) {
-                        startCooldownTicker(KEY, feedback);
-                    } else {
-                        feedback.textContent = `CPF inválido. Tentativa ${COOLDOWN_ATTEMPTS - result.remainingAttempts} de ${COOLDOWN_ATTEMPTS}.`;
-                        feedback.className = 'text-[11px] text-rose-400 mt-1 font-medium block anim-shake';
-                    }
+                    registerError(KEY);
+                    feedback.textContent = 'CPF inválido.';
+                    feedback.className = 'text-[11px] text-rose-400 mt-1 font-medium block anim-shake';
                 }
             } finally {
                 loadingIndicator.classList.add('hidden');
             }
         }
 
-        /* =========================================================
-           CNPJ
-           ========================================================= */
+        /* ============================================================
+           9. CONSULTA CNPJ (com cooldown silencioso)
+           ============================================================ */
         async function fetchCnpjData(cnpj) {
             const loadingIndicator = document.getElementById('docLoading');
             const feedback = document.getElementById('docApiFeedback');
             const KEY = 'cnpj';
 
-            if (isBlocked(KEY)) { startCooldownTicker(KEY, feedback); return; }
+            if (isBlocked(KEY)) {
+                feedback.textContent = 'CNPJ inválido.';
+                feedback.className = 'text-[11px] text-rose-400 mt-1 font-medium block anim-shake';
+                return;
+            }
 
             loadingIndicator.classList.remove('hidden');
             feedback.classList.add('hidden');
             feedback.textContent = '';
 
-            ['regName','regFantasia','regSituacao','regLogradouro',
-             'regNumero','regBairro','regMunicipio','regUf'].forEach(id => {
+            ['regName', 'regFantasia', 'regSituacao', 'regLogradouro',
+             'regNumero', 'regBairro', 'regMunicipio', 'regUf'].forEach(id => {
                 document.getElementById(id).value = '';
             });
 
+            // Validação local primeiro
             if (!validateCnpjAlgorithm(cnpj)) {
                 loadingIndicator.classList.add('hidden');
-                const result = registerError(KEY);
-                if (result.blocked) {
-                    startCooldownTicker(KEY, feedback);
-                } else {
-                    feedback.textContent = `CNPJ inválido. Tentativa ${COOLDOWN_ATTEMPTS - result.remainingAttempts} de ${COOLDOWN_ATTEMPTS}.`;
-                    feedback.className = 'text-[11px] text-rose-400 mt-1 font-medium block anim-shake';
-                }
+                registerError(KEY);
+                feedback.textContent = 'CNPJ inválido.';
+                feedback.className = 'text-[11px] text-rose-400 mt-1 font-medium block anim-shake';
                 return;
             }
 
+            // Preenche campos
             const fillFields = (d) => {
                 document.getElementById('regName').value = d.razao_social || d.nome || '';
                 document.getElementById('regFantasia').value = d.nome_fantasia || d.fantasia || d.razao_social || '';
@@ -1023,70 +1025,55 @@
             try {
                 let data = null;
 
+                // Tenta BrasilAPI
                 try {
                     const response = await fetch(`https://brasilapi.com.br/api/cnpj/v1/${cnpj}`);
                     if (response.ok) {
                         data = await response.json();
                     } else if (response.status === 404) {
                         throw new Error('__NOT_FOUND__');
-                    } else if (response.status === 429) {
-                        throw new Error('Muitas consultas em pouco tempo. Aguarde alguns segundos.');
                     } else {
-                        throw new Error(`BrasilAPI indisponível (${response.status}).`);
+                        throw new Error('API indisponível');
                     }
                 } catch (err) {
                     console.warn('[CNPJ] BrasilAPI falhou:', err.message);
 
                     if (err.message === '__NOT_FOUND__') {
                         loadingIndicator.classList.add('hidden');
-                        const result = registerError(KEY);
-                        if (result.blocked) {
-                            startCooldownTicker(KEY, feedback);
-                        } else {
-                            feedback.textContent = `CNPJ não encontrado. Tentativa ${COOLDOWN_ATTEMPTS - result.remainingAttempts} de ${COOLDOWN_ATTEMPTS}.`;
-                            feedback.className = 'text-[11px] text-rose-400 mt-1 font-medium block anim-shake';
-                        }
+                        registerError(KEY);
+                        feedback.textContent = 'CNPJ não encontrado.';
+                        feedback.className = 'text-[11px] text-rose-400 mt-1 font-medium block anim-shake';
                         return;
                     }
 
-                    try {
-                        const fb = await fetch(`https://receitaws.com.br/v1/cnpj/${cnpj}`);
-                        if (!fb.ok) throw new Error(`ReceitaWS indisponível (${fb.status}).`);
-                        const raw = await fb.json();
+                    // Fallback ReceitaWS
+                    const fb = await fetch(`https://receitaws.com.br/v1/cnpj/${cnpj}`);
+                    if (!fb.ok) throw new Error('Serviço indisponível');
+                    const raw = await fb.json();
 
-                        if (raw.status === 'ERROR') {
-                            const msg = String(raw.message || '').toLowerCase();
-                            if (msg.includes('not found') || msg.includes('não encontrado')) {
-                                loadingIndicator.classList.add('hidden');
-                                const result = registerError(KEY);
-                                if (result.blocked) startCooldownTicker(KEY, feedback);
-                                else {
-                                    feedback.textContent = `CNPJ não encontrado. Tentativa ${COOLDOWN_ATTEMPTS - result.remainingAttempts} de ${COOLDOWN_ATTEMPTS}.`;
-                                    feedback.className = 'text-[11px] text-rose-400 mt-1 font-medium block anim-shake';
-                                }
-                                return;
-                            }
-                            throw new Error('Serviço de consulta instável. Tente novamente em instantes.');
-                        }
-
-                        data = {
-                            razao_social: raw.nome,
-                            nome_fantasia: raw.fantasia,
-                            descricao_situacao_cadastral: raw.situacao,
-                            logradouro: raw.logradouro,
-                            numero: raw.numero,
-                            bairro: raw.bairro,
-                            municipio: raw.municipio,
-                            uf: raw.uf,
-                            email: raw.email,
-                            cep: raw.cep,
-                        };
-                    } catch (fbErr) {
-                        throw new Error(fbErr.message || 'Não foi possível consultar o CNPJ agora.');
+                    if (raw.status === 'ERROR') {
+                        loadingIndicator.classList.add('hidden');
+                        registerError(KEY);
+                        feedback.textContent = 'CNPJ não encontrado.';
+                        feedback.className = 'text-[11px] text-rose-400 mt-1 font-medium block anim-shake';
+                        return;
                     }
+
+                    data = {
+                        razao_social: raw.nome,
+                        nome_fantasia: raw.fantasia,
+                        descricao_situacao_cadastral: raw.situacao,
+                        logradouro: raw.logradouro,
+                        numero: raw.numero,
+                        bairro: raw.bairro,
+                        municipio: raw.municipio,
+                        uf: raw.uf,
+                        email: raw.email,
+                        cep: raw.cep,
+                    };
                 }
 
-                if (!data) throw new Error('Resposta vazia da API.');
+                if (!data) throw new Error('Resposta vazia');
 
                 registerSuccess(KEY);
                 fillFields(data);
@@ -1094,17 +1081,17 @@
                 feedback.className = 'text-[11px] text-emerald-400 mt-1 font-medium block anim-bounce';
 
             } catch (error) {
-                console.error('[CNPJ] Erro final:', error);
-                feedback.textContent = error.message;
+                console.error('[CNPJ] Erro:', error);
+                feedback.textContent = 'Não foi possível consultar o CNPJ agora.';
                 feedback.className = 'text-[11px] text-amber-400 mt-1 font-medium block';
             } finally {
                 loadingIndicator.classList.add('hidden');
             }
         }
 
-        /* =========================================================
-           CEP
-           ========================================================= */
+        /* ============================================================
+           10. CONSULTA CEP
+           ============================================================ */
         async function fetchCepData(cep) {
             const loadingIndicator = document.getElementById('cepLoading');
             const feedback = document.getElementById('cepApiFeedback');
@@ -1113,7 +1100,7 @@
 
             try {
                 const response = await fetch(`https://brasilapi.com.br/api/cep/v2/${cep}`);
-                if (!response.ok) throw new Error('CEP não encontrado.');
+                if (!response.ok) throw new Error('CEP não encontrado');
                 const data = await response.json();
 
                 document.getElementById('regLogradouro').value = data.street || '';
@@ -1131,9 +1118,9 @@
             }
         }
 
-        /* =========================================================
-           CHECKBOXES
-           ========================================================= */
+        /* ============================================================
+           11. CHECKBOXES ENDEREÇO
+           ============================================================ */
         function toggleNoNumber(checkbox) {
             const numInput = document.getElementById('regNumero');
             if (checkbox.checked) {
@@ -1160,9 +1147,9 @@
             }
         }
 
-        /* =========================================================
-           FIREBASE: SALVAR DADOS
-           ========================================================= */
+        /* ============================================================
+           12. SALVAR DADOS NO FIREBASE
+           ============================================================ */
         async function salvarDadosUsuario(uid, extraData = {}) {
             if (!database) return;
 
@@ -1172,7 +1159,7 @@
                 telefone: document.getElementById('regPhone').value.replace(/\D/g, ''),
                 createdAt: Date.now(),
                 lastAccess: Date.now(),
-                photoURL: DEFAULT_USER_AVATAR,   /* 🔥 MUDADO: era ImgBB, agora asset local */
+                photoURL: DEFAULT_USER_AVATAR,
                 mustChangePassword: false,
                 ...extraData
             };
@@ -1205,38 +1192,53 @@
             await database.ref(`users/${uid}`).update(dados);
         }
 
-        /* =========================================================
-           LOGIN
-           ========================================================= */
+        /* ============================================================
+           13. LOGIN
+           ============================================================ */
         async function handleLogin(event) {
             event.preventDefault();
 
-            if (!auth) {
-                showMessage('Firebase ainda carregando. Aguarde alguns segundos.');
-                return;
-            }
-
-            const KEY = 'login';
-            const cooldownMsg = document.getElementById('loginCooldownMsg');
-            const submitBtn = document.getElementById('submitBtn');
-
-            if (isBlocked(KEY)) {
-                startCooldownTicker(KEY, cooldownMsg);
-                showMessage('Login bloqueado temporariamente por excesso de tentativas.');
-                return;
-            }
+            // Limpa erros visuais dos campos
+            clearFieldError('emailError');
+            clearFieldError('passwordError');
+            hideMessage();
 
             const email = document.getElementById('email').value.trim();
             const password = document.getElementById('password').value.trim();
 
-            hideMessage();
+            // Validação de campos vazios
+            let hasEmpty = false;
+            if (!email && !password) {
+                setFieldError('emailError', 'Preencha o e-mail e a senha.');
+                hasEmpty = true;
+            } else if (!email) {
+                setFieldError('emailError', 'Preencha o e-mail.');
+                hasEmpty = true;
+            } else if (!password) {
+                setFieldError('passwordError', 'Preencha a senha.');
+                hasEmpty = true;
+            }
+            if (hasEmpty) return;
+
+            // Se estiver bloqueado, mostra mensagem genérica e para
+            const KEY = 'login';
+            if (isBlocked(KEY)) {
+                showMessage('Volte mais tarde para tentar.');
+                return;
+            }
+
+            if (!auth) {
+                showMessage('Aguarde alguns segundos e tente novamente.');
+                return;
+            }
+
+            const submitBtn = document.getElementById('submitBtn');
             submitBtn.disabled = true;
             submitBtn.innerHTML = '<i class="fa-solid fa-spinner animate-spin text-sm"></i><span>Entrando...</span>';
 
             try {
                 await auth.signInWithEmailAndPassword(email, password);
                 registerSuccess(KEY);
-                cooldownMsg.classList.add('hidden');
                 window.location.href = 'cim.html';
             } catch (error) {
                 console.error('[Login] Erro Firebase:', error);
@@ -1244,34 +1246,31 @@
                 submitBtn.disabled = false;
                 submitBtn.innerHTML = '<span>Entrar</span><i class="fa-solid fa-arrow-right text-xs"></i>';
 
-                let msgUser = 'E-mail ou senha incorretos.';
-                if (error.code === 'auth/user-not-found') msgUser = 'Usuário não encontrado.';
-                else if (error.code === 'auth/wrong-password') msgUser = 'Senha incorreta.';
-                else if (error.code === 'auth/invalid-email') msgUser = 'E-mail inválido.';
-                else if (error.code === 'auth/too-many-requests') msgUser = 'Muitas tentativas. Aguarde alguns minutos.';
-                else if (error.code === 'auth/network-request-failed') msgUser = 'Falha de conexão. Verifique sua internet.';
+                // Registra erro no cooldown silencioso
+                const blocked = registerError(KEY);
 
-                const result = registerError(KEY);
-                if (result.blocked) {
-                    startCooldownTicker(KEY, cooldownMsg);
-                    showMessage('Muitas tentativas erradas. Login bloqueado temporariamente.');
+                if (blocked) {
+                    // Atingiu 3 tentativas → bloqueado
+                    showMessage('Volte mais tarde para tentar.');
                 } else {
-                    showMessage(`${msgUser} Tentativa ${COOLDOWN_ATTEMPTS - result.remainingAttempts} de ${COOLDOWN_ATTEMPTS}.`);
+                    // Ainda não bloqueado → mensagem genérica
+                    showMessage('E-mail ou senha incorretos.');
                 }
             }
         }
 
-        /* =========================================================
-           CADASTRO
-           ========================================================= */
+        /* ============================================================
+           14. CADASTRO
+           ============================================================ */
         async function handleRegister(event) {
             event.preventDefault();
 
             if (!auth || !database) {
-                showMessage('Firebase ainda carregando. Aguarde alguns segundos.');
+                showMessage('Aguarde alguns segundos e tente novamente.');
                 return;
             }
 
+            // Cadastro via Google
             if (modoGoogleCadastro && usuarioGoogle) {
                 const name = document.getElementById('regName').value.trim();
                 const doc = document.getElementById('regDoc').value.trim();
@@ -1296,7 +1295,7 @@
                     await salvarDadosUsuario(usuarioGoogle.uid, {
                         name: name,
                         email: email,
-                        photoURL: usuarioGoogle.photoURL || DEFAULT_USER_AVATAR   /* 🔥 MUDADO: fallback local */
+                        photoURL: usuarioGoogle.photoURL || DEFAULT_USER_AVATAR
                     });
                     registerSuccess('cnpj');
                     registerSuccess('cpf');
@@ -1311,6 +1310,7 @@
                 return;
             }
 
+            // Cadastro tradicional
             const name = document.getElementById('regName').value.trim();
             const doc = document.getElementById('regDoc').value.trim();
             const phone = document.getElementById('regPhone').value.trim();
@@ -1360,12 +1360,12 @@
             }
         }
 
-        /* =========================================================
-           GOOGLE
-           ========================================================= */
+        /* ============================================================
+           15. LOGIN COM GOOGLE
+           ============================================================ */
         async function handleGoogleLogin() {
             if (!auth || !database) {
-                showMessage('Firebase ainda carregando. Aguarde alguns segundos.');
+                showMessage('Aguarde alguns segundos e tente novamente.');
                 return;
             }
 
@@ -1380,6 +1380,7 @@
                     registerSuccess('login');
                     window.location.href = 'cim.html';
                 } else {
+                    // Novo usuário via Google → completa cadastro
                     modoGoogleCadastro = true;
                     usuarioGoogle = user;
 
@@ -1407,9 +1408,9 @@
             }
         }
 
-        /* =========================================================
-           GALERIA DINÂMICA DO LOGIN
-           ========================================================= */
+        /* ============================================================
+           16. GALERIA DINÂMICA DO LOGIN
+           ============================================================ */
         const GALLERY_DEFAULT_IMAGES = [
             'https://picsum.photos/seed/1/600/600',
             'https://picsum.photos/seed/2/600/600',
@@ -1419,28 +1420,31 @@
             'https://picsum.photos/seed/6/600/600'
         ];
 
-        function parseGalleryArray(val){
-            if(!val) return [];
-            if(Array.isArray(val)) return val.filter(Boolean);
-            return Object.keys(val).sort((a,b)=>Number(a)-Number(b)).map(k=>val[k]).filter(Boolean);
+        // Converte valor Firebase em array
+        function parseGalleryArray(val) {
+            if (!val) return [];
+            if (Array.isArray(val)) return val.filter(Boolean);
+            return Object.keys(val).sort((a, b) => Number(a) - Number(b)).map(k => val[k]).filter(Boolean);
         }
 
-        function escapeAttr(str){
+        // Escapa atributos HTML
+        function escapeAttr(str) {
             return String(str)
-                .replace(/&/g,'&amp;')
-                .replace(/"/g,'&quot;')
-                .replace(/</g,'&lt;')
-                .replace(/>/g,'&gt;');
+                .replace(/&/g, '&amp;')
+                .replace(/"/g, '&quot;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;');
         }
 
-        async function buildLoginGallery(){
+        // Monta galeria
+        async function buildLoginGallery() {
             const container = document.getElementById('loginGalleryContainer');
-            if(!container) return;
+            if (!container) return;
 
             let images = [];
 
             try {
-                if(database){
+                if (database) {
                     const [gallerySnap, productsSnap] = await Promise.all([
                         database.ref('loginGallery').once('value'),
                         database.ref('products').once('value')
@@ -1457,10 +1461,10 @@
                         .filter(url => url && typeof url === 'string' && url.trim() !== '');
                 }
             } catch (err) {
-                console.warn('[Galeria Login] Falha ao carregar do Firebase:', err);
+                console.warn('[Galeria] Falha ao carregar do Firebase:', err);
             }
 
-            if(images.length === 0){
+            if (images.length === 0) {
                 images = [...GALLERY_DEFAULT_IMAGES];
             }
 
@@ -1469,14 +1473,14 @@
             const itemsPerColumn = uniqueCount * 2;
 
             const columns = [
-                { anim: 'scroll-up',   offset: 0,                                 mt: '' },
-                { anim: 'scroll-down', offset: Math.floor(images.length / 3),     mt: 'mt-32' },
-                { anim: 'scroll-up',   offset: Math.floor(images.length * 2 / 3), mt: 'mt-16' }
+                { anim: 'scroll-up', offset: 0, mt: '' },
+                { anim: 'scroll-down', offset: Math.floor(images.length / 3), mt: 'mt-32' },
+                { anim: 'scroll-up', offset: Math.floor(images.length * 2 / 3), mt: 'mt-16' }
             ];
 
             container.innerHTML = columns.map(col => {
                 let items = '';
-                for(let i = 0; i < itemsPerColumn; i++){
+                for (let i = 0; i < itemsPerColumn; i++) {
                     const idx = (i + col.offset) % images.length;
                     const url = escapeAttr(images[idx]);
                     items += `<img src="${url}" class="w-full aspect-square object-cover rounded-none border border-white/5 shadow-2xl" alt="" loading="lazy">`;
@@ -1486,15 +1490,24 @@
             }).join('');
         }
 
-        /* =========================================================
-           INICIALIZAÇÃO
-           ========================================================= */
+        /* ============================================================
+           17. INICIALIZAÇÃO
+           ============================================================ */
         document.addEventListener('DOMContentLoaded', () => {
+            // Limpa cooldowns expirados
+            cleanExpiredCooldowns();
+
+            // Limpa erro de campo ao digitar
+            document.getElementById('email').addEventListener('input', () => clearFieldError('emailError'));
+            document.getElementById('password').addEventListener('input', () => clearFieldError('passwordError'));
+
+            // Inicializa Firebase
             if (typeof firebase !== 'undefined') {
                 if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
                 auth = firebase.auth();
                 database = firebase.database();
 
+                // Redireciona se já logado
                 auth.onAuthStateChanged(user => {
                     if (user) {
                         database.ref(`users/${user.uid}`).once('value').then(snapshot => {
@@ -1507,8 +1520,6 @@
 
                 buildLoginGallery();
             }
-
-            restoreCooldowns();
         });
     </script>
 </body>
