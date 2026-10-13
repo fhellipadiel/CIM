@@ -476,7 +476,65 @@ tbody tr:last-child td{border-bottom:none}
   .btn-full{padding:12px;font-size:.9rem}
 }
 </style>
-<link rel="stylesheet" href="assets/leads-admin.css"></head>
+<!-- LEADS: estilos locais do painel e dos diálogos -->
+<style id="leads-admin-styles">
+.lead-nav,.lead-tabs{display:flex;gap:8px;flex-wrap:wrap}
+.lead-nav{border-bottom:1px solid var(--border);padding-bottom:14px;margin:22px 0}
+.lead-tab{border:1px solid var(--border);background:var(--panel-alt);color:var(--text-muted);padding:10px 16px;border-radius:var(--radius-sm);font-size:.82rem;font-weight:600}
+.lead-tab:hover,.lead-tab.active{background:var(--accent-soft);border-color:var(--accent);color:var(--accent)}
+.lead-nav .lead-tab i{margin-right:8px}
+.lead-overview{display:flex;align-items:center;gap:16px;background:var(--panel);border:1px solid var(--border);border-radius:var(--radius);padding:22px;margin:20px 0}
+.lead-overview-icon{display:grid;place-items:center;width:48px;height:48px;border-radius:12px;background:var(--accent-soft);color:var(--accent);font-size:1.3rem}
+.lead-box{background:var(--panel);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden}
+.lead-box-head{display:flex;align-items:center;justify-content:space-between;gap:20px;padding:22px;border-bottom:1px solid var(--border)}
+.lead-box h2,.lead-section-head h2,.lead-dialog h2{font-size:1.1rem;margin-bottom:6px}
+.lead-box p,.lead-section-head p,.lead-dialog p{color:var(--text-muted);font-size:.82rem;line-height:1.6}
+.lead-filters{display:grid;grid-template-columns:1.4fr 1.3fr 1fr 1fr auto;align-items:end;gap:14px;padding:22px}
+.lead-filters label,.lead-field,.lead-photo-upload label{display:flex;flex-direction:column;gap:8px;color:var(--text-muted);font-size:.75rem}
+.lead-filters input,.lead-filters select,.lead-field input,.lead-field select{width:100%;min-width:0;background:var(--panel-alt);color:var(--text);border:1px solid var(--border);border-radius:8px;padding:11px 12px;color-scheme:dark}
+.lead-filters input:focus,.lead-filters select:focus,.lead-field input:focus{border-color:var(--accent);outline:none}
+.lead-result-count{padding:0 22px 16px}
+.lead-table-wrap{overflow-x:auto}
+.lead-table-wrap table{width:100%;border-collapse:collapse;min-width:690px}
+.lead-table-wrap th,.lead-table-wrap td{padding:16px 20px;text-align:left;border-bottom:1px solid var(--border-soft);font-size:.8rem}
+.lead-table-wrap th{background:var(--panel-alt);color:var(--text-muted);font-weight:500;font-size:.72rem}
+.lead-table-wrap tr:last-child td{border-bottom:0}
+.lead-table-wrap tbody tr:hover{background:var(--panel-hover)}
+.lead-status{display:inline-block;padding:5px 10px;border-radius:20px;background:var(--warn-soft);color:var(--warn);font-size:.7rem;white-space:nowrap}
+.lead-status.complete{background:var(--ok-soft);color:var(--ok)}
+.lead-empty{text-align:center!important;padding:40px!important;color:var(--text-muted)}
+.lead-section-head{margin-bottom:20px}
+.lead-campaign-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:18px}
+.lead-campaign-card{background:var(--panel);border:1px solid var(--border);border-radius:var(--radius);padding:22px;display:flex;flex-direction:column;gap:14px}
+.lead-campaign-person{display:flex;align-items:center;gap:12px}
+.lead-campaign-person img{width:54px;height:54px;object-fit:cover;border-radius:12px}
+.lead-campaign-person h3{font-size:1rem;overflow-wrap:anywhere}
+.lead-campaign-person p{font-size:.78rem;color:var(--text-muted);margin-top:4px}
+.lead-campaign-url{font-size:.75rem;color:var(--text-muted);background:var(--panel-alt);border:1px solid var(--border);border-radius:8px;padding:12px;overflow-wrap:anywhere}
+.lead-campaign-actions{display:flex;gap:8px;flex-wrap:wrap}
+.lead-delete{color:var(--danger)}
+.lead-delete:hover{background:var(--danger-soft);border-color:var(--danger)}
+.lead-fab{display:none}
+.lead-dialog{position:fixed;inset:0;margin:auto;width:min(560px,calc(100% - 28px));max-height:90vh;overflow:auto;background:var(--panel);color:var(--text);border:1px solid var(--border);border-radius:16px;padding:0}
+.lead-dialog::backdrop{background:rgba(0,0,0,.75);backdrop-filter:blur(4px)}
+.lead-dialog-head{display:flex;justify-content:space-between;align-items:start;gap:16px;padding:24px;border-bottom:1px solid var(--border)}
+.lead-close{border:0;background:var(--panel-alt);color:var(--text-muted);width:32px;height:32px;border-radius:8px;flex-shrink:0}
+.lead-dialog-body{padding:24px;display:grid;gap:20px}
+.lead-dialog-footer{display:flex;justify-content:flex-end;gap:10px;padding:18px 24px;border-top:1px solid var(--border)}
+.lead-photo-upload{display:flex;align-items:center;gap:16px}
+.lead-photo-placeholder,.lead-photo-preview{width:70px;height:70px;flex-shrink:0;border-radius:12px;background:var(--panel-alt);object-fit:cover}
+.lead-photo-placeholder{display:grid;place-items:center;color:var(--text-dim);font-size:1.5rem}
+.lead-photo-preview[hidden],.lead-photo-placeholder[hidden],[data-lead-pane][hidden]{display:none!important}
+.lead-photo-upload input{max-width:100%;margin-top:10px;font-size:.75rem}
+.lead-field small{line-height:1.5;color:var(--text-dim)}
+#leadOfficialPicker{display:grid;gap:10px}#leadOfficialPicker[hidden]{display:none}
+.lead-dialog-note{padding:14px;border-radius:8px;background:var(--accent-soft);font-size:.8rem;line-height:1.6;color:var(--text-muted)}
+.lead-form-error{color:var(--danger)!important}
+.lead-detail-item{display:grid;gap:6px;border-bottom:1px solid var(--border);padding-bottom:14px;overflow-wrap:anywhere}
+.lead-detail-item small{color:var(--text-muted)}
+@media(max-width:1100px){.lead-filters{grid-template-columns:repeat(2,minmax(0,1fr))}.lead-filters>.btn{justify-self:start}.lead-box-head{align-items:start;flex-direction:column}}
+@media(max-width:600px){.lead-filters{grid-template-columns:1fr;padding:16px}.lead-box-head{padding:16px}.lead-overview{padding:16px}.lead-campaign-grid{grid-template-columns:1fr}.lead-dialog-body,.lead-dialog-head{padding:18px}.lead-photo-upload{align-items:start;flex-wrap:wrap}#panel-leads .panel-head{flex-wrap:wrap;gap:16px}}
+</style></head>
 <body>
 
 <!-- ============================================================
@@ -1046,14 +1104,14 @@ tbody tr:last-child td{border-bottom:none}
     </section>
 
     <!-- ============================================================
-         PAINEL: LINKS DE CAMPANHA
+         PAINEL: LEADS — CONTATOS E CAMPANHAS
          ============================================================ -->
     <section class="panel" id="panel-leads">
   <div class="panel-head">
     <div><h1>Leads</h1><p>Dos primeiros contatos ao cadastro completo.</p></div>
     <button class="btn btn-accent" onclick="openLeadCampaign()"><i class="fas fa-plus"></i> Nova campanha</button>
   </div>
-  <div class="lead-overview">
+  <div class="lead-nav" role="tablist" aria-label="Área de Leads"><button id="leadContactsTab" class="lead-tab active" role="tab" aria-controls="leadContactsPane" aria-selected="true" data-lead-view="contacts" onclick="switchLeadTab('contacts')"><i class="fas fa-address-book"></i>Contatos</button><button id="leadCampaignsTab" class="lead-tab" role="tab" aria-controls="leadCampaignsPane" aria-selected="false" tabindex="-1" data-lead-view="campaigns" onclick="switchLeadTab('campaigns')"><i class="fas fa-bullhorn"></i>Campanhas e URLs</button></div><div id="leadContactsPane" role="tabpanel" aria-labelledby="leadContactsTab" data-lead-pane="contacts"><div class="lead-overview">
     <div class="lead-overview-icon"><i class="fas fa-address-book"></i></div>
     <div><div class="sc-val" id="leadTotal">0</div><div class="sc-label">Total de Leads Capturados</div></div>
   </div>
@@ -1077,8 +1135,8 @@ tbody tr:last-child td{border-bottom:none}
     <p class="lead-result-count" id="leadResultCount" aria-live="polite">Carregando contatos…</p>
     <div class="lead-table-wrap"><table><thead><tr><th>CNPJ</th><th>Telefone</th><th>Campanha de origem</th><th>Captura inicial</th><th>Situação</th><th></th></tr></thead><tbody id="leadRows"></tbody></table></div>
   </div>
-  <div class="lead-section-head"><div><h2>Campanhas e URLs</h2><p>Compartilhe cada URL com o funcionário responsável pela coleta.</p></div></div>
-  <div class="lead-campaign-grid" id="leadCampaignRows"></div>
+  </div><div id="leadCampaignsPane" role="tabpanel" aria-labelledby="leadCampaignsTab" data-lead-pane="campaigns" hidden><div class="lead-section-head"><div><h2>Campanhas e URLs</h2><p>Compartilhe cada URL com o funcionário responsável pela coleta.</p></div></div>
+  <div class="lead-campaign-grid" id="leadCampaignRows"></div></div>
   <button class="lead-fab" aria-label="Criar campanha de leads" title="Nova campanha" onclick="openLeadCampaign()"><i class="fas fa-plus"></i></button>
 </section>
 <section class="panel" id="panel-links">
@@ -3799,6 +3857,7 @@ function updateLinksDashboard(){
   const l2 = document.getElementById('statLinksEntries'); if(l2) l2.textContent = total;
 }
 function renderLinks(){
+  populateLeadOfficialLinks();
   const list = document.getElementById('linksListAdm');
   if(!list) return;
   const items = Object.keys(trackingLinks).map(id=>({id,...trackingLinks[id]})).sort((a,b)=>(b.createdAt||0)-(a.createdAt||0));
@@ -5369,6 +5428,15 @@ Object.assign(window, {
       </div>
       <label class="lead-field" for="leadCampaignName">Nome da campanha<input id="leadCampaignName" name="name" maxlength="100" required placeholder="Ex.: Prospecção · João"><small>Usado para identificar a origem dos contatos no painel.</small></label>
       <label class="lead-field" for="leadCampaignDisplay">Nome de exibição<input id="leadCampaignDisplay" name="displayName" maxlength="100" required placeholder="Ex.: João · CIM Global Parts"><small>Aparece abaixo da foto na página de coleta.</small></label>
+      <div class="lead-field">
+        <button type="button" class="btn btn-ghost" onclick="toggleLeadOfficialPicker()"><i class="fas fa-link"></i> Adicionar link de Site Oficial</button>
+        <div id="leadOfficialPicker" hidden>
+          <label for="leadCampaignOfficial">Link criado na aba Links</label>
+          <select id="leadCampaignOfficial" onchange="updateLeadOfficialPreview()"><option value="">Sem link</option></select>
+          <input id="leadOfficialPreview" readonly aria-label="URL do Site Oficial" placeholder="Selecione um link">
+          <small>No formulário, Site Oficial copia esta URL ao clicar.</small>
+        </div>
+      </div>
       <label class="lead-field" for="leadCampaignUrl">URL da campanha<input id="leadCampaignUrl" name="url" readonly placeholder="Gerada automaticamente ao salvar"><small>Compartilhe esta URL com o funcionário responsável.</small></label>
       <div class="lead-dialog-note"><i class="fas fa-circle-info"></i> O funcionário abre o link e registra o CNPJ e o telefone de cada potencial cliente. Todos os contatos chegam a este painel.</div>
       <p id="leadCampaignError" class="lead-form-error" role="alert" hidden></p>
@@ -5381,6 +5449,160 @@ Object.assign(window, {
   <div id="leadDetailBody" class="lead-dialog-body"></div>
   <div class="lead-dialog-footer"><button class="btn btn-ghost" onclick="document.getElementById('leadDetail').close()">Fechar</button></div>
 </dialog>
-<script src="assets/leads-validation.js"></script>
-<script src="assets/leads-admin.js"></script></body>
+
+<!-- LEADS: leitura, filtros, campanhas e detalhes; sem scripts em assets -->
+<script id="leads-admin-script">
+let leadRecords = {}, leadCampaigns = {}, leadSubscriptions = [];
+let leadReadError = '', leadLoaded = false, leadEditingCampaign = null, leadPhotoObjectUrl = null;
+function leadDigits(value){return String(value || '').replace(/\D/g,'');}
+function leadText(value){return esc(String(value == null ? '' : value)).replace(/"/g,'&quot;').replace(/'/g,'&#39;');}
+function leadDate(value){return Number(value) > 0 ? new Date(Number(value)).toLocaleString('pt-BR') : '—';}
+function leadCampaignUrl(id){const url=new URL('leads.html',location.href);url.searchParams.set('campaign',id);return url.href;}
+function switchLeadTab(tab){
+  document.querySelectorAll('[data-lead-pane]').forEach(el=>{el.hidden=el.dataset.leadPane!==tab;});
+  document.querySelectorAll('[data-lead-view]').forEach(el=>{const active=el.dataset.leadView===tab;el.classList.toggle('active',active);el.setAttribute('aria-selected',String(active));el.tabIndex=active?0:-1;});
+}
+document.querySelector('.lead-nav').addEventListener('keydown',event=>{
+  if(!['ArrowLeft','ArrowRight','Home','End'].includes(event.key))return;
+  const buttons=Array.from(document.querySelectorAll('[data-lead-view]'));
+  const index=buttons.indexOf(document.activeElement);if(index<0)return;
+  event.preventDefault();const next=event.key==='Home'?0:event.key==='End'?buttons.length-1:(index+(event.key==='ArrowRight'?1:-1)+buttons.length)%buttons.length;
+  buttons[next].click();buttons[next].focus();
+});
+function loadLeadsAdmin(){
+  leadSubscriptions.forEach(({ref,callback})=>ref.off('value',callback));leadSubscriptions=[];
+  leadReadError='';leadLoaded=false;
+  [['leads',value=>{leadRecords=value;leadLoaded=true;}],['leadCampaigns',value=>{leadCampaigns=value;renderLeadCampaigns();}]].forEach(([path,assign])=>{
+    const ref=database.ref(path);
+    const callback=snapshot=>{assign(snapshot.val()||{});renderLeads();};
+    ref.on('value',callback,()=>{if(path==='leads'){leadReadError='Não foi possível carregar os contatos. Confira sua permissão e conexão.';renderLeads();}else{document.getElementById('leadCampaignRows').textContent='Não foi possível carregar as campanhas. Confira sua permissão e conexão.';}});
+    leadSubscriptions.push({ref,callback});
+  });
+}
+auth.onAuthStateChanged(user=>{if(!user){leadSubscriptions.forEach(({ref,callback})=>ref.off('value',callback));leadSubscriptions=[];leadRecords={};leadCampaigns={};leadLoaded=false;leadReadError='';renderLeads();renderLeadCampaigns();}});
+function leadList(){
+  const userIndex=new Map(usersCache.filter(u=>!u.isAdmin&&leadDigits(u.cnpj).length===14).map(u=>[leadDigits(u.cnpj),u]));
+  return Object.entries(leadRecords).map(([cnpj,record])=>{
+    const captures=Object.values(record.captures||{}).sort((a,b)=>(Number(a.capturedAt)||0)-(Number(b.capturedAt)||0));
+    if(!captures.length)return null;
+    const first=captures[0],last=captures[captures.length-1],user=userIndex.get(leadDigits(cnpj));
+    return {cnpj,captures,first,last,user,status:user&&user.companyData?'complete':'pending'};
+  }).filter(Boolean).sort((a,b)=>(Number(b.first.capturedAt)||0)-(Number(a.first.capturedAt)||0));
+}
+function setLeadStatus(status){
+  document.getElementById('leadStatus').value=status;
+  document.querySelectorAll('[data-lead-status]').forEach(el=>{const active=el.dataset.leadStatus===status;el.classList.toggle('active',active);el.setAttribute('aria-pressed',String(active));});renderLeads();
+}
+function resetLeadFilters(){['leadSearch','leadCampaignFilter','leadFrom','leadTo'].forEach(id=>document.getElementById(id).value='');setLeadStatus('');}
+function renderLeads(){
+  const rows=document.getElementById('leadRows');if(!rows)return;
+  const list=leadList();document.getElementById('leadTotal').textContent=list.length;
+  const query=leadDigits(document.getElementById('leadSearch').value),campaign=document.getElementById('leadCampaignFilter').value,status=document.getElementById('leadStatus').value;
+  const from=document.getElementById('leadFrom').value,to=document.getElementById('leadTo').value;
+  const start=from?new Date(from+'T00:00:00').getTime():-Infinity,end=to?new Date(to+'T23:59:59.999').getTime():Infinity;
+  const filtered=list.filter(item=>(!query||leadDigits(item.cnpj).includes(query)||item.captures.some(c=>leadDigits(c.phone).includes(query)))&&(!campaign||item.captures.some(c=>c.campaignId===campaign))&&(!status||item.status===status)&&Number(item.first.capturedAt)>=start&&Number(item.first.capturedAt)<=end);
+  document.getElementById('leadResultCount').textContent=leadReadError||(!leadLoaded?'Carregando contatos…':filtered.length+' contato(s) encontrado(s)');
+  rows.innerHTML=filtered.length?filtered.map(item=>'<tr><td class="mono">'+leadText(item.cnpj)+'</td><td>'+leadText(item.last.phone||'—')+'</td><td>'+leadText(item.first.campaignName||'—')+'</td><td>'+leadDate(item.first.capturedAt)+'</td><td><span class="lead-status '+item.status+'">'+(item.status==='complete'?'Completo':'Capturado')+'</span></td><td><button class="btn btn-ghost" data-lead-detail="'+leadText(item.cnpj)+'">Ver detalhes</button> <button class="btn btn-ghost lead-delete" data-lead-remove="'+leadText(item.cnpj)+'" aria-label="Excluir contato '+leadText(item.cnpj)+'"><i class="fas fa-trash"></i> Excluir</button></td></tr>').join(''):'<tr><td colspan="6" class="lead-empty">'+leadText(leadReadError||(!leadLoaded?'Aguardando contatos…':'Nenhum contato encontrado para estes filtros.'))+'</td></tr>';
+}
+document.getElementById('leadRows').addEventListener('click',async event=>{
+  const button=event.target.closest('button');if(!button)return;
+  if(button.dataset.leadDetail)openLeadDetail(button.dataset.leadDetail);
+  if(button.dataset.leadRemove)await deleteLeadContact(button.dataset.leadRemove,button);
+});
+async function deleteLeadContact(cnpj,button){
+  if(!/^\d{14}$/.test(cnpj)||!leadRecords[cnpj]||button?.disabled)return;
+  if(!confirm('Excluir o contato de CNPJ '+cnpj+' e todo o histórico de capturas dele? O cadastro do cliente e as campanhas serão mantidos.'))return;
+  if(button)button.disabled=true;
+  try{
+    await database.ref('leads/'+cnpj).remove();
+    document.getElementById('leadDetail').close();
+    showToast('Contato excluído');
+  }catch(error){showToast('Não foi possível excluir o contato. Confira sua conexão e as regras de permissão do Firebase.','err');}
+  finally{if(button)button.disabled=false;}
+}
+function renderLeadCampaigns(){
+  const select=document.getElementById('leadCampaignFilter'),selected=select.value;
+  select.innerHTML='<option value="">Todas as campanhas</option>'+Object.entries(leadCampaigns).map(([id,c])=>'<option value="'+leadText(id)+'">'+leadText(c.name)+'</option>').join('');select.value=selected;
+  const cards=document.getElementById('leadCampaignRows');
+  cards.innerHTML=Object.entries(leadCampaigns).map(([id,c])=>{
+    const image=String(c.image||'').startsWith('https://')?'<img src="'+leadText(c.image)+'" alt="" loading="lazy">':'';
+    return '<article class="lead-campaign-card"><div class="lead-campaign-person">'+image+'<div><h3>'+leadText(c.name)+'</h3><p>'+leadText(c.displayName)+'</p></div></div><span class="lead-status '+(c.active?'complete':'')+'">'+(c.active?'Ativa':'Pausada')+'</span><div class="lead-campaign-url">'+leadText(leadCampaignUrl(id))+'</div><div class="lead-campaign-actions"><button class="btn btn-ghost" data-lead-copy="'+leadText(id)+'">Copiar URL</button><button class="btn btn-ghost" data-lead-edit="'+leadText(id)+'">Editar</button><button class="btn btn-ghost" data-lead-toggle="'+leadText(id)+'">'+(c.active?'Pausar':'Ativar')+'</button></div></article>';
+  }).join('')||'<div class="lead-box lead-empty">Nenhuma campanha criada. Clique em Nova campanha para começar.</div>';
+}
+document.getElementById('leadCampaignRows').addEventListener('click',async event=>{
+  const button=event.target.closest('button');if(!button)return;
+  try{
+    if(button.dataset.leadCopy){await navigator.clipboard.writeText(leadCampaignUrl(button.dataset.leadCopy));showToast('URL copiada');}
+    if(button.dataset.leadEdit)openLeadCampaign(button.dataset.leadEdit);
+    if(button.dataset.leadToggle){const id=button.dataset.leadToggle;await database.ref('leadCampaigns/'+id+'/active').set(!leadCampaigns[id].active);showToast('Campanha atualizada');}
+  }catch(error){showToast('Não foi possível concluir a ação: '+error.message,'err');}
+});
+function populateLeadOfficialLinks(selected){
+  const select=document.getElementById('leadCampaignOfficial');if(!select)return;
+  const value=selected===undefined?select.value:selected;
+  const links=Object.values(trackingLinks).filter(link=>link.slug);
+  select.innerHTML='<option value="">Sem link</option>'+links.map(link=>{
+    const url=buildTrackingUrl(link.slug);
+    return '<option value="'+leadText(url)+'">'+leadText(link.name)+' · /'+leadText(link.slug)+'</option>';
+  }).join('');
+  if(value&&!links.some(link=>buildTrackingUrl(link.slug)===value)){
+    const option=document.createElement('option');option.value=value;option.textContent='Link já vinculado · '+value;select.append(option);
+  }
+  select.value=value||'';updateLeadOfficialPreview();
+}
+function updateLeadOfficialPreview(){document.getElementById('leadOfficialPreview').value=document.getElementById('leadCampaignOfficial').value;}
+function toggleLeadOfficialPicker(){
+  const picker=document.getElementById('leadOfficialPicker');picker.hidden=!picker.hidden;
+  if(!picker.hidden){populateLeadOfficialLinks();document.getElementById('leadCampaignOfficial').focus();}
+}
+function openLeadCampaign(id=null){
+  leadEditingCampaign=id;const campaign=id?leadCampaigns[id]:null;
+  document.getElementById('leadCampaignForm').reset();
+  document.getElementById('leadCampaignTitle').textContent=campaign?'Editar campanha':'Nova campanha';
+  document.getElementById('leadCampaignName').value=campaign?.name||'';
+  document.getElementById('leadCampaignDisplay').value=campaign?.displayName||'';
+  populateLeadOfficialLinks(campaign?.officialUrl||'');
+  document.getElementById('leadOfficialPicker').hidden=!campaign?.officialUrl;
+  document.getElementById('leadCampaignUrl').value=id?leadCampaignUrl(id):'';
+  document.getElementById('leadCampaignError').hidden=true;
+  const preview=document.getElementById('leadPhotoPreview');preview.hidden=!campaign?.image;preview.src=campaign?.image||'';
+  document.getElementById('leadPhotoPlaceholder').hidden=!!campaign?.image;
+  document.getElementById('leadCampaignModal').showModal();
+}
+document.getElementById('leadCampaignPhoto').addEventListener('change',event=>{
+  const file=event.target.files[0];if(!file)return;
+  if(!['image/jpeg','image/png','image/webp'].includes(file.type)||file.size>3*1024*1024){event.target.value='';showToast('Selecione JPG, PNG ou WebP de até 3 MB.','err');return;}
+  if(leadPhotoObjectUrl)URL.revokeObjectURL(leadPhotoObjectUrl);leadPhotoObjectUrl=URL.createObjectURL(file);
+  const preview=document.getElementById('leadPhotoPreview');preview.src=leadPhotoObjectUrl;preview.hidden=false;document.getElementById('leadPhotoPlaceholder').hidden=true;
+});
+document.getElementById('leadCampaignForm').addEventListener('submit',async event=>{
+  event.preventDefault();const form=event.currentTarget,button=form.querySelector('[type="submit"]'),error=document.getElementById('leadCampaignError');
+  error.hidden=true;button.disabled=true;
+  try{
+    const name=document.getElementById('leadCampaignName').value.trim(),displayName=document.getElementById('leadCampaignDisplay').value.trim();
+    if(!name||!displayName)throw new Error('Preencha o nome e o nome de exibição.');
+    const file=document.getElementById('leadCampaignPhoto').files[0],existing=leadEditingCampaign?leadCampaigns[leadEditingCampaign]:null;
+    if(!existing&&!file)throw new Error('Selecione uma foto para a campanha.');
+    let image=existing?.image;
+    if(file){if(!['image/jpeg','image/png','image/webp'].includes(file.type)||file.size>3*1024*1024)throw new Error('A foto deve ser JPG, PNG ou WebP de até 3 MB.');image=await uploadImg(file,'leadCampaigns');if(!image)throw new Error('Não foi possível enviar a foto.');}
+    const ref=leadEditingCampaign?database.ref('leadCampaigns/'+leadEditingCampaign):database.ref('leadCampaigns').push();
+    const officialUrl=document.getElementById('leadCampaignOfficial').value;
+    const data={name,displayName,image,active:existing?existing.active:true,createdAt:existing?existing.createdAt:firebase.database.ServerValue.TIMESTAMP};
+    if(officialUrl){
+      const url=new URL(officialUrl);
+      if(url.protocol!=='https:'||url.username||url.password)throw new Error('O link do Site Oficial deve usar HTTPS.');
+      data.officialUrl=url.href;
+    }
+    await ref.set(data);
+    document.getElementById('leadCampaignModal').close();switchLeadTab('campaigns');showToast('Campanha salva');
+  }catch(err){error.textContent=err.message;error.hidden=false;}finally{button.disabled=false;}
+});
+function openLeadDetail(cnpj){
+  const item=leadList().find(value=>value.cnpj===cnpj);if(!item)return;
+  const field=(label,value)=>'<div class="lead-detail-item"><small>'+leadText(label)+'</small><span>'+leadText(value||'—')+'</span></div>';
+  document.getElementById('leadDetailBody').innerHTML=field('CNPJ',cnpj)+field('Telefone',item.last.phone)+field('Cadastro',item.status==='complete'?'Completo':'Capturado')+(item.user?field('Nome no cadastro',item.user.name)+field('E-mail',item.user.email):'')+'<h3>Histórico de capturas</h3>'+item.captures.map(c=>field(c.campaignName,leadDate(c.capturedAt)+' · '+(c.phone||'—'))).join('');
+  document.getElementById('leadDetail').showModal();
+}
+renderLeadCampaigns();
+</script></body>
 </html>
