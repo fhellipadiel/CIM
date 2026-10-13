@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Coleta de contatos | CIM</title>
+  <link rel="icon" href="assets/logo.webp" type="image/webp">
+  <link rel="stylesheet" href="assets/leads-capture.css">
+  <script src="assets/leads-validation.js" defer></script>
+  <script src="assets/leads-capture.js" defer></script>
+</head>
+<body>
+  <main>
+    <header class="capture-header">
+      <span class="capture-eyebrow">CIM · EQUIPE COMERCIAL</span>
+      <img id="photo" alt="Foto da campanha" hidden>
+      <h1 id="displayName">Coleta de contatos</h1>
+      <p id="intro">Carregando campanha…</p>
+      <span id="campaignLabel" class="capture-campaign"></span>
+    </header>
+    <p id="loading" class="capture-loading">Preparando a página de coleta…</p>
+    <form id="capture" novalidate hidden>
+      <div class="capture-field">
+        <label for="cnpj">CNPJ do cliente</label>
+        <input id="cnpj" inputmode="numeric" maxlength="18" placeholder="00.000.000/0000-00" autocomplete="off" aria-describedby="cnpjError">
+        <span id="cnpjError" class="field-error" aria-live="polite"></span>
+      </div>
+      <div class="capture-field">
+        <label for="phone">Telefone do cliente</label>
+        <input id="phone" type="tel" inputmode="numeric" maxlength="15" placeholder="(11) 99999-9999" autocomplete="off" aria-describedby="phoneError">
+        <span id="phoneError" class="field-error" aria-live="polite"></span>
+      </div>
+      <div class="capture-permission">
+        <label for="consent"><input id="consent" type="checkbox" aria-describedby="consentError"><span>Confirmo que o cliente autorizou o uso destes dados pela CIM para contato comercial, inclusive pelo WhatsApp, e vínculo com seu cadastro.</span></label>
+        <span id="consentError" class="field-error" aria-live="polite"></span>
+      </div>
+      <button id="send" type="submit">Registrar contato <span aria-hidden="true">→</span></button>
+      <p class="capture-footnote">Preenchimento pelo funcionário responsável pela campanha. Registre um cliente por vez.</p>
+    </form>
+    <p id="message" class="capture-message" role="status" aria-live="polite"></p>
+    <div id="success" hidden>
+      <div class="success-icon" aria-hidden="true">✓</div>
+      <h2>Contato salvo</h2>
+      <p>Você pode continuar coletando contatos nesta campanha.</p>
+      <button id="another" type="button">Registrar outro contato</button>
+    </div>
+    <footer>O cliente pode solicitar a revogação da autorização e a exclusão dos dados pelos canais de atendimento da CIM.</footer>
+  </main>
+</body>
+</html>
