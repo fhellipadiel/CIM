@@ -534,6 +534,7 @@ tbody tr:last-child td{border-bottom:none}
 .lead-detail-item small{color:var(--text-muted)}
 @media(max-width:1100px){.lead-filters{grid-template-columns:repeat(2,minmax(0,1fr))}.lead-filters>.btn{justify-self:start}.lead-box-head{align-items:start;flex-direction:column}}
 @media(max-width:600px){.lead-filters{grid-template-columns:1fr;padding:16px}.lead-box-head{padding:16px}.lead-overview{padding:16px}.lead-campaign-grid{grid-template-columns:1fr}.lead-dialog-body,.lead-dialog-head{padding:18px}.lead-photo-upload{align-items:start;flex-wrap:wrap}#panel-leads .panel-head{flex-wrap:wrap;gap:16px}}
+.lead-week{margin-bottom:20px}.lead-week-controls,.lead-date-actions{display:flex;gap:8px;flex-wrap:wrap;align-items:end}.lead-week-controls label{min-width:160px}.lead-week-chart{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:10px;padding:22px}.lead-week-day{text-align:center;min-width:0}.lead-week-track{height:160px;display:flex;align-items:end;justify-content:center;border-bottom:1px solid var(--border)}.lead-week-bar{width:65%;max-width:44px;background:var(--accent);border-radius:6px 6px 0 0;min-height:2px}.lead-week-value{display:block;margin-bottom:8px;font-size:.85rem}.lead-week-label{display:block;margin-top:10px;font-size:.75rem;color:var(--text-muted)}.lead-week-label small{display:block;margin-top:4px}.lead-week-total{padding:16px 22px 0;color:var(--text-muted);font-size:.82rem}#leadToday.active{background:var(--accent-soft);color:var(--accent);border-color:var(--accent)}@media(max-width:600px){.lead-week-chart{padding:18px 10px;gap:5px}.lead-week-track{height:120px}.lead-week-controls{width:100%}.lead-week-controls label{flex:1}}
 </style></head>
 <body>
 
@@ -1115,6 +1116,7 @@ tbody tr:last-child td{border-bottom:none}
     <div class="lead-overview-icon"><i class="fas fa-address-book"></i></div>
     <div><div class="sc-val" id="leadTotal">0</div><div class="sc-label">Total de Leads Capturados</div></div>
   </div>
+  <div class="lead-box lead-week"><div class="lead-box-head"><div><h2>Leads capturados na semana</h2><p id="leadWeekRange"></p></div><div class="lead-week-controls"><label class="lead-field" for="leadWeekDate">Semana de<input id="leadWeekDate" type="date" onchange="renderLeadWeekChart()"></label><label class="lead-field" for="leadWeekCampaign">Campanha<select id="leadWeekCampaign" onchange="renderLeadWeekChart()"><option value="">Todas as campanhas</option></select></label><button class="btn btn-ghost" onclick="shiftLeadWeek(-1)" aria-label="Semana anterior">&larr;</button><button class="btn btn-ghost" onclick="shiftLeadWeek(1)" aria-label="Pr&#243;xima semana">&rarr;</button></div></div><p id="leadWeekTotal" class="lead-week-total" role="status"></p><div id="leadWeekChart" class="lead-week-chart" role="list" aria-label="Leads por dia da semana"></div></div>
   <div class="lead-box">
     <div class="lead-box-head">
       <div><h2>Contatos recebidos</h2><p>Consulte a origem e acompanhe a evolução de cada cliente.</p></div>
@@ -1126,14 +1128,14 @@ tbody tr:last-child td{border-bottom:none}
       <input type="hidden" id="leadStatus" value="">
     </div>
     <div class="lead-filters">
-      <label class="lead-filter-wide" for="leadSearch">Pesquisar contato<input id="leadSearch" placeholder="CNPJ ou telefone" inputmode="numeric" oninput="renderLeads()"></label>
+      <label class="lead-filter-wide" for="leadSearch">Pesquisar contato<input id="leadSearch" placeholder="Nome, CPF, CNPJ ou telefone" oninput="renderLeads()"></label>
       <label class="lead-filter-wide" for="leadCampaignFilter">Campanha<select id="leadCampaignFilter" onchange="renderLeads()"><option value="">Todas as campanhas</option></select></label>
       <label for="leadFrom">Capturado a partir de<input type="date" id="leadFrom" onchange="renderLeads()"></label>
       <label for="leadTo">Capturado até<input type="date" id="leadTo" onchange="renderLeads()"></label>
-      <button class="btn btn-ghost" onclick="resetLeadFilters()" title="Limpar filtros"><i class="fas fa-filter-circle-xmark"></i> Limpar</button>
+      <div class="lead-date-actions"><button id="leadToday" class="btn btn-ghost" onclick="filterLeadsToday()" aria-pressed="false"><i class="fas fa-calendar-day"></i> Hoje</button><button class="btn btn-ghost" onclick="resetLeadFilters()" title="Limpar filtros"><i class="fas fa-filter-circle-xmark"></i> Limpar</button></div>
     </div>
     <p class="lead-result-count" id="leadResultCount" aria-live="polite">Carregando contatos…</p>
-    <div class="lead-table-wrap"><table><thead><tr><th>CNPJ</th><th>Telefone</th><th>Campanha de origem</th><th>Captura inicial</th><th>Situação</th><th></th></tr></thead><tbody id="leadRows"></tbody></table></div>
+    <div class="lead-table-wrap"><table><thead><tr><th>Nome</th><th>CPF / CNPJ</th><th>Telefone</th><th>Campanha de origem</th><th>Captura inicial</th><th>Situação</th><th></th></tr></thead><tbody id="leadRows"></tbody></table></div>
   </div>
   </div><div id="leadCampaignsPane" role="tabpanel" aria-labelledby="leadCampaignsTab" data-lead-pane="campaigns" hidden><div class="lead-section-head"><div><h2>Campanhas e URLs</h2><p>Compartilhe cada URL com o funcionário responsável pela coleta.</p></div></div>
   <div class="lead-campaign-grid" id="leadCampaignRows"></div></div>
@@ -5481,12 +5483,12 @@ function loadLeadsAdmin(){
 }
 auth.onAuthStateChanged(user=>{if(!user){leadSubscriptions.forEach(({ref,callback})=>ref.off('value',callback));leadSubscriptions=[];leadRecords={};leadCampaigns={};leadLoaded=false;leadReadError='';renderLeads();renderLeadCampaigns();}});
 function leadList(){
-  const userIndex=new Map(usersCache.filter(u=>!u.isAdmin&&leadDigits(u.cnpj).length===14).map(u=>[leadDigits(u.cnpj),u]));
+  const userIndex=new Map();usersCache.filter(u=>!u.isAdmin).forEach(u=>{if(leadDigits(u.cnpj).length===14)userIndex.set(leadDigits(u.cnpj),u);if(leadDigits(u.cpf).length===11)userIndex.set(leadDigits(u.cpf),u);});
   return Object.entries(leadRecords).map(([cnpj,record])=>{
     const captures=Object.values(record.captures||{}).sort((a,b)=>(Number(a.capturedAt)||0)-(Number(b.capturedAt)||0));
     if(!captures.length)return null;
-    const first=captures[0],last=captures[captures.length-1],user=userIndex.get(leadDigits(cnpj));
-    return {cnpj,captures,first,last,user,status:user&&user.companyData?'complete':'pending'};
+    const first=captures[0],last=captures[captures.length-1],documentType=last.documentType||(last.cpf?'cpf':'cnpj'),document=leadDigits(last[documentType]||(/^\d{11,14}$/.test(cnpj)?cnpj:'')),name=[...captures].reverse().find(c=>c.name)?.name||'',user=document?userIndex.get(document):null;
+    return {cnpj,document,documentType,name,captures,first,last,user,status:user&&user.companyData?'complete':'pending'};
   }).filter(Boolean).sort((a,b)=>(Number(b.first.capturedAt)||0)-(Number(a.first.capturedAt)||0));
 }
 function setLeadStatus(status){
@@ -5494,15 +5496,23 @@ function setLeadStatus(status){
   document.querySelectorAll('[data-lead-status]').forEach(el=>{const active=el.dataset.leadStatus===status;el.classList.toggle('active',active);el.setAttribute('aria-pressed',String(active));});renderLeads();
 }
 function resetLeadFilters(){['leadSearch','leadCampaignFilter','leadFrom','leadTo'].forEach(id=>document.getElementById(id).value='');setLeadStatus('');}
+function leadDayKey(value=Date.now()){
+const parts=new Intl.DateTimeFormat('en-CA',{timeZone:'America/Sao_Paulo',year:'numeric',month:'2-digit',day:'2-digit'}).formatToParts(new Date(Number(value)));const get=type=>parts.find(p=>p.type===type).value;return get('year')+'-'+get('month')+'-'+get('day');
+}
+function leadMonday(day){const date=new Date(day+'T12:00:00Z');date.setUTCDate(date.getUTCDate()-(date.getUTCDay()+6)%7);return date;}
+function leadWeekCounts(list,campaign,monday){const days=Array.from({length:7},(_,i)=>{const date=new Date(monday);date.setUTCDate(date.getUTCDate()+i);return {key:date.toISOString().slice(0,10),count:0};});list.forEach(item=>{const c=item.captures.find(c=>(!campaign||c.campaignId===campaign)&&Number(c.capturedAt)>0);if(!c)return;const day=days.find(d=>d.key===leadDayKey(c.capturedAt));if(day)day.count++;});return days;}
+function renderLeadWeekChart(){const input=document.getElementById('leadWeekDate');if(!input)return;if(!input.value)input.value=leadDayKey();const monday=leadMonday(input.value);input.value=monday.toISOString().slice(0,10);const next=new Date(monday);next.setUTCDate(next.getUTCDate()+7);const fmt=d=>d.toLocaleDateString('pt-BR',{timeZone:'UTC'});document.getElementById('leadWeekRange').textContent=fmt(monday)+' at\u00e9 '+fmt(next)+' \u00b7 segunda a segunda';const days=leadWeekCounts(leadList(),document.getElementById('leadWeekCampaign').value,monday),max=Math.max(1,...days.map(d=>d.count));document.getElementById('leadWeekTotal').textContent=leadReadError||(!leadLoaded?'Carregando contatos...':days.reduce((sum,d)=>sum+d.count,0)+' leads capturados \u00b7 primeira captura por contato na campanha');const labels=['Seg','Ter','Qua','Qui','Sex','S\u00e1b','Dom'];document.getElementById('leadWeekChart').innerHTML=days.map((d,i)=>'<div class="lead-week-day" role="listitem" aria-label="'+labels[i]+' '+d.key+': '+d.count+' leads"><strong class="lead-week-value">'+d.count+'</strong><div class="lead-week-track"><div class="lead-week-bar" style="height:'+Math.round(d.count/max*100)+'%"></div></div><span class="lead-week-label">'+labels[i]+'<small>'+d.key.slice(8)+'/'+d.key.slice(5,7)+'</small></span></div>').join('');}
+function shiftLeadWeek(direction){const input=document.getElementById('leadWeekDate'),date=leadMonday(input.value||leadDayKey());date.setUTCDate(date.getUTCDate()+direction*7);input.value=date.toISOString().slice(0,10);renderLeadWeekChart();}
+function filterLeadsToday(){const today=leadDayKey();document.getElementById('leadFrom').value=today;document.getElementById('leadTo').value=today;renderLeads();}
 function renderLeads(){
   const rows=document.getElementById('leadRows');if(!rows)return;
-  const list=leadList();document.getElementById('leadTotal').textContent=list.length;
-  const query=leadDigits(document.getElementById('leadSearch').value),campaign=document.getElementById('leadCampaignFilter').value,status=document.getElementById('leadStatus').value;
+  const list=leadList();document.getElementById('leadTotal').textContent=list.length;renderLeadWeekChart();
+  const query=document.getElementById('leadSearch').value.trim().toLocaleLowerCase('pt-BR'),digits=leadDigits(query),campaign=document.getElementById('leadCampaignFilter').value,status=document.getElementById('leadStatus').value;
   const from=document.getElementById('leadFrom').value,to=document.getElementById('leadTo').value;
-  const start=from?new Date(from+'T00:00:00').getTime():-Infinity,end=to?new Date(to+'T23:59:59.999').getTime():Infinity;
-  const filtered=list.filter(item=>(!query||leadDigits(item.cnpj).includes(query)||item.captures.some(c=>leadDigits(c.phone).includes(query)))&&(!campaign||item.captures.some(c=>c.campaignId===campaign))&&(!status||item.status===status)&&Number(item.first.capturedAt)>=start&&Number(item.first.capturedAt)<=end);
+  const todayActive=from===leadDayKey()&&to===from;document.getElementById('leadToday').classList.toggle('active',todayActive);document.getElementById('leadToday').setAttribute('aria-pressed',String(todayActive));
+  const filtered=list.filter(item=>(!query||item.captures.some(c=>String(c.name||'').toLocaleLowerCase('pt-BR').includes(query))||(digits&&(item.document.includes(digits)||item.captures.some(c=>leadDigits(c.phone).includes(digits)))))&&(!status||item.status===status)&&item.captures.some(c=>{if(campaign&&c.campaignId!==campaign)return false;if(!from&&!to)return true;if(!(Number(c.capturedAt)>0))return false;const day=leadDayKey(c.capturedAt);return (!from||day>=from)&&(!to||day<=to);}));
   document.getElementById('leadResultCount').textContent=leadReadError||(!leadLoaded?'Carregando contatos…':filtered.length+' contato(s) encontrado(s)');
-  rows.innerHTML=filtered.length?filtered.map(item=>'<tr><td class="mono">'+leadText(item.cnpj)+'</td><td>'+leadText(item.last.phone||'—')+'</td><td>'+leadText(item.first.campaignName||'—')+'</td><td>'+leadDate(item.first.capturedAt)+'</td><td><span class="lead-status '+item.status+'">'+(item.status==='complete'?'Completo':'Capturado')+'</span></td><td><button class="btn btn-ghost" data-lead-detail="'+leadText(item.cnpj)+'">Ver detalhes</button> <button class="btn btn-ghost lead-delete" data-lead-remove="'+leadText(item.cnpj)+'" aria-label="Excluir contato '+leadText(item.cnpj)+'"><i class="fas fa-trash"></i> Excluir</button></td></tr>').join(''):'<tr><td colspan="6" class="lead-empty">'+leadText(leadReadError||(!leadLoaded?'Aguardando contatos…':'Nenhum contato encontrado para estes filtros.'))+'</td></tr>';
+  rows.innerHTML=filtered.length?filtered.map(item=>'<tr><td>'+leadText(item.name||'\u2014')+'</td><td class="mono">'+leadText(item.document?item.documentType.toUpperCase()+' \u00b7 '+item.document:'\u2014')+'</td><td>'+(leadDigits(item.last.phone)?'<a href="https://wa.me/55'+leadDigits(item.last.phone)+'" target="_blank" rel="noopener noreferrer" style="color:var(--ok)" aria-label="Abrir WhatsApp de '+leadText(item.last.phone)+'"><i class="fab fa-whatsapp" aria-hidden="true"></i> '+leadText(item.last.phone)+'</a>':'\u2014')+'</td><td>'+leadText(item.first.campaignName||'—')+'</td><td>'+leadDate(item.first.capturedAt)+'</td><td><span class="lead-status '+item.status+'">'+(item.status==='complete'?'Completo':'Capturado')+'</span></td><td><button class="btn btn-ghost" data-lead-detail="'+leadText(item.cnpj)+'">Ver detalhes</button> <button class="btn btn-ghost lead-delete" data-lead-remove="'+leadText(item.cnpj)+'" aria-label="Excluir contato '+leadText(item.cnpj)+'"><i class="fas fa-trash"></i> Excluir</button></td></tr>').join(''):'<tr><td colspan="7" class="lead-empty">'+leadText(leadReadError||(!leadLoaded?'Aguardando contatos…':'Nenhum contato encontrado para estes filtros.'))+'</td></tr>';
 }
 document.getElementById('leadRows').addEventListener('click',async event=>{
   const button=event.target.closest('button');if(!button)return;
@@ -5510,8 +5520,8 @@ document.getElementById('leadRows').addEventListener('click',async event=>{
   if(button.dataset.leadRemove)await deleteLeadContact(button.dataset.leadRemove,button);
 });
 async function deleteLeadContact(cnpj,button){
-  if(!/^\d{14}$/.test(cnpj)||!leadRecords[cnpj]||button?.disabled)return;
-  if(!confirm('Excluir o contato de CNPJ '+cnpj+' e todo o histórico de capturas dele? O cadastro do cliente e as campanhas serão mantidos.'))return;
+  if(!Object.prototype.hasOwnProperty.call(leadRecords,cnpj)||button?.disabled)return;
+  if(!confirm('Excluir o contato '+(leadList().find(item=>item.cnpj===cnpj)?.name||leadList().find(item=>item.cnpj===cnpj)?.document||'selecionado')+' e todo o histórico de capturas dele? O cadastro do cliente e as campanhas serão mantidos.'))return;
   if(button)button.disabled=true;
   try{
     await database.ref('leads/'+cnpj).remove();
@@ -5523,10 +5533,11 @@ async function deleteLeadContact(cnpj,button){
 function renderLeadCampaigns(){
   const select=document.getElementById('leadCampaignFilter'),selected=select.value;
   select.innerHTML='<option value="">Todas as campanhas</option>'+Object.entries(leadCampaigns).map(([id,c])=>'<option value="'+leadText(id)+'">'+leadText(c.name)+'</option>').join('');select.value=selected;
+  const weekSelect=document.getElementById('leadWeekCampaign'),weekSelected=weekSelect.value;weekSelect.innerHTML=select.innerHTML;weekSelect.value=Object.prototype.hasOwnProperty.call(leadCampaigns,weekSelected)?weekSelected:'';renderLeadWeekChart();
   const cards=document.getElementById('leadCampaignRows');
   cards.innerHTML=Object.entries(leadCampaigns).map(([id,c])=>{
     const image=String(c.image||'').startsWith('https://')?'<img src="'+leadText(c.image)+'" alt="" loading="lazy">':'';
-    return '<article class="lead-campaign-card"><div class="lead-campaign-person">'+image+'<div><h3>'+leadText(c.name)+'</h3><p>'+leadText(c.displayName)+'</p></div></div><span class="lead-status '+(c.active?'complete':'')+'">'+(c.active?'Ativa':'Pausada')+'</span><div class="lead-campaign-url">'+leadText(leadCampaignUrl(id))+'</div><div class="lead-campaign-actions"><button class="btn btn-ghost" data-lead-copy="'+leadText(id)+'">Copiar URL</button><button class="btn btn-ghost" data-lead-edit="'+leadText(id)+'">Editar</button><button class="btn btn-ghost" data-lead-toggle="'+leadText(id)+'">'+(c.active?'Pausar':'Ativar')+'</button></div></article>';
+    return '<article class="lead-campaign-card"><div class="lead-campaign-person">'+image+'<div><h3>'+leadText(c.name)+'</h3><p>'+leadText(c.displayName)+'</p></div></div><span class="lead-status '+(c.active?'complete':'')+'">'+(c.active?'Ativa':'Pausada')+'</span><div class="lead-campaign-url">'+leadText(leadCampaignUrl(id))+'</div><div class="lead-campaign-actions"><button class="btn btn-ghost" data-lead-copy="'+leadText(id)+'">Copiar URL</button><button class="btn btn-ghost" data-lead-edit="'+leadText(id)+'">Editar</button><button class="btn btn-ghost" data-lead-toggle="'+leadText(id)+'">'+(c.active?'Pausar':'Ativar')+'</button><button class="btn btn-ghost lead-delete" data-lead-delete-campaign="'+leadText(id)+'"><i class="fas fa-trash"></i> Excluir funcionário</button></div></article>';
   }).join('')||'<div class="lead-box lead-empty">Nenhuma campanha criada. Clique em Nova campanha para começar.</div>';
 }
 document.getElementById('leadCampaignRows').addEventListener('click',async event=>{
@@ -5534,9 +5545,46 @@ document.getElementById('leadCampaignRows').addEventListener('click',async event
   try{
     if(button.dataset.leadCopy){await navigator.clipboard.writeText(leadCampaignUrl(button.dataset.leadCopy));showToast('URL copiada');}
     if(button.dataset.leadEdit)openLeadCampaign(button.dataset.leadEdit);
+    if(button.dataset.leadDeleteCampaign){await deleteLeadEmployeeCampaign(button.dataset.leadDeleteCampaign,button);return;}
     if(button.dataset.leadToggle){const id=button.dataset.leadToggle;await database.ref('leadCampaigns/'+id+'/active').set(!leadCampaigns[id].active);showToast('Campanha atualizada');}
   }catch(error){showToast('Não foi possível concluir a ação: '+error.message,'err');}
 });
+async function deleteLeadEmployeeCampaign(id,button){
+  const campaign=leadCampaigns[id];if(!campaign||button?.disabled)return;
+  if(!confirm('Excluir o funcionário "'+campaign.displayName+'" desta campanha? O link da campanha deixará de funcionar. Os contatos recebidos serão mantidos.'))return;
+  if(button)button.disabled=true;
+  try{
+    await database.ref('leadCampaigns/'+id).remove();
+    if(leadEditingCampaign===id){document.getElementById('leadCampaignModal').close();leadEditingCampaign=null;}
+    showToast('Funcionário e campanha excluídos');
+  }catch(error){showToast('Não foi possível excluir a campanha. Confira sua conexão e permissão de administrador.','err');}
+  finally{if(button)button.disabled=false;}
+}
+function leadPhotoError(error){
+  if(error.code==='storage/unauthorized')return 'O Storage bloqueou a foto. Publique a regra da pasta leadCampaigns e entre novamente no ADM.';
+  if(error.code==='storage/unauthenticated')return 'Sua sessão expirou. Entre novamente no ADM para enviar a foto.';
+  if(error.code==='storage/retry-limit-exceeded')return 'O envio da foto não terminou. Confira a conexão e tente novamente.';
+  return 'Não foi possível salvar a foto: '+(error.message||error.code||'erro desconhecido');
+}
+async function uploadLeadEmployeePhoto(file){
+  if(!auth.currentUser||!currentAdmin||auth.currentUser.uid!==currentAdmin.uid)throw new Error('Entre no ADM com uma conta de administrador.');
+  if(!['image/jpeg','image/png','image/webp'].includes(file.type)||file.size>3*1024*1024)throw new Error('A foto deve ser JPG, PNG ou WebP de até 3 MB.');
+  const blob=await compressImage(file,1000,1000,.8);
+  if(!blob||!blob.size)throw new Error('Não foi possível processar a foto. Selecione outra imagem.');
+  if(blob.size>3*1024*1024)throw new Error('A foto processada deve ter até 3 MB.');
+  const extensions={'image/jpeg':'jpg','image/png':'png','image/webp':'webp'};
+  const extension=extensions[blob.type];if(!extension)throw new Error('Formato de foto não suportado.');
+  const filename='leadCampaigns/'+auth.currentUser.uid+'/'+Date.now()+'_'+Math.random().toString(36).slice(2,10)+'.'+extension;
+  const ref=storage.ref(filename);
+  try{
+    const snapshot=await ref.put(blob,{contentType:blob.type,cacheControl:'public,max-age=31536000'});
+    const url=await snapshot.ref.getDownloadURL();
+    return {url,ref};
+  }catch(error){
+    try{await ref.delete();}catch(cleanupError){}
+    throw new Error(leadPhotoError(error));
+  }
+}
 function populateLeadOfficialLinks(selected){
   const select=document.getElementById('leadCampaignOfficial');if(!select)return;
   const value=selected===undefined?select.value:selected;
@@ -5576,31 +5624,37 @@ document.getElementById('leadCampaignPhoto').addEventListener('change',event=>{
   const preview=document.getElementById('leadPhotoPreview');preview.src=leadPhotoObjectUrl;preview.hidden=false;document.getElementById('leadPhotoPlaceholder').hidden=true;
 });
 document.getElementById('leadCampaignForm').addEventListener('submit',async event=>{
-  event.preventDefault();const form=event.currentTarget,button=form.querySelector('[type="submit"]'),error=document.getElementById('leadCampaignError');
-  error.hidden=true;button.disabled=true;
+  event.preventDefault();
+  const form=event.currentTarget,button=form.querySelector('[type="submit"]'),error=document.getElementById('leadCampaignError');
+  if(button.disabled)return;
+  const buttonText=button.innerHTML;let uploaded=null,saved=false;
+  error.hidden=true;button.disabled=true;button.textContent='Salvando…';
   try{
+    const editingId=leadEditingCampaign;
     const name=document.getElementById('leadCampaignName').value.trim(),displayName=document.getElementById('leadCampaignDisplay').value.trim();
     if(!name||!displayName)throw new Error('Preencha o nome e o nome de exibição.');
-    const file=document.getElementById('leadCampaignPhoto').files[0],existing=leadEditingCampaign?leadCampaigns[leadEditingCampaign]:null;
+    const file=document.getElementById('leadCampaignPhoto').files[0],existing=editingId?leadCampaigns[editingId]:null;
+    if(editingId&&!existing)throw new Error('Esta campanha não existe mais. Feche e atualize a lista.');
     if(!existing&&!file)throw new Error('Selecione uma foto para a campanha.');
-    let image=existing?.image;
-    if(file){if(!['image/jpeg','image/png','image/webp'].includes(file.type)||file.size>3*1024*1024)throw new Error('A foto deve ser JPG, PNG ou WebP de até 3 MB.');image=await uploadImg(file,'leadCampaigns');if(!image)throw new Error('Não foi possível enviar a foto.');}
-    const ref=leadEditingCampaign?database.ref('leadCampaigns/'+leadEditingCampaign):database.ref('leadCampaigns').push();
     const officialUrl=document.getElementById('leadCampaignOfficial').value;
-    const data={name,displayName,image,active:existing?existing.active:true,createdAt:existing?existing.createdAt:firebase.database.ServerValue.TIMESTAMP};
-    if(officialUrl){
-      const url=new URL(officialUrl);
-      if(url.protocol!=='https:'||url.username||url.password)throw new Error('O link do Site Oficial deve usar HTTPS.');
-      data.officialUrl=url.href;
-    }
-    await ref.set(data);
-    document.getElementById('leadCampaignModal').close();switchLeadTab('campaigns');showToast('Campanha salva');
-  }catch(err){error.textContent=err.message;error.hidden=false;}finally{button.disabled=false;}
+    if(officialUrl){const url=new URL(officialUrl);if(url.protocol!=='https:'||url.username||url.password)throw new Error('O link do Site Oficial deve usar HTTPS.');}
+    const data={name,displayName,image:existing?.image||'',active:existing?existing.active:true,createdAt:existing?existing.createdAt:firebase.database.ServerValue.TIMESTAMP};
+    if(officialUrl)data.officialUrl=new URL(officialUrl).href;
+    if(file){button.textContent='Enviando foto…';uploaded=await uploadLeadEmployeePhoto(file);data.image=uploaded.url;}
+    const ref=editingId?database.ref('leadCampaigns/'+editingId):database.ref('leadCampaigns').push();
+    button.textContent='Salvando campanha…';
+    await ref.set(data);saved=true;
+    leadCampaigns[ref.key||editingId]={...data};renderLeadCampaigns();renderLeads();
+    document.getElementById('leadCampaignModal').close();switchLeadTab('campaigns');showToast('Campanha e foto salvas');
+  }catch(err){
+    if(uploaded&&!saved){try{await uploaded.ref.delete();}catch(cleanupError){}}
+    error.textContent=err.message||'Não foi possível salvar a campanha.';error.hidden=false;
+  }finally{button.disabled=false;button.innerHTML=buttonText;}
 });
 function openLeadDetail(cnpj){
   const item=leadList().find(value=>value.cnpj===cnpj);if(!item)return;
   const field=(label,value)=>'<div class="lead-detail-item"><small>'+leadText(label)+'</small><span>'+leadText(value||'—')+'</span></div>';
-  document.getElementById('leadDetailBody').innerHTML=field('CNPJ',cnpj)+field('Telefone',item.last.phone)+field('Cadastro',item.status==='complete'?'Completo':'Capturado')+(item.user?field('Nome no cadastro',item.user.name)+field('E-mail',item.user.email):'')+'<h3>Histórico de capturas</h3>'+item.captures.map(c=>field(c.campaignName,leadDate(c.capturedAt)+' · '+(c.phone||'—'))).join('');
+  document.getElementById('leadDetailBody').innerHTML=field('Nome',item.name)+field(item.documentType.toUpperCase(),item.document)+field('Telefone',item.last.phone)+field('Cadastro',item.status==='complete'?'Completo':'Capturado')+(item.user?field('Nome no cadastro',item.user.name)+field('E-mail',item.user.email):'')+'<h3>Histórico de capturas</h3>'+item.captures.map(c=>field(c.campaignName,leadDate(c.capturedAt)+' · '+(c.phone||'—'))).join('');
   document.getElementById('leadDetail').showModal();
 }
 renderLeadCampaigns();
