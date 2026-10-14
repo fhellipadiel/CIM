@@ -1110,7 +1110,7 @@ tbody tr:last-child td{border-bottom:none}
     <section class="panel" id="panel-leads">
   <div class="panel-head">
     <div><h1>Leads</h1><p>Dos primeiros contatos ao cadastro completo.</p></div>
-    <button class="btn btn-accent" onclick="openLeadCampaign()"><i class="fas fa-plus"></i> Nova campanha</button>
+    <div class="panel-actions"><button type="button" class="btn btn-ghost" aria-haspopup="dialog" onclick="openContactsCsvModal('leads')"><i class="fas fa-file-csv"></i> Exportar CSV <i class="fas fa-chevron-down" style="margin-left:12px;font-size:.7rem" aria-hidden="true"></i></button><button type="button" class="btn btn-ghost" onclick="openContactsCsvHistory('leads')"><i class="fas fa-clock-rotate-left"></i> Hist&oacute;rico CSV</button><button class="btn btn-accent" onclick="openLeadCampaign()"><i class="fas fa-plus"></i> Nova campanha</button></div>
   </div>
   <div class="lead-nav" role="tablist" aria-label="Área de Leads"><button id="leadContactsTab" class="lead-tab active" role="tab" aria-controls="leadContactsPane" aria-selected="true" data-lead-view="contacts" onclick="switchLeadTab('contacts')"><i class="fas fa-address-book"></i>Contatos</button><button id="leadCampaignsTab" class="lead-tab" role="tab" aria-controls="leadCampaignsPane" aria-selected="false" tabindex="-1" data-lead-view="campaigns" onclick="switchLeadTab('campaigns')"><i class="fas fa-bullhorn"></i>Campanhas e URLs</button></div><div id="leadContactsPane" role="tabpanel" aria-labelledby="leadContactsTab" data-lead-pane="contacts"><div class="lead-overview">
     <div class="lead-overview-icon"><i class="fas fa-address-book"></i></div>
@@ -1281,7 +1281,7 @@ tbody tr:last-child td{border-bottom:none}
     <section class="panel" id="panel-usuarios">
       <div class="panel-head">
         <div><h1>Usuários</h1><p>Clientes pessoa física e jurídica cadastrados</p></div>
-        <div class="panel-actions"><button class="btn btn-accent" onclick="openCreateClientModal()"><i class="fas fa-user-plus"></i> Criar cliente</button></div>
+        <div class="panel-actions"><button type="button" class="btn btn-ghost" aria-haspopup="dialog" onclick="openContactsCsvModal('users')"><i class="fas fa-file-csv"></i> Exportar CSV <i class="fas fa-chevron-down" style="margin-left:12px;font-size:.7rem" aria-hidden="true"></i></button><button type="button" class="btn btn-ghost" onclick="openContactsCsvHistory('users')"><i class="fas fa-clock-rotate-left"></i> Hist&oacute;rico CSV</button><button class="btn btn-accent" onclick="openCreateClientModal()"><i class="fas fa-user-plus"></i> Criar cliente</button></div>
       </div>
       <div class="filter-bar">
         <input type="text" id="userFilterText" placeholder="Buscar por nome, e-mail, telefone, CPF/CNPJ..." oninput="renderUsers()">
@@ -4496,8 +4496,7 @@ function toggleUserDetails(uid) {
   const isHidden = row.style.display === 'none' || row.style.display === '';
   row.style.display = isHidden ? 'table-row' : 'none';
 }
-function renderUsers(){
-  const list=document.getElementById('usersListAdm'); if(!list) return;
+function filteredUsersForCsv(){
   let filtered=[]; const now=Date.now();
   if(usersTab==='online'){ filtered = usersCache.filter(u => (now - (u.lastAccess||0)) < 5*60*1000); }
   else if(usersTab==='novos'){
@@ -4508,6 +4507,7 @@ function renderUsers(){
   }
   else if(usersTab==='google'){ filtered = usersCache.filter(u => getUserOrigin(u) === 'google.com' && !u.isAdmin); }
   else if(usersTab==='manual'){ filtered = usersCache.filter(u => getUserOrigin(u) !== 'google.com' && !u.isAdmin); }
+  else if(usersTab==='all'){ filtered=usersCache.filter(u=>!u.isAdmin); }
   else { filtered = usersCache.filter(u => u.userType===usersTab); }
 
   const userQuery = (document.getElementById('userFilterText')?.value || '').trim();
@@ -4521,6 +4521,12 @@ function renderUsers(){
     return (b.lastAccess||0) - (a.lastAccess||0);
   });
 
+  return filtered;
+}
+function renderUsers(){
+  const list=document.getElementById('usersListAdm'); if(!list) return;
+  const filtered=filteredUsersForCsv(),now=Date.now();
+  const userQuery=(document.getElementById('userFilterText')?.value||'').trim();
   if(filtered.length===0){
     let msg = usersTab==='online' ? 'Nenhum usuário online'
             : usersTab==='novos' ? 'Nenhum novo cliente'
@@ -5504,13 +5510,18 @@ function leadWeekCounts(list,campaign,monday){const days=Array.from({length:7},(
 function renderLeadWeekChart(){const input=document.getElementById('leadWeekDate');if(!input)return;if(!input.value)input.value=leadDayKey();const monday=leadMonday(input.value);input.value=monday.toISOString().slice(0,10);const next=new Date(monday);next.setUTCDate(next.getUTCDate()+7);const fmt=d=>d.toLocaleDateString('pt-BR',{timeZone:'UTC'});document.getElementById('leadWeekRange').textContent=fmt(monday)+' at\u00e9 '+fmt(next)+' \u00b7 segunda a segunda';const days=leadWeekCounts(leadList(),document.getElementById('leadWeekCampaign').value,monday),max=Math.max(1,...days.map(d=>d.count));document.getElementById('leadWeekTotal').textContent=leadReadError||(!leadLoaded?'Carregando contatos...':days.reduce((sum,d)=>sum+d.count,0)+' leads capturados \u00b7 primeira captura por contato na campanha');const labels=['Seg','Ter','Qua','Qui','Sex','S\u00e1b','Dom'];document.getElementById('leadWeekChart').innerHTML=days.map((d,i)=>'<div class="lead-week-day" role="listitem" aria-label="'+labels[i]+' '+d.key+': '+d.count+' leads"><strong class="lead-week-value">'+d.count+'</strong><div class="lead-week-track"><div class="lead-week-bar" style="height:'+Math.round(d.count/max*100)+'%"></div></div><span class="lead-week-label">'+labels[i]+'<small>'+d.key.slice(8)+'/'+d.key.slice(5,7)+'</small></span></div>').join('');}
 function shiftLeadWeek(direction){const input=document.getElementById('leadWeekDate'),date=leadMonday(input.value||leadDayKey());date.setUTCDate(date.getUTCDate()+direction*7);input.value=date.toISOString().slice(0,10);renderLeadWeekChart();}
 function filterLeadsToday(){const today=leadDayKey();document.getElementById('leadFrom').value=today;document.getElementById('leadTo').value=today;renderLeads();}
+function filteredLeadsForCsv(list=leadList()){
+  const query=document.getElementById('leadSearch').value.trim().toLocaleLowerCase('pt-BR'),digits=leadDigits(query),campaign=document.getElementById('leadCampaignFilter').value,status=document.getElementById('leadStatus').value;
+  const from=document.getElementById('leadFrom').value,to=document.getElementById('leadTo').value;
+  const filtered=list.filter(item=>(!query||item.captures.some(c=>String(c.name||'').toLocaleLowerCase('pt-BR').includes(query))||(digits&&(item.document.includes(digits)||item.captures.some(c=>leadDigits(c.phone).includes(digits)))))&&(!status||item.status===status)&&item.captures.some(c=>{if(campaign&&c.campaignId!==campaign)return false;if(!from&&!to)return true;if(!(Number(c.capturedAt)>0))return false;const day=leadDayKey(c.capturedAt);return (!from||day>=from)&&(!to||day<=to);}));
+  return filtered;
+}
 function renderLeads(){
   const rows=document.getElementById('leadRows');if(!rows)return;
   const list=leadList();document.getElementById('leadTotal').textContent=list.length;renderLeadWeekChart();
-  const query=document.getElementById('leadSearch').value.trim().toLocaleLowerCase('pt-BR'),digits=leadDigits(query),campaign=document.getElementById('leadCampaignFilter').value,status=document.getElementById('leadStatus').value;
   const from=document.getElementById('leadFrom').value,to=document.getElementById('leadTo').value;
   const todayActive=from===leadDayKey()&&to===from;document.getElementById('leadToday').classList.toggle('active',todayActive);document.getElementById('leadToday').setAttribute('aria-pressed',String(todayActive));
-  const filtered=list.filter(item=>(!query||item.captures.some(c=>String(c.name||'').toLocaleLowerCase('pt-BR').includes(query))||(digits&&(item.document.includes(digits)||item.captures.some(c=>leadDigits(c.phone).includes(digits)))))&&(!status||item.status===status)&&item.captures.some(c=>{if(campaign&&c.campaignId!==campaign)return false;if(!from&&!to)return true;if(!(Number(c.capturedAt)>0))return false;const day=leadDayKey(c.capturedAt);return (!from||day>=from)&&(!to||day<=to);}));
+  const filtered=filteredLeadsForCsv(list);
   document.getElementById('leadResultCount').textContent=leadReadError||(!leadLoaded?'Carregando contatos…':filtered.length+' contato(s) encontrado(s)');
   rows.innerHTML=filtered.length?filtered.map(item=>'<tr><td>'+leadText(item.name||'\u2014')+'</td><td class="mono">'+leadText(item.document?item.documentType.toUpperCase()+' \u00b7 '+item.document:'\u2014')+'</td><td>'+(leadDigits(item.last.phone)?'<a href="https://wa.me/55'+leadDigits(item.last.phone)+'" target="_blank" rel="noopener noreferrer" style="color:var(--ok)" aria-label="Abrir WhatsApp de '+leadText(item.last.phone)+'"><i class="fab fa-whatsapp" aria-hidden="true"></i> '+leadText(item.last.phone)+'</a>':'\u2014')+'</td><td>'+leadText(item.first.campaignName||'—')+'</td><td>'+leadDate(item.first.capturedAt)+'</td><td><span class="lead-status '+item.status+'">'+(item.status==='complete'?'Completo':'Capturado')+'</span></td><td><button class="btn btn-ghost" data-lead-detail="'+leadText(item.cnpj)+'">Ver detalhes</button> <button class="btn btn-ghost lead-delete" data-lead-remove="'+leadText(item.cnpj)+'" aria-label="Excluir contato '+leadText(item.cnpj)+'"><i class="fas fa-trash"></i> Excluir</button></td></tr>').join(''):'<tr><td colspan="7" class="lead-empty">'+leadText(leadReadError||(!leadLoaded?'Aguardando contatos…':'Nenhum contato encontrado para estes filtros.'))+'</td></tr>';
 }
@@ -5658,5 +5669,138 @@ function openLeadDetail(cnpj){
   document.getElementById('leadDetail').showModal();
 }
 renderLeadCampaigns();
-</script></body>
+</script>
+
+<style>
+.csv-fields{display:grid;grid-template-columns:1fr 1fr;gap:10px;border:0;padding:0;margin:0}.csv-fields legend{font-weight:600;margin-bottom:12px}.csv-fields label{display:flex;align-items:center;gap:10px;padding:14px;background:var(--panel-alt);border:1px solid var(--border);border-radius:10px;cursor:pointer}.csv-fields input{accent-color:var(--accent);width:16px;height:16px}.csv-period{display:grid;grid-template-columns:1fr 1fr;gap:12px}@media(max-width:420px){.csv-period{grid-template-columns:1fr}}
+</style>
+<dialog id="contactsCsvModal" class="lead-dialog" aria-labelledby="contactsCsvTitle">
+<form onsubmit="event.preventDefault();submitContactsCsv()">
+<div class="lead-dialog-head"><div><h2 id="contactsCsvTitle">Exportar CSV</h2><p>Escolha os campos e os contatos que deseja exportar.</p></div><button type="button" class="lead-close" aria-label="Fechar" onclick="document.getElementById('contactsCsvModal').close()"><i class="fas fa-xmark"></i></button></div>
+<div class="lead-dialog-body">
+<fieldset class="csv-fields"><legend>Campos do arquivo</legend><label><input type="checkbox" data-csv-field value="name" checked>Nome</label><label><input type="checkbox" data-csv-field value="phone" checked>Telefone</label><label><input type="checkbox" data-csv-field value="cpf" checked>CPF</label><label><input type="checkbox" data-csv-field value="cnpj" checked>CNPJ</label></fieldset>
+<label class="lead-field">Hist&oacute;rico de exporta&ccedil;&atilde;o<select id="csvExportStatus"><option value="all">Todos os contatos</option><option value="new">Somente os ainda n&atilde;o exportados</option><option value="exported">Somente os j&aacute; exportados</option></select></label>
+<button type="button" class="btn btn-ghost" onclick="openContactsCsvHistory(contactsCsvKind)"><i class="fas fa-clock-rotate-left"></i> Ver &uacute;ltimos arquivos exportados</button>
+<small style="color:var(--text-muted)">Hist&oacute;rico deste navegador e desta conta. A marca&ccedil;&atilde;o considera o contato inteiro, independentemente dos campos ou da campanha.</small>
+<label class="lead-field">Pesquisar contato<input id="csvSearch" placeholder="Nome, telefone, CPF ou CNPJ"></label>
+<label class="lead-field" id="csvUsersGroup">Usuários<select id="csvUsersTab"><option value="all">Todos os usuários</option><option value="PF">Pessoa física</option><option value="PJ">Pessoa jurídica</option><option value="online">Online agora</option><option value="novos">Novos clientes</option><option value="google">Google</option><option value="manual">Manual</option></select></label>
+<div id="csvLeadsGroup" style="display:grid;gap:16px">
+<label class="lead-field">Campanha<select id="csvCampaign"></select></label>
+<label class="lead-field">Situação<select id="csvStatus"><option value="">Todas</option><option value="pending">Capturados</option><option value="complete">Completos</option></select></label>
+<div class="csv-period"><label class="lead-field">Data inicial<input type="date" id="csvFrom"></label><label class="lead-field">Data final<input type="date" id="csvTo"></label></div>
+<div style="display:flex;gap:8px;flex-wrap:wrap"><button type="button" class="btn btn-ghost" onclick="document.getElementById('csvFrom').value=document.getElementById('csvTo').value=leadDayKey()">Hoje</button><button type="button" class="btn btn-ghost" onclick="document.getElementById('csvFrom').value=document.getElementById('csvTo').value=''">Todas as datas</button></div>
+<small style="color:var(--text-muted)">Para uma data específica, selecione o mesmo dia nos dois campos.</small>
+</div></div>
+<div class="lead-dialog-footer"><button type="button" class="btn btn-ghost" onclick="document.getElementById('contactsCsvModal').close()">Cancelar</button><button type="submit" class="btn btn-accent"><i class="fas fa-download"></i> Baixar CSV</button></div>
+</form></dialog>
+
+<dialog id="contactsCsvHistory" class="lead-dialog" aria-labelledby="csvHistoryTitle"><div class="lead-dialog-head"><div><h2 id="csvHistoryTitle">Arquivos exportados</h2><p>Os &uacute;ltimos 20 arquivos desta conta neste navegador. Exporta&ccedil;&otilde;es anteriores &agrave; ativa&ccedil;&atilde;o deste recurso n&atilde;o aparecem.</p></div><button type="button" class="lead-close" aria-label="Fechar" onclick="document.getElementById('contactsCsvHistory').close()"><i class="fas fa-xmark"></i></button></div><div id="csvHistoryRows" class="lead-dialog-body"></div><div class="lead-dialog-footer"><button type="button" class="btn btn-ghost" onclick="document.getElementById('contactsCsvHistory').close()">Fechar</button></div></dialog>
+<script id="contacts-csv-script">
+
+let contactsCsvKind='users';
+function openContactsCsvModal(kind){
+  contactsCsvKind=kind;
+  document.getElementById('csvExportStatus').value='all';
+  document.getElementById('contactsCsvTitle').textContent=kind==='users'?'Exportar usuários':'Exportar leads';
+  document.getElementById('csvUsersGroup').hidden=kind!=='users';
+  document.getElementById('csvLeadsGroup').style.display=kind==='leads'?'grid':'none';
+  document.getElementById('csvSearch').value=document.getElementById(kind==='users'?'userFilterText':'leadSearch').value;
+  document.getElementById('csvUsersTab').value=usersTab;
+  document.getElementById('csvCampaign').innerHTML=document.getElementById('leadCampaignFilter').innerHTML;
+  for(const [target,source] of [['csvCampaign','leadCampaignFilter'],['csvStatus','leadStatus'],['csvFrom','leadFrom'],['csvTo','leadTo']])document.getElementById(target).value=document.getElementById(source).value;
+  document.getElementById('contactsCsvModal').showModal();
+}
+function submitContactsCsv(){
+  const pairs=contactsCsvKind==='users'?[['userFilterText','csvSearch']]:[['leadSearch','csvSearch'],['leadCampaignFilter','csvCampaign'],['leadStatus','csvStatus'],['leadFrom','csvFrom'],['leadTo','csvTo']];
+  const previous=pairs.map(([id])=>document.getElementById(id).value),previousTab=usersTab;
+  try{
+    pairs.forEach(([id,source])=>document.getElementById(id).value=document.getElementById(source).value);
+    if(contactsCsvKind==='users')usersTab=document.getElementById('csvUsersTab').value;
+    if(exportContactsCsv(contactsCsvKind))document.getElementById('contactsCsvModal').close();
+  }finally{pairs.forEach(([id],i)=>document.getElementById(id).value=previous[i]);usersTab=previousTab;}
+}
+
+
+function formatContactsCsvDocument(value,type){
+  const digits=String(value??'').replace(/\D/g,'');
+  if(type==='cpf'&&digits.length===11)return digits.replace(/^(\d{3})(\d{3})(\d{3})(\d{2})$/,'$1.$2.$3-$4');
+  if(type==='cnpj'&&digits.length===14)return digits.replace(/^(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})$/,'$1.$2.$3/$4-$5');
+  return String(value??'');
+}
+function contactsCsvStorageKey(){return 'cim.contactsCsv.v1.'+(currentAdmin?.uid||auth.currentUser?.uid||'anonymous');}
+function readContactsCsvState(){
+  const raw=localStorage.getItem(contactsCsvStorageKey());
+  if(!raw)return {exported:{},files:[]};
+  const state=JSON.parse(raw);
+  if(!state||typeof state.exported!=='object'||!state.exported||!Array.isArray(state.files))throw new Error('Invalid history');
+  return state;
+}
+function downloadContactsCsv(csv,filename){
+  const blob=new Blob([csv],{type:'text/csv;charset=utf-8;'}),url=URL.createObjectURL(blob),link=document.createElement('a');
+  link.href=url;link.download=filename;document.body.appendChild(link);link.click();link.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);
+}
+function openContactsCsvHistory(kind){
+  let state;try{state=readContactsCsvState();}catch(error){showToast('N\u00e3o foi poss\u00edvel ler o hist\u00f3rico.','err');return;}
+  const rows=document.getElementById('csvHistoryRows');rows.replaceChildren();
+  const files=state.files.filter(f=>f.kind===kind);
+  if(!files.length){const empty=document.createElement('p');empty.textContent='Nenhum arquivo exportado nesta aba ainda.';rows.appendChild(empty);}
+  files.forEach(file=>{
+    const card=document.createElement('article');card.className='lead-box';card.style.padding='16px';
+    const title=document.createElement('strong');title.textContent=file.filename;title.style.overflowWrap='anywhere';
+    const info=document.createElement('p');info.textContent=new Date(file.createdAt).toLocaleString('pt-BR',{timeZone:'America/Sao_Paulo'})+' \u00b7 '+file.count+' contato(s) \u00b7 '+file.fields.join(', ');
+    const filter=document.createElement('p'),f=file.filters||{},modes={all:'Todos',new:'Ainda n\u00e3o exportados',exported:'J\u00e1 exportados'};
+    filter.textContent=[f.group,f.status,modes[f.exportStatus],f.search?'Busca: '+f.search:'',f.from?'De '+f.from:'',f.to?'At\u00e9 '+f.to:''].filter(Boolean).join(' \u00b7 ');
+    const button=document.createElement('button');button.type='button';button.className='btn btn-ghost';button.textContent='Baixar novamente';button.addEventListener('click',()=>downloadContactsCsv(file.csv,file.filename));
+    card.append(title,info,filter,button);rows.appendChild(card);
+  });
+  document.getElementById('contactsCsvHistory').showModal();
+}
+
+function contactsCsvCell(value){
+  let text=String(value??'');
+  if(/^[\s]*[=+@-]/.test(text))text="'"+text;
+  return '"'+text.replace(/"/g,'""')+'"';
+}
+function exportContactsCsv(kind){
+  const fields=Array.from(document.querySelectorAll('#contactsCsvModal input[data-csv-field]:checked'),el=>el.value);
+  if(!fields.length){showToast('Selecione pelo menos um campo para exportar.','err');return;}
+  let contacts;
+  if(kind==='users')contacts=filteredUsersForCsv().map(u=>({exportId:'user:'+u.uid,name:u.name||'',phone:u.telefone||'',cpf:u.cpf||'',cnpj:u.cnpj||''}));
+  else{
+    if(!leadLoaded||leadReadError){showToast(leadReadError||'Aguarde o carregamento dos leads.','err');return;}
+    const from=document.getElementById('leadFrom').value,to=document.getElementById('leadTo').value;
+    if(from&&to&&from>to){showToast('A data inicial deve ser anterior ou igual à data final.','err');return;}
+    const campaign=document.getElementById('leadCampaignFilter').value;
+    contacts=filteredLeadsForCsv().map(item=>{
+      const captures=item.captures.filter(c=>{
+        if(campaign&&c.campaignId!==campaign)return false;
+        if(!from&&!to)return true;
+        if(!(Number(c.capturedAt)>0))return false;
+        const day=leadDayKey(c.capturedAt);return (!from||day>=from)&&(!to||day<=to);
+      });
+      const last=captures[captures.length-1],type=last.documentType||(last.cpf?'cpf':'cnpj');
+      const doc=leadDigits(last[type]||item.document);
+      return {exportId:'lead:'+item.cnpj,name:[...captures].reverse().find(c=>c.name)?.name||item.user?.name||'',phone:last.phone||'',cpf:type==='cpf'?doc:'',cnpj:type==='cnpj'?doc:''};
+    });
+  }
+
+  let state;
+  try{state=readContactsCsvState();}catch(error){showToast('N\u00e3o foi poss\u00edvel ler o hist\u00f3rico deste navegador.','err');return;}
+  const mode=document.getElementById('csvExportStatus').value;
+  contacts=contacts.filter(c=>mode==='all'||(mode==='exported'?!!state.exported[c.exportId]:!state.exported[c.exportId]));
+  if(!contacts.length){showToast('Nenhum contato encontrado para estes filtros de exporta\u00e7\u00e3o.','err');return;}
+  const labels={name:'Nome',phone:'Telefone',cpf:'CPF',cnpj:'CNPJ'};
+  const csv='\uFEFF'+[fields.map(f=>contactsCsvCell(labels[f])).join(';'),...contacts.map(c=>fields.map(f=>contactsCsvCell(f==='cpf'||f==='cnpj'?formatContactsCsvDocument(c[f],f):c[f])).join(';'))].join('\r\n');
+  const now=Date.now(),filename=(kind==='users'?'usuarios':'leads')+'-'+leadDayKey(now)+'-'+now+'.csv';
+  const entry={id:String(now)+'-'+Math.random().toString(36).slice(2,8),kind,filename,createdAt:now,count:contacts.length,fields:fields.map(f=>labels[f]),csv,filters:{search:document.getElementById('csvSearch').value,exportStatus:mode,group:kind==='users'?document.getElementById('csvUsersTab').selectedOptions[0].textContent:document.getElementById('csvCampaign').selectedOptions[0].textContent,from:kind==='leads'?document.getElementById('csvFrom').value:'',to:kind==='leads'?document.getElementById('csvTo').value:'',status:kind==='leads'?document.getElementById('csvStatus').selectedOptions[0].textContent:''}};
+  contacts.forEach(c=>state.exported[c.exportId]=now);
+  state.files=[entry,...state.files].slice(0,20);
+  try{localStorage.setItem(contactsCsvStorageKey(),JSON.stringify(state));}catch(error){showToast('N\u00e3o foi poss\u00edvel salvar o hist\u00f3rico. Verifique o armazenamento do navegador.','err');return;}
+  downloadContactsCsv(csv,filename);
+  showToast(contacts.length+' contato(s) exportado(s).');
+  return true;
+}
+</script>
+
+</body>
 </html>
