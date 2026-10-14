@@ -26,6 +26,7 @@ h1{font-size:26px;line-height:1.2}
 .capture-field input::placeholder{color:#626875}
 .capture-field input:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px #ff360112}
 .capture-field input[aria-invalid=true]{border-color:#f57676}
+.document-input{position:relative}.document-input input{padding-right:100px}.document-input select{position:absolute;right:10px;top:50%;transform:translateY(-50%);border:0;border-left:1px solid var(--line);padding:8px;background:#000;color:var(--text);font:12px Inter,Arial,sans-serif;cursor:pointer}
 .field-error{display:block;font-size:11px;line-height:1.5;color:#f88;margin-top:6px}
 .field-error:empty{display:none}
 .capture-permission{border-top:1px solid var(--line);padding-top:20px;margin-top:6px}
@@ -78,8 +79,14 @@ main{animation:pageEntrance .7s cubic-bezier(.2,.8,.2,1) both}
     <p id="loading" class="capture-loading">Verificando página…</p>
     <form id="capture" novalidate hidden>
       <div class="capture-field">
-        <label for="cnpj">CNPJ do cliente</label>
+        <label for="name">Nome</label>
+        <input id="name" maxlength="120" autocomplete="name" placeholder="Nome do cliente">
+      </div>
+      <div class="capture-field">
+        <label id="documentLabel" for="cnpj">CNPJ do cliente</label>
+        <div class="document-input">
         <input id="cnpj" inputmode="numeric" maxlength="18" placeholder="00.000.000/0000-00" autocomplete="off" aria-describedby="cnpjError">
+        <select id="documentType" aria-label="Tipo de documento"><option value="cnpj">CNPJ</option><option value="cpf">CPF</option></select></div>
         <span id="cnpjError" class="field-error" aria-live="polite"></span>
       </div>
       <div class="capture-field">
@@ -120,6 +127,14 @@ function captureValidCnpj(value){
   function check(length){const weights=length===12?[5,4,3,2,9,8,7,6,5,4,3,2]:[6,5,4,3,2,9,8,7,6,5,4,3,2];const sum=weights.reduce((total,weight,index)=>total+Number(digits[index])*weight,0);const remainder=sum%11;return remainder<2?0:11-remainder;}
   return check(12)===Number(digits[12])&&check(13)===Number(digits[13]);
 }
+function captureValidCpf(value){
+  const digits=captureDigits(value);
+  if(!/^\d{11}$/.test(digits)||/^(\d)\1{10}$/.test(digits))return false;
+  const check=length=>{let sum=0;for(let i=0;i<length;i++)sum+=Number(digits[i])*(length+1-i);return (sum*10%11)%10;};
+  return check(9)===Number(digits[9])&&check(10)===Number(digits[10]);
+}
+function captureDocumentMask(value){return captureElement('documentType').value==='cpf'?captureDigits(value).slice(0,11).replace(/^(\d{3})(\d)/,'$1.$2').replace(/^(\d{3})\.(\d{3})(\d)/,'$1.$2.$3').replace(/(\d{3})(\d{1,2})$/,'$1-$2'):captureCnpjMask(value);}
+function updateCaptureDocument(){const cpf=captureElement('documentType').value==='cpf',input=captureElement('cnpj');captureElement('documentLabel').textContent=(cpf?'CPF':'CNPJ')+' do cliente';input.maxLength=cpf?14:18;input.placeholder=cpf?'000.000.000-00':'00.000.000/0000-00';input.value='';input.removeAttribute('aria-invalid');captureElement('cnpjError').textContent='';}
 function captureValidPhone(value){return /^[1-9][0-9]([2-5][0-9]{7}|9[0-9]{8})$/.test(captureDigits(value));}
 function captureCnpjMask(value){return captureDigits(value).slice(0,14).replace(/^(\d{2})(\d)/,'$1.$2').replace(/^(\d{2})\.(\d{3})(\d)/,'$1.$2.$3').replace(/\.(\d{3})(\d)/,'.$1/$2').replace(/(\d{4})(\d)/,'$1-$2');}
 function capturePhoneMask(value){const digits=captureDigits(value).slice(0,11);return digits.replace(/^(\d{2})(\d)/,'($1) $2').replace(/(\d{4,5})(\d{4})$/,'$1-$2');}
@@ -182,22 +197,24 @@ async function copyOfficialSite(){
 }
 document.addEventListener('DOMContentLoaded',()=>{
   captureElement('officialSite').addEventListener('click',copyOfficialSite);
-  captureElement('cnpj').addEventListener('input',event=>{event.target.value=captureCnpjMask(event.target.value);captureElement('cnpjError').textContent='';event.target.removeAttribute('aria-invalid');});
+  captureElement('documentType').addEventListener('change',updateCaptureDocument);
+  captureElement('cnpj').addEventListener('input',event=>{event.target.value=captureDocumentMask(event.target.value);captureElement('cnpjError').textContent='';event.target.removeAttribute('aria-invalid');});
   captureElement('phone').addEventListener('input',event=>{event.target.value=capturePhoneMask(event.target.value);captureElement('phoneError').textContent='';event.target.removeAttribute('aria-invalid');});
   captureElement('consent').addEventListener('change',()=>{captureElement('consentError').textContent='';});
   captureElement('photo').addEventListener('error',()=>{captureElement('photo').hidden=true;captureElement('captureMark').hidden=false;});
-  captureElement('another').addEventListener('click',()=>{captureElement('capture').reset();captureElement('success').hidden=true;captureElement('capture').hidden=false;captureMessage('');captureElement('cnpj').focus();});
+  captureElement('another').addEventListener('click',()=>{captureElement('capture').reset();updateCaptureDocument();captureElement('success').hidden=true;captureElement('capture').hidden=false;captureMessage('');captureElement('name').focus();});
   captureElement('capture').addEventListener('submit',async event=>{
     event.preventDefault();if(captureBusy)return;captureMessage('');
-    const cnpj=captureDigits(captureElement('cnpj').value),phone=captureDigits(captureElement('phone').value),consent=captureElement('consent').checked;
-    const errors={cnpj:captureValidCnpj(cnpj)?'':'Informe um CNPJ válido com 14 dígitos.',phone:captureValidPhone(phone)?'':'Informe um telefone válido com DDD.',consent:consent?'':'Confirme a autorização do cliente.'};
+    const name=captureElement('name').value.trim(),documentType=captureElement('documentType').value,cnpj=captureDigits(captureElement('cnpj').value),phone=captureDigits(captureElement('phone').value),consent=captureElement('consent').checked;
+    const errors={cnpj:!cnpj||(documentType==='cpf'?captureValidCpf(cnpj):captureValidCnpj(cnpj))?'':'Informe um '+documentType.toUpperCase()+' v\u00e1lido.',phone:captureValidPhone(phone)?'':'Informe um telefone válido com DDD.',consent:consent?'':'Confirme a autorização do cliente.'};
     Object.entries(errors).forEach(([field,text])=>{captureElement(field+'Error').textContent=text;captureElement(field).setAttribute('aria-invalid',String(!!text));});
     const invalid=Object.keys(errors).find(key=>errors[key]);if(invalid){captureElement(invalid).focus();return;}
     if(capturePreview){captureMessage('Esta é uma prévia. Use o link de uma campanha para salvar contatos.');return;}
     if(!captureDatabase||!captureCampaign?.active){captureMessage('A campanha não está disponível. Recarregue a página.',true);return;}
     captureBusy=true;captureElement('send').disabled=true;
     try{
-      await captureDatabase.ref('leads/'+cnpj+'/captures').push().set({cnpj,phone,campaignId:captureCampaignId,campaignName:captureCampaign.name,capturedAt:firebase.database.ServerValue.TIMESTAMP,consent:true,consentVersion:'commercial-v1'});
+      const leadId=cnpj||'phone_'+phone;
+      await captureDatabase.ref('leads/'+leadId+'/captures').push().set({name,documentType,[documentType]:cnpj,phone,campaignId:captureCampaignId,campaignName:captureCampaign.name,capturedAt:firebase.database.ServerValue.TIMESTAMP,consent:true,consentVersion:'commercial-v1'});
       captureElement('capture').hidden=true;captureElement('success').hidden=false;
     }catch(error){captureMessage('Não foi possível salvar. Verifique a conexão e se a campanha continua ativa.',true);}
     finally{captureBusy=false;captureElement('send').disabled=false;}
