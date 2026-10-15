@@ -48,3 +48,9 @@ Fontes oficiais consultadas:
 - Arquivos de credenciais e módulos do servidor retornam 404 pela web.
 - A confirmação de uma compra efetivamente paga ainda depende da primeira transação; nenhuma cobrança foi realizada durante a validação.
 - Firebase Admin exige jwks-rsa 3.2.0 neste runtime CommonJS da Vercel; regressão coberta por teste. Referência: https://github.com/firebase/firebase-admin-node/issues/3181
+
+## Limpeza de pedidos anteriores à integração
+- ADM: lixeira disponível apenas para pedidos antigos sem identificadores ou vínculo com pagamentos. A ação remove da lista por arquivamento, preservando auditoria e cadastro do cliente. Exige confirmação e autorização de administrador.
+- Pendentes: contagem regressiva de uma hora e remoção automática das listas do cliente e ADM após vencimento. Pagamentos aprovados permanecem.
+- Faturamento: pendentes, cancelados e arquivados não entram na receita.
+- 33 testes automatizados passaram após estes ajustes.

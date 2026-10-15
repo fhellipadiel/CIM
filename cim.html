@@ -2787,7 +2787,7 @@
                     checkoutRequest('customer-orders', {}).catch(error => { showToast('Não foi possível atualizar os pagamentos: ' + error.message, 'error'); return {orders:[]}; })
                 ]);
                 const data = snap.val() || {};
-                const arr = [...new Map([...Object.keys(data).map(k => ({ id: k, ...data[k] })), ...(checkoutOrders.orders || [])].filter(order=>order.paymentStatus!=='expired' && (order.provider!=='orders'||order.status!=='pendente'||order.expiresAt>Date.now())).map(order=>[order.id,order])).values()];
+                const arr = [...new Map([...Object.keys(data).map(k => ({ id: k, ...data[k] })), ...(checkoutOrders.orders || [])].filter(order=>CimPaymentPolicy.isOrderVisible(order)).map(order=>[order.id,order])).values()];
                 arr.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
                 _ordersCache = arr;
                 updateOrdersBadges();
@@ -4373,7 +4373,7 @@
         }
 
         setInterval(()=>{
-            const visible=_ordersCache.filter(order=>order.provider!=='orders'||order.status!=='pendente'||order.expiresAt>Date.now());
+            const visible=_ordersCache.filter(order=>CimPaymentPolicy.isOrderVisible(order));
             if(visible.length!==_ordersCache.length){_ordersCache=visible;updateOrdersBadges();renderOrdersByTab(_ordersTab);}
         },1000);
         let syncingCheckoutOrders=false;

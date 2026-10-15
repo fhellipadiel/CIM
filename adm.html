@@ -475,7 +475,7 @@ tbody tr:last-child td{border-bottom:none}
   .field input{padding:12px 16px;font-size:.9rem}
   .btn-full{padding:12px;font-size:.9rem}
 }
-</style>
+</style><script src="assets/payment-policy.js"></script>
 <!-- LEADS: estilos locais do painel e dos diálogos -->
 <style id="leads-admin-styles">
 .lead-nav,.lead-tabs{display:flex;gap:8px;flex-wrap:wrap}
@@ -1802,7 +1802,7 @@ let featuredDraft=[], featuredLoaded=false, featuredDirty=false, featuredSaveTim
 let galleryDraft=[], galleryLoaded=false, galleryDirty=false, gallerySaveTimer=null;
 let trackingLinks={}, editingLinkId=null, uploadedLinkImg=null;
 let aboutPhotosDraft=[], aboutPhotosLoaded=false, aboutPhotosDirty=false, aboutPhotosSaveTimer=null;
-let ordersCache=[];
+let ordersCache=[], allOrdersCache=[];
 let orderPeriodFilter='all', orderStatusFilter='all';
 const ORDERS_REVENUE_VISIBILITY_KEY='cimAdmOrdersRevenueHidden';
 let ordersRevenueHidden=localStorage.getItem(ORDERS_REVENUE_VISIBILITY_KEY)==='true', ordersRevenueValue='R$ 0,00';
@@ -2421,6 +2421,36 @@ async function updateManagedOrderAdm(order,status){
   const data=await response.json().catch(()=>({}));
   if(!response.ok)throw Error(data.error||'Não foi possível atualizar o pedido.');
 }
+function refreshOrdersVisibilityAdm(force=false){
+  const visible=allOrdersCache.filter(order=>CimPaymentPolicy.isOrderVisible(order));
+  if(!force && visible.length===ordersCache.length)return;
+  ordersCache=visible;
+  if(currentOrderDetail&&!CimPaymentPolicy.isOrderVisible(currentOrderDetail)){closeModal('modalOrderDetail');currentOrderDetail=null;}
+  updateOrdersBadgeAdm();renderOrderInvoicesAdm();renderDashboard();renderOrders();renderOrdersDashboard();
+}
+function paymentDeadlineAdm(order){
+  const seconds=Math.max(0,Math.ceil((CimPaymentPolicy.orderExpiresAt(order)-Date.now())/1000));
+  return 'Pagar em '+Math.floor(seconds/60)+':'+String(seconds%60).padStart(2,'0');
+}
+setInterval(()=>{
+  if(!auth.currentUser)return;
+  refreshOrdersVisibilityAdm();
+  document.querySelectorAll('[data-order-deadline]').forEach(el=>{const order=ordersCache.find(o=>o.uid===el.dataset.orderUid&&o.id===el.dataset.orderDeadline);if(order)el.textContent=paymentDeadlineAdm(order);});
+},1000);
+async function archiveLegacyOrderAdm(uid,id){
+  const order=ordersCache.find(o=>o.uid===uid&&o.id===id);
+  if(!order||!CimPaymentPolicy.isLegacyOrder(order))return;
+  if(!confirm('Excluir o pedido antigo '+orderShortIdAdm(order)+' da lista? Use apenas para pedidos de teste criados antes da integração. O cadastro do cliente será mantido.'))return;
+  showLoading('Excluindo pedido antigo...');
+  try{
+    const token=await auth.currentUser.getIdToken();
+    const response=await fetch('/api/admin-archive-legacy-order',{method:'POST',headers:{'Content-Type':'application/json',Authorization:'Bearer '+token},body:JSON.stringify({uid,orderId:id}),signal:AbortSignal.timeout(30000)});
+    const result=await response.json().catch(()=>({}));
+    if(!response.ok)throw Error(result.error||'Não foi possível excluir o pedido.');
+    showToast('Pedido antigo excluído da lista.');
+  }catch(error){showToast(error.message,'err');}
+  finally{hideLoading();}
+}
 function listenOrdersAdm(){
   database.ref('orders').on('value', snap => {
     const raw = snap.val() || {};
@@ -2432,12 +2462,8 @@ function listenOrdersAdm(){
       });
     });
     arr.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
-    ordersCache = arr;
-    updateOrdersBadgeAdm();
-    renderOrderInvoicesAdm();
-    renderDashboard();
-    renderOrders();
-    renderOrdersDashboard();
+    allOrdersCache = arr;
+    refreshOrdersVisibilityAdm(true);
   });
 }
 
@@ -2449,7 +2475,7 @@ function updateOrdersBadgeAdm(){
 }
 
 function getFilteredOrdersAdm(){
-  let list = [...ordersCache];
+  let list = ordersCache.filter(order=>CimPaymentPolicy.isOrderVisible(order));
   const now = new Date();
   const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
   const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1).getTime();
@@ -2608,7 +2634,7 @@ function toggleOrdersRevenueVisibility(){
 
 function renderOrdersDashboard(){
   const filtered = getFilteredOrdersAdm();
-  const valid = filtered.filter(o => o.status !== 'cancelado');
+  const valid = filtered.filter(CimPaymentPolicy.isPaidOrder);
   const revenue = valid.reduce((s, o) => s + (o.total || 0), 0);
   const buyers = new Set(valid.map(o => o.uid)).size;
 
@@ -2655,7 +2681,7 @@ function renderRevenueWeekChart(){
   const totals = [0,0,0,0,0];
   ordersCache.forEach(order => {
     const timestamp = Number(order.createdAt) || 0;
-    if(!timestamp || timestamp < range.start || timestamp > range.end || order.status === 'cancelado') return;
+    if(!timestamp || timestamp < range.start || timestamp > range.end || !CimPaymentPolicy.isPaidOrder(order)) return;
     const day = new Date(timestamp).getDay();
     if(day >= 1 && day <= 5) totals[day - 1] += Number(order.total) || 0;
   });
@@ -2694,7 +2720,7 @@ function orderShortIdAdm(o){
 }
 
 function isInvoiceEligibleOrderAdm(order){
-  return ['pago','confirmado','preparando','enviado','entregue'].includes(order.status||'pendente');
+  return CimPaymentPolicy.isPaidOrder(order);
 }
 
 function getInvoiceEligibleOrdersAdm(){
@@ -2798,12 +2824,13 @@ function renderOrders(){
       <td class="mono">${itemsCount}</td>
       <td class="mono" style="color:#fff;font-weight:700;">${fmtBRLAdm(o.total)}</td>
       <td>${esc(orderModeLabelAdm(o.mode))}</td>
-      <td><span class="order-status-chip ${s}">${orderStatusLabelAdm(s)}</span></td>
+      <td><span class="order-status-chip ${s}">${orderStatusLabelAdm(s)}</span>${s==='pendente'?`<div class="td-sub" data-order-deadline="${o.id}" data-order-uid="${o.uid}">${paymentDeadlineAdm(o)}</div>`:''}</td>
       <td>${invoiceLabel}</td>
       <td class="td-sub">${dateStr}</td>
       <td><div class="row-actions">
         <button class="btn btn-icon btn-ghost" title="Detalhes" onclick="openOrderDetailAdm('${o.uid}','${o.id}')"><i class="fas fa-eye"></i></button>
         <button class="btn btn-icon btn-ghost" title="Avançar status" onclick="advanceOrderStatusAdm('${o.uid}','${o.id}')"><i class="fas fa-forward"></i></button>
+        ${CimPaymentPolicy.isLegacyOrder(o)?`<button class="btn btn-icon btn-danger" title="Excluir pedido antigo de teste" aria-label="Excluir pedido antigo de teste" onclick="archiveLegacyOrderAdm('${o.uid}','${o.id}')"><i class="fas fa-trash"></i></button>`:''}
         <button class="btn btn-icon btn-danger" title="Cancelar pedido" onclick="cancelOrderAdm('${o.uid}','${o.id}')"><i class="fas fa-times"></i></button>
       </div></td>
     </tr>`;
@@ -5406,7 +5433,7 @@ Object.assign(window, {
   removeAboutPhotoAdm, moveAboutPhotoAdm, clearAllAboutPhotosAdm,
   setOrderPeriod, setOrderStatusFilter, renderOrders, renderOrdersDashboard,
   setOrdersTodayFilter, setOrdersYesterdayFilter, setOrdersThisWeekFilter, setOrdersThisMonthFilter, clearOrdersDateFilter,
-  openOrderDetailAdm, saveOrderStatusAdm, advanceOrderStatusAdm, cancelOrderAdm, cancelCurrentOrderAdm, exportOrdersCsvAdm,
+  archiveLegacyOrderAdm, openOrderDetailAdm, saveOrderStatusAdm, advanceOrderStatusAdm, cancelOrderAdm, cancelCurrentOrderAdm, exportOrdersCsvAdm,
   openResetRevenueModal, confirmResetRevenue, openResetBuyersModal, confirmResetBuyers,
   setAnalyticsPeriod, setAnalyticsSource, setLinksAnalyticsPeriod, setLinksAnalyticsSlug,
   changeWeekGeneral, changeWeekLinks, changeWeekRevenue,

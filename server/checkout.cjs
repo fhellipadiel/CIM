@@ -2,6 +2,7 @@ const ordersApi=require('./orders.cjs');
 const {quote,validSignature,verifiedPayment,fail}=require('./core.cjs');
 const crypto=require('node:crypto');
 const paymentConfig=require('./payment-config.cjs');
+const orderPolicy=require('../assets/payment-policy.js');
 let app;
 function services() {
   if (!process.env.GOOGLE_APPLICATION_CREDENTIALS && !process.env.FIREBASE_SERVICE_ACCOUNT_JSON) fail('Falta configurar a credencial do servidor Firebase de pagamentos.',503);
@@ -77,7 +78,7 @@ async function reconcileOrder(db,remote,mode=paymentConfig.activeMode(),dependen
 
 const PAYMENT_WINDOW=60*60*1000;
 function expiresAt(order){return Number(order.expiresAt)||Number(order.createdAt)+PAYMENT_WINDOW;}
-function visibleOrder(order,now=Date.now()){return !(order.status==='pendente' && expiresAt(order)<=now) && order.paymentStatus!=='expired';}
+function visibleOrder(order,now=Date.now()){return orderPolicy.isOrderVisible(order,now);}
 async function notifyOrder(db,uid,id,order){
   if(!order || !['pago','pendente'].includes(order.status))return;
   if(order.status==='pendente' && !visibleOrder(order))return;
@@ -150,6 +151,20 @@ async function handle(action,req,res,dependencies={}) {
       const products=Object.values((await db.ref('products').get()).val()||{});
       const items=(saved.items||[]).flatMap(item=>{const product=products.find(p=>p.id===item.id);return product?[{...product,quantity:item.quantity}]:[];});
       return res.status(200).json({items});
+    }
+    if(action==='admin-archive-legacy-order'){
+      if(user.isAdmin!==true)fail('Acesso restrito ao administrador.',403);
+      if(!key.test(body.uid||'')||!key.test(body.orderId||''))fail('Pedido inválido.');
+      const ref=db.ref('orders/'+body.uid+'/'+body.orderId);
+      const retain=()=>{};ref.on('value',retain);
+      try{
+        const current=(await ref.once('value')).val();
+        if(!current)fail('Pedido não encontrado.',404);
+        if(!orderPolicy.isLegacyOrder(current))fail('Esta exclusão permite somente pedidos antigos sem integração de pagamento.',409);
+        const result=await ref.transaction(order=>orderPolicy.isLegacyOrder(order)?{...order,archivedAt:order.archivedAt||Date.now(),archivedBy:caller.uid,archiveReason:'legacy_test'}:undefined);
+        if(!result.committed)fail('O pedido mudou. Atualize a lista.',409);
+        return res.status(200).json({archived:true});
+      }finally{ref.off('value',retain);}
     }
     const cfg=paymentConfig.settings();
     if (action==='admin-order-status') {

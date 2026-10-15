@@ -107,3 +107,25 @@ test('webhook de produção exige assinatura própria, aprova e mantém a etapa 
  assert.equal(replay.code,200);assert.equal(db.data.orders.alice.mine.status,'enviado');
  assert.equal(Object.keys(db.data.notifications.alice).length,1);
 }));
+
+test('somente admin exclui pedido antigo; cliente e dados do pedido ficam preservados',()=>withProduction(async()=>{
+ const db=memoryDb({users:{alice:{name:'Cliente'},admin:{isAdmin:true}},orders:{alice:{old:{status:'pago',total:334.5,createdAt:1,items:[{id:'piece',quantity:1}]}}}});
+ const body={uid:'alice',orderId:'old'};
+ assert.equal((await call('admin-archive-legacy-order',body,db)).code,403);
+ assert.equal(db.data.orders.alice.old.archivedAt,undefined);
+ const result=await call('admin-archive-legacy-order',body,db,{token:'admin'});
+ assert.equal(result.code,200);assert.equal(result.body.archived,true);
+ assert.ok(db.data.orders.alice.old.archivedAt);assert.equal(db.data.orders.alice.old.total,334.5);assert.equal(db.data.users.alice.name,'Cliente');
+ assert.equal(require('../assets/payment-policy.js').isOrderVisible(db.data.orders.alice.old),false);
+ const timestamp=db.data.orders.alice.old.archivedAt;
+ await call('admin-archive-legacy-order',body,db,{token:'admin'});
+ assert.equal(db.data.orders.alice.old.archivedAt,timestamp);
+}));
+test('exclusão de legado recusa qualquer evidência de integração ou pagamento',()=>withProduction(async()=>{
+ for(const change of [{provider:'orders'},{paymentId:'123'},{mercadoOrderId:'ORDREAL1'},{paymentStatus:'accredited'},{checkoutUrl:'https://www.mercadopago.com.br/checkout'},{testMode:false},{preferenceId:'abc'},{reference:'abc'}]){
+  const order={status:'pago',total:100,...change};
+  const db=memoryDb({users:{admin:{isAdmin:true}},orders:{alice:{real:order}}});
+  const result=await call('admin-archive-legacy-order',{uid:'alice',orderId:'real'},db,{token:'admin'});
+  assert.equal(result.code,409);assert.deepEqual(db.data.orders.alice.real,order);
+ }
+}));

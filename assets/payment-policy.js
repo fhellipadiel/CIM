@@ -10,5 +10,9 @@
   function cents(value){return Math.round((Number(value)+Number.EPSILON)*100);}
   function unitPrice(base,percent=0,discount=0){return cents(Number(base)*(1-Number(discount)/100)*(1+Number(percent)/100))/100;}
   function total(items,price){return items.reduce((sum,item)=>sum+cents(price(item))*item.quantity,0)/100;}
-  return Object.freeze({taxes,interestFree,rate,cents,unitPrice,total});
+  function orderExpiresAt(order){return Number(order.expiresAt)||Number(order.createdAt)+60*60*1000;}
+  function isOrderVisible(order,now=Date.now()){return !order.archivedAt && order.paymentStatus!=='expired' && !(order.status==='pendente' && orderExpiresAt(order)<=now);}
+  function isLegacyOrder(order){return !!order && order.testMode!==false && !['provider','mercadoOrderId','paymentId','mercadoPaymentId','paymentStatus','checkoutUrl','preferenceId','external_reference','reference'].some(key=>order[key]);}
+  function isPaidOrder(order){return !order.archivedAt && ['pago','confirmado','preparando','enviado','entregue'].includes(order.status) && (order.provider!=='orders'||order.paymentStatus==='accredited');}
+  return Object.freeze({taxes,interestFree,rate,cents,unitPrice,total,orderExpiresAt,isOrderVisible,isLegacyOrder,isPaidOrder});
 });
