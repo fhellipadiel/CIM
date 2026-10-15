@@ -1114,6 +1114,21 @@ body.fullscreen-panel-open{overflow:hidden!important}
 .notification-hint{position:fixed;z-index:3500;border:1px solid #ff6b35;border-radius:12px;background:#ff3601;color:#fff;padding:13px 16px;font:600 .85rem inherit;box-shadow:0 6px 24px #0008;cursor:pointer}.notification-hint:before{content:"";position:absolute;left:var(--arrow-left,50%);top:-7px;width:12px;height:12px;background:#ff3601;transform:translateX(-50%) rotate(45deg);border-left:1px solid #ff6b35;border-top:1px solid #ff6b35}
 .suggestions-dropdown{max-height:min(280px,32dvh)!important;overscroll-behavior:contain;padding-bottom:0}.search-results-link{position:sticky;bottom:0;display:block;width:100%;padding:14px;background:#211a17;color:#ff9b79;border:0;border-top:1px solid #444;text-align:center;font:600 .85rem inherit;cursor:pointer}.suggestion-item{padding-top:10px;padding-bottom:10px}
 @media(max-width:600px){.suggestions-dropdown{position:fixed;left:12px;right:12px;top:calc(var(--header-h) + 8px);max-width:calc(100vw - 24px);width:auto;max-height:min(250px,30dvh)!important}}
+
+/* Isola a pintura dos painéis e anima somente a transformação. */
+.bottom-menu,.cart-panel{contain:layout paint;backface-visibility:hidden;will-change:auto;-webkit-backdrop-filter:none!important;transform:translate3d(0,105%,0)!important;transition:transform 220ms cubic-bezier(.2,.75,.25,1),visibility 220ms!important;box-shadow:none!important}
+.bottom-menu.open,.cart-panel.open{transform:translate3d(0,0,0)!important;will-change:transform}
+.notif-dropdown{contain:layout paint;backface-visibility:hidden;will-change:auto;-webkit-backdrop-filter:none!important;animation:none!important;box-shadow:none!important;backdrop-filter:none!important}
+.notif-dropdown.open{transform:translateZ(0);will-change:transform}
+.bottom-overlay{backdrop-filter:none!important;transition:opacity 160ms!important}
+.fullscreen-menu-header button,.cart-close,.notif-close,.modal-close,.fullscreen-close,.fullscreen-close-btn{background:transparent!important;border:0!important;box-shadow:none!important}
+.fullscreen-menu-header button:hover,.cart-close:hover,.notif-close:hover,.modal-close:hover,.fullscreen-close:hover,.fullscreen-close-btn:hover{background:transparent!important;box-shadow:none!important}
+.notif-cim-avatar{width:42px;height:42px;flex:0 0 42px;object-fit:cover;border-radius:50%;background:#222}
+.notif-cim-sender{display:flex;align-items:center;gap:5px;font-size:.9rem;font-weight:700;color:#fff;margin-bottom:8px}
+.cim-verified{flex-shrink:0}.notif-message-open{display:block;width:100%;text-align:left;background:none;border:0;color:inherit;padding:0;cursor:pointer}
+.notif-message-open .notif-item-title,.notif-message-open .notif-item-msg{display:block}.notif-item-footer{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-top:10px}
+.notif-read-one{border:0;background:none;color:#ff6b45;font-size:.75rem;padding:4px 0;cursor:pointer}.notif-read-label{color:#777;font-size:.72rem}.notif-item{align-items:flex-start}
+@media(prefers-reduced-motion:reduce){.bottom-menu,.cart-panel,.notif-dropdown,.bottom-overlay{transition:none!important;animation:none!important}.notif-count{animation:none!important}}
 </style>
     <script src="assets/payment-policy.js" defer></script>
 </head>
@@ -3040,17 +3055,30 @@ body.fullscreen-panel-open{overflow:hidden!important}
         }
 
         
+let fullscreenSyncFrame=0,lastFullscreenMask=-1;
+const fullscreenBackground=Array.from(document.querySelectorAll('body > header, body > main, body > .main-container, #cartFloat, #backToTop'));
+const fullscreenTitle=document.querySelector('.fullscreen-menu-header strong');
+const fullscreenMenuButton=document.querySelector('.menu-toggle');
 function syncFullscreenPanels(){
-const menuOpen=bottomMenu.classList.contains('open'),cartOpen=cartPanel.classList.contains('open');
-const notificationOpen=document.getElementById('notifDropdown')?.classList.contains('open');
- document.body.classList.toggle('fullscreen-panel-open',menuOpen||cartOpen||notificationOpen);
- document.querySelector('.menu-toggle')?.setAttribute('aria-expanded',String(menuOpen));
- document.querySelectorAll('body > header, body > main, body > .main-container, #cartFloat, #backToTop').forEach(e=>{e.inert=menuOpen||cartOpen||notificationOpen;});
-const title=document.querySelector('.fullscreen-menu-header strong');
-if(title)title.textContent=document.getElementById('menuMainContent').style.display!=='none'?'Menu':document.getElementById('menuSupportContent').style.display==='block'?'Atendimento':document.getElementById('menuOrdersContent').style.display==='block'?'Pedidos':'Minha conta';
+ const menuOpen=bottomMenu.classList.contains('open'),cartOpen=cartPanel.classList.contains('open');
+ const notificationOpen=document.getElementById('notifDropdown')?.classList.contains('open')===true;
+ const mask=(menuOpen?1:0)|(cartOpen?2:0)|(notificationOpen?4:0);
+ if(mask!==lastFullscreenMask){
+  const wasOpen=lastFullscreenMask>0,isOpen=mask>0;
+  if(wasOpen!==isOpen){document.body.classList.toggle('fullscreen-panel-open',isOpen);fullscreenBackground.forEach(e=>{if(e.inert!==isOpen)e.inert=isOpen;});}
+  if(lastFullscreenMask<0||(lastFullscreenMask&1)!==(mask&1))fullscreenMenuButton?.setAttribute('aria-expanded',String(menuOpen));
+  lastFullscreenMask=mask;
+ }
+ if(menuOpen&&fullscreenTitle){
+  const title=document.getElementById('menuMainContent').style.display!=='none'?'Menu':document.getElementById('menuSupportContent').style.display==='block'?'Atendimento':document.getElementById('menuOrdersContent').style.display==='block'?'Pedidos':'Minha conta';
+  if(fullscreenTitle.textContent!==title)fullscreenTitle.textContent=title;
+ }
 }
-new MutationObserver(syncFullscreenPanels).observe(bottomMenu,{attributes:true,subtree:true,attributeFilter:['class','style']});
-new MutationObserver(syncFullscreenPanels).observe(cartPanel,{attributes:true,attributeFilter:['class']});
+function scheduleFullscreenSync(){if(!fullscreenSyncFrame)fullscreenSyncFrame=requestAnimationFrame(()=>{fullscreenSyncFrame=0;syncFullscreenPanels();});}
+const fullscreenObserver=new MutationObserver(scheduleFullscreenSync);
+fullscreenObserver.observe(bottomMenu,{attributes:true,attributeFilter:['class']});
+fullscreenObserver.observe(cartPanel,{attributes:true,attributeFilter:['class']});
+['menuMainContent','menuSupportContent','menuSettingsContent','menuOrdersContent'].forEach(id=>{const node=document.getElementById(id);if(node)fullscreenObserver.observe(node,{attributes:true,attributeFilter:['style']});});
 document.addEventListener('keydown',e=>{if(e.key==='Escape'){if(document.getElementById('notifDropdown')?.classList.contains('open'))closeNotifDropdown();else if(bottomMenu.classList.contains('open'))closeBottomMenu();else if(cartPanel.classList.contains('open'))toggleCart();}});
 function toggleBottomMenu() {
             const isOpen = bottomMenu.classList.contains('open');
@@ -3079,6 +3107,7 @@ function toggleBottomMenu() {
             }
             const msgEl = document.getElementById('profileMessage');
             if (msgEl) msgEl.textContent = profileData.message;
+            notificationListDirty=true;renderNotifList();
         }
 
         function renderContacts() {
@@ -4426,69 +4455,67 @@ function toggleBottomMenu() {
         }
         setInterval(syncCheckoutOrders,60000);
         document.addEventListener('visibilitychange',()=>{if(!document.hidden)syncCheckoutOrders();});
+        let notificationListenerUid='';
         function listenNotifications(){
             syncCheckoutOrders();
             if(!currentUser || !currentUser.uid) return;
+            if(notificationListenerUid!==currentUser.uid){notificationListenerUid=currentUser.uid;_notifShownIds.clear();notificationPendingReads.clear();notificationReadInFlight.clear();notificationServerReads.clear();notificationBadgeCount=-1;}
             if(_notifListenerRef){ try{ _notifListenerRef.off(); }catch(e){} _notifListenerRef = null; }
 
             _notifListenerRef = database.ref(`notifications/${currentUser.uid}`);
             _notifListenerRef.on('value', snap => {
-                const arr = [];
-                snap.forEach(c => arr.push({ id: c.key, ...c.val() }));
-                arr.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
-                _notificationsCache = arr;
-                renderNotifBadge();
-                renderNotifList();
 
-                arr.forEach(n => {
-                    if(!n.read && !_notifShownIds.has(n.id)){
-                        _notifShownIds.add(n.id);
-                        showNotifToast(n);
-                    }
+                const arr=[],fresh=[];
+                snap.forEach(c=>{
+                    const raw=c.val();notificationServerReads.set(c.key,raw.read===true);
+                    const n={...raw,id:c.key,read:raw.read===true||notificationPendingReads.has(c.key)};
+                    arr.push(n);
+                    if(!n.read&&!_notifShownIds.has(n.id)){_notifShownIds.add(n.id);fresh.push(n);}
                 });
+                arr.sort((a,b)=>(b.createdAt||0)-(a.createdAt||0));
+                _notificationsCache=arr;notificationListDirty=true;
+                renderNotifBadge();renderNotifList();
+                if(fresh.length)showNotifToast(fresh[0]);
             }, err => {
                 console.warn('[listenNotifications] falhou:', err.code, err.message);
             });
         }
 
+
+        let notificationListDirty=true,notificationBadgeCount=-1,notificationReadInFlight=new Set();
+        const notificationPendingReads=new Set(),notificationServerReads=new Map();
         function renderNotifBadge(){
-            const unread = _notificationsCache.filter(n => !n.read).length;
-            const el = document.getElementById('notifCount');
-            const bell = document.getElementById('notifBell');
-            if(!el || !bell) return;
-            if(unread > 0){
-                el.textContent = unread > 99 ? '99+' : unread;
-                el.style.display = 'flex';
-                bell.classList.add('has-unread');
-                el.classList.add('pulse');
-                setTimeout(() => el.classList.remove('pulse'), 600);
-            } else {
-                el.style.display = 'none';
-                bell.classList.remove('has-unread');
+            const unread=_notificationsCache.reduce((count,n)=>count+(n.read?0:1),0);
+            const el=document.getElementById('notifCount'),bell=document.getElementById('notifBell');
+            if(!el||!bell)return;
+            if(unread!==notificationBadgeCount){
+                notificationBadgeCount=unread;el.textContent=unread>99?'99+':String(unread);
+                el.style.display=unread?'flex':'none';bell.classList.toggle('has-unread',unread>0);
+                bell.setAttribute('aria-label',unread?unread+' notificações não lidas':'Notificações');
             }
+            if(!unread){clearTimeout(notifHintTimer);document.getElementById('notifHint')?.remove();}
+            else{const hint=document.getElementById('notifHint');if(hint)hint.textContent=unread===1?'1 nova notificação':unread+' novas notificações';}
         }
-
         function renderNotifList(){
-            const list = document.getElementById('notifList');
-            if(!list) return;
-            if(_notificationsCache.length === 0){
-                list.innerHTML = `<div class="notif-empty"><i class="fas fa-bell-slash"></i><p>Nenhuma notificação por aqui</p></div>`;
-                return;
-            }
-            list.innerHTML = _notificationsCache.map(n => {
-                const meta = getNotifIcon(n.type);
-                return `<div class="notif-item ${n.read ? '' : 'unread'}" onclick="openNotifItem('${n.id}')">
-                    <div class="notif-item-icon ${meta.cls}"><i class="fas ${meta.icon}"></i></div>
-                    <div class="notif-item-body">
-                        <div class="notif-item-title">${escapeHtml(n.title || 'Notificação')}</div>
-                        <div class="notif-item-msg">${escapeHtml(n.message || '')}</div>
-                        <div class="notif-item-date">${timeAgo(n.createdAt)}</div>
-                    </div>
-                </div>`;
+            const list=document.getElementById('notifList');
+            if(!list||!document.getElementById('notifDropdown')?.classList.contains('open')||!notificationListDirty)return;
+            notificationListDirty=false;
+            if(!_notificationsCache.length){list.innerHTML='<div class="notif-empty"><p>Nenhuma notificação por aqui</p></div>';return;}
+            const photo=sanitizeImageUrl(profileData.photo,DEFAULT_PROFILE_IMAGE).replace(/"/g,'&quot;');
+            const name=escapeHtml(profileData.name||'CIM');
+            const verified='<svg class="cim-verified" width="18" height="18" viewBox="0 0 24 24" role="img" aria-label="Perfil oficial da CIM"><path fill="#3897f0" d="m12 1 3 2 3.5.5L20 7l2 3-1 3.5.2 3.5-3.2 1.7L16 22l-4-1-4 1-2.1-3.3L2.7 17 3 13.5 2 10l2-3 1.5-3.5L9 3z"/><path d="m7.5 12 3 3 6-6" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+            list.innerHTML=_notificationsCache.map(n=>{
+                const id=escapeHtml(String(n.id)).replace(/"/g,'&quot;');
+                return '<article class="notif-item '+(n.read?'':'unread')+'" data-notification-id="'+id+'"><img class="notif-cim-avatar" src="'+photo+'" alt="Foto da CIM" width="42" height="42" loading="lazy" decoding="async"><div class="notif-item-body"><div class="notif-cim-sender">'+name+verified+'</div><button type="button" class="notif-message-open" data-notification-id="'+id+'"><span class="notif-item-title">'+escapeHtml(n.title||'Notificação')+'</span><span class="notif-item-msg">'+escapeHtml(n.message||'')+'</span></button><div class="notif-item-footer"><span class="notif-item-date">'+timeAgo(n.createdAt)+'</span>'+(n.read?'<span class="notif-read-label">Lida</span>':'<button type="button" class="notif-read-one" data-mark-notification="'+id+'">Marcar como lida</button>')+'</div></div></article>';
             }).join('');
+            list.querySelectorAll('img').forEach(img=>img.addEventListener('error',()=>{img.src=DEFAULT_PROFILE_IMAGE;},{once:true}));
         }
-
-
+        document.getElementById('notifList').addEventListener('click',event=>{
+            const mark=event.target.closest('[data-mark-notification]');
+            if(mark){event.stopPropagation();markNotifRead(mark.dataset.markNotification);return;}
+            const message=event.target.closest('.notif-message-open');
+            if(message)openNotifItem(message.dataset.notificationId);
+        });
         const notificationPanel=document.getElementById('notifDropdown');
         document.body.appendChild(notificationPanel);
         notificationPanel.setAttribute('role','dialog');notificationPanel.setAttribute('aria-modal','true');notificationPanel.setAttribute('aria-label','Notificações');
@@ -4501,34 +4528,32 @@ function toggleBottomMenu() {
                 document.querySelectorAll('.profile-dropdown').forEach(p=>p.classList.remove('open'));
                 document.getElementById('notifHint')?.remove();
             }
-            dd.classList.toggle('open',opening);syncFullscreenPanels();
+            dd.classList.toggle('open',opening);if(opening)renderNotifList();syncFullscreenPanels();
         }
 
-        async function markNotifRead(id, silent){
-            if(!currentUser || !currentUser.uid) return;
-            const n = _notificationsCache.find(x => x.id === id);
-            if(!n || n.read) return;
-            try{
-                await database.ref(`notifications/${currentUser.uid}/${id}/read`).set(true);
-            }catch(e){
-                console.warn('[markNotifRead] falhou:', e.code);
-            }
-        }
 
-        async function markAllNotificationsRead(){
-            if(!currentUser || !currentUser.uid) return;
-            const unread = _notificationsCache.filter(n => !n.read);
-            if(unread.length === 0) return;
-            const updates = {};
-            unread.forEach(n => { updates[`notifications/${currentUser.uid}/${n.id}/read`] = true; });
+        async function persistNotificationReads(ids,silent=false){
+            if(!currentUser?.uid)return;
+            const unread=ids.filter(id=>!notificationReadInFlight.has(id)&&_notificationsCache.some(n=>n.id===id&&!n.read));
+            if(!unread.length)return;
+            const uid=currentUser.uid,updates={};
+            unread.forEach(id=>{notificationReadInFlight.add(id);notificationPendingReads.add(id);updates['notifications/'+uid+'/'+id+'/read']=true;});
+            _notificationsCache.forEach(n=>{if(notificationPendingReads.has(n.id))n.read=true;});
+            notificationListDirty=true;renderNotifBadge();renderNotifList();
             try{
                 await database.ref().update(updates);
-                showToast(`${unread.length} notificação(ões) marcada(s) como lida(s)`);
-            }catch(e){
-                showToast('Erro ao marcar como lida', 'error');
-            }
+                unread.forEach(id=>notificationServerReads.set(id,true));
+                if(!silent)showToast(unread.length===1?'Notificação marcada como lida':unread.length+' notificações marcadas como lidas');
+            }catch(error){
+                if(currentUser?.uid===uid){
+                    _notificationsCache.forEach(n=>{if(unread.includes(n.id))n.read=notificationServerReads.get(n.id)===true;});
+                    notificationListDirty=true;renderNotifBadge();renderNotifList();
+                    showToast('Não foi possível marcar como lida. Tente novamente.','error');
+                }
+            }finally{unread.forEach(id=>{notificationPendingReads.delete(id);notificationReadInFlight.delete(id);});}
         }
-
+        function markNotifRead(id,silent){return persistNotificationReads([id],silent);}
+        function markAllNotificationsRead(){return persistNotificationReads(_notificationsCache.filter(n=>!n.read).map(n=>n.id));}
         window.resumeOrderPayment=async function(id){
             try{const result=await checkoutRequest('resume-payment',{orderId:id});const url=new URL(result.checkoutUrl);if(url.protocol!=='https:'||url.hostname!=='www.mercadopago.com.br')throw Error('Link inválido.');location.assign(url.href);}
             catch(error){showToast(error.message,'error');loadUserOrders();}
@@ -4552,10 +4577,11 @@ function toggleBottomMenu() {
         let notifHintTimer;
         function showNotifToast(n){
             clearTimeout(notifHintTimer);document.getElementById('notifHint')?.remove();
+            const unread=_notificationsCache.filter(n=>!n.read).length;if(!unread)return;
             if(document.getElementById('notifDropdown')?.classList.contains('open'))return;
             const bell=document.getElementById('notifBell');if(!bell)return;
             const balloon=document.createElement('button');balloon.id='notifHint';balloon.className='notification-hint';balloon.type='button';
-            balloon.textContent='Novas notificações';balloon.setAttribute('aria-label','Abrir novas notificações');
+            balloon.textContent=unread===1?'1 nova notificação':unread+' novas notificações';balloon.setAttribute('aria-label','Abrir novas notificações');
             const rect=bell.getBoundingClientRect();const width=Math.min(210,innerWidth-24);
             balloon.style.width=width+'px';balloon.style.left=Math.max(12,Math.min(innerWidth-width-12,rect.left+rect.width/2-width/2))+'px';balloon.style.top=(rect.bottom+12)+'px';
             balloon.style.setProperty('--arrow-left',Math.max(16,Math.min(width-16,rect.left+rect.width/2-parseFloat(balloon.style.left)))+'px');

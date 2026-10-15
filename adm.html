@@ -22,7 +22,7 @@
 :root{
   --bg:#000;--panel:#0a0a0a;--panel-alt:#111;--panel-hover:#1a1a1a;
   --border:#222;--border-soft:#161616;--text:#eef1f4;--text-muted:#8b93a1;--text-dim:#5b6270;
-  --accent:#ff6b35;--accent-soft:rgba(255,107,53,.12);
+  --accent:#ff3601;--accent-soft:rgba(255,54,1,.12);
   --danger:#e5484d;--danger-soft:rgba(229,72,77,.12);
   --warn:#f5a623;--warn-soft:rgba(245,166,35,.12);
   --ok:#3ecf8e;--ok-soft:rgba(62,207,142,.12);
@@ -49,7 +49,7 @@ h1,h2,h3,h4{font-family:var(--font-head)}
    2. LOGIN
    ============================================================ */
 #loginScreen{position:fixed;inset:0;background:#000;display:flex;align-items:center;justify-content:center;z-index:5000;overflow:hidden}
-#loginScreen::after{content:'';position:absolute;bottom:0;left:0;right:0;height:50%;background:radial-gradient(ellipse at bottom center,rgba(255,107,53,.25) 0%,rgba(255,107,53,.08) 40%,transparent 70%);pointer-events:none}
+#loginScreen::after{content:'';position:absolute;bottom:0;left:0;right:0;height:50%;background:radial-gradient(ellipse at bottom center,rgba(255,54,1,.25) 0%,rgba(255,54,1,.08) 40%,transparent 70%);pointer-events:none}
 .login-box{width:100%;max-width:400px;padding:20px;position:relative;z-index:1;display:flex;flex-direction:column;align-items:center}
 .login-box .lb-logo{display:flex;justify-content:center;align-items:center;margin-bottom:40px}
 .login-box .lb-logo .mark{width:160px;height:160px;display:flex;align-items:center;justify-content:center;overflow:hidden}
@@ -59,9 +59,9 @@ h1,h2,h3,h4{font-family:var(--font-head)}
 .field label{display:block;font-size:.78rem;color:var(--text-muted);margin-bottom:6px;padding-left:4px}
 .field input{width:100%;padding:14px 18px;background:rgba(0,0,0,.6);border:1.5px solid rgba(255,255,255,.1);border-radius:50px;color:var(--text);font-size:.95rem;backdrop-filter:blur(10px);transition:all .3s ease}
 .field input::placeholder{color:var(--text-dim)}
-.field input:focus{border-color:var(--accent);background:rgba(0,0,0,.8);box-shadow:0 0 30px rgba(255,107,53,.05)}
+.field input:focus{border-color:var(--accent);background:rgba(0,0,0,.8);box-shadow:0 0 30px rgba(255,54,1,.05)}
 .btn-full{width:100%;padding:14px;background:rgba(0,0,0,.6);color:var(--text);border:1.5px solid rgba(255,255,255,.1);border-radius:50px;font-weight:600;font-size:.95rem;margin-top:8px;transition:all .3s ease;backdrop-filter:blur(10px);letter-spacing:.5px}
-.btn-full:hover{background:rgba(255,107,53,.15);border-color:var(--accent);color:var(--accent);transform:scale(1.02);box-shadow:0 0 40px rgba(255,107,53,.08)}
+.btn-full:hover{background:rgba(255,54,1,.15);border-color:var(--accent);color:var(--accent);transform:scale(1.02);box-shadow:0 0 40px rgba(255,54,1,.08)}
 .btn-full i{margin-right:8px;color:var(--accent)}
 .login-error{color:var(--danger);font-size:.8rem;margin-top:12px;text-align:center;min-height:14px}
 
@@ -348,7 +348,7 @@ tbody tr:last-child td{border-bottom:none}
    ============================================================ */
 .user-avatar-icon{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1rem;flex-shrink:0}
 .user-avatar-icon i{color:var(--accent)}
-.user-avatar-icon.no-photo{background:var(--accent)!important;border:1px solid var(--accent)!important;box-shadow:0 0 12px rgba(255,107,53,.35)}
+.user-avatar-icon.no-photo{background:var(--accent)!important;border:1px solid var(--accent)!important;box-shadow:0 0 12px rgba(255,54,1,.35)}
 .user-avatar-icon.no-photo i{color:#160b05!important;font-size:1rem}
 .user-avatar-img{width:36px;height:36px;border-radius:50%;object-fit:cover;flex-shrink:0;cursor:zoom-in;transition:transform .15s,border-color .15s;border:1px solid transparent}
 .user-avatar-img:hover{transform:scale(1.1);border-color:var(--accent)}
@@ -357,7 +357,7 @@ tbody tr:last-child td{border-bottom:none}
 .img-viewer-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.96);z-index:6000;align-items:center;justify-content:center;padding:20px;cursor:zoom-out}
 .img-viewer-overlay.active{display:flex;animation:fadein .2s ease}
 .img-viewer-overlay img{max-width:95vw;max-height:92vh;object-fit:contain;border-radius:10px;box-shadow:0 20px 80px rgba(0,0,0,.85);cursor:default;animation:modalin .25s ease}
-.img-viewer-overlay .close-viewer{position:absolute;top:20px;right:20px;width:46px;height:46px;border-radius:50%;background:rgba(255,107,53,.15);border:1.5px solid var(--accent);color:var(--accent);font-size:1.15rem;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:.2s}
+.img-viewer-overlay .close-viewer{position:absolute;top:20px;right:20px;width:46px;height:46px;border-radius:50%;background:rgba(255,54,1,.15);border:1.5px solid var(--accent);color:var(--accent);font-size:1.15rem;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:.2s}
 .img-viewer-overlay .close-viewer:hover{background:var(--accent);color:#160b05;transform:rotate(90deg)}
 .img-viewer-overlay .viewer-caption{position:absolute;bottom:24px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,.75);border:1px solid var(--border);padding:8px 18px;border-radius:30px;color:var(--text);font-size:.85rem;max-width:80vw;text-align:center}
 
@@ -412,7 +412,7 @@ tbody tr:last-child td{border-bottom:none}
 .order-status-chip.cancelado i{color:#fff!important}
 .order-method-chip{display:inline-flex;align-items:center;gap:4px;font-size:.68rem;padding:2px 8px;border-radius:6px;font-weight:600}
 .order-method-chip.pix{background:rgba(62,207,142,.12);color:#3ecf8e}
-.order-method-chip.card{background:rgba(255,107,53,.12);color:var(--accent)}
+.order-method-chip.card{background:rgba(255,54,1,.12);color:var(--accent)}
 
 /* ============================================================
    19. FILTRO POR DATA (pedidos)
@@ -476,7 +476,8 @@ tbody tr:last-child td{border-bottom:none}
   .btn-full{padding:12px;font-size:.9rem}
 }
 
-.notification-manager{max-width:850px!important}.notification-manager .modal-body{display:grid;gap:22px}.notification-muted{font-size:.78rem;color:var(--text-muted);line-height:1.6;margin:5px 0}.notification-label{display:block;font-weight:600;margin-bottom:10px}.notification-target-options{display:flex;gap:10px;margin-bottom:16px}.recipient-mode{flex:1;border:1px solid #393939;border-radius:12px;padding:14px;color:#ccc;background:#171717;cursor:pointer;font:inherit}.recipient-mode.selected{color:#fff;border-color:#ff3601;background:rgba(255,54,1,.12)}.notification-search{display:flex;align-items:center;gap:10px;background:#151515;border:1px solid #393939;border-radius:12px;padding:10px 14px;margin:12px 0}.notification-search span{font-size:24px;color:#ff3601}.notification-search input{width:100%;min-width:0;background:transparent!important;border:0!important;padding:0!important;color:#fff;font:inherit;outline:0}.notification-recipients{max-height:220px;overflow:auto;display:grid;gap:8px}.notification-recipient{width:100%;display:flex;align-items:center;gap:12px;text-align:left;padding:12px;border-radius:12px;border:1px solid #333;color:#fff;background:#151515;cursor:pointer}.notification-recipient.selected{border-color:#ff3601;background:rgba(255,54,1,.08)}.recipient-avatar{height:36px;width:36px;border-radius:50%;background:#302019;color:#ff6b35;display:grid;place-items:center;font-weight:700;flex-shrink:0}.notification-recipient strong,.notification-recipient small{display:block;overflow-wrap:anywhere}.notification-recipient small{color:#999;margin-top:4px}.recipient-check{margin-left:auto;color:#ff6b35}.notification-form-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}.notification-history-head{display:flex;justify-content:space-between;gap:12px;align-items:center;border-top:1px solid #333;padding-top:20px}.notification-empty{color:#888;text-align:center;padding:24px 12px}.announcement-card{padding:18px;border:1px solid #333;background:#121212;border-radius:14px;margin:12px 0}.announcement-card-top{display:flex;align-items:center;justify-content:space-between;gap:10px;color:#888;font-size:.75rem}.announcement-chip{border-radius:20px;background:#292019;color:#ff9d7f;padding:5px 10px;overflow-wrap:anywhere}.announcement-card h4{font-size:1rem;margin:14px 0 8px}.announcement-text{white-space:pre-wrap;overflow-wrap:anywhere;color:#ccc;font-size:.86rem;line-height:1.65}.announcement-recipient-delete{border-top:1px solid #292929;padding-top:12px;margin-top:16px}.announcement-recipient-delete summary{color:#aaa;font-size:.78rem;cursor:pointer}.announcement-recipient-delete select{width:100%;margin:12px 0;background:#191919;color:#fff;padding:10px;border:1px solid #444;border-radius:8px}#announcementFeedback{min-height:20px;color:#72d39b;font-size:.85rem;margin-top:14px}#announcementFeedback.notification-error{color:#ff9984}.cleanup-order{display:flex;justify-content:space-between;align-items:center;gap:12px;border:1px solid #333;background:#151515;border-radius:12px;padding:16px;margin:12px 0}.cleanup-order strong{color:#ff6b35}.cleanup-order>div{min-width:0;overflow-wrap:anywhere}.cleanup-order button{flex-shrink:0}.cleanup-launch-icon{display:grid;place-items:center;width:48px;height:48px;border-radius:14px;background:rgba(255,54,1,.1);color:#ff6b35}.cleanup-launch{display:flex;align-items:center;gap:16px;flex-wrap:wrap}.notification-manager textarea{resize:vertical;min-height:110px}@media(max-width:600px){.notification-target-options{flex-direction:column}.notification-manager .modal-body{padding:16px}.announcement-card{padding:14px}}
+.notification-manager{max-width:850px!important}.notification-manager .modal-body{display:grid;gap:22px}.notification-muted{font-size:.78rem;color:var(--text-muted);line-height:1.6;margin:5px 0}.notification-label{display:block;font-weight:600;margin-bottom:10px}.notification-target-options{display:flex;gap:10px;margin-bottom:16px}.recipient-mode{flex:1;border:1px solid #393939;border-radius:12px;padding:14px;color:#ccc;background:#171717;cursor:pointer;font:inherit}.recipient-mode.selected{color:#fff;border-color:#ff3601;background:rgba(255,54,1,.12)}.notification-search{display:flex;align-items:center;gap:10px;background:#151515;border:1px solid #393939;border-radius:12px;padding:10px 14px;margin:12px 0}.notification-search span{font-size:24px;color:#ff3601}.notification-search input{width:100%;min-width:0;background:transparent!important;border:0!important;padding:0!important;color:#fff;font:inherit;outline:0}.notification-recipients{max-height:220px;overflow:auto;display:grid;gap:8px}.notification-recipient{width:100%;display:flex;align-items:center;gap:12px;text-align:left;padding:12px;border-radius:12px;border:1px solid #333;color:#fff;background:#151515;cursor:pointer}.notification-recipient.selected{border-color:#ff3601;background:rgba(255,54,1,.08)}.recipient-avatar{height:36px;width:36px;border-radius:50%;background:#302019;color:#ff3601;display:grid;place-items:center;font-weight:700;flex-shrink:0}.notification-recipient strong,.notification-recipient small{display:block;overflow-wrap:anywhere}.notification-recipient small{color:#999;margin-top:4px}.recipient-check{margin-left:auto;color:#ff3601}.notification-form-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}.notification-history-head{display:flex;justify-content:space-between;gap:12px;align-items:center;border-top:1px solid #333;padding-top:20px}.notification-empty{color:#888;text-align:center;padding:24px 12px}.announcement-card{padding:18px;border:1px solid #333;background:#121212;border-radius:14px;margin:12px 0}.announcement-card-top{display:flex;align-items:center;justify-content:space-between;gap:10px;color:#888;font-size:.75rem}.announcement-chip{border-radius:20px;background:#292019;color:#ff9d7f;padding:5px 10px;overflow-wrap:anywhere}.announcement-card h4{font-size:1rem;margin:14px 0 8px}.announcement-text{white-space:pre-wrap;overflow-wrap:anywhere;color:#ccc;font-size:.86rem;line-height:1.65}.announcement-recipient-delete{border-top:1px solid #292929;padding-top:12px;margin-top:16px}.announcement-recipient-delete summary{color:#aaa;font-size:.78rem;cursor:pointer}.announcement-recipient-delete select{width:100%;margin:12px 0;background:#191919;color:#fff;padding:10px;border:1px solid #444;border-radius:8px}#announcementFeedback{min-height:20px;color:#72d39b;font-size:.85rem;margin-top:14px}#announcementFeedback.notification-error{color:#ff9984}.cleanup-order{display:flex;justify-content:space-between;align-items:center;gap:12px;border:1px solid #333;background:#151515;border-radius:12px;padding:16px;margin:12px 0}.cleanup-order strong{color:#ff3601}.cleanup-order>div{min-width:0;overflow-wrap:anywhere}.cleanup-order button{flex-shrink:0}.cleanup-launch-icon{display:grid;place-items:center;width:48px;height:48px;border-radius:14px;background:rgba(255,54,1,.1);color:#ff3601}.cleanup-launch{display:flex;align-items:center;gap:16px;flex-wrap:wrap}.notification-manager textarea{resize:vertical;min-height:110px}@media(max-width:600px){.notification-target-options{flex-direction:column}.notification-manager .modal-body{padding:16px}.announcement-card{padding:14px}}
+.modal-close,.modal-close:hover{background:transparent!important;border:0!important;box-shadow:none!important}
 </style><script src="assets/payment-policy.js"></script>
 <!-- LEADS: estilos locais do painel e dos diálogos -->
 <style id="leads-admin-styles">
@@ -1378,7 +1379,7 @@ tbody tr:last-child td{border-bottom:none}
         </div>
       </div>
 
-      <div class="block" style="border-color:rgba(255,107,53,.3);">
+      <div class="block" style="border-color:rgba(255,54,1,.3);">
         <div class="block-head"><h3><i class="fas fa-broom" style="color:var(--accent);"></i> Limpeza de faturamento e clientes</h3></div>
         <div class="block-body">
           <p style="color:var(--text-muted);font-size:.82rem;margin-bottom:14px;line-height:1.7;">Ações irreversíveis. Use com cuidado.</p>
@@ -4498,7 +4499,7 @@ function renderClickHistory(){
     const srcLabel = SOURCE_LABELS[l.source] || l.source || '—';
     let campaignHtml;
     if (l.campaignName) {
-      campaignHtml = `<span class="chip" style="background:rgba(255,107,53,.12);color:var(--accent);border:1px solid rgba(255,107,53,.25);"><i class="fas fa-bullhorn"></i> ${esc(l.campaignName)}</span>`;
+      campaignHtml = `<span class="chip" style="background:rgba(255,54,1,.12);color:var(--accent);border:1px solid rgba(255,54,1,.25);"><i class="fas fa-bullhorn"></i> ${esc(l.campaignName)}</span>`;
       if (l.campaignRef && l.campaignRef !== l.campaignName) {
         campaignHtml += ` <span class="td-sub" style="font-size:.68rem;display:block;margin-top:2px;">/${esc(l.campaignRef)}</span>`;
       }
@@ -4539,7 +4540,7 @@ function renderContactClicks(){
     const sourceLabel = SOURCE_LABELS[c.source] || esc(c.source || '—');
     let campaignHtml;
     if (c.campaignName) {
-      campaignHtml = `<span class="chip" style="background:rgba(255,107,53,.12);color:var(--accent);border:1px solid rgba(255,107,53,.25);"><i class="fas fa-bullhorn"></i> ${esc(c.campaignName)}</span>`;
+      campaignHtml = `<span class="chip" style="background:rgba(255,54,1,.12);color:var(--accent);border:1px solid rgba(255,54,1,.25);"><i class="fas fa-bullhorn"></i> ${esc(c.campaignName)}</span>`;
     } else if (c.campaignRef) {
       campaignHtml = `<span class="chip chip-mut"><i class="fas fa-link"></i> /${esc(c.campaignRef)}</span>`;
     } else {
@@ -5198,7 +5199,7 @@ let linksAnalyticsWeekOffset = 0;
 let chartDowGeneral, chartDomGeneral, chartTimelineGeneral, chartTopProducts, chartRevenueWeek;
 let chartDowLinks, chartTimelineLinks, chartLinkComparison;
 const DOW_LABELS = ['Seg','Ter','Qua','Qui','Sex','Sáb','Dom'];
-const ACCENT_ANA = '#ff6b35';
+const ACCENT_ANA = '#ff3601';
 const OK_ANA = '#3ecf8e';
 const GRID_ANA = 'rgba(255,255,255,.06)';
 const TEXT_ANA = '#8b93a1';
@@ -5439,7 +5440,7 @@ function renderBarChart(canvasId, labels, data, label, color, highlightMax = fal
   const bgColors = labels.map((_,i) => {
     if(!highlightMax) return color;
     const max = Math.max(...data);
-    return data[i] === max && max > 0 ? '#ff6b35' : 'rgba(255,107,53,.28)';
+    return data[i] === max && max > 0 ? '#ff3601' : 'rgba(255,54,1,.28)';
   });
   const map = { chartDowGeneral: () => chartDowGeneral, chartDomGeneral: () => chartDomGeneral, chartDowLinks: () => chartDowLinks, chartRevenueWeek: () => chartRevenueWeek };
   const setter = { chartDowGeneral: v => chartDowGeneral = v, chartDomGeneral: v => chartDomGeneral = v, chartDowLinks: v => chartDowLinks = v, chartRevenueWeek: v => chartRevenueWeek = v };
@@ -5462,7 +5463,7 @@ function renderHorizontalBar(canvasId, labels, data, color){
       labels,
       datasets: [{
         label: 'Total', data,
-        backgroundColor: color === OK_ANA ? 'rgba(62,207,142,.65)' : 'rgba(255,107,53,.65)',
+        backgroundColor: color === OK_ANA ? 'rgba(62,207,142,.65)' : 'rgba(255,54,1,.65)',
         borderColor: color, borderWidth: 1.5, borderRadius: 6
       }]
     },
@@ -5484,8 +5485,8 @@ function renderTimelineChart(canvasId, labels, data, color){
   if(canvasId === 'chartTimelineLinks') destroyChart(chartTimelineLinks);
   const ctx = canvas.getContext('2d');
   const grad = ctx.createLinearGradient(0, 0, 0, 300);
-  grad.addColorStop(0, color === OK_ANA ? 'rgba(62,207,142,.35)' : 'rgba(255,107,53,.35)');
-  grad.addColorStop(1, 'rgba(255,107,53,0)');
+  grad.addColorStop(0, color === OK_ANA ? 'rgba(62,207,142,.35)' : 'rgba(255,54,1,.35)');
+  grad.addColorStop(1, 'rgba(255,54,1,0)');
   const chart = new Chart(ctx, {
     type: 'line',
     data: {

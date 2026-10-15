@@ -439,7 +439,8 @@
             ".validate": "!newData.exists() || newData.isNumber()"
           },
           "read": {
-            ".validate": "!newData.exists() || newData.isBoolean()"
+            ".validate": "!newData.exists() || newData.isBoolean()",
+            ".write": "auth != null && auth.uid === $uid && data.parent().exists() && newData.val() === true"
           },
           "$other": {
             ".validate": true
