@@ -1129,6 +1129,11 @@ body.fullscreen-panel-open{overflow:hidden!important}
 .notif-message-open .notif-item-title,.notif-message-open .notif-item-msg{display:block}.notif-item-footer{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-top:10px}
 .notif-read-one{border:0;background:none;color:#ff6b45;font-size:.75rem;padding:4px 0;cursor:pointer}.notif-read-label{color:#777;font-size:.72rem}.notif-item{align-items:flex-start}
 @media(prefers-reduced-motion:reduce){.bottom-menu,.cart-panel,.notif-dropdown,.bottom-overlay{transition:none!important;animation:none!important}.notif-count{animation:none!important}}
+
+.catalog-more{grid-column:1/-1;display:flex;flex-direction:column;align-items:center;gap:12px;padding:24px 12px 36px;color:#888;font-size:.85rem}.catalog-more[hidden]{display:none}.catalog-more button{min-height:44px;padding:12px 22px;border:1px solid #444;border-radius:12px;background:#171717;color:#fff;font:inherit;cursor:pointer}.catalog-more button:hover{border-color:#ff3601}.catalog-more button:disabled{opacity:.6;cursor:wait}
+.product-card,.product-image img{animation:none!important;backface-visibility:visible}
+@media(hover:none){.product-card:hover{transform:none;box-shadow:none}.product-card:hover .product-image img{transform:none}}
+@media(max-width:768px){.header,#stickyCategoryBar{backdrop-filter:none!important;-webkit-backdrop-filter:none!important;background:#090909!important}}
 </style>
     <script src="assets/payment-policy.js" defer></script>
 </head>
@@ -1690,10 +1695,12 @@ body.fullscreen-panel-open{overflow:hidden!important}
         let _sharedProductHandled = false;
         const _discountCache = new Map();
 
-        function scheduleFilter() {
-            if (_filterScheduled) return;
-            _filterScheduled = true;
-            requestAnimationFrame(() => { _filterScheduled = false; filterProducts(); });
+        let _forceFilterScheduled=false;
+        function scheduleFilter(force=false) {
+            _forceFilterScheduled=_forceFilterScheduled||force;
+            if(_filterScheduled)return;
+            _filterScheduled=true;
+            requestAnimationFrame(()=>{_filterScheduled=false;const forceNow=_forceFilterScheduled;_forceFilterScheduled=false;filterProducts(forceNow);});
         }
         function scheduleCategoryTabs() {
             if (_categoryTabsScheduled) return;
@@ -3559,10 +3566,57 @@ function toggleBottomMenu() {
             if (currentProduct) showDetails(currentProduct.id);
         }
 
+
+        function catalogPresentationSignature(value){
+            return JSON.stringify(value||{},(key,value)=>key==='clicks'?undefined:value);
+        }
+        const CATALOG_PAGE_SIZE=24;
+        let catalogProducts=[],catalogRendered=0,catalogLoadingToken=0,catalogMoreControl=null,catalogVisualRevision=0;
+        const catalogMoreObserver='IntersectionObserver' in window?new IntersectionObserver(entries=>{
+            if(document.hidden||document.body.classList.contains('fullscreen-panel-open'))return;
+            if(entries.some(entry=>entry.target===catalogMoreControl&&entry.isIntersecting))appendCatalogPage();
+        },{rootMargin:'400px 0px'}):null;
+        function updateCatalogMore(){
+            if(!catalogMoreControl)return;
+            const remaining=catalogProducts.length-catalogRendered;
+            catalogMoreControl.querySelector('span').textContent='Mostrando '+catalogRendered+' de '+catalogProducts.length+' peças';
+            const button=catalogMoreControl.querySelector('button');
+            button.disabled=catalogLoadingToken===renderToken;
+            button.textContent=button.disabled?'Carregando...':'Carregar mais peças';
+            button.hidden=remaining<=0;catalogMoreControl.hidden=catalogProducts.length<=CATALOG_PAGE_SIZE;
+            if(remaining<=0)catalogMoreObserver?.disconnect();
+        }
+        async function appendCatalogPage(){
+            const token=renderToken;
+            if(catalogLoadingToken===token||catalogRendered>=catalogProducts.length||!catalogMoreControl)return;
+            catalogLoadingToken=token;updateCatalogMore();
+            const end=Math.min(catalogRendered+CATALOG_PAGE_SIZE,catalogProducts.length);
+            try{
+                while(catalogRendered<end){
+                    if(token!==renderToken)return;
+                    const fragment=document.createDocumentFragment(),limit=Math.min(catalogRendered+8,end);
+                    while(catalogRendered<limit){fragment.appendChild(createProductCard(catalogProducts[catalogRendered],catalogRendered<6));catalogRendered++;}
+                    productsGrid.insertBefore(fragment,catalogMoreControl);
+                    if(catalogRendered<end)await new Promise(resolve=>requestAnimationFrame(resolve));
+                }
+            }finally{
+                if(token===renderToken){catalogLoadingToken=0;updateCatalogMore();}
+            }
+        }
+        async function resetCatalogView(list,token){
+            catalogMoreObserver?.disconnect();catalogProducts=list;catalogRendered=0;catalogLoadingToken=0;
+            catalogMoreControl=document.createElement('div');catalogMoreControl.className='catalog-more';
+            catalogMoreControl.innerHTML='<span role="status" aria-live="polite"></span><button type="button">Carregar mais peças</button>';
+            catalogMoreControl.querySelector('button').addEventListener('click',appendCatalogPage);
+            productsGrid.replaceChildren(catalogMoreControl);
+            await appendCatalogPage();
+            if(token===renderToken&&catalogRendered<catalogProducts.length)catalogMoreObserver?.observe(catalogMoreControl);
+        }
+
         let renderToken = 0;
         async function filterProducts(force = false) {
             const sig = [
-                products.length, lastProductsJson.length,
+                products.length, lastProductsJson.length, catalogVisualRevision,
                 Object.keys(promocoes).length, Object.keys(sessions).length,
                 Object.keys(categoryHidePF).length, Object.keys(categoryHidePJ).length,
                 searchTerm, selectedCategory, selectedBrand, selectedSessionId,
@@ -3609,6 +3663,7 @@ function toggleBottomMenu() {
             resultsCount.textContent = filtered.length;
 
             if (filtered.length === 0) {
+                catalogMoreObserver?.disconnect();catalogProducts=[];catalogRendered=0;catalogMoreControl=null;
                 if (!_productsLoaded) renderSkeletons(6);
                 else if (searchTerm || selectedCategory || selectedBrand || selectedSessionId !== null) {
                     productsGrid.innerHTML = `<div class="no-results"><i class="fas fa-search"></i><p>Nenhuma peça encontrada${searchTerm ? ` para "${searchTerm}"` : ''}</p></div>`;
@@ -3616,16 +3671,8 @@ function toggleBottomMenu() {
                     productsGrid.innerHTML = `<div class="no-results"><i class="fas fa-box-open"></i><p>Nenhuma peça disponível no momento</p></div>`;
                 }
             } else {
-                const frag = document.createDocumentFragment();
-                const CHUNK = 24;
-                for (let i = 0; i < filtered.length; i += CHUNK) {
-                    if (myToken !== renderToken) return;
-                    const end = Math.min(i + CHUNK, filtered.length);
-                    for (let j = i; j < end; j++) frag.appendChild(createProductCard(filtered[j], j < 6));
-                    if (end < filtered.length) await new Promise(r => requestAnimationFrame(r));
-                }
-                if (myToken !== renderToken) return;
-                productsGrid.replaceChildren(frag);
+                await resetCatalogView(filtered,myToken);
+                if(myToken!==renderToken)return;
                 preloadImages(filtered.slice(0, 6).map(p => p.image).filter(Boolean));
             }
             clearSearchBtn.style.display = searchTerm ? 'flex' : 'none';
@@ -4634,14 +4681,14 @@ function toggleBottomMenu() {
             loadCart();
             database.ref('products').on('value', (snapshot) => {
                 const raw = snapshot.val();
-                const json = JSON.stringify(raw || {});
-                if (json === lastProductsJson) return;
-                lastProductsJson = json;
-                products = raw ? Object.values(raw) : [];
+                const json=catalogPresentationSignature(raw);
+                products=raw?Object.entries(raw).map(([id,product])=>({...product,id:product.id||id})):[];
+                if(json===lastProductsJson)return;
+                lastProductsJson=json;catalogVisualRevision++;
                 _productsLoaded = true;
                 products.forEach(p => { if (isImgbbUrl(p.image)) p.image = DEFAULT_PLACEHOLDER_IMAGE; });
-                scheduleCategoryTabs(); updateBrandTabs(); scheduleFilter();
-                filterProducts(true); updateCart(); saveCache(); checkSharedProduct();
+                scheduleCategoryTabs();updateBrandTabs();scheduleFilter(true);
+                updateCart();saveCache();checkSharedProduct();
             });
             database.ref('sessions').on('value', (snapshot) => {
                 sessions = snapshot.val() || {};
