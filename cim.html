@@ -1106,6 +1106,14 @@ body.fullscreen-panel-open{overflow:hidden!important}
 @media(max-width:600px){.header-actions{gap:6px!important}.menu-toggle span{display:none!important}.bottom-menu input,.cart-panel input,.cart-panel select{font-size:16px}.cart-items{padding:12px}.cart-summary{padding:12px}}
 .header-actions,.search-header{min-width:0}.logo-img{max-width:100%;object-fit:contain}@media(max-width:400px){.logo{max-width:90px}.header-actions{gap:4px!important}.search-header{margin-left:0}.search-input-header{width:0}.notif-bell{flex-shrink:0}}
 .cart-view{border-radius:0!important}
+
+.notif-dropdown{position:fixed!important;inset:0!important;min-width:0!important;width:100%!important;max-width:none!important;height:100vh!important;height:100dvh!important;max-height:none!important;border-radius:0!important;z-index:4000!important;background:#111!important;box-shadow:none!important}
+.notif-header{padding:calc(14px + env(safe-area-inset-top)) max(16px,env(safe-area-inset-right)) 14px max(16px,env(safe-area-inset-left));gap:12px;flex-wrap:wrap}
+.notif-header h4{flex:1;font-size:1.1rem}.notif-list{flex:1;max-height:none!important;overflow-y:auto;min-height:0;padding-bottom:env(safe-area-inset-bottom)}
+.notif-close{width:44px;height:44px;border:1px solid #444;background:#222;border-radius:12px;color:#fff;font-size:26px;cursor:pointer}.notif-item{padding:18px 16px}.notif-item-msg{white-space:pre-wrap;overflow-wrap:anywhere;font-size:.9rem;line-height:1.6}.notif-item-title{font-size:1rem}
+.notification-hint{position:fixed;z-index:3500;border:1px solid #ff6b35;border-radius:12px;background:#ff3601;color:#fff;padding:13px 16px;font:600 .85rem inherit;box-shadow:0 6px 24px #0008;cursor:pointer}.notification-hint:before{content:"";position:absolute;left:var(--arrow-left,50%);top:-7px;width:12px;height:12px;background:#ff3601;transform:translateX(-50%) rotate(45deg);border-left:1px solid #ff6b35;border-top:1px solid #ff6b35}
+.suggestions-dropdown{max-height:min(280px,32dvh)!important;overscroll-behavior:contain;padding-bottom:0}.search-results-link{position:sticky;bottom:0;display:block;width:100%;padding:14px;background:#211a17;color:#ff9b79;border:0;border-top:1px solid #444;text-align:center;font:600 .85rem inherit;cursor:pointer}.suggestion-item{padding-top:10px;padding-bottom:10px}
+@media(max-width:600px){.suggestions-dropdown{position:fixed;left:12px;right:12px;top:calc(var(--header-h) + 8px);max-width:calc(100vw - 24px);width:auto;max-height:min(250px,30dvh)!important}}
 </style>
     <script src="assets/payment-policy.js" defer></script>
 </head>
@@ -2241,7 +2249,7 @@ body.fullscreen-panel-open{overflow:hidden!important}
             }
         }
 
-        function toggleCart() { closeBottomMenu();
+        function toggleCart() { closeNotifDropdown();closeBottomMenu();
             cartPanel.classList.toggle('open');
             if (!cartPanel.classList.contains('open')) {
                 const succ = document.getElementById('cartSuccessScreen');
@@ -3034,20 +3042,21 @@ body.fullscreen-panel-open{overflow:hidden!important}
         
 function syncFullscreenPanels(){
 const menuOpen=bottomMenu.classList.contains('open'),cartOpen=cartPanel.classList.contains('open');
-document.body.classList.toggle('fullscreen-panel-open',menuOpen||cartOpen);
+const notificationOpen=document.getElementById('notifDropdown')?.classList.contains('open');
+ document.body.classList.toggle('fullscreen-panel-open',menuOpen||cartOpen||notificationOpen);
  document.querySelector('.menu-toggle')?.setAttribute('aria-expanded',String(menuOpen));
- document.querySelectorAll('body > header, body > main, body > .main-container, #cartFloat, #backToTop').forEach(e=>{e.inert=menuOpen||cartOpen;});
+ document.querySelectorAll('body > header, body > main, body > .main-container, #cartFloat, #backToTop').forEach(e=>{e.inert=menuOpen||cartOpen||notificationOpen;});
 const title=document.querySelector('.fullscreen-menu-header strong');
 if(title)title.textContent=document.getElementById('menuMainContent').style.display!=='none'?'Menu':document.getElementById('menuSupportContent').style.display==='block'?'Atendimento':document.getElementById('menuOrdersContent').style.display==='block'?'Pedidos':'Minha conta';
 }
 new MutationObserver(syncFullscreenPanels).observe(bottomMenu,{attributes:true,subtree:true,attributeFilter:['class','style']});
 new MutationObserver(syncFullscreenPanels).observe(cartPanel,{attributes:true,attributeFilter:['class']});
-document.addEventListener('keydown',e=>{if(e.key==='Escape'){if(bottomMenu.classList.contains('open'))closeBottomMenu();else if(cartPanel.classList.contains('open'))toggleCart();}});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'){if(document.getElementById('notifDropdown')?.classList.contains('open'))closeNotifDropdown();else if(bottomMenu.classList.contains('open'))closeBottomMenu();else if(cartPanel.classList.contains('open'))toggleCart();}});
 function toggleBottomMenu() {
             const isOpen = bottomMenu.classList.contains('open');
             if (isOpen) closeBottomMenu(); else openBottomMenu();
         }
-        function openBottomMenu() { cartPanel.classList.remove('open');
+        function openBottomMenu() { closeNotifDropdown();cartPanel.classList.remove('open');
             bottomMenu.classList.add('open');
             bottomOverlay.classList.add('active');
             document.body.style.overflow = 'hidden';
@@ -3139,6 +3148,7 @@ function toggleBottomMenu() {
                                     </span>
                                 </div>`;
                     }).join('');
+                    suggestionsDropdown.insertAdjacentHTML('beforeend','<button type="button" class="search-results-link" onclick="dismissSearchSuggestions()">Ver peças encontradas ↓</button>');
                     suggestionsDropdown.classList.add('open');
                 } else {
                     suggestionsDropdown.innerHTML = `<div class="suggestion-item" style="cursor:default;color:#888;">Nenhuma peça encontrada</div>`;
@@ -3151,6 +3161,10 @@ function toggleBottomMenu() {
             filterProducts();
         }
 
+        function dismissSearchSuggestions(){clearTimeout(searchTimer);const latest=searchInputHeader.value.trim();if(latest!==searchTerm){searchTerm=latest;filterProducts();}suggestionsDropdown.classList.remove('open');searchInputHeader.blur();headerActions.classList.remove('hide-buttons');searchHeader.classList.remove('focused');}
+        window.dismissSearchSuggestions=dismissSearchSuggestions;
+        document.addEventListener('click',e=>{if(!searchHeader.contains(e.target))dismissSearchSuggestions();});
+        searchInputHeader.addEventListener('keydown',e=>{if(e.key==='Escape'||e.key==='Enter'){e.preventDefault();dismissSearchSuggestions();}});
         function selectSuggestion(productId) {
             const product = products.find(p => p.id === productId);
             if (product) {
@@ -4474,25 +4488,20 @@ function toggleBottomMenu() {
             }).join('');
         }
 
+
+        const notificationPanel=document.getElementById('notifDropdown');
+        document.body.appendChild(notificationPanel);
+        notificationPanel.setAttribute('role','dialog');notificationPanel.setAttribute('aria-modal','true');notificationPanel.setAttribute('aria-label','Notificações');
+        notificationPanel.querySelector('.notif-header').insertAdjacentHTML('beforeend','<button type="button" class="notif-close" aria-label="Fechar notificações" onclick="closeNotifDropdown()">×</button>');
         function toggleNotifDropdown(){
-            const dd = document.getElementById('notifDropdown');
-            if(!dd) return;
-            const unread = _notificationsCache.filter(n => !n.read);
-            if(unread.length > 0){
-                unread.forEach(n => markNotifRead(n.id, true));
-                closeNotifDropdown();
-                openBottomMenu();
-                setTimeout(() => { openUserOrders(); }, 200);
-                return;
+            const dd=document.getElementById('notifDropdown');if(!dd)return;
+            const opening=!dd.classList.contains('open');
+            if(opening){
+                closeBottomMenu();cartPanel.classList.remove('open');
+                document.querySelectorAll('.profile-dropdown').forEach(p=>p.classList.remove('open'));
+                document.getElementById('notifHint')?.remove();
             }
-            const willOpen = !dd.classList.contains('open');
-            document.querySelectorAll('.profile-dropdown').forEach(p => p.classList.remove('open'));
-            dd.classList.toggle('open');
-            if(willOpen){
-                setTimeout(() => {
-                    _notificationsCache.filter(n => !n.read).forEach(n => markNotifRead(n.id, true));
-                }, 400);
-            }
+            dd.classList.toggle('open',opening);syncFullscreenPanels();
         }
 
         async function markNotifRead(id, silent){
@@ -4536,39 +4545,29 @@ function toggleBottomMenu() {
 
         function closeNotifDropdown(){
             const dd = document.getElementById('notifDropdown');
-            if(dd) dd.classList.remove('open');
+            if(dd) dd.classList.remove('open');syncFullscreenPanels();
         }
 
+
+        let notifHintTimer;
         function showNotifToast(n){
-            const meta = getNotifIcon(n.type);
-            const toast = document.createElement('div');
-            toast.className = 'toast';
-            toast.style.maxWidth = '92vw';
-            toast.style.whiteSpace = 'normal';
-            toast.style.padding = '12px 18px';
-            toast.style.lineHeight = '1.4';
-            toast.style.borderLeft = '3px solid ' + (meta.cls === 'cancel' ? '#dc3545' : (meta.cls === 'success' ? '#28a745' : '#ff3601'));
-            toast.innerHTML = `
-                <div style="display:flex;align-items:flex-start;gap:10px;max-width:320px;">
-                    <i class="fas ${meta.icon}" style="color:${meta.cls === 'cancel' ? '#dc3545' : (meta.cls === 'success' ? '#28a745' : '#ff3601')};font-size:1.1rem;margin-top:2px;flex-shrink:0;"></i>
-                    <div style="flex:1;min-width:0;">
-                        <div style="font-weight:700;font-size:0.85rem;color:#fff;margin-bottom:3px;">${escapeHtml(n.title || 'Notificação')}</div>
-                        <div style="font-size:0.78rem;color:#bbb;white-space:normal;">${escapeHtml(n.message || '')}</div>
-                    </div>
-                </div>
-            `;
-            document.body.appendChild(toast);
-            setTimeout(() => {
-                toast.style.animation = 'toastOut 0.3s ease';
-                setTimeout(() => toast.remove(), 300);
-            }, 6000);
+            clearTimeout(notifHintTimer);document.getElementById('notifHint')?.remove();
+            if(document.getElementById('notifDropdown')?.classList.contains('open'))return;
+            const bell=document.getElementById('notifBell');if(!bell)return;
+            const balloon=document.createElement('button');balloon.id='notifHint';balloon.className='notification-hint';balloon.type='button';
+            balloon.textContent='Novas notificações';balloon.setAttribute('aria-label','Abrir novas notificações');
+            const rect=bell.getBoundingClientRect();const width=Math.min(210,innerWidth-24);
+            balloon.style.width=width+'px';balloon.style.left=Math.max(12,Math.min(innerWidth-width-12,rect.left+rect.width/2-width/2))+'px';balloon.style.top=(rect.bottom+12)+'px';
+            balloon.style.setProperty('--arrow-left',Math.max(16,Math.min(width-16,rect.left+rect.width/2-parseFloat(balloon.style.left)))+'px');
+            balloon.onclick=e=>{e.stopPropagation();toggleNotifDropdown();};
+            document.body.appendChild(balloon);notifHintTimer=setTimeout(()=>balloon.remove(),3000);
         }
 
         function handleNotifClickOutside(e){
             const bell = document.getElementById('notifBell');
             const dd = document.getElementById('notifDropdown');
             if(!bell || !dd) return;
-            if(!bell.contains(e.target)) dd.classList.remove('open');
+            if(!bell.contains(e.target)&&!dd.contains(e.target)&&e.target.id!=='notifHint')closeNotifDropdown();
         }
 
         auth.onAuthStateChanged(async (user) => {
@@ -4768,4 +4767,4 @@ function toggleBottomMenu() {
     });
     </script>
 </body>
-</html>P
+</html>

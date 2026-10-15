@@ -475,6 +475,8 @@ tbody tr:last-child td{border-bottom:none}
   .field input{padding:12px 16px;font-size:.9rem}
   .btn-full{padding:12px;font-size:.9rem}
 }
+
+.notification-manager{max-width:850px!important}.notification-manager .modal-body{display:grid;gap:22px}.notification-muted{font-size:.78rem;color:var(--text-muted);line-height:1.6;margin:5px 0}.notification-label{display:block;font-weight:600;margin-bottom:10px}.notification-target-options{display:flex;gap:10px;margin-bottom:16px}.recipient-mode{flex:1;border:1px solid #393939;border-radius:12px;padding:14px;color:#ccc;background:#171717;cursor:pointer;font:inherit}.recipient-mode.selected{color:#fff;border-color:#ff3601;background:rgba(255,54,1,.12)}.notification-search{display:flex;align-items:center;gap:10px;background:#151515;border:1px solid #393939;border-radius:12px;padding:10px 14px;margin:12px 0}.notification-search span{font-size:24px;color:#ff3601}.notification-search input{width:100%;min-width:0;background:transparent!important;border:0!important;padding:0!important;color:#fff;font:inherit;outline:0}.notification-recipients{max-height:220px;overflow:auto;display:grid;gap:8px}.notification-recipient{width:100%;display:flex;align-items:center;gap:12px;text-align:left;padding:12px;border-radius:12px;border:1px solid #333;color:#fff;background:#151515;cursor:pointer}.notification-recipient.selected{border-color:#ff3601;background:rgba(255,54,1,.08)}.recipient-avatar{height:36px;width:36px;border-radius:50%;background:#302019;color:#ff6b35;display:grid;place-items:center;font-weight:700;flex-shrink:0}.notification-recipient strong,.notification-recipient small{display:block;overflow-wrap:anywhere}.notification-recipient small{color:#999;margin-top:4px}.recipient-check{margin-left:auto;color:#ff6b35}.notification-form-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}.notification-history-head{display:flex;justify-content:space-between;gap:12px;align-items:center;border-top:1px solid #333;padding-top:20px}.notification-empty{color:#888;text-align:center;padding:24px 12px}.announcement-card{padding:18px;border:1px solid #333;background:#121212;border-radius:14px;margin:12px 0}.announcement-card-top{display:flex;align-items:center;justify-content:space-between;gap:10px;color:#888;font-size:.75rem}.announcement-chip{border-radius:20px;background:#292019;color:#ff9d7f;padding:5px 10px;overflow-wrap:anywhere}.announcement-card h4{font-size:1rem;margin:14px 0 8px}.announcement-text{white-space:pre-wrap;overflow-wrap:anywhere;color:#ccc;font-size:.86rem;line-height:1.65}.announcement-recipient-delete{border-top:1px solid #292929;padding-top:12px;margin-top:16px}.announcement-recipient-delete summary{color:#aaa;font-size:.78rem;cursor:pointer}.announcement-recipient-delete select{width:100%;margin:12px 0;background:#191919;color:#fff;padding:10px;border:1px solid #444;border-radius:8px}#announcementFeedback{min-height:20px;color:#72d39b;font-size:.85rem;margin-top:14px}#announcementFeedback.notification-error{color:#ff9984}.cleanup-order{display:flex;justify-content:space-between;align-items:center;gap:12px;border:1px solid #333;background:#151515;border-radius:12px;padding:16px;margin:12px 0}.cleanup-order strong{color:#ff6b35}.cleanup-order>div{min-width:0;overflow-wrap:anywhere}.cleanup-order button{flex-shrink:0}.cleanup-launch-icon{display:grid;place-items:center;width:48px;height:48px;border-radius:14px;background:rgba(255,54,1,.1);color:#ff6b35}.cleanup-launch{display:flex;align-items:center;gap:16px;flex-wrap:wrap}.notification-manager textarea{resize:vertical;min-height:110px}@media(max-width:600px){.notification-target-options{flex-direction:column}.notification-manager .modal-body{padding:16px}.announcement-card{padding:14px}}
 </style><script src="assets/payment-policy.js"></script>
 <!-- LEADS: estilos locais do painel e dos diálogos -->
 <style id="leads-admin-styles">
@@ -1281,7 +1283,7 @@ tbody tr:last-child td{border-bottom:none}
     <section class="panel" id="panel-usuarios">
       <div class="panel-head">
         <div><h1>Usuários</h1><p>Clientes pessoa física e jurídica cadastrados</p></div>
-        <div class="panel-actions"><button type="button" class="btn btn-ghost" aria-haspopup="dialog" onclick="openContactsCsvModal('users')"><i class="fas fa-file-csv"></i> Exportar CSV <i class="fas fa-chevron-down" style="margin-left:12px;font-size:.7rem" aria-hidden="true"></i></button><button type="button" class="btn btn-ghost" onclick="openContactsCsvHistory('users')"><i class="fas fa-clock-rotate-left"></i> Hist&oacute;rico CSV</button><button class="btn btn-accent" onclick="openCreateClientModal()"><i class="fas fa-user-plus"></i> Criar cliente</button></div>
+        <div class="panel-actions"><button type="button" class="btn btn-accent" onclick="openAnnouncements()">Enviar notificação</button><button type="button" class="btn btn-ghost" aria-haspopup="dialog" onclick="openContactsCsvModal('users')"><i class="fas fa-file-csv"></i> Exportar CSV <i class="fas fa-chevron-down" style="margin-left:12px;font-size:.7rem" aria-hidden="true"></i></button><button type="button" class="btn btn-ghost" onclick="openContactsCsvHistory('users')"><i class="fas fa-clock-rotate-left"></i> Hist&oacute;rico CSV</button><button class="btn btn-accent" onclick="openCreateClientModal()"><i class="fas fa-user-plus"></i> Criar cliente</button></div>
       </div>
       <div class="filter-bar">
         <input type="text" id="userFilterText" placeholder="Buscar por nome, e-mail, telefone, CPF/CNPJ..." oninput="renderUsers()">
@@ -1365,17 +1367,8 @@ tbody tr:last-child td{border-bottom:none}
          PAINEL: CONFIGURAÇÕES
          ============================================================ -->
     <section class="panel" id="panel-config">
-<div class="block"><div class="block-head"><h3>Excluir um pedido antigo de teste</h3></div><div class="block-body"><p>Selecione um pedido criado antes da integração. O cadastro do cliente será mantido.</p><select id="legacyOrderSelect" style="width:100%;padding:12px;margin:12px 0;background:#161616;color:white"></select><button class="btn btn-danger" onclick="removeSelectedLegacy()">Excluir da lista</button></div></div>
-<div class="block"><div class="block-head"><h3>Notificações aos clientes</h3></div><div class="block-body">
-<form onsubmit="event.preventDefault();saveAnnouncement()"><input type="hidden" id="announcementId">
-<div class="f-group"><label>Enviar para</label><select id="announcementTarget"><option value="all">Todos os clientes cadastrados</option></select></div>
-<div class="f-group"><label>Título</label><input id="announcementTitle" maxlength="150" required></div>
-<div class="f-group"><label>Mensagem</label><textarea id="announcementMessage" maxlength="1000" rows="4" required></textarea></div>
-<button class="btn btn-primary" id="announcementSave" type="submit">Enviar notificação</button>
-<button class="btn btn-ghost" type="button" onclick="resetAnnouncement()">Cancelar edição</button></form>
-<p id="announcementFeedback" role="status" style="margin:12px 0"></p><button class="btn btn-ghost" onclick="loadAnnouncements()">Atualizar lista</button><div id="announcementList" style="margin-top:14px"></div>
-</div></div>
-      <div class="panel-head"><div><h1>Configurações</h1><p>Ações administrativas gerais</p></div></div>
+<div class="block"><div class="block-head"><h3>Gerenciar pedidos</h3></div><div class="block-body cleanup-launch"><span class="cleanup-launch-icon" aria-hidden="true"><svg width="25" height="25" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 7h16M9 7V4h6v3M7 7l1 13h8l1-13M10 10v7M14 10v7"/></svg></span><div style="flex:1"><strong>Excluir pedidos da lista</strong><p class="notification-muted">Abra a lista para pesquisar e remover pedidos antigos de teste.</p></div><button type="button" class="btn btn-ghost" onclick="openOrderCleanup()">Gerenciar exclusões</button></div></div>
+<div class="panel-head"><div><h1>Configurações</h1><p>Ações administrativas gerais</p></div></div>
 
       <div class="block">
         <div class="block-head"><h3>Sobre a conta</h3></div>
@@ -1458,6 +1451,21 @@ tbody tr:last-child td{border-bottom:none}
      MODAIS
      ============================================================ -->
 
+
+<div class="modal-overlay" id="modalAnnouncements"><div class="modal large notification-manager" role="dialog" aria-modal="true" aria-labelledby="notificationManagerTitle">
+<div class="modal-head"><div><h3 id="notificationManagerTitle">Notificações aos clientes</h3><p class="notification-muted">Envie uma mensagem e acompanhe as notificações criadas.</p></div><button type="button" class="modal-close" aria-label="Fechar notificações" onclick="closeModal('modalAnnouncements')">×</button></div>
+<div class="modal-body"><form id="announcementForm" onsubmit="event.preventDefault();saveAnnouncement()">
+<input type="hidden" id="announcementId"><input type="hidden" id="announcementTarget" value="all">
+<label class="notification-label">Quem vai receber?</label><div class="notification-target-options">
+<button type="button" id="notificationAll" class="recipient-mode selected" onclick="setAnnouncementMode('all')">Todos os clientes</button><button type="button" id="notificationOne" class="recipient-mode" onclick="setAnnouncementMode('one')">Um cliente específico</button></div>
+<div id="notificationUserPicker" hidden><div class="notification-search"><span aria-hidden="true">⌕</span><input id="notificationUserSearch" type="search" placeholder="Pesquisar nome, e-mail, CPF/CNPJ..." oninput="renderNotificationRecipients()" autocomplete="off"></div><div id="notificationRecipients" class="notification-recipients"></div><p id="notificationSelected" class="notification-muted"></p></div>
+<div class="f-group"><label for="announcementTitle">Título</label><input id="announcementTitle" maxlength="150" placeholder="Ex.: Novidades para você" required></div>
+<div class="f-group"><label for="announcementMessage">Mensagem</label><textarea id="announcementMessage" maxlength="1000" rows="4" placeholder="Escreva a mensagem que aparecerá na loja" required></textarea></div>
+<div class="notification-form-actions"><button class="btn btn-accent" id="announcementSave" type="submit">Enviar notificação</button><button class="btn btn-ghost" type="button" onclick="resetAnnouncement()">Limpar / cancelar edição</button></div>
+<p id="announcementFeedback" role="status" aria-live="polite"></p></form>
+<div class="notification-history-head"><h3>Notificações criadas</h3><button class="btn btn-sm btn-ghost" type="button" onclick="loadAnnouncements()">Atualizar</button></div><div id="announcementList"></div>
+</div></div></div>
+<div class="modal-overlay" id="modalOrderCleanup"><div class="modal large" role="dialog" aria-modal="true" aria-labelledby="orderCleanupTitle"><div class="modal-head"><div><h3 id="orderCleanupTitle">Gerenciar exclusão de pedidos</h3><p class="notification-muted">A exclusão da lista mantém o cadastro do cliente.</p></div><button type="button" class="modal-close" aria-label="Fechar lista de pedidos" onclick="closeModal('modalOrderCleanup')">×</button></div><div class="modal-body"><div class="notification-search"><span aria-hidden="true">⌕</span><input id="cleanupOrderSearch" type="search" placeholder="Buscar pedido, cliente ou e-mail" oninput="renderLegacySettings()"></div><div id="cleanupOrderList"></div></div></div></div>
 <div class="modal-overlay" id="modalProduto"><div class="modal large">
   <div class="modal-head"><h3 id="modalProdutoTitle">Nova peça</h3><button class="modal-close" onclick="closeModal('modalProduto')"><i class="fas fa-times"></i></button></div>
   <div class="modal-body">
@@ -2086,7 +2094,7 @@ function switchPanel(name){
   if(name === 'analises-links'){ updateLinkSlugFilter(); renderLinksAnalytics(); }
   if(name === 'cliques'){ renderClickHistory(); renderContactClicks(); renderMetaAchievements(); }
   if(name === 'pedidos'){ renderOrders(); renderOrdersDashboard(); }
- if(name === 'config'){renderLegacySettings();loadAnnouncements();}
+ if(name === 'config')renderLegacySettings();
 }
 
 function globalSearchHandler(v){
@@ -2443,33 +2451,93 @@ setInterval(()=>{
   document.querySelectorAll('[data-order-deadline]').forEach(el=>{const order=ordersCache.find(o=>o.uid===el.dataset.orderUid&&o.id===el.dataset.orderDeadline);if(order)el.textContent=paymentDeadlineAdm(order);});
 },1000);
 
-let announcementsCache=[];
+
+let announcementsCache=[],announcementMode='all';
 function renderLegacySettings(){
- const select=document.getElementById('legacyOrderSelect');if(!select)return;
- const rows=allOrdersCache.filter(o=>!o.archivedAt&&CimPaymentPolicy.isLegacyOrder(o));
- select.innerHTML=rows.length?rows.map(o=>'<option value="'+esc(o.uid+'/'+o.id)+'">'+esc(orderShortIdAdm(o)+' — '+(o.customerName||o.customerEmail||o.uid))+'</option>').join(''):'<option value="">Nenhum pedido antigo de teste</option>';
+ const list=document.getElementById('cleanupOrderList');if(!list)return;
+ const query=(document.getElementById('cleanupOrderSearch')?.value||'').toLocaleLowerCase('pt-BR').trim();
+ const orders=allOrdersCache.filter(o=>!o.archivedAt&&(!query||[orderShortIdAdm(o),o.customerName,o.customerEmail,o.id].join(' ').toLocaleLowerCase('pt-BR').includes(query)));
+ list.innerHTML=orders.length?orders.map(o=>{
+ const user=usersCache.find(u=>u.uid===o.uid)||{},eligible=CimPaymentPolicy.isLegacyOrder(o);
+ return '<article class="cleanup-order"><div><strong>'+esc(orderShortIdAdm(o))+'</strong><div>'+esc(o.customerName||user.name||o.customerEmail||user.email||'Cliente')+'</div><small class="notification-muted">'+esc(o.customerEmail||user.email||'')+' · '+esc(o.status||'pendente')+'</small>'+(eligible?'':'<p class="notification-muted">Pedido integrado ao pagamento: exclusão indisponível.</p>')+'</div><button type="button" class="btn btn-danger btn-sm" data-uid="'+esc(o.uid)+'" data-order="'+esc(o.id)+'" '+(eligible?'onclick="removeCleanupOrder(this.dataset.uid,this.dataset.order)"':'disabled')+'>Excluir</button></article>';
+ }).join(''):'<p class="notification-empty">Nenhum pedido encontrado.</p>';
 }
-function removeSelectedLegacy(){const value=document.getElementById('legacyOrderSelect').value;if(value){const [uid,id]=value.split('/');archiveLegacyOrderAdm(uid,id).then(renderLegacySettings);}}
+function openOrderCleanup(){document.getElementById('cleanupOrderSearch').value='';renderLegacySettings();openModal('modalOrderCleanup');}
+async function removeCleanupOrder(uid,id){await archiveLegacyOrderAdm(uid,id);renderLegacySettings();}
 async function announcementRequest(data){
+ if(!auth.currentUser)throw Error('Entre novamente como administrador.');
  const token=await auth.currentUser.getIdToken();
- const r=await fetch('/api/admin-notifications',{method:'POST',headers:{'Content-Type':'application/json',Authorization:'Bearer '+token},body:JSON.stringify(data),signal:AbortSignal.timeout(30000)});
- const result=await r.json();if(!r.ok)throw Error(result.error||'Não foi possível salvar.');return result;
+ const response=await fetch('/api/admin-notifications',{method:'POST',headers:{'Content-Type':'application/json',Authorization:'Bearer '+token},body:JSON.stringify(data),signal:AbortSignal.timeout(55000)});
+ const result=await response.json().catch(()=>null);
+ if(!response.ok)throw Error(result?.error||(response.status===404?'Abra o ADM pelo site publicado ou pelo servidor local na porta 3000.':'Não foi possível concluir. Tente novamente.'));
+ if(!result)throw Error('O servidor retornou uma resposta inválida.');
+ return result;
 }
-function announcementFeedback(message){document.getElementById('announcementFeedback').textContent=message;}
-function resetAnnouncement(){['announcementId','announcementTitle','announcementMessage'].forEach(id=>document.getElementById(id).value='');document.getElementById('announcementTarget').disabled=false;document.getElementById('announcementTarget').value='all';document.getElementById('announcementSave').textContent='Enviar notificação';}
+function announcementFeedback(message,error=false){const el=document.getElementById('announcementFeedback');el.textContent=message;el.classList.toggle('notification-error',error);}
+function setAnnouncementMode(mode){
+ if(document.getElementById('announcementId').value)return;
+ announcementMode=mode;document.getElementById('announcementTarget').value=mode==='all'?'all':'';
+ document.getElementById('notificationUserPicker').hidden=mode==='all';
+ document.getElementById('notificationAll').classList.toggle('selected',mode==='all');document.getElementById('notificationOne').classList.toggle('selected',mode==='one');
+ document.getElementById('notificationSelected').textContent='';
+ renderNotificationRecipients();
+}
+function renderNotificationRecipients(){
+ const query=(document.getElementById('notificationUserSearch').value||'').trim().toLocaleLowerCase('pt-BR');
+ const selected=document.getElementById('announcementTarget').value,editing=!!document.getElementById('announcementId').value;
+ const users=usersCache.filter(u=>!u.isAdmin&&(!query||[u.name,u.email,u.cpf,u.cnpj].join(' ').toLocaleLowerCase('pt-BR').includes(query)));
+ document.getElementById('notificationRecipients').innerHTML=users.length?users.map(u=>'<button type="button" class="notification-recipient '+(u.uid===selected?'selected':'')+'" data-uid="'+esc(u.uid)+'" onclick="selectNotificationUser(this.dataset.uid)" '+(editing?'disabled':'')+'><span class="recipient-avatar" aria-hidden="true">'+esc((u.name||u.email||'?').charAt(0).toUpperCase())+'</span><span><strong>'+esc(u.name||'Cliente')+'</strong><small>'+esc(u.email||u.cpf||u.cnpj||u.uid)+'</small></span><span class="recipient-check" aria-hidden="true">'+(u.uid===selected?'✓':'○')+'</span></button>').join(''):'<p class="notification-empty">Nenhum cliente encontrado.</p>';
+}
+function selectNotificationUser(uid){
+ if(document.getElementById('announcementId').value)return;
+ const user=usersCache.find(u=>u.uid===uid&&!u.isAdmin);if(!user)return;
+ document.getElementById('announcementTarget').value=uid;
+ document.getElementById('notificationSelected').textContent='Selecionado: '+(user.name||user.email||uid);renderNotificationRecipients();
+}
+function resetAnnouncement(){
+ ['announcementId','announcementTitle','announcementMessage','notificationUserSearch'].forEach(id=>document.getElementById(id).value='');
+ document.getElementById('notificationAll').disabled=false;document.getElementById('notificationOne').disabled=false;document.getElementById('notificationUserSearch').disabled=false;
+ document.getElementById('announcementSave').textContent='Enviar notificação';setAnnouncementMode('all');announcementFeedback('');
+}
+async function openAnnouncements(){resetAnnouncement();openModal('modalAnnouncements');document.querySelector('#modalAnnouncements .modal').scrollTop=0;await loadAnnouncements();document.querySelector('#modalAnnouncements .modal').scrollTop=0;}
 async function loadAnnouncements(){
- renderLegacySettings();
- const target=document.getElementById('announcementTarget'),selected=target.value;
- target.innerHTML='<option value="all">Todos os clientes cadastrados</option>'+usersCache.filter(u=>!u.isAdmin).map(u=>'<option value="'+esc(u.uid)+'">'+esc((u.name||u.email||u.uid)+(u.email?' — '+u.email:''))+'</option>').join('');target.value=selected||'all';
- try{const result=await announcementRequest({action:'list'});announcementsCache=result.campaigns;
- document.getElementById('announcementList').innerHTML=announcementsCache.length?announcementsCache.map(n=>'<article style="border:1px solid #444;border-radius:10px;padding:14px;margin-bottom:12px"><strong>'+esc(n.title)+'</strong><p style="white-space:pre-wrap;overflow-wrap:anywhere">'+esc(n.message)+'</p><small>'+esc(n.target==='all'?'Todos os clientes cadastrados':'Cliente: '+(usersCache.find(u=>u.uid===n.target)?.name||n.target))+' · '+Object.keys(n.recipients||{}).length+' destinatário(s)</small><div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px"><button class="btn btn-ghost" onclick="editAnnouncement(\''+n.id+'\')">Editar</button><button class="btn btn-danger" onclick="deleteAnnouncement(\''+n.id+'\')">Excluir para todos os destinatários</button></div><div style="margin-top:12px"><select id="recipient-'+n.id+'"><option value="">Selecione um destinatário</option>'+Object.keys(n.recipients||{}).map(uid=>'<option value="'+esc(uid)+'">'+esc(usersCache.find(u=>u.uid===uid)?.email||uid)+'</option>').join('')+'</select><button class="btn btn-ghost" onclick="deleteAnnouncementRecipient(\''+n.id+'\')">Excluir somente para este cliente</button></div></article>').join(''):'Nenhuma notificação criada.';
- }catch(e){announcementFeedback(e.message);}
+ const list=document.getElementById('announcementList');list.innerHTML='<p class="notification-empty">Carregando notificações...</p>';
+ try{
+ const result=await announcementRequest({action:'list'});announcementsCache=result.campaigns||[];
+ list.innerHTML=announcementsCache.length?announcementsCache.map(n=>{
+ const u=usersCache.find(u=>u.uid===n.target),label=n.target==='all'?'Todos os clientes cadastrados':u?.name||u?.email||n.target;
+ return '<article class="announcement-card"><div class="announcement-card-top"><span class="announcement-chip">'+esc(label)+'</span><small>'+new Date(n.createdAt).toLocaleDateString('pt-BR')+'</small></div><h4>'+esc(n.title)+'</h4><p class="announcement-text">'+esc(n.message)+'</p><small class="notification-muted">'+Object.keys(n.recipients||{}).length+' destinatário(s)</small><div class="notification-form-actions"><button type="button" class="btn btn-ghost btn-sm" data-id="'+n.id+'" onclick="editAnnouncement(this.dataset.id)">Editar</button><button type="button" class="btn btn-danger btn-sm" data-id="'+n.id+'" onclick="deleteAnnouncement(this.dataset.id)">Excluir para todos</button></div><details class="announcement-recipient-delete"><summary>Excluir somente para um cliente</summary><select aria-label="Destinatário para excluir" id="recipient-'+n.id+'"><option value="">Selecione o cliente</option>'+Object.keys(n.recipients||{}).map(uid=>'<option value="'+esc(uid)+'">'+esc(usersCache.find(u=>u.uid===uid)?.email||uid)+'</option>').join('')+'</select><button type="button" class="btn btn-ghost btn-sm" data-id="'+n.id+'" onclick="deleteAnnouncementRecipient(this.dataset.id)">Excluir para este cliente</button></details></article>';
+ }).join(''):'<p class="notification-empty">Nenhuma notificação criada ainda.</p>';
+ }catch(error){list.innerHTML='<p class="notification-empty">Não foi possível carregar a lista.</p>';announcementFeedback(error.message,true);}
 }
-function editAnnouncement(id){const n=announcementsCache.find(n=>n.id===id);if(!n)return;document.getElementById('announcementId').value=id;document.getElementById('announcementTitle').value=n.title;document.getElementById('announcementMessage').value=n.message;document.getElementById('announcementTarget').value=n.target;document.getElementById('announcementTarget').disabled=true;document.getElementById('announcementSave').textContent='Salvar alterações';document.getElementById('announcementTitle').focus();}
-async function saveAnnouncement(){const button=document.getElementById('announcementSave');button.disabled=true;try{await announcementRequest({action:'save',id:document.getElementById('announcementId').value,title:document.getElementById('announcementTitle').value,message:document.getElementById('announcementMessage').value,target:document.getElementById('announcementTarget').value});resetAnnouncement();await loadAnnouncements();announcementFeedback('Notificação salva e enviada.');}catch(e){announcementFeedback(e.message);}finally{button.disabled=false;}}
-async function deleteAnnouncement(id,uid){if(!confirm(uid?'Excluir a notificação somente para este cliente?':'Excluir esta notificação para todos os destinatários?'))return;try{await announcementRequest({action:'delete',id,uid});resetAnnouncement();await loadAnnouncements();announcementFeedback('Notificação excluída.');}catch(e){announcementFeedback(e.message);}}
-function deleteAnnouncementRecipient(id){const uid=document.getElementById('recipient-'+id).value;if(uid)deleteAnnouncement(id,uid);else announcementFeedback('Selecione o cliente.');}
-Object.assign(window,{removeSelectedLegacy,loadAnnouncements,resetAnnouncement,saveAnnouncement,editAnnouncement,deleteAnnouncement,deleteAnnouncementRecipient});
+function editAnnouncement(id){
+ const n=announcementsCache.find(n=>n.id===id);if(!n)return;
+ resetAnnouncement();setAnnouncementMode(n.target==='all'?'all':'one');
+ document.getElementById('announcementId').value=id;document.getElementById('announcementTarget').value=n.target;
+ document.getElementById('announcementTitle').value=n.title;document.getElementById('announcementMessage').value=n.message;
+ document.getElementById('notificationAll').disabled=true;document.getElementById('notificationOne').disabled=true;document.getElementById('notificationUserSearch').disabled=true;
+ document.getElementById('announcementSave').textContent='Salvar alterações';renderNotificationRecipients();
+ announcementFeedback('Editando a mensagem enviada. Os destinatários serão mantidos.');
+ document.getElementById('announcementTitle').focus();document.getElementById('announcementForm').scrollIntoView({block:'start',behavior:'smooth'});
+}
+async function saveAnnouncement(){
+ const button=document.getElementById('announcementSave');
+ if(button.disabled)return;
+ const id=document.getElementById('announcementId').value,target=document.getElementById('announcementTarget').value;
+ if(!target){announcementFeedback('Pesquise e selecione o cliente que vai receber.',true);return;}
+ button.disabled=true;announcementFeedback('Enviando...');
+ try{
+ await announcementRequest({action:'save',id,title:document.getElementById('announcementTitle').value,message:document.getElementById('announcementMessage').value,target});
+ resetAnnouncement();await loadAnnouncements();announcementFeedback(id?'Notificação atualizada.':'Notificação enviada com sucesso.');
+ }catch(error){announcementFeedback(error.message,true);}
+ finally{button.disabled=false;}
+}
+async function deleteAnnouncement(id,uid){
+ if(!confirm(uid?'Excluir esta mensagem somente para o cliente selecionado?':'Excluir esta mensagem para todos os destinatários?'))return;
+ try{await announcementRequest({action:'delete',id,uid});resetAnnouncement();await loadAnnouncements();announcementFeedback('Notificação excluída.');}catch(error){announcementFeedback(error.message,true);}
+}
+function deleteAnnouncementRecipient(id){const uid=document.getElementById('recipient-'+id).value;if(uid)deleteAnnouncement(id,uid);else announcementFeedback('Selecione um cliente para excluir a mensagem.',true);}
+Object.assign(window,{openOrderCleanup,removeCleanupOrder,openAnnouncements,setAnnouncementMode,renderNotificationRecipients,selectNotificationUser,loadAnnouncements,resetAnnouncement,saveAnnouncement,editAnnouncement,deleteAnnouncement,deleteAnnouncementRecipient});
 async function archiveLegacyOrderAdm(uid,id){
   const order=allOrdersCache.find(o=>o.uid===uid&&o.id===id);
   if(!order||!CimPaymentPolicy.isLegacyOrder(order))return;
