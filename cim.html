@@ -1090,7 +1090,23 @@
         .product-actions .action-row .btn.product-add-btn { background: #fff; color: #000; }
         .product-actions .action-row .btn.product-add-btn:hover { background: #e6e6e6; }
         .product-actions .action-row .btn.product-add-btn:disabled { background: #555; color: #999; }
-    </style>
+    
+body.fullscreen-panel-open{overflow:hidden!important}
+.header-actions .menu-toggle{display:flex!important;align-items:center;justify-content:center;flex-shrink:0;min-width:48px;min-height:48px;padding:10px!important}
+.menu-toggle i{font-size:26px!important;color:#ff3601!important}
+.bottom-menu,.cart-panel{position:fixed!important;inset:0!important;width:100%!important;max-width:none!important;height:100vh!important;height:100dvh!important;max-height:none!important;border-radius:0!important;background:#111!important;backdrop-filter:none!important;transform:translateY(105%)!important;visibility:hidden;transition:transform .25s,visibility .25s;box-sizing:border-box;z-index:2001!important}
+.bottom-menu.open,.cart-panel.open{transform:translateY(0)!important;visibility:visible}
+.bottom-menu{padding:0 max(16px,env(safe-area-inset-right)) max(24px,env(safe-area-inset-bottom)) max(16px,env(safe-area-inset-left))!important;overflow-y:auto;overscroll-behavior:contain}
+.menu-handle{display:none!important}
+.fullscreen-menu-header{position:sticky;top:0;z-index:5;display:flex;justify-content:space-between;align-items:center;padding:calc(12px + env(safe-area-inset-top)) 0 12px;background:#111;border-bottom:1px solid #333;margin-bottom:18px}
+.fullscreen-menu-header button,.cart-close{min-width:48px;min-height:48px;font-size:24px;color:#fff;background:#222;border:1px solid #444;border-radius:10px}
+.cart-view{height:100%;min-height:0}
+.cart-header{padding-top:max(12px,env(safe-area-inset-top))}
+.cart-panel{padding-bottom:env(safe-area-inset-bottom)}
+@media(max-width:600px){.header-actions{gap:6px!important}.menu-toggle span{display:none!important}.bottom-menu input,.cart-panel input,.cart-panel select{font-size:16px}.cart-items{padding:12px}.cart-summary{padding:12px}}
+.header-actions,.search-header{min-width:0}.logo-img{max-width:100%;object-fit:contain}@media(max-width:400px){.logo{max-width:90px}.header-actions{gap:4px!important}.search-header{margin-left:0}.search-input-header{width:0}.notif-bell{flex-shrink:0}}
+.cart-view{border-radius:0!important}
+</style>
     <script src="assets/payment-policy.js" defer></script>
 </head>
 <body>
@@ -1149,10 +1165,10 @@
                         </div>
                     </div>
                 </div>
-                <div class="menu-toggle" onclick="toggleBottomMenu()">
-                    <i class="fas fa-bars"></i>
+                <button type="button" class="menu-toggle" aria-label="Abrir menu" aria-controls="bottomMenu" aria-expanded="false" onclick="toggleBottomMenu()">
+                    <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#ff3601" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
                     <span>Menu</span>
-                </div>
+                </button>
             </div>
         </div>
     </header>
@@ -1165,8 +1181,8 @@
     <button class="back-to-top" id="backToTop" onclick="window.scrollTo({top:0,behavior:'smooth'})"><i class="fas fa-chevron-up"></i></button>
 
     <div class="bottom-overlay" id="bottomOverlay" onclick="closeBottomMenu()"></div>
-    <div class="bottom-menu" id="bottomMenu">
-        <div class="menu-handle"></div>
+    <div class="bottom-menu" id="bottomMenu" role="dialog" aria-label="Menu da loja" aria-modal="true">
+        <div class="menu-handle"></div><div class="fullscreen-menu-header"><strong>Menu</strong><button type="button" aria-label="Fechar menu" onclick="closeBottomMenu()"><span aria-hidden="true">×</span></button></div>
 
         <div id="menuMainContent">
             <div class="profile-section">
@@ -1434,7 +1450,7 @@
         </div>
     </div>
 
-    <div class="cart-panel" id="cartPanel">
+    <div class="cart-panel" id="cartPanel" role="dialog" aria-label="Carrinho de compras" aria-modal="true">
         <div class="cart-view" id="cartMainView">
             <div class="cart-header">
                 <h3><i class="fas fa-shopping-cart"></i> Meu Carrinho</h3>
@@ -1442,8 +1458,7 @@
                     <button class="cart-trash-btn" onclick="clearCart()" title="Limpar carrinho">
                         <i class="fas fa-trash"></i>
                     </button>
-                    <button class="cart-close" onclick="toggleCart()" title="Fechar">
-                        <i class="fas fa-times"></i>
+                    <button class="cart-close" onclick="toggleCart()" title="Fechar"><span aria-hidden="true">×</span>
                     </button>
                 </div>
             </div>
@@ -2226,7 +2241,7 @@
             }
         }
 
-        function toggleCart() {
+        function toggleCart() { closeBottomMenu();
             cartPanel.classList.toggle('open');
             if (!cartPanel.classList.contains('open')) {
                 const succ = document.getElementById('cartSuccessScreen');
@@ -3016,11 +3031,23 @@
             }
         }
 
-        function toggleBottomMenu() {
+        
+function syncFullscreenPanels(){
+const menuOpen=bottomMenu.classList.contains('open'),cartOpen=cartPanel.classList.contains('open');
+document.body.classList.toggle('fullscreen-panel-open',menuOpen||cartOpen);
+ document.querySelector('.menu-toggle')?.setAttribute('aria-expanded',String(menuOpen));
+ document.querySelectorAll('body > header, body > main, body > .main-container, #cartFloat, #backToTop').forEach(e=>{e.inert=menuOpen||cartOpen;});
+const title=document.querySelector('.fullscreen-menu-header strong');
+if(title)title.textContent=document.getElementById('menuMainContent').style.display!=='none'?'Menu':document.getElementById('menuSupportContent').style.display==='block'?'Atendimento':document.getElementById('menuOrdersContent').style.display==='block'?'Pedidos':'Minha conta';
+}
+new MutationObserver(syncFullscreenPanels).observe(bottomMenu,{attributes:true,subtree:true,attributeFilter:['class','style']});
+new MutationObserver(syncFullscreenPanels).observe(cartPanel,{attributes:true,attributeFilter:['class']});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'){if(bottomMenu.classList.contains('open'))closeBottomMenu();else if(cartPanel.classList.contains('open'))toggleCart();}});
+function toggleBottomMenu() {
             const isOpen = bottomMenu.classList.contains('open');
             if (isOpen) closeBottomMenu(); else openBottomMenu();
         }
-        function openBottomMenu() {
+        function openBottomMenu() { cartPanel.classList.remove('open');
             bottomMenu.classList.add('open');
             bottomOverlay.classList.add('active');
             document.body.style.overflow = 'hidden';
@@ -4501,6 +4528,7 @@
             const n = _notificationsCache.find(x => x.id === id);
             if(!n) return;
             markNotifRead(id);
+            if(n.campaignId) return;
             closeNotifDropdown();
             openBottomMenu();
             setTimeout(() => { openUserOrders(); }, 200);

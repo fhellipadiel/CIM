@@ -720,12 +720,6 @@ tbody tr:last-child td{border-bottom:none}
          PAINEL: PEDIDOS
          ============================================================ -->
     <section class="panel" id="panel-pedidos">
-      <details style="margin:16px 0;padding:16px;border:1px solid #555;border-radius:12px;">
-        <summary>Mercado Pago — pedidos de teste</summary>
-        <p style="margin:12px 0;">Estes pedidos ficam separados dos pedidos reais e do faturamento.</p>
-        <button class="btn" onclick="loadMercadoPagoTests()">Ver / atualizar pedidos de teste</button>
-        <div id="mpTestOrders" style="margin-top:12px;"></div>
-      </details>
       <div class="panel-head">
         <div>
           <h1>Pedidos</h1>
@@ -1371,6 +1365,16 @@ tbody tr:last-child td{border-bottom:none}
          PAINEL: CONFIGURAÇÕES
          ============================================================ -->
     <section class="panel" id="panel-config">
+<div class="block"><div class="block-head"><h3>Excluir um pedido antigo de teste</h3></div><div class="block-body"><p>Selecione um pedido criado antes da integração. O cadastro do cliente será mantido.</p><select id="legacyOrderSelect" style="width:100%;padding:12px;margin:12px 0;background:#161616;color:white"></select><button class="btn btn-danger" onclick="removeSelectedLegacy()">Excluir da lista</button></div></div>
+<div class="block"><div class="block-head"><h3>Notificações aos clientes</h3></div><div class="block-body">
+<form onsubmit="event.preventDefault();saveAnnouncement()"><input type="hidden" id="announcementId">
+<div class="f-group"><label>Enviar para</label><select id="announcementTarget"><option value="all">Todos os clientes cadastrados</option></select></div>
+<div class="f-group"><label>Título</label><input id="announcementTitle" maxlength="150" required></div>
+<div class="f-group"><label>Mensagem</label><textarea id="announcementMessage" maxlength="1000" rows="4" required></textarea></div>
+<button class="btn btn-primary" id="announcementSave" type="submit">Enviar notificação</button>
+<button class="btn btn-ghost" type="button" onclick="resetAnnouncement()">Cancelar edição</button></form>
+<p id="announcementFeedback" role="status" style="margin:12px 0"></p><button class="btn btn-ghost" onclick="loadAnnouncements()">Atualizar lista</button><div id="announcementList" style="margin-top:14px"></div>
+</div></div>
       <div class="panel-head"><div><h1>Configurações</h1><p>Ações administrativas gerais</p></div></div>
 
       <div class="block">
@@ -2082,6 +2086,7 @@ function switchPanel(name){
   if(name === 'analises-links'){ updateLinkSlugFilter(); renderLinksAnalytics(); }
   if(name === 'cliques'){ renderClickHistory(); renderContactClicks(); renderMetaAchievements(); }
   if(name === 'pedidos'){ renderOrders(); renderOrdersDashboard(); }
+ if(name === 'config'){renderLegacySettings();loadAnnouncements();}
 }
 
 function globalSearchHandler(v){
@@ -2437,8 +2442,36 @@ setInterval(()=>{
   refreshOrdersVisibilityAdm();
   document.querySelectorAll('[data-order-deadline]').forEach(el=>{const order=ordersCache.find(o=>o.uid===el.dataset.orderUid&&o.id===el.dataset.orderDeadline);if(order)el.textContent=paymentDeadlineAdm(order);});
 },1000);
+
+let announcementsCache=[];
+function renderLegacySettings(){
+ const select=document.getElementById('legacyOrderSelect');if(!select)return;
+ const rows=allOrdersCache.filter(o=>!o.archivedAt&&CimPaymentPolicy.isLegacyOrder(o));
+ select.innerHTML=rows.length?rows.map(o=>'<option value="'+esc(o.uid+'/'+o.id)+'">'+esc(orderShortIdAdm(o)+' — '+(o.customerName||o.customerEmail||o.uid))+'</option>').join(''):'<option value="">Nenhum pedido antigo de teste</option>';
+}
+function removeSelectedLegacy(){const value=document.getElementById('legacyOrderSelect').value;if(value){const [uid,id]=value.split('/');archiveLegacyOrderAdm(uid,id).then(renderLegacySettings);}}
+async function announcementRequest(data){
+ const token=await auth.currentUser.getIdToken();
+ const r=await fetch('/api/admin-notifications',{method:'POST',headers:{'Content-Type':'application/json',Authorization:'Bearer '+token},body:JSON.stringify(data),signal:AbortSignal.timeout(30000)});
+ const result=await r.json();if(!r.ok)throw Error(result.error||'Não foi possível salvar.');return result;
+}
+function announcementFeedback(message){document.getElementById('announcementFeedback').textContent=message;}
+function resetAnnouncement(){['announcementId','announcementTitle','announcementMessage'].forEach(id=>document.getElementById(id).value='');document.getElementById('announcementTarget').disabled=false;document.getElementById('announcementTarget').value='all';document.getElementById('announcementSave').textContent='Enviar notificação';}
+async function loadAnnouncements(){
+ renderLegacySettings();
+ const target=document.getElementById('announcementTarget'),selected=target.value;
+ target.innerHTML='<option value="all">Todos os clientes cadastrados</option>'+usersCache.filter(u=>!u.isAdmin).map(u=>'<option value="'+esc(u.uid)+'">'+esc((u.name||u.email||u.uid)+(u.email?' — '+u.email:''))+'</option>').join('');target.value=selected||'all';
+ try{const result=await announcementRequest({action:'list'});announcementsCache=result.campaigns;
+ document.getElementById('announcementList').innerHTML=announcementsCache.length?announcementsCache.map(n=>'<article style="border:1px solid #444;border-radius:10px;padding:14px;margin-bottom:12px"><strong>'+esc(n.title)+'</strong><p style="white-space:pre-wrap;overflow-wrap:anywhere">'+esc(n.message)+'</p><small>'+esc(n.target==='all'?'Todos os clientes cadastrados':'Cliente: '+(usersCache.find(u=>u.uid===n.target)?.name||n.target))+' · '+Object.keys(n.recipients||{}).length+' destinatário(s)</small><div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px"><button class="btn btn-ghost" onclick="editAnnouncement(\''+n.id+'\')">Editar</button><button class="btn btn-danger" onclick="deleteAnnouncement(\''+n.id+'\')">Excluir para todos os destinatários</button></div><div style="margin-top:12px"><select id="recipient-'+n.id+'"><option value="">Selecione um destinatário</option>'+Object.keys(n.recipients||{}).map(uid=>'<option value="'+esc(uid)+'">'+esc(usersCache.find(u=>u.uid===uid)?.email||uid)+'</option>').join('')+'</select><button class="btn btn-ghost" onclick="deleteAnnouncementRecipient(\''+n.id+'\')">Excluir somente para este cliente</button></div></article>').join(''):'Nenhuma notificação criada.';
+ }catch(e){announcementFeedback(e.message);}
+}
+function editAnnouncement(id){const n=announcementsCache.find(n=>n.id===id);if(!n)return;document.getElementById('announcementId').value=id;document.getElementById('announcementTitle').value=n.title;document.getElementById('announcementMessage').value=n.message;document.getElementById('announcementTarget').value=n.target;document.getElementById('announcementTarget').disabled=true;document.getElementById('announcementSave').textContent='Salvar alterações';document.getElementById('announcementTitle').focus();}
+async function saveAnnouncement(){const button=document.getElementById('announcementSave');button.disabled=true;try{await announcementRequest({action:'save',id:document.getElementById('announcementId').value,title:document.getElementById('announcementTitle').value,message:document.getElementById('announcementMessage').value,target:document.getElementById('announcementTarget').value});resetAnnouncement();await loadAnnouncements();announcementFeedback('Notificação salva e enviada.');}catch(e){announcementFeedback(e.message);}finally{button.disabled=false;}}
+async function deleteAnnouncement(id,uid){if(!confirm(uid?'Excluir a notificação somente para este cliente?':'Excluir esta notificação para todos os destinatários?'))return;try{await announcementRequest({action:'delete',id,uid});resetAnnouncement();await loadAnnouncements();announcementFeedback('Notificação excluída.');}catch(e){announcementFeedback(e.message);}}
+function deleteAnnouncementRecipient(id){const uid=document.getElementById('recipient-'+id).value;if(uid)deleteAnnouncement(id,uid);else announcementFeedback('Selecione o cliente.');}
+Object.assign(window,{removeSelectedLegacy,loadAnnouncements,resetAnnouncement,saveAnnouncement,editAnnouncement,deleteAnnouncement,deleteAnnouncementRecipient});
 async function archiveLegacyOrderAdm(uid,id){
-  const order=ordersCache.find(o=>o.uid===uid&&o.id===id);
+  const order=allOrdersCache.find(o=>o.uid===uid&&o.id===id);
   if(!order||!CimPaymentPolicy.isLegacyOrder(order))return;
   if(!confirm('Excluir o pedido antigo '+orderShortIdAdm(order)+' da lista? Use apenas para pedidos de teste criados antes da integração. O cadastro do cliente será mantido.'))return;
   showLoading('Excluindo pedido antigo...');
@@ -2830,7 +2863,7 @@ function renderOrders(){
       <td><div class="row-actions">
         <button class="btn btn-icon btn-ghost" title="Detalhes" onclick="openOrderDetailAdm('${o.uid}','${o.id}')"><i class="fas fa-eye"></i></button>
         <button class="btn btn-icon btn-ghost" title="Avançar status" onclick="advanceOrderStatusAdm('${o.uid}','${o.id}')"><i class="fas fa-forward"></i></button>
-        ${CimPaymentPolicy.isLegacyOrder(o)?`<button class="btn btn-icon btn-danger" title="Excluir pedido antigo de teste" aria-label="Excluir pedido antigo de teste" onclick="archiveLegacyOrderAdm('${o.uid}','${o.id}')"><i class="fas fa-trash"></i></button>`:''}
+        
         <button class="btn btn-icon btn-danger" title="Cancelar pedido" onclick="cancelOrderAdm('${o.uid}','${o.id}')"><i class="fas fa-times"></i></button>
       </div></td>
     </tr>`;
