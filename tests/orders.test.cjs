@@ -1,0 +1,15 @@
+const {test}=require('node:test');const assert=require('node:assert/strict');const crypto=require('node:crypto');
+const {payload,verify}=require('../server/orders.cjs');const {validSignature}=require('../server/core.cjs');
+const local={provider:'orders',testMode:true,mercadoOrderId:'ORDTSTABC123',reference:'local-order',total:552.02,installments:6,method:'card',items:[{id:'p',name:'Peça',quantity:1,unitPrice:552.02}]};
+const remote={id:local.mercadoOrderId,user_id:'123',type:'online',processing_mode:'manual',currency:'BRL',external_reference:local.reference,total_amount:'552.02',total_paid_amount:'552.02',status:'processed',transactions:{payments:[{id:'PAY1',status:'processed',status_detail:'accredited',amount:'552.02',paid_amount:'552.02',payment_method:{id:'master',type:'credit_card',installments:6}}]}};
+test('Orders deixa financiamento e escolha das parcelas para Mercado Pago',()=>{const p=payload(local,local.reference,'http://localhost:3000/cim.html');assert.equal(p.total_amount,'552.02');assert.equal(p.config.payment_method.installments,undefined);assert.equal(p.config.payment_method.max_installments,12);assert.equal(p.config.payment_method.installments_cost,undefined);assert.equal(p.config.payment_method.default_type,undefined);});
+test('Pix e cartão em 1x não enviam faixa inválida de parcelas',()=>{for(const method of ['pix','card']){const p=payload({...local,method,installments:1},local.reference,'http://localhost:3000/cim.html');assert.equal(p.config.payment_method.installments,undefined);}});
+test('Order aprovada exige valor, vendedor, referência e identificação correspondentes',()=>{assert.equal(verify(remote,local,123).status,'pago');for(const change of [{user_id:'999'},{total_amount:'1'},{total_paid_amount:'551.99'},{currency:'USD'},{external_reference:'outro'},{id:'ORDREAL123'}])assert.throws(()=>verify({...remote,...change},local,123));assert.throws(()=>verify(remote,{...local,testMode:false},123));});
+test('Order criada não é paga e cancelamento não vira aprovação',()=>{assert.equal(verify({...remote,status:'created',transactions:undefined},local,123).status,'pendente');assert.equal(verify({...remote,status:'cancelled'},local,123).status,'cancelado');assert.throws(()=>verify({...remote,transactions:{payments:[]}},local,123));});
+test('assinatura de Order alfanumérica é validada sem alterar ID usado na API',()=>{const id=local.mercadoOrderId;const h='ts=123,v1='+crypto.createHmac('sha256','secret').update(`id:${id.toLowerCase()};request-id:r;ts:123;`).digest('hex');assert.ok(validSignature(id,'r',h,'secret'));assert.equal(validSignature(id+'X','r',h,'secret'),false);});
+test('confirma juros externos e parcelas diferentes da preferência local',()=>{
+const r=structuredClone(remote);r.total_paid_amount='631.07';r.transactions.payments[0].payment_method.installments=12;
+const result=verify(r,local,123);
+assert.equal(result.status,'pago');assert.equal(result.paidTotal,631.07);assert.equal(result.financingCost,79.05);assert.equal(result.actualInstallments,12);
+r.transactions.payments[0].amount='1';assert.throws(()=>verify(r,local,123));
+});

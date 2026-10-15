@@ -535,7 +535,8 @@ tbody tr:last-child td{border-bottom:none}
 @media(max-width:1100px){.lead-filters{grid-template-columns:repeat(2,minmax(0,1fr))}.lead-filters>.btn{justify-self:start}.lead-box-head{align-items:start;flex-direction:column}}
 @media(max-width:600px){.lead-filters{grid-template-columns:1fr;padding:16px}.lead-box-head{padding:16px}.lead-overview{padding:16px}.lead-campaign-grid{grid-template-columns:1fr}.lead-dialog-body,.lead-dialog-head{padding:18px}.lead-photo-upload{align-items:start;flex-wrap:wrap}#panel-leads .panel-head{flex-wrap:wrap;gap:16px}}
 .lead-week{margin-bottom:20px}.lead-week-controls,.lead-date-actions{display:flex;gap:8px;flex-wrap:wrap;align-items:end}.lead-week-controls label{min-width:160px}.lead-week-chart{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:10px;padding:22px}.lead-week-day{text-align:center;min-width:0}.lead-week-track{height:160px;display:flex;align-items:end;justify-content:center;border-bottom:1px solid var(--border)}.lead-week-bar{width:65%;max-width:44px;background:var(--accent);border-radius:6px 6px 0 0;min-height:2px}.lead-week-value{display:block;margin-bottom:8px;font-size:.85rem}.lead-week-label{display:block;margin-top:10px;font-size:.75rem;color:var(--text-muted)}.lead-week-label small{display:block;margin-top:4px}.lead-week-total{padding:16px 22px 0;color:var(--text-muted);font-size:.82rem}#leadToday.active{background:var(--accent-soft);color:var(--accent);border-color:var(--accent)}@media(max-width:600px){.lead-week-chart{padding:18px 10px;gap:5px}.lead-week-track{height:120px}.lead-week-controls{width:100%}.lead-week-controls label{flex:1}}
-</style></head>
+</style>
+</head>
 <body>
 
 <!-- ============================================================
@@ -719,6 +720,12 @@ tbody tr:last-child td{border-bottom:none}
          PAINEL: PEDIDOS
          ============================================================ -->
     <section class="panel" id="panel-pedidos">
+      <details style="margin:16px 0;padding:16px;border:1px solid #555;border-radius:12px;">
+        <summary>Mercado Pago — pedidos de teste</summary>
+        <p style="margin:12px 0;">Estes pedidos ficam separados dos pedidos reais e do faturamento.</p>
+        <button class="btn" onclick="loadMercadoPagoTests()">Ver / atualizar pedidos de teste</button>
+        <div id="mpTestOrders" style="margin-top:12px;"></div>
+      </details>
       <div class="panel-head">
         <div>
           <h1>Pedidos</h1>
@@ -726,7 +733,6 @@ tbody tr:last-child td{border-bottom:none}
         </div>
         <div class="panel-actions">
           <button class="btn btn-ghost" onclick="openOrderInvoicesAdm()"><i class="fas fa-file-invoice"></i> Notas fiscais <span class="invoice-pending-count" id="invoicePendingCountAdm" style="display:none;">0</span></button>
-          <button class="btn btn-card-settings" onclick="openCardSettingsAdm()"><i class="fas fa-credit-card"></i> Cartão</button>
           <button class="btn btn-ghost" onclick="exportOrdersCsvAdm()"><i class="fas fa-file-csv"></i> Exportar CSV</button>
         </div>
       </div>
@@ -1732,18 +1738,6 @@ tbody tr:last-child td{border-bottom:none}
   </div>
 </div></div>
 
-<div class="modal-overlay" id="modalCardSettings"><div class="modal">
-  <div class="modal-head">
-    <h3><i class="fas fa-credit-card" style="color:var(--accent)"></i> Parcelamento no cartão</h3>
-    <button class="modal-close" onclick="closeModal('modalCardSettings')"><i class="fas fa-times"></i></button>
-  </div>
-  <div class="modal-body">
-    <p style="color:var(--text-muted);font-size:.82rem;margin-bottom:14px;">Parcelas selecionadas ficam sem juros. Ao desmarcar, a CIM volta a usar a taxa original da parcela.</p>
-    <div class="card-interest-list" id="cardInterestOptions"></div>
-  </div>
-  <div class="modal-foot"><button class="btn btn-ghost" onclick="closeModal('modalCardSettings')">Fechar</button></div>
-</div></div>
-
 <div class="modal-overlay" id="modalOrderInvoices"><div class="modal large">
   <div class="modal-head">
     <h3><i class="fas fa-file-invoice" style="color:var(--accent)"></i> Notas fiscais dos pedidos pagos</h3>
@@ -1809,8 +1803,6 @@ let galleryDraft=[], galleryLoaded=false, galleryDirty=false, gallerySaveTimer=n
 let trackingLinks={}, editingLinkId=null, uploadedLinkImg=null;
 let aboutPhotosDraft=[], aboutPhotosLoaded=false, aboutPhotosDirty=false, aboutPhotosSaveTimer=null;
 let ordersCache=[];
-let cardInterestFreeInstallmentsAdm={};
-const CARD_TAXES_ADM={1:3.99,2:6.32,3:6.91,4:7.54,5:8.14,6:8.74,7:9.26,8:9.95,9:10.63,10:11.12,11:11.81,12:12.50};
 let orderPeriodFilter='all', orderStatusFilter='all';
 const ORDERS_REVENUE_VISIBILITY_KEY='cimAdmOrdersRevenueHidden';
 let ordersRevenueHidden=localStorage.getItem(ORDERS_REVENUE_VISIBILITY_KEY)==='true', ordersRevenueValue='R$ 0,00';
@@ -2240,10 +2232,6 @@ function loadAllData(){
   database.ref('brandClicks').on('value',snap=>{ brandClicks=snap.val()||{}; });
   database.ref('settings/categoryOrder').on('value',snap=>{ categoryOrder=snap.val()||[]; renderCategories(); });
   database.ref('settings/pricesHidden').on('value',snap=>{ pricesHidden=snap.val()||false; updatePricesToggleBtn(); });
-  database.ref('settings/cardInterestFreeInstallments').on('value',snap=>{
-    cardInterestFreeInstallmentsAdm=snap.val()||{};
-    if(document.getElementById('modalCardSettings')?.classList.contains('active')) renderCardSettingsAdm();
-  });
   database.ref('clickLogs').orderByChild('timestamp').on('value',snap=>{
     const d=snap.val(); clickHistory = d? Object.values(d).reverse() : []; renderClickHistory();
   });
@@ -2396,6 +2384,43 @@ function showActiveUsersModal(days){
 /* ============================================================
    PEDIDOS
    ============================================================ */
+async function loadMercadoPagoTests(){
+  const area=document.getElementById('mpTestOrders');
+  area.textContent='Consultando pedidos de teste…';
+  try {
+    if(!auth.currentUser) throw new Error('Faça login como administrador.');
+    const token=await auth.currentUser.getIdToken();
+    const call=async(route,payload)=>{
+      const r=await fetch('/api/'+route,{method:'POST',headers:{'Content-Type':'application/json',Authorization:'Bearer '+token},body:JSON.stringify(payload),signal:AbortSignal.timeout(30000)});
+      const data=await r.json().catch(()=>({}));
+      if(!r.ok)throw new Error(data.error||'Servidor de testes indisponível.');
+      return data;
+    };
+    const {orders}=await call('admin-tests',{});
+    area.replaceChildren();
+    if(!orders.length){area.textContent='Nenhum pedido de teste registrado.';return;}
+    for(const order of orders){
+      const row=document.createElement('div');
+      row.style.cssText='padding:12px 0;border-bottom:1px solid #444;';
+      const label=document.createElement('p');
+      label.textContent='TESTE · '+order.id+' · '+order.status+' · '+Number(order.total).toLocaleString('pt-BR',{style:'currency',currency:'BRL'})+' · '+new Date(order.createdAt).toLocaleString('pt-BR');
+      row.append(label);
+      const detail=document.createElement('p');
+      detail.textContent='Acréscimo da loja: '+(order.interestRate===undefined?'não registrado':Number(order.interestRate).toLocaleString('pt-BR')+'%')+' · Parcelas solicitadas: '+(order.installments||1);
+      if(order.paidTotal!==undefined) detail.textContent+=' · Total pago no Mercado Pago: '+Number(order.paidTotal).toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
+      if(order.financingCost>0) detail.textContent+=' · Juros adicionais do Mercado Pago: '+Number(order.financingCost).toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
+      row.append(detail);
+      area.append(row);
+    }
+  }catch(error){area.textContent=error.message;}
+}
+async function updateManagedOrderAdm(order,status){
+  if(!auth.currentUser)throw Error('Entre como administrador.');
+  const token=await auth.currentUser.getIdToken();
+  const response=await fetch('/api/admin-order-status',{method:'POST',headers:{'Content-Type':'application/json',Authorization:'Bearer '+token},body:JSON.stringify({uid:order.uid,orderId:order.id,status}),signal:AbortSignal.timeout(30000)});
+  const data=await response.json().catch(()=>({}));
+  if(!response.ok)throw Error(data.error||'Não foi possível atualizar o pedido.');
+}
 function listenOrdersAdm(){
   database.ref('orders').on('value', snap => {
     const raw = snap.val() || {};
@@ -2454,7 +2479,7 @@ function getFilteredOrdersAdm(){
   const q = (document.getElementById('orderFilterText')?.value || '').trim().toLowerCase();
   if(q){
     list = list.filter(o => {
-      const u = usersCache.find(x => x.uid === o.uid) || {};
+      const u = usersCache.find(x => x.uid === o.uid) || {name:o.customerName,email:o.customerEmail};
       const shortId = o.orderNumber ? '#' + String(o.orderNumber).padStart(3,'0') : '#' + String(o.id).slice(-6);
       const hay = [shortId, o.id, u.name, u.email, u.telefone, u.cpf, u.cnpj].join(' ').toLowerCase();
       return hay.includes(q);
@@ -2743,47 +2768,6 @@ async function setOrderInvoiceStatusAdm(uid,orderId,invoiceStatus){
   }
 }
 
-function isCardInstallmentInterestFreeAdm(installment){
-  const configured=cardInterestFreeInstallmentsAdm[String(installment)];
-  return typeof configured==='boolean' ? configured : installment<=5;
-}
-
-function renderCardSettingsAdm(){
-  const list=document.getElementById('cardInterestOptions');
-  if(!list) return;
-  list.innerHTML=Array.from({length:12},(_,index)=>{
-    const installment=index+1;
-    const isInterestFree=isCardInstallmentInterestFreeAdm(installment);
-    const tax=CARD_TAXES_ADM[installment]||0;
-    const label=isInterestFree?'Sem juros':`Com juros (${tax.toFixed(2).replace('.',',')}%)`;
-    return `<label class="card-interest-option">
-      <input type="checkbox" ${isInterestFree?'checked':''} aria-label="${installment} parcela(s) sem juros" onchange="setCardInterestFreeAdm(${installment},this.checked)">
-      <strong>${installment}x</strong><span>${label}</span>
-    </label>`;
-  }).join('');
-}
-
-function openCardSettingsAdm(){
-  renderCardSettingsAdm();
-  openModal('modalCardSettings');
-}
-
-async function setCardInterestFreeAdm(installment,isInterestFree){
-  const key=String(installment);
-  const previous=cardInterestFreeInstallmentsAdm[key];
-  cardInterestFreeInstallmentsAdm[key]=isInterestFree;
-  try{
-    await database.ref(`settings/cardInterestFreeInstallments/${key}`).set(isInterestFree);
-    showToast('Parcelamento atualizado');
-  }catch(error){
-    if(previous===undefined) delete cardInterestFreeInstallmentsAdm[key];
-    else cardInterestFreeInstallmentsAdm[key]=previous;
-    renderCardSettingsAdm();
-    showToast('Não foi possível atualizar o parcelamento','err');
-    console.error('[setCardInterestFreeAdm] falhou:',error);
-  }
-}
-
 function renderOrders(){
   const tbody = document.getElementById('ordersTableBody');
   if(!tbody) return;
@@ -2800,7 +2784,7 @@ function renderOrders(){
     const s = o.status || 'pendente';
     const dateStr = o.createdAt ? new Date(o.createdAt).toLocaleString('pt-BR', { day:'2-digit', month:'2-digit', year:'2-digit', hour:'2-digit', minute:'2-digit' }) : '—';
     const methodClass = o.method === 'pix' ? 'pix' : 'card';
-    const methodLabel = o.method === 'pix' ? 'PIX' : `Cartão ${o.installments||1}x`;
+    const methodLabel = o.method === 'pix' ? 'PIX' : `Cartão ${o.actualInstallments||o.installments||1}x`;
     const invoiceLabel = isInvoiceEligibleOrderAdm(o)
       ? (isOrderInvoiceSentAdm(o) ? '<span class="invoice-status-sent">Enviado pelo e-mail</span>' : '<span class="invoice-status-pending">Pendente</span>')
       : '<span class="td-sub">—</span>';
@@ -2865,7 +2849,7 @@ function openOrderDetailAdm(uid, orderId){
       </div>
       <div class="f-group" style="margin-bottom:0;"><label>Pagamento</label>
         <div style="padding:10px;background:var(--panel-alt);border:1px solid var(--border);border-radius:8px;">
-          ${o.method === 'pix' ? 'PIX' : 'Cartão de Crédito ' + (o.installments||1) + 'x'}
+          ${o.method === 'pix' ? 'PIX' : 'Cartão de Crédito ' + (o.actualInstallments||o.installments||1) + 'x'}
         </div>
       </div>
       <div class="f-group" style="margin-bottom:0;"><label>Modo</label>
@@ -2879,7 +2863,8 @@ function openOrderDetailAdm(uid, orderId){
       <label>Status do pedido</label>
       <div class="select-wrap">
         <select id="orderStatusSelect" style="width:100%;padding:11px 14px;background:var(--panel-alt);border:1px solid var(--border);border-radius:8px;color:var(--text);">
-          <option value="pago" ${s==='pago'||s==='pendente'?'selected':''}>Pago</option>
+          <option value="pendente" ${s==='pendente'?'selected':''} disabled>Aguardando pagamento</option>
+          <option value="pago" ${s==='pago'?'selected':''} ${o.provider==='orders'?'disabled':''}>Pago</option>
           <option value="preparando" ${s==='preparando'||s==='confirmado'?'selected':''}>Preparando</option>
           <option value="enviado" ${s==='enviado'?'selected':''}>A caminho</option>
           <option value="entregue" ${s==='entregue'?'selected':''}>Entregue</option>
@@ -2933,7 +2918,8 @@ async function saveOrderStatusAdm(){
 
   showLoading('Salvando...');
   try{
-    await database.ref(`orders/${uid}/${id}/status`).set(newStatus);
+    if(currentOrderDetail.provider==='orders')await updateManagedOrderAdm(currentOrderDetail,newStatus);
+    else await database.ref(`orders/${uid}/${id}/status`).set(newStatus);
     if(newStatus === 'cancelado' && oldStatus !== 'cancelado') await sendOrderCancelNotificationAdm(uid, currentOrderDetail);
     hideLoading();
     showToast('Status atualizado');
@@ -2948,11 +2934,13 @@ async function advanceOrderStatusAdm(uid, orderId){
   const o = ordersCache.find(x => x.uid === uid && x.id === orderId);
   if(!o) return;
   const flow = { 'pendente':'pago', 'pago':'preparando', 'confirmado':'preparando', 'preparando':'enviado', 'enviado':'entregue' };
+  if(o.provider==='orders' && o.status==='pendente'){showToast('Aguardando aprovação do pagamento.','err');return;}
   const next = flow[o.status || 'pendente'];
   if(!next){ showToast('Não há próximo status','err'); return; }
   if(!confirm(`Avançar de "${orderStatusLabelAdm(o.status)}" para "${orderStatusLabelAdm(next)}"?`)) return;
   try{
-    await database.ref(`orders/${uid}/${orderId}/status`).set(next);
+    if(o.provider==='orders')await updateManagedOrderAdm(o,next);
+    else await database.ref(`orders/${uid}/${orderId}/status`).set(next);
     showToast('Status: ' + orderStatusLabelAdm(next));
   }catch(e){ showToast('Erro: ' + (e.message||e.code), 'err'); }
 }
@@ -2965,7 +2953,8 @@ async function cancelOrderAdm(uid, orderId){
 
   showLoading('Cancelando...');
   try{
-    await database.ref(`orders/${uid}/${orderId}/status`).set('cancelado');
+    if(o.provider==='orders')await updateManagedOrderAdm(o,'cancelado');
+    else await database.ref(`orders/${uid}/${orderId}/status`).set('cancelado');
     await sendOrderCancelNotificationAdm(uid, o);
     hideLoading();
     showToast('Pedido cancelado');
@@ -2994,7 +2983,7 @@ function exportOrdersCsvAdm(){
       u.telefone || '',
       (o.items || []).reduce((s,i)=>s+(i.quantity||1),0),
       Number(o.total||0).toFixed(2).replace('.', ','),
-      o.method === 'pix' ? 'PIX' : 'Cartão ' + (o.installments||1) + 'x',
+      o.method === 'pix' ? 'PIX' : 'Cartão ' + (o.actualInstallments||o.installments||1) + 'x',
       orderModeLabelAdm(o.mode),
       orderStatusLabelAdm(o.status),
       o.createdAt ? new Date(o.createdAt).toLocaleString('pt-BR') : ''
@@ -5681,7 +5670,7 @@ renderLeadCampaigns();
 <fieldset class="csv-fields"><legend>Campos do arquivo</legend><label><input type="checkbox" data-csv-field value="name" checked>Nome</label><label><input type="checkbox" data-csv-field value="phone" checked>Telefone</label><label><input type="checkbox" data-csv-field value="cpf" checked>CPF</label><label><input type="checkbox" data-csv-field value="cnpj" checked>CNPJ</label></fieldset>
 <label class="lead-field">Hist&oacute;rico de exporta&ccedil;&atilde;o<select id="csvExportStatus"><option value="all">Todos os contatos</option><option value="new">Somente os ainda n&atilde;o exportados</option><option value="exported">Somente os j&aacute; exportados</option></select></label>
 <button type="button" class="btn btn-ghost" onclick="openContactsCsvHistory(contactsCsvKind)"><i class="fas fa-clock-rotate-left"></i> Ver &uacute;ltimos arquivos exportados</button>
-<small style="color:var(--text-muted)">Hist&oacute;rico deste navegador e desta conta. A marca&ccedil;&atilde;o considera o contato inteiro, independentemente dos campos ou da campanha.</small>
+<small style="color:var(--text-muted)">Hist&oacute;rico salvo no banco de dados para esta conta. A marca&ccedil;&atilde;o considera o contato inteiro, independentemente dos campos ou da campanha.</small>
 <label class="lead-field">Pesquisar contato<input id="csvSearch" placeholder="Nome, telefone, CPF ou CNPJ"></label>
 <label class="lead-field" id="csvUsersGroup">Usuários<select id="csvUsersTab"><option value="all">Todos os usuários</option><option value="PF">Pessoa física</option><option value="PJ">Pessoa jurídica</option><option value="online">Online agora</option><option value="novos">Novos clientes</option><option value="google">Google</option><option value="manual">Manual</option></select></label>
 <div id="csvLeadsGroup" style="display:grid;gap:16px">
@@ -5694,7 +5683,7 @@ renderLeadCampaigns();
 <div class="lead-dialog-footer"><button type="button" class="btn btn-ghost" onclick="document.getElementById('contactsCsvModal').close()">Cancelar</button><button type="submit" class="btn btn-accent"><i class="fas fa-download"></i> Baixar CSV</button></div>
 </form></dialog>
 
-<dialog id="contactsCsvHistory" class="lead-dialog" aria-labelledby="csvHistoryTitle"><div class="lead-dialog-head"><div><h2 id="csvHistoryTitle">Arquivos exportados</h2><p>Os &uacute;ltimos 20 arquivos desta conta neste navegador. Exporta&ccedil;&otilde;es anteriores &agrave; ativa&ccedil;&atilde;o deste recurso n&atilde;o aparecem.</p></div><button type="button" class="lead-close" aria-label="Fechar" onclick="document.getElementById('contactsCsvHistory').close()"><i class="fas fa-xmark"></i></button></div><div id="csvHistoryRows" class="lead-dialog-body"></div><div class="lead-dialog-footer"><button type="button" class="btn btn-ghost" onclick="document.getElementById('contactsCsvHistory').close()">Fechar</button></div></dialog>
+<dialog id="contactsCsvHistory" class="lead-dialog" aria-labelledby="csvHistoryTitle"><div class="lead-dialog-head"><div><h2 id="csvHistoryTitle">Arquivos exportados</h2><p>Os &uacute;ltimos 20 arquivos desta conta, salvos no banco de dados. Exporta&ccedil;&otilde;es anteriores &agrave; ativa&ccedil;&atilde;o deste recurso n&atilde;o aparecem.</p></div><button type="button" class="lead-close" aria-label="Fechar" onclick="document.getElementById('contactsCsvHistory').close()"><i class="fas fa-xmark"></i></button></div><div id="csvHistoryRows" class="lead-dialog-body"></div><div class="lead-dialog-footer"><button type="button" class="btn btn-ghost" onclick="document.getElementById('contactsCsvHistory').close()">Fechar</button></div></dialog>
 <script id="contacts-csv-script">
 
 let contactsCsvKind='users';
@@ -5710,14 +5699,23 @@ function openContactsCsvModal(kind){
   for(const [target,source] of [['csvCampaign','leadCampaignFilter'],['csvStatus','leadStatus'],['csvFrom','leadFrom'],['csvTo','leadTo']])document.getElementById(target).value=document.getElementById(source).value;
   document.getElementById('contactsCsvModal').showModal();
 }
-function submitContactsCsv(){
+let contactsCsvBusy=false;
+async function submitContactsCsv(){
+  if(contactsCsvBusy)return;
+  contactsCsvBusy=true;
+  const button=document.querySelector('#contactsCsvModal button[type="submit"]');button.disabled=true;
   const pairs=contactsCsvKind==='users'?[['userFilterText','csvSearch']]:[['leadSearch','csvSearch'],['leadCampaignFilter','csvCampaign'],['leadStatus','csvStatus'],['leadFrom','csvFrom'],['leadTo','csvTo']];
   const previous=pairs.map(([id])=>document.getElementById(id).value),previousTab=usersTab;
+  let pending;
   try{
-    pairs.forEach(([id,source])=>document.getElementById(id).value=document.getElementById(source).value);
-    if(contactsCsvKind==='users')usersTab=document.getElementById('csvUsersTab').value;
-    if(exportContactsCsv(contactsCsvKind))document.getElementById('contactsCsvModal').close();
-  }finally{pairs.forEach(([id],i)=>document.getElementById(id).value=previous[i]);usersTab=previousTab;}
+    try{
+      pairs.forEach(([id,source])=>document.getElementById(id).value=document.getElementById(source).value);
+      if(contactsCsvKind==='users')usersTab=document.getElementById('csvUsersTab').value;
+      pending=exportContactsCsv(contactsCsvKind);
+    }finally{pairs.forEach(([id],i)=>document.getElementById(id).value=previous[i]);usersTab=previousTab;}
+    if(await pending)document.getElementById('contactsCsvModal').close();
+  }catch(error){showToast('Falha ao exportar. Confira sua conexao e tente novamente.','err');}
+  finally{contactsCsvBusy=false;button.disabled=false;}
 }
 
 
@@ -5727,20 +5725,35 @@ function formatContactsCsvDocument(value,type){
   if(type==='cnpj'&&digits.length===14)return digits.replace(/^(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})$/,'$1.$2.$3/$4-$5');
   return String(value??'');
 }
-function contactsCsvStorageKey(){return 'cim.contactsCsv.v1.'+(currentAdmin?.uid||auth.currentUser?.uid||'anonymous');}
-function readContactsCsvState(){
-  const raw=localStorage.getItem(contactsCsvStorageKey());
-  if(!raw)return {exported:{},files:[]};
-  const state=JSON.parse(raw);
-  if(!state||typeof state.exported!=='object'||!state.exported||!Array.isArray(state.files))throw new Error('Invalid history');
-  return state;
+function contactsCsvDatabaseRef(){
+  if(!currentAdmin||!auth.currentUser||currentAdmin.uid!==auth.currentUser.uid)throw new Error('Admin required');
+  return database.ref('contactCsvExports/'+currentAdmin.uid);
+}
+async function readContactsCsvState(){
+  const ref=contactsCsvDatabaseRef();
+  const localKey='cim.contactsCsv.v1.'+currentAdmin.uid;
+  let legacy=null;
+  try{const raw=localStorage.getItem(localKey);if(raw)legacy=JSON.parse(raw);}catch(error){}
+  if(legacy&&legacy.exported&&Array.isArray(legacy.files)){
+    await ref.transaction(state=>{
+      state=state||{exported:{},files:{}};
+      if(state.legacyImported)return;
+      state.exported={...legacy.exported,...(state.exported||{})};
+      state.files=state.files||{};
+      legacy.files.forEach(file=>{if(file.id&&!state.files[file.id])state.files[file.id]=file;});
+      state.legacyImported=true;
+      return state;
+    });
+  }
+  const snap=await ref.once('value'),state=snap.val()||{};
+  return {exported:state.exported||{},files:Object.values(state.files||{}).sort((a,b)=>b.createdAt-a.createdAt).slice(0,20)};
 }
 function downloadContactsCsv(csv,filename){
   const blob=new Blob([csv],{type:'text/csv;charset=utf-8;'}),url=URL.createObjectURL(blob),link=document.createElement('a');
   link.href=url;link.download=filename;document.body.appendChild(link);link.click();link.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);
 }
-function openContactsCsvHistory(kind){
-  let state;try{state=readContactsCsvState();}catch(error){showToast('N\u00e3o foi poss\u00edvel ler o hist\u00f3rico.','err');return;}
+async function openContactsCsvHistory(kind){
+  let state;try{state=await readContactsCsvState();}catch(error){showToast('N\u00e3o foi poss\u00edvel ler o hist\u00f3rico.','err');return;}
   const rows=document.getElementById('csvHistoryRows');rows.replaceChildren();
   const files=state.files.filter(f=>f.kind===kind);
   if(!files.length){const empty=document.createElement('p');empty.textContent='Nenhum arquivo exportado nesta aba ainda.';rows.appendChild(empty);}
@@ -5761,7 +5774,7 @@ function contactsCsvCell(value){
   if(/^[\s]*[=+@-]/.test(text))text="'"+text;
   return '"'+text.replace(/"/g,'""')+'"';
 }
-function exportContactsCsv(kind){
+async function exportContactsCsv(kind){
   const fields=Array.from(document.querySelectorAll('#contactsCsvModal input[data-csv-field]:checked'),el=>el.value);
   if(!fields.length){showToast('Selecione pelo menos um campo para exportar.','err');return;}
   let contacts;
@@ -5784,18 +5797,25 @@ function exportContactsCsv(kind){
     });
   }
 
-  let state;
-  try{state=readContactsCsvState();}catch(error){showToast('N\u00e3o foi poss\u00edvel ler o hist\u00f3rico deste navegador.','err');return;}
   const mode=document.getElementById('csvExportStatus').value;
+  const filterSnapshot={search:document.getElementById('csvSearch').value,exportStatus:mode,group:kind==='users'?document.getElementById('csvUsersTab').selectedOptions[0].textContent:document.getElementById('csvCampaign').selectedOptions[0].textContent,from:kind==='leads'?document.getElementById('csvFrom').value:'',to:kind==='leads'?document.getElementById('csvTo').value:'',status:kind==='leads'?document.getElementById('csvStatus').selectedOptions[0].textContent:''};
+  let state;
+  try{state=await readContactsCsvState();}catch(error){showToast('N\u00e3o foi poss\u00edvel ler o hist\u00f3rico no banco de dados.','err');return;}
+
   contacts=contacts.filter(c=>mode==='all'||(mode==='exported'?!!state.exported[c.exportId]:!state.exported[c.exportId]));
   if(!contacts.length){showToast('Nenhum contato encontrado para estes filtros de exporta\u00e7\u00e3o.','err');return;}
   const labels={name:'Nome',phone:'Telefone',cpf:'CPF',cnpj:'CNPJ'};
   const csv='\uFEFF'+[fields.map(f=>contactsCsvCell(labels[f])).join(';'),...contacts.map(c=>fields.map(f=>contactsCsvCell(f==='cpf'||f==='cnpj'?formatContactsCsvDocument(c[f],f):c[f])).join(';'))].join('\r\n');
   const now=Date.now(),filename=(kind==='users'?'usuarios':'leads')+'-'+leadDayKey(now)+'-'+now+'.csv';
-  const entry={id:String(now)+'-'+Math.random().toString(36).slice(2,8),kind,filename,createdAt:now,count:contacts.length,fields:fields.map(f=>labels[f]),csv,filters:{search:document.getElementById('csvSearch').value,exportStatus:mode,group:kind==='users'?document.getElementById('csvUsersTab').selectedOptions[0].textContent:document.getElementById('csvCampaign').selectedOptions[0].textContent,from:kind==='leads'?document.getElementById('csvFrom').value:'',to:kind==='leads'?document.getElementById('csvTo').value:'',status:kind==='leads'?document.getElementById('csvStatus').selectedOptions[0].textContent:''}};
-  contacts.forEach(c=>state.exported[c.exportId]=now);
-  state.files=[entry,...state.files].slice(0,20);
-  try{localStorage.setItem(contactsCsvStorageKey(),JSON.stringify(state));}catch(error){showToast('N\u00e3o foi poss\u00edvel salvar o hist\u00f3rico. Verifique o armazenamento do navegador.','err');return;}
+  const entry={id:String(now)+'-'+Math.random().toString(36).slice(2,8),kind,filename,createdAt:now,count:contacts.length,fields:fields.map(f=>labels[f]),csv,filters:filterSnapshot};
+  try{
+    const ref=contactsCsvDatabaseRef();
+    entry.id=ref.child('files').push().key;
+    const updates={};
+    updates['files/'+entry.id]=entry;
+    contacts.forEach(c=>updates['exported/'+c.exportId]=now);
+    await ref.update(updates);
+  }catch(error){showToast('Nao foi possivel salvar o historico no banco. Confira sua conexao e permissoes.','err');return;}
   downloadContactsCsv(csv,filename);
   showToast(contacts.length+' contato(s) exportado(s).');
   return true;

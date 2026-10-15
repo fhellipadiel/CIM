@@ -1,0 +1,10 @@
+.env*
+.tools
+.leads-preview-browser
+node_modules
+.git
+public
+*.md
+firebase
+storage
+tests

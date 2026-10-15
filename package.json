@@ -1,0 +1,19 @@
+{
+  "name": "cim-checkout-tests",
+  "private": true,
+  "scripts": {
+    "dev": "node --env-file=.env.local scripts/dev.cjs",
+    "test": "node --test tests/*.test.cjs",
+    "check:payments": "node --env-file=.env.local scripts/check-payments.cjs",
+    "build": "node scripts/build.cjs"
+  },
+  "dependencies": {
+    "firebase-admin": "14.5.0"
+  },
+  "engines": {
+    "node": "24.x"
+  },
+  "overrides": {
+    "jwks-rsa": "3.2.0"
+  }
+}

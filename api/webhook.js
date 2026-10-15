@@ -1,0 +1,1 @@
+module.exports = (req, res) => require('../server/checkout.cjs').handle('webhook', req, res);
