@@ -23,9 +23,9 @@ function init(){
   listNode=element('div','cs-list');pane.append(head,listNode);shell.append(pane);
  }
  const chatPane=element('div','cs-chat-pane'),top=element('header','cs-top'),back=iconButton('back','Voltar para conversas','cs-icon-button cs-back');
- back.hidden=!admin;top.append(back);const identity=element('span','cs-brand');identity.append(icon('headset'));top.append(identity);
- const info=element('div','cs-top-info'),title=element('strong','cs-title',admin?'Selecione uma conversa':'Suporte CIM'),subtitle=element('span','cs-subtitle',admin?'Clientes e visitantes':role==='visitor'?'Conversa de visitante':'Histórico salvo na sua conta');
- info.append(title,subtitle);top.append(info);
+ back.hidden=!admin;top.append(back);const identity=element('span','cs-brand'),brandPhoto=element('img');brandPhoto.src='assets/logo.webp';brandPhoto.alt='CIM Global Parts';identity.append(brandPhoto);top.append(identity);
+ const info=element('div','cs-top-info'),title=element('strong','cs-title',admin?'Selecione uma conversa':'CIM Global Parts'),subtitle=element('span','cs-subtitle',admin?'Clientes e visitantes':role==='visitor'?'':'Histórico salvo na sua conta');
+ const verified=element('span','cs-verified');verified.setAttribute('role','img');verified.setAttribute('aria-label','Perfil oficial CIM');verified.innerHTML='<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="m12 1 2.8 2 3.4-.1 1 3.2L22 8l-.6 3.4L23 14.3l-2.5 2.3-.5 3.3-3.4.4L14 22.5l-3-1.4-3.2.7-1.7-2.9L3 17.5l.2-3.4L1 11.5l1.8-2.9.3-3.3 3.3-.8L8.5 2z"/><path d="m7.5 12 3 3 6-6" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';const titleRow=element('div','cs-title-row');titleRow.append(title);if(!admin)titleRow.append(verified);subtitle.hidden=!subtitle.textContent;info.append(titleRow,subtitle);top.append(info);
  const remove=iconButton('trash','Excluir atendimento do visitante','cs-icon-button cs-delete');remove.hidden=true;
  if(admin)top.append(remove);
  const close=iconButton('close','Fechar suporte');if(!admin)top.append(close);
@@ -55,9 +55,9 @@ function init(){
   return data;
  }
  function roomIdentity(meta){
-  title.textContent=admin?(meta.type==='visitor'?'Visitante':meta.name||'Cliente'):'Suporte CIM';
-  subtitle.textContent=admin?(meta.type==='visitor'?'Visitante · Atendimento temporário':meta.email||'Cliente cadastrado'):(role==='visitor'?'Conversa de visitante':'Histórico salvo na sua conta');
-  if(admin){identity.className='';identity.replaceChildren(avatar(meta));remove.hidden=meta.type!=='visitor';}
+  title.textContent=admin?(meta.type==='visitor'?'Visitante':meta.name||'Cliente'):'CIM Global Parts';
+  subtitle.textContent=admin?(meta.type==='visitor'?'Visitante · Atendimento temporário':meta.email||'Cliente cadastrado'):(role==='visitor'?'':'Histórico salvo na sua conta');
+  subtitle.hidden=!subtitle.textContent;if(admin){identity.className='';identity.replaceChildren(avatar(meta));remove.hidden=meta.type!=='visitor';}
  }
  function ack(){
   if(!roomId||!isVisible()||!all.size)return;
@@ -102,7 +102,7 @@ function init(){
   messagesRef.on('value',snap=>{if(g===generation)showMessages(Object.values(snap.val()||{}).sort((a,b)=>a.seq-b.seq));},()=>{if(g===generation)statusText('Não foi possível acompanhar as mensagens. Feche e abra o atendimento para tentar novamente.');});
  }
  async function connect(selected){
-  const g=++generation;detach();syncBusy=false;connected=false;send.disabled=true;statusText('Conectando ao suporte...');retry.hidden=true;
+  const g=++generation;detach();syncBusy=false;connected=false;send.disabled=true;statusText('');retry.hidden=true;
   try{
    if(selected){roomId=selected.chatId;roomIdentity(selected);}
    else if(!roomId){const data=await api('open',{channel:role});if(g!==generation)return;roomId=data.chatId;visitorToken=data.visitorToken||null;roomIdentity(data.meta);}
@@ -183,7 +183,7 @@ function init(){
    else if(opened&&user)connect();
   });
  }
- if(wantsOpen)open();
+ function fitSupport(){const viewport=window.visualViewport;shell.style.setProperty('--cs-viewport-height',(viewport?.height||window.innerHeight)+'px');shell.style.setProperty('--cs-viewport-top',(viewport?.offsetTop||0)+'px');if(admin&&host.getBoundingClientRect().width)shell.style.setProperty('--cs-center-height',Math.max(280,window.innerHeight-host.getBoundingClientRect().top-26)+'px');}fitSupport();window.addEventListener('resize',fitSupport);window.visualViewport?.addEventListener('resize',fitSupport);window.visualViewport?.addEventListener('scroll',fitSupport);if(admin){const panel=document.getElementById('panel-suporte');if(panel)new MutationObserver(fitSupport).observe(panel,{attributes:true,attributeFilter:['class']});}if(wantsOpen)open();
 }
 if(document.readyState==='complete')init();else window.addEventListener('load',init,{once:true});
 })();
