@@ -1133,6 +1133,7 @@ body.fullscreen-panel-open{overflow:hidden!important}
 @media(max-width:768px){.header,#stickyCategoryBar{backdrop-filter:none!important;-webkit-backdrop-filter:none!important;background:#090909!important}}
 </style>
     <script src="assets/payment-policy.js" defer></script>
+<link rel="stylesheet" href="assets/support-chat.css">
 </head>
 <body>
     <div id="sessionGate">
@@ -1268,6 +1269,7 @@ body.fullscreen-panel-open{overflow:hidden!important}
                 </div>
             </div>
 
+            <button type="button" class="menu-item cim-support-menu-button" onclick="CimSupport.open()"><i class="fas fa-comments" aria-hidden="true"></i><span class="item-content"><span class="item-label">Suporte</span></span></button>
             <div id="menuContacts" class="menu-item" onclick="openUserContacts()">
                 <i class="fas fa-headset"></i>
                 <div class="item-content"><div class="item-label">Atendimento</div></div>
@@ -4729,7 +4731,7 @@ function toggleBottomMenu() {
         }
 
         Object.assign(window, {
-            toggleBottomMenu, closeBottomMenu, toggleSearch, debouncedSearch,
+            toggleBottomMenu, closeBottomMenu, reshuffleCatalog, toggleSearch, debouncedSearch,
             selectSuggestion, clearSearchHeader, clearSearch, clearAllFilters, toggleCart, addToCart,
             clearCart, updateQuantity, finalizePurchase, showDetails, openCartItemDetails, closeModal, addFromModal,
             openFullscreenImage, closeFullscreenImage, selectSession, selectCategory, selectBrand,
@@ -4825,5 +4827,6 @@ function toggleBottomMenu() {
         console.log('CIM carregada - notificações corrigidas');
     });
     </script>
+<script src="assets/support-chat.js" data-support-role="customer" defer></script>
 </body>
 </html>

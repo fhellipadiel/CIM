@@ -1,6 +1,10 @@
 {
   "rewrites": [
     {
+      "source": "/api/support",
+      "destination": "/api/checkout?signupAction=support"
+    },
+    {
       "source": "/api/company-lookup",
       "destination": "/api/checkout?signupAction=company-lookup"
     },

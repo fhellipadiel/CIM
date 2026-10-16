@@ -561,6 +561,7 @@ tbody tr:last-child td{border-bottom:none}
 @media(max-width:600px){.lead-filters{grid-template-columns:1fr;padding:16px}.lead-box-head{padding:16px}.lead-overview{padding:16px}.lead-campaign-grid{grid-template-columns:1fr}.lead-dialog-body,.lead-dialog-head{padding:18px}.lead-photo-upload{align-items:start;flex-wrap:wrap}#panel-leads .panel-head{flex-wrap:wrap;gap:16px}}
 .lead-week{margin-bottom:20px}.lead-week-controls,.lead-date-actions{display:flex;gap:8px;flex-wrap:wrap;align-items:end}.lead-week-controls label{min-width:160px}.lead-week-chart{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:10px;padding:22px}.lead-week-day{text-align:center;min-width:0}.lead-week-track{height:160px;display:flex;align-items:end;justify-content:center;border-bottom:1px solid var(--border)}.lead-week-bar{width:65%;max-width:44px;background:var(--accent);border-radius:6px 6px 0 0;min-height:2px}.lead-week-value{display:block;margin-bottom:8px;font-size:.85rem}.lead-week-label{display:block;margin-top:10px;font-size:.75rem;color:var(--text-muted)}.lead-week-label small{display:block;margin-top:4px}.lead-week-total{padding:16px 22px 0;color:var(--text-muted);font-size:.82rem}#leadToday.active{background:var(--accent-soft);color:var(--accent);border-color:var(--accent)}@media(max-width:600px){.lead-week-chart{padding:18px 10px;gap:5px}.lead-week-track{height:120px}.lead-week-controls{width:100%}.lead-week-controls label{flex:1}}
 </style>
+<link rel="stylesheet" href="assets/support-chat.css">
 </head>
 <body>
 
@@ -627,6 +628,7 @@ tbody tr:last-child td{border-bottom:none}
     </div>
     <div class="sb-group">
       <div class="sb-group-label">Pessoas</div>
+      <div class="sb-item" data-panel="suporte"><i class="fas fa-headset"></i> Suporte <span id="supportUnreadBadge" class="cs-nav-count" hidden>0</span></div>
       <div class="sb-item" data-panel="usuarios"><i class="fas fa-users"></i> Usuários <span class="online-badge" id="onlineUsersBadge" style="display:none;"><i class="fas fa-circle"></i> <span id="onlineUsersCount">0</span></span></div>
     </div>
     <div class="sb-group">
@@ -1303,6 +1305,7 @@ tbody tr:last-child td{border-bottom:none}
     <!-- ============================================================
          PAINEL: USUÁRIOS
          ============================================================ -->
+    <section class="panel" id="panel-suporte"><div class="panel-head"><div><h1>Suporte</h1><p>Conversas com clientes e visitantes</p></div></div><div id="supportCenter"></div></section>
     <section class="panel" id="panel-usuarios">
       <div class="panel-head">
         <div><h1>Usuários</h1><p>Clientes pessoa física e jurídica cadastrados</p></div>
@@ -2045,6 +2048,7 @@ auth.onAuthStateChanged(user=>{
    NAVEGAÇÃO
    ============================================================ */
 const PANEL_TITLES = {
+suporte:['Suporte','Central de atendimento'],
 leads:['Leads','Captura e acompanhamento comercial'],
   pedidos:['Pedidos','Gerencie pedidos, status e faturamento'],
   dashboard:['Dashboard','Visão geral do sistema'],
@@ -6075,5 +6079,6 @@ async function exportContactsCsv(kind){
  </div>
 </div>
 
+<script src="assets/support-chat.js" data-support-role="admin" defer></script>
 </body>
 </html>

@@ -101,6 +101,10 @@ async function handle(action,req,res,dependencies={}) {
   try {
     if (req.method!=='POST') fail('Método não permitido.',405);
     const body=typeof req.body==='string' ? JSON.parse(req.body) : req.body||{};
+    if(action==='support'){
+      const {auth,db}=getServices();
+      return res.status(200).json(await require('./support.cjs').handleSupport({db,req,body,verifyCaller:()=>identity(req,auth),requireAdmin:()=> (dependencies.requireAdminAccess||requireAdminAccess)(req,db)}));
+    }
     if(action==='company-lookup')return res.status(200).json(await require('./company-lookup.cjs').lookupCompany(body.cnpj,dependencies.fetch||fetch));
     if (action==='webhook') {
       const webhookMode=new URL(req.url,'http://localhost').searchParams.get('environment')||paymentConfig.activeMode();
