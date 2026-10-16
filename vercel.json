@@ -1,6 +1,14 @@
 {
   "rewrites": [
     {
+      "source": "/api/company-lookup",
+      "destination": "/api/checkout?signupAction=company-lookup"
+    },
+    {
+      "source": "/api/register-profile",
+      "destination": "/api/checkout?signupAction=register-profile"
+    },
+    {
       "source": "/admin",
       "destination": "/adm.html"
     },
