@@ -1292,6 +1292,7 @@ tbody tr:last-child td{border-bottom:none}
       </div>
       <div class="tabbar">
         <button class="active" data-usertab="PF" onclick="switchUsersTabAdm('PF')">Pessoa física</button>
+        <button data-usertab="admins" onclick="switchUsersTabAdm('admins')"><i class="fas fa-user-shield"></i> Administradores</button>
         <button data-usertab="PJ" onclick="switchUsersTabAdm('PJ')">Pessoa jurídica</button>
         <button data-usertab="online" onclick="switchUsersTabAdm('online')">Online agora</button>
         <button data-usertab="novos" onclick="switchUsersTabAdm('novos')">Novos clientes</button>
@@ -4613,6 +4614,12 @@ function switchUsersTabAdm(tab){
   if(tab === 'novos') database.ref('settings/lastSeenNewUsers').set(Date.now());
   renderUsers();
 }
+async function toggleUserNameEditingAdm(uid){
+  const user=usersCache.find(u=>u.uid===uid);if(!user||user.isAdmin||uid===currentAdmin?.uid)return;
+  const allow=user.canEditName!==true;
+  try{await database.ref('users/'+uid+'/canEditName').set(allow);showToast(allow?'Edição do nome liberada.':'Edição do nome bloqueada.');}
+  catch{showToast('Não foi possível alterar a permissão.','err');}
+}
 function toggleUserDetails(uid) {
   const row = document.getElementById(`detail-row-${uid}`); if (!row) return;
   const isHidden = row.style.display === 'none' || row.style.display === '';
@@ -4620,7 +4627,8 @@ function toggleUserDetails(uid) {
 }
 function filteredUsersForCsv(){
   let filtered=[]; const now=Date.now();
-  if(usersTab==='online'){ filtered = usersCache.filter(u => (now - (u.lastAccess||0)) < 5*60*1000); }
+  if(usersTab==='admins'){ filtered=usersCache.filter(u=>u.isAdmin||u.uid===currentAdmin?.uid); }
+  else if(usersTab==='online'){ filtered = usersCache.filter(u => (now - (u.lastAccess||0)) < 5*60*1000); }
   else if(usersTab==='novos'){
     const lastSeen = window._lastSeenNewUsers || 0;
     const cutoff = now - 7 * 24 * 60 * 60 * 1000;
@@ -4632,6 +4640,7 @@ function filteredUsersForCsv(){
   else if(usersTab==='all'){ filtered=usersCache.filter(u=>!u.isAdmin); }
   else { filtered = usersCache.filter(u => u.userType===usersTab); }
 
+  if(usersTab!=='admins')filtered=filtered.filter(u=>!u.isAdmin&&u.uid!==currentAdmin?.uid);
   const userQuery = (document.getElementById('userFilterText')?.value || '').trim();
   if(userQuery){
     filtered = filtered.filter(u => matchTokens([u.name, u.email, u.telefone, u.cpf, u.cnpj, u.userType].join(' '), userQuery));
@@ -4653,6 +4662,7 @@ function renderUsers(){
     let msg = usersTab==='online' ? 'Nenhum usuário online'
             : usersTab==='novos' ? 'Nenhum novo cliente'
             : usersTab==='google' ? 'Nenhum usuário Google'
+            : usersTab==='admins' ? 'Nenhum administrador'
             : usersTab==='manual' ? 'Nenhum manual'
             : `Nenhum usuário ${usersTab}`;
     if(userQuery) msg = 'Nenhum usuário encontrado para essa busca';
@@ -4682,7 +4692,8 @@ function renderUsers(){
       <td><span class="chip ${online?'chip-ok':'chip-mut'}">${online?'Online':'Offline'}</span></td>
       <td class="td-sub">${lastAccess}</td>
       <td><div class="row-actions">
-        ${!u.isAdmin?`
+        ${!(u.isAdmin||u.uid===currentAdmin?.uid)?`
+          <button type="button" class="btn btn-sm btn-ghost" aria-pressed="${u.canEditName===true}" onclick="toggleUserNameEditingAdm(this.dataset.uid)" data-uid="${esc(u.uid)}">${u.canEditName===true?'Bloquear edição do nome':'Liberar edição do nome'}</button>
           <button class="btn btn-icon btn-ghost" title="Email" onclick="sendEmailToUser('${u.uid}')" style="color:var(--accent);"><i class="fas fa-envelope"></i></button>
           <button class="btn btn-icon btn-ghost" title="Alterar tipo" onclick="changeUserTypeAdm('${u.uid}')"><i class="fas fa-right-left"></i></button>
           <button class="btn btn-icon btn-ghost" title="Promoção" onclick="applyPromoUserAdm('${u.uid}')"><i class="fas fa-percent"></i></button>
@@ -5805,7 +5816,7 @@ renderLeadCampaigns();
 <button type="button" class="btn btn-ghost" onclick="openContactsCsvHistory(contactsCsvKind)"><i class="fas fa-clock-rotate-left"></i> Ver &uacute;ltimos arquivos exportados</button>
 <small style="color:var(--text-muted)">Hist&oacute;rico salvo no banco de dados para esta conta. A marca&ccedil;&atilde;o considera o contato inteiro, independentemente dos campos ou da campanha.</small>
 <label class="lead-field">Pesquisar contato<input id="csvSearch" placeholder="Nome, telefone, CPF ou CNPJ"></label>
-<label class="lead-field" id="csvUsersGroup">Usuários<select id="csvUsersTab"><option value="all">Todos os usuários</option><option value="PF">Pessoa física</option><option value="PJ">Pessoa jurídica</option><option value="online">Online agora</option><option value="novos">Novos clientes</option><option value="google">Google</option><option value="manual">Manual</option></select></label>
+<label class="lead-field" id="csvUsersGroup">Usuários<select id="csvUsersTab"><option value="all">Todos os usuários</option><option value="admins">Administradores</option><option value="PF">Pessoa física</option><option value="PJ">Pessoa jurídica</option><option value="online">Online agora</option><option value="novos">Novos clientes</option><option value="google">Google</option><option value="manual">Manual</option></select></label>
 <div id="csvLeadsGroup" style="display:grid;gap:16px">
 <label class="lead-field">Campanha<select id="csvCampaign"></select></label>
 <label class="lead-field">Situação<select id="csvStatus"><option value="">Todas</option><option value="pending">Capturados</option><option value="complete">Completos</option></select></label>

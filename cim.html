@@ -472,8 +472,7 @@
             .modal { align-items: center; padding: 20px; }
             .modal-content { border-radius: 20px; max-width: 560px; max-height: 85vh; border-bottom: 1px solid #333; padding-bottom: 24px; }
             .modal-content:not(.fullscreen-modal)::before { display: none; }
-            .bottom-menu { width: 90%; max-width: 520px; left: 50%; transform: translateX(-50%); border-radius: 24px; bottom: -110%; margin-bottom: 12px; max-height: 78vh; padding-bottom: 24px; }
-            .bottom-menu.open { bottom: 12px; }
+
             .cart-panel { width: 90%; max-width: 520px; left: 50%; transform: translateX(-50%); border-radius: 20px; bottom: -110%; max-height: 85vh; }
             .cart-panel.open { bottom: 12px; }
             .cart-header { border-radius: 20px 20px 0 0; }
@@ -493,9 +492,7 @@
             .modal { align-items: center; padding: 20px; }
             .modal-content { border-radius: 20px; max-width: 620px; max-height: 88vh; border-bottom: 1px solid #333; padding-bottom: 24px; }
             .modal-content:not(.fullscreen-modal)::before { display: none; }
-            .bottom-menu { top: 0; right: 0; left: auto; bottom: 0; width: 420px; max-width: 90vw; max-height: 100vh; border-radius: 0; border-top: none; border-left: 1px solid rgba(255,255,255,0.1); padding: 28px 24px calc(28px + var(--safe-bottom)); transform: translateX(100%); transition: transform 0.4s cubic-bezier(0.22,1,0.36,1); }
-            .bottom-menu.open { transform: translateX(0); bottom: 0; }
-            .bottom-menu .menu-handle { display: none; }
+
             .cart-panel { top: 0; right: 0; left: auto; bottom: auto; width: 420px; max-width: 90vw; height: 100vh; max-height: 100vh; border-radius: 0; border-top: none; border-left: 1px solid #333; transform: translateX(100%); transition: transform 0.4s cubic-bezier(0.22,1,0.36,1); bottom: auto; }
             .cart-panel.open { transform: translateX(0); bottom: auto; }
             .cart-header { border-radius: 0; }
@@ -1096,7 +1093,7 @@ body.fullscreen-panel-open{overflow:hidden!important}
 .menu-toggle i{font-size:26px!important;color:#ff3601!important}
 .bottom-menu,.cart-panel{position:fixed!important;inset:0!important;width:100%!important;max-width:none!important;height:100vh!important;height:100dvh!important;max-height:none!important;border-radius:0!important;background:#111!important;backdrop-filter:none!important;transform:translateY(105%)!important;visibility:hidden;transition:transform .25s,visibility .25s;box-sizing:border-box;z-index:2001!important}
 .bottom-menu.open,.cart-panel.open{transform:translateY(0)!important;visibility:visible}
-.bottom-menu{padding:0 max(16px,env(safe-area-inset-right)) max(24px,env(safe-area-inset-bottom)) max(16px,env(safe-area-inset-left))!important;overflow-y:auto;overscroll-behavior:contain}
+.bottom-menu{margin:0!important;padding:0 max(16px,env(safe-area-inset-right)) max(24px,env(safe-area-inset-bottom)) max(16px,env(safe-area-inset-left))!important;overflow-y:auto;overscroll-behavior:contain}
 .menu-handle{display:none!important}
 .fullscreen-menu-header{position:sticky;top:0;z-index:5;display:flex;justify-content:space-between;align-items:center;padding:calc(12px + env(safe-area-inset-top)) 0 12px;background:#111;border-bottom:1px solid #333;margin-bottom:18px}
 .fullscreen-menu-header button,.cart-close{min-width:48px;min-height:48px;font-size:24px;color:#fff;background:#222;border:1px solid #444;border-radius:10px}
@@ -4022,6 +4019,7 @@ function toggleBottomMenu() {
             hoursValue.textContent = hours;
         }
 
+        let userNamePermissionRef=null;
         function loadUserData(uid) {
             if (!uid) return;
             database.ref(`users/${uid}`).once('value').then((snapshot) => {
@@ -4032,12 +4030,19 @@ function toggleBottomMenu() {
                     userPhoto = DEFAULT_USER_AVATAR;
                 }
                 currentUser = {
-                    uid, email: data.email || '', name: data.name || '', photoURL: userPhoto,
+                    uid, canEditName: data.canEditName===true, email: data.email || '', name: data.name || '', photoURL: userPhoto,
                     userType: data.userType || null, cpf: data.cpf || '', cnpj: data.cnpj || '',
                     telefone: data.telefone || '', cep: data.cep || '', logradouro: data.logradouro || '',
                     numero: data.numero || '', complemento: data.complemento || '',
                     bairro: data.bairro || '', cidade: data.cidade || '', uf: data.uf || ''
                 };
+                if(userNamePermissionRef)userNamePermissionRef.off();
+                userNamePermissionRef=database.ref('users/'+uid+'/canEditName');
+                userNamePermissionRef.on('value',snap=>{
+                    if(currentUser?.uid!==uid)return;
+                    const allowed=snap.val()===true;
+                    if(currentUser.canEditName!==allowed){currentUser.canEditName=allowed;renderUserSettings();}
+                });
                 updateProfileUIUser();
                 updatePriceDisplay(); updateCart(); renderPromotionBadgesOnly();
 
@@ -4340,13 +4345,14 @@ function toggleBottomMenu() {
             const isPF = currentUser.userType === 'PF';
             const isPJ = currentUser.userType === 'PJ';
             const disabled = isPF ? '' : 'disabled';
+            const canEditName=currentUser.canEditName===true;
             const docLabel = isPF ? 'CPF' : (isPJ ? 'CNPJ' : 'Documento');
             let docValue = '';
             if (isPF) docValue = formatCpfCnpj(currentUser.cpf || '', 'PF');
             if (isPJ) docValue = formatCpfCnpj(currentUser.cnpj || '', 'PJ');
             const typeLabel = isPF ? 'Pessoa Física' : (isPJ ? 'Pessoa Jurídica' : 'Tipo não definido');
             body.innerHTML = `
-                <div class="settings-field"><label>Nome completo</label><input type="text" id="setName" value="${escapeHtml(currentUser.name || '')}" ${disabled}></div>
+                <div class="settings-field"><label>Nome completo</label><input type="text" id="setName" maxlength="200" value="${escapeHtml(currentUser.name || '')}" ${canEditName?'':'disabled'}></div>
                 <div class="settings-field"><label>E-mail</label><input type="email" value="${escapeHtml(currentUser.email || '')}" disabled></div>
                 <div class="settings-field"><label>${docLabel}</label><input type="text" value="${escapeHtml(docValue)}" disabled><span class="settings-user-type">${escapeHtml(typeLabel)}</span></div>
                 <div class="settings-field"><label>Telefone</label><input type="tel" id="setTelefone" value="${escapeHtml(currentUser.telefone || '')}" ${disabled} inputmode="numeric"></div>
@@ -4361,7 +4367,7 @@ function toggleBottomMenu() {
                     <div class="settings-field"><label>Cidade</label><input type="text" id="setCidade" value="${escapeHtml(currentUser.cidade || '')}" ${disabled}></div>
                     <div class="settings-field"><label>UF</label><input type="text" id="setUf" value="${escapeHtml(currentUser.uf || '')}" ${disabled} maxlength="2"></div>
                 </div>
-                ${isPF ? `<button class="settings-save-btn" id="settingsSaveBtn" onclick="saveUserSettings()"><i class="fas fa-save"></i> Salvar Alterações</button>` : `<div style="text-align:center;"><span class="settings-why-link" onclick="openPjExplanation()">Por que não posso editar?</span></div>`}
+                ${isPF||canEditName ? `<button class="settings-save-btn" id="settingsSaveBtn" onclick="saveUserSettings()"><i class="fas fa-save"></i> Salvar Alterações</button>` : `<div style="text-align:center;"><span class="settings-why-link" onclick="openPjExplanation()">Por que não posso editar?</span></div>`}
             `;
             if (isPF) {
                 const cepEl = document.getElementById('setCep');
@@ -4429,7 +4435,7 @@ function toggleBottomMenu() {
         }
 
         async function saveUserSettings() {
-            if (!currentUser || currentUser.userType !== 'PF') return;
+            if (!currentUser || (currentUser.userType !== 'PF' && currentUser.canEditName!==true)) return;
             const btn = document.getElementById('settingsSaveBtn');
             if (btn) btn.disabled = true;
             const data = {
@@ -4443,7 +4449,9 @@ function toggleBottomMenu() {
                 cidade:      (document.getElementById('setCidade').value || '').trim(),
                 uf:          (document.getElementById('setUf').value || '').trim().toUpperCase()
             };
-            if (!data.name) { showToast('Nome é obrigatório', 'error'); if (btn) btn.disabled = false; return; }
+            if(currentUser.canEditName!==true)delete data.name;
+            if(currentUser.userType!=='PF')for(const key of Object.keys(data))if(key!=='name')delete data[key];
+            if (currentUser.canEditName===true && (!data.name||data.name.length>200)) { showToast('Nome é obrigatório', 'error'); if (btn) btn.disabled = false; return; }
             if (data.telefone && data.telefone.length < 10) { showToast('Telefone inválido', 'error'); if (btn) btn.disabled = false; return; }
             if (data.cep && data.cep.length !== 8) { showToast('CEP inválido', 'error'); if (btn) btn.disabled = false; return; }
             showLoading('Salvando...');
