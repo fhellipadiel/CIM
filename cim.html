@@ -54,7 +54,7 @@
         .header { background-color: rgba(0,0,0,0.4) !important; backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border-bottom: 1px solid rgba(255,255,255,0.1); position: fixed; top: 0; left: 0; right: 0; z-index: 1000; height: calc(var(--header-h) + var(--safe-top)); padding-top: var(--safe-top); }
         .header-container { max-width: 1400px; margin: 0 auto; padding: 0 10px; display: flex; justify-content: space-between; align-items: center; height: var(--header-h); gap: 8px; }
         body { padding-top: calc(var(--header-h) + var(--safe-top)); }
-        .logo { cursor: default; display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+        .logo { cursor: pointer; background: transparent; border: 0; padding: 0; display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
         .logo-img { height: 40px; width: auto; border-radius: 8px; border: none; display: block; }
         .header-actions { display: flex; gap: 8px; align-items: center; flex-wrap: nowrap; transition: all 0.3s ease; flex: 1; justify-content: flex-end; }
         .header-actions.hide-buttons .menu-toggle { display: none; }
@@ -1142,9 +1142,7 @@ body.fullscreen-panel-open{overflow:hidden!important}
 
     <header class="header">
         <div class="header-container">
-            <div class="logo">
-                <img src="assets/logo.webp" alt="CIM Peças Mecânicas" class="logo-img">
-            </div>
+            <button type="button" class="logo" onclick="reshuffleCatalog()" aria-label="Embaralhar peças do catálogo"><img src="assets/logo.webp" alt="CIM Peças Mecânicas" class="logo-img"></button>
             <div class="header-actions" id="headerActions">
                 <div class="search-header expanded" id="searchHeader">
                     <button class="search-icon-btn" id="searchIconBtn" onclick="toggleSearch()"><i class="fas fa-search"></i></button>
@@ -3610,6 +3608,21 @@ function toggleBottomMenu() {
             if(token===renderToken&&catalogRendered<catalogProducts.length)catalogMoreObserver?.observe(catalogMoreControl);
         }
 
+
+        const catalogRandomRanks=new Map();
+        function randomlyOrderCatalog(list){
+            return list.map(product=>{
+                const id=String(product.id);
+                if(!catalogRandomRanks.has(id))catalogRandomRanks.set(id,Math.random());
+                return {product,rank:catalogRandomRanks.get(id)};
+            }).sort((a,b)=>Number(!!a.product.soldOut)-Number(!!b.product.soldOut)||a.rank-b.rank||String(a.product.id).localeCompare(String(b.product.id))).map(item=>item.product);
+        }
+        function reshuffleCatalog(){
+            catalogRandomRanks.clear();
+            filterProducts(true);
+            window.scrollTo({top:0,behavior:'smooth'});
+        }
+
         let renderToken = 0;
         async function filterProducts(force = false) {
             const sig = [
@@ -3640,23 +3653,7 @@ function toggleBottomMenu() {
             if (selectedCategory && selectedCategory !== '') filtered = filtered.filter(p => p.category === selectedCategory);
             if (selectedBrand && selectedBrand !== '') filtered = filtered.filter(p => p.brand === selectedBrand);
 
-            const sortable = filtered.map(p => {
-                const hasPrice = (p.prices?.PF || 0) > 0 || (p.prices?.PJ || 0) > 0;
-                const soldOut = !!p.soldOut;
-                let group;
-                if (hasPrice && !soldOut) group = 0;
-                else if (!hasPrice && !soldOut) group = 1;
-                else group = 2;
-                return { p, group, top: p.topPriority ? 0 : 1, feat: p.featured ? 0 : 1, pin: p.pinned ? 0 : 1, name: p.name || '' };
-            });
-            sortable.sort((a, b) => {
-                if (a.group !== b.group) return a.group - b.group;
-                if (a.top !== b.top) return a.top - b.top;
-                if (a.feat !== b.feat) return a.feat - b.feat;
-                if (a.pin !== b.pin) return a.pin - b.pin;
-                return a.name.localeCompare(b.name);
-            });
-            filtered = sortable.map(s => s.p);
+            filtered = randomlyOrderCatalog(filtered);
             resultsCount.textContent = filtered.length;
 
             if (filtered.length === 0) {
