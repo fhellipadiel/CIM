@@ -223,7 +223,9 @@
             input[type="text"], input[type="password"], input[type="email"],
             input[type="number"], select, textarea { font-size: 16px !important; }
         }
-    </style>
+    .password-rules{list-style:none;margin:8px 4px 0;padding:0;font-size:11px;line-height:1.7;background:none}.password-rules[hidden]{display:none!important}.password-rules li{color:#fb7185}.password-rules li.is-met{color:#34d399}
+</style>
+<script src="assets/signup-policy.js"></script>
 </head>
 <body class="h-full bg-darkbg text-white flex overflow-hidden font-sans relative">
 
@@ -477,12 +479,22 @@
                         <div class="space-y-1" id="senhaContainer">
                             <label for="regPassword" class="block text-xs font-semibold uppercase tracking-wider text-gray-400">Senha</label>
                             <div class="relative">
-                                <input type="password" id="regPassword" placeholder="••••••••"
+                                <input type="password" id="regPassword" autocomplete="new-password" aria-describedby="registrationPasswordRules" onfocus="showRegistrationPasswordRules()" oninput="updateRegistrationPasswordRules()" onblur="hideRegistrationPasswordRules()" placeholder="••••••••"
                                     class="w-full pl-4 pr-12 py-3 bg-white/5 border border-white/10 rounded-full text-white text-sm focus:outline-none focus:ring-2 focus:ring-white/50 focus:bg-white/10 input-anim placeholder-gray-500">
                                 <button type="button" onclick="togglePassword('regPassword', this)" class="eye-toggle absolute inset-y-0 right-0 pr-4 flex items-center text-gray-500" tabindex="-1" aria-label="Mostrar senha">
                                     <i class="fa-regular fa-eye text-base"></i>
                                 </button>
                             </div>
+                            <ul id="registrationPasswordRules" class="password-rules" hidden>
+                                <li data-password-rule="length">Pelo menos 8 caracteres</li>
+                                <li data-password-rule="uppercase">Uma letra maiúscula</li>
+                                <li data-password-rule="lowercase">Uma letra minúscula</li>
+                                <li data-password-rule="number">Um número</li>
+                                <li data-password-rule="symbol">Um símbolo, como #, @ ou !</li>
+                            </ul>
+                            <label for="regPasswordConfirm" class="block text-xs font-semibold uppercase tracking-wider text-gray-400 pt-3">Confirmar senha</label>
+                            <input id="regPasswordConfirm" type="password" autocomplete="new-password" placeholder="Repita a senha" class="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-full text-white text-sm focus:outline-none focus:ring-2 focus:ring-white/50" oninput="document.getElementById('registrationPasswordError').hidden=true">
+                            <p id="registrationPasswordError" hidden class="text-[11px] text-rose-400 mt-1 font-medium"></p>
                         </div>
 
                         <!-- Botão finalizar -->
@@ -960,7 +972,7 @@
             feedback.classList.add('hidden');
 
             try {
-                if (validateCpfAlgorithm(cpf)) {
+                if (SignupPolicy.validDocument('PF',cpf)) {
                     registerSuccess(KEY);
                     feedback.textContent = 'CPF válido.';
                     feedback.className = 'text-[11px] text-emerald-400 mt-1 font-medium block anim-bounce';
@@ -978,115 +990,20 @@
            9. CONSULTA CNPJ (com cooldown silencioso)
            ============================================================ */
         async function fetchCnpjData(cnpj) {
-            const loadingIndicator = document.getElementById('docLoading');
-            const feedback = document.getElementById('docApiFeedback');
-            const KEY = 'cnpj';
-
-            if (isBlocked(KEY)) {
-                feedback.textContent = 'CNPJ inválido.';
-                feedback.className = 'text-[11px] text-rose-400 mt-1 font-medium block anim-shake';
-                return;
-            }
-
-            loadingIndicator.classList.remove('hidden');
-            feedback.classList.add('hidden');
-            feedback.textContent = '';
-
-            ['regName', 'regFantasia', 'regSituacao', 'regLogradouro',
-             'regNumero', 'regBairro', 'regMunicipio', 'regUf'].forEach(id => {
-                document.getElementById(id).value = '';
-            });
-
-            // Validação local primeiro
-            if (!validateCnpjAlgorithm(cnpj)) {
-                loadingIndicator.classList.add('hidden');
-                registerError(KEY);
-                feedback.textContent = 'CNPJ inválido.';
-                feedback.className = 'text-[11px] text-rose-400 mt-1 font-medium block anim-shake';
-                return;
-            }
-
-            // Preenche campos
-            const fillFields = (d) => {
-                document.getElementById('regName').value = d.razao_social || d.nome || '';
-                document.getElementById('regFantasia').value = d.nome_fantasia || d.fantasia || d.razao_social || '';
-                document.getElementById('regSituacao').value = d.descricao_situacao_cadastral || d.situacao || 'Ativa';
-                document.getElementById('regLogradouro').value = d.logradouro || d.street || '';
-                document.getElementById('regNumero').value = d.numero || '';
-                document.getElementById('regBairro').value = d.bairro || d.neighborhood || '';
-                document.getElementById('regMunicipio').value = d.municipio || d.city || '';
-                document.getElementById('regUf').value = d.uf || d.state || '';
-                if (d.cep) document.getElementById('regCep').value = String(d.cep).replace(/\D/g, '');
-
-                const emailField = document.getElementById('regEmail');
-                if (d.email && !emailField.value) emailField.value = String(d.email).toLowerCase();
-            };
-
-            try {
-                let data = null;
-
-                // Tenta BrasilAPI
-                try {
-                    const response = await fetch(`https://brasilapi.com.br/api/cnpj/v1/${cnpj}`);
-                    if (response.ok) {
-                        data = await response.json();
-                    } else if (response.status === 404) {
-                        throw new Error('__NOT_FOUND__');
-                    } else {
-                        throw new Error('API indisponível');
-                    }
-                } catch (err) {
-                    console.warn('[CNPJ] BrasilAPI falhou:', err.message);
-
-                    if (err.message === '__NOT_FOUND__') {
-                        loadingIndicator.classList.add('hidden');
-                        registerError(KEY);
-                        feedback.textContent = 'CNPJ não encontrado.';
-                        feedback.className = 'text-[11px] text-rose-400 mt-1 font-medium block anim-shake';
-                        return;
-                    }
-
-                    // Fallback ReceitaWS
-                    const fb = await fetch(`https://receitaws.com.br/v1/cnpj/${cnpj}`);
-                    if (!fb.ok) throw new Error('Serviço indisponível');
-                    const raw = await fb.json();
-
-                    if (raw.status === 'ERROR') {
-                        loadingIndicator.classList.add('hidden');
-                        registerError(KEY);
-                        feedback.textContent = 'CNPJ não encontrado.';
-                        feedback.className = 'text-[11px] text-rose-400 mt-1 font-medium block anim-shake';
-                        return;
-                    }
-
-                    data = {
-                        razao_social: raw.nome,
-                        nome_fantasia: raw.fantasia,
-                        descricao_situacao_cadastral: raw.situacao,
-                        logradouro: raw.logradouro,
-                        numero: raw.numero,
-                        bairro: raw.bairro,
-                        municipio: raw.municipio,
-                        uf: raw.uf,
-                        email: raw.email,
-                        cep: raw.cep,
-                    };
-                }
-
-                if (!data) throw new Error('Resposta vazia');
-
-                registerSuccess(KEY);
-                fillFields(data);
-                feedback.textContent = 'CNPJ verificado com sucesso.';
-                feedback.className = 'text-[11px] text-emerald-400 mt-1 font-medium block anim-bounce';
-
-            } catch (error) {
-                console.error('[CNPJ] Erro:', error);
-                feedback.textContent = 'Não foi possível consultar o CNPJ agora.';
-                feedback.className = 'text-[11px] text-amber-400 mt-1 font-medium block';
-            } finally {
-                loadingIndicator.classList.add('hidden');
-            }
+            const loading=document.getElementById('docLoading'),feedback=document.getElementById('docApiFeedback');
+            const current=()=>currentPersonType==='juridica'&&document.getElementById('regDoc').value.replace(/\D/g,'')===cnpj;
+            if(!SignupPolicy.validDocument('PJ',cnpj)){feedback.textContent='Confira o CNPJ informado.';feedback.className='text-[11px] text-rose-400 mt-1 font-medium block';return;}
+            loading.classList.remove('hidden');feedback.classList.add('hidden');
+            ['regName','regFantasia','regSituacao','regLogradouro','regNumero','regBairro','regMunicipio','regUf','regCep'].forEach(id=>document.getElementById(id).value='');
+            try{
+                const response=await fetch('/api/company-lookup',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({cnpj}),signal:AbortSignal.timeout(20000)});
+                if(!response.ok)throw new Error(response.status===404?'Não foi possível localizar os dados deste CNPJ.':'A consulta de CNPJ está indisponível no momento. Tente novamente em instantes.');
+                const data=await response.json();if(!current())return;
+                const fields={regName:'razao_social',regFantasia:'nome_fantasia',regSituacao:'descricao_situacao_cadastral',regLogradouro:'logradouro',regNumero:'numero',regBairro:'bairro',regMunicipio:'municipio',regUf:'uf',regCep:'cep'};
+                Object.entries(fields).forEach(([id,key])=>document.getElementById(id).value=data[key]||'');
+                feedback.textContent='Dados do CNPJ consultados com sucesso.';feedback.className='text-[11px] text-emerald-400 mt-1 font-medium block';
+            }catch(error){if(current()){feedback.textContent=error.name==='TimeoutError'?'A consulta demorou mais que o esperado. Tente novamente.':(/^(Não foi possível localizar|A consulta de CNPJ)/.test(error.message)?error.message:'Não foi possível consultar o CNPJ agora. Tente novamente.');feedback.className='text-[11px] text-amber-400 mt-1 font-medium block';}}
+            finally{if(current())loading.classList.add('hidden');}
         }
 
         /* ============================================================
@@ -1189,7 +1106,9 @@
                 dados.situacao_cadastral = document.getElementById('regSituacao').value || '';
             }
 
-            await database.ref(`users/${uid}`).update(dados);
+            const token=await auth.currentUser.getIdToken();
+            const response=await fetch('/api/register-profile',{method:'POST',headers:{'Content-Type':'application/json',Authorization:'Bearer '+token},body:JSON.stringify(dados),signal:AbortSignal.timeout(30000)});
+            if(!response.ok){const error=new Error('Não foi possível concluir o cadastro.');if(response.status===409)error.code='registration/document-unavailable';throw error;}
         }
 
         /* ============================================================
@@ -1204,7 +1123,7 @@
             hideMessage();
 
             const email = document.getElementById('email').value.trim();
-            const password = document.getElementById('password').value.trim();
+            const password = document.getElementById('password').value;
 
             // Validação de campos vazios
             let hasEmpty = false;
@@ -1262,6 +1181,19 @@
         /* ============================================================
            14. CADASTRO
            ============================================================ */
+
+        function updateRegistrationPasswordRules(){
+            const checks=SignupPolicy.passwordChecks(document.getElementById('regPassword').value);
+            document.querySelectorAll('[data-password-rule]').forEach(item=>item.classList.toggle('is-met',checks[item.dataset.passwordRule]));
+        }
+        function showRegistrationPasswordRules(){updateRegistrationPasswordRules();document.getElementById('registrationPasswordRules').hidden=false;}
+        function hideRegistrationPasswordRules(){document.getElementById('registrationPasswordRules').hidden=true;}
+        function registrationDocumentError(){
+            const field=document.getElementById('docApiFeedback');
+            field.textContent='Não foi possível utilizar este documento. Confira os dados ou entre em contato com o suporte.';
+            field.className='text-[11px] text-rose-400 mt-1 font-medium block';
+        }
+
         async function handleRegister(event) {
             event.preventDefault();
 
@@ -1269,6 +1201,9 @@
                 showMessage('Aguarde alguns segundos e tente novamente.');
                 return;
             }
+
+            const docType=currentPersonType==='fisica'?'PF':'PJ';
+            if(currentPersonType&&!SignupPolicy.validDocument(docType,document.getElementById('regDoc').value)){registrationDocumentError();return;}
 
             // Cadastro via Google
             if (modoGoogleCadastro && usuarioGoogle) {
@@ -1305,7 +1240,8 @@
                     console.error('[Registro Google] Erro:', err);
                     registerBtn.disabled = false;
                     registerBtn.innerHTML = '<span>Finalizar Cadastro</span><i class="fa-solid fa-arrow-right text-xs"></i>';
-                    showMessage('Erro ao salvar dados. Tente novamente.');
+                    if(err.code==='registration/document-unavailable')registrationDocumentError();
+                    else showMessage('Erro ao salvar dados. Tente novamente.');
                 }
                 return;
             }
@@ -1315,24 +1251,35 @@
             const doc = document.getElementById('regDoc').value.trim();
             const phone = document.getElementById('regPhone').value.trim();
             const email = document.getElementById('regEmail').value.trim();
-            const password = document.getElementById('regPassword').value.trim();
+            const password = document.getElementById('regPassword').value;
             const registerBtn = document.getElementById('registerBtn');
 
             if (!currentPersonType) {
                 showMessage('Selecione o tipo de pessoa (Física ou Jurídica).');
                 return;
             }
-            if (!name || !doc || !phone || !email || password.length < 6) {
-                showMessage('Preencha todos os campos obrigatórios. Senha deve ter pelo menos 6 caracteres.');
+            if (!name || !doc || !phone || !email) {
+                showMessage('Preencha todos os campos obrigatórios.');
                 return;
             }
 
+            if(!SignupPolicy.strongPassword(password)){document.getElementById('regPassword').focus();return;}
+            if(password!==document.getElementById('regPasswordConfirm').value){
+                const error=document.getElementById('registrationPasswordError');error.textContent='As senhas precisam ser iguais.';error.hidden=false;return;
+            }
+            let createdRegistrationUser=null;
             hideMessage();
             registerBtn.disabled = true;
             registerBtn.innerHTML = '<i class="fa-solid fa-spinner animate-spin text-sm"></i><span>Cadastrando...</span>';
 
             try {
-                const userCredential = await auth.createUserWithEmailAndPassword(email, password);
+                let userCredential;
+                if(auth.currentUser?.email===email && !(await database.ref('users/'+auth.currentUser.uid).once('value')).exists()){
+                    userCredential=await auth.signInWithEmailAndPassword(email,password);
+                }else{
+                    userCredential=await auth.createUserWithEmailAndPassword(email,password);
+                    createdRegistrationUser=userCredential.user;
+                }
 
                 try {
                     await userCredential.user.updateProfile({ displayName: name });
@@ -1350,10 +1297,15 @@
                 registerBtn.disabled = false;
                 registerBtn.innerHTML = '<span>Finalizar Cadastro</span><i class="fa-solid fa-arrow-right text-xs"></i>';
 
+                if(error.code==='registration/document-unavailable'){
+                    registrationDocumentError();
+                    if(createdRegistrationUser)try{await createdRegistrationUser.delete();}catch{}
+                    return;
+                }
                 let msgUser = 'Erro ao criar conta. Tente novamente.';
                 if (error.code === 'auth/email-already-in-use') msgUser = 'Este e-mail já está cadastrado.';
                 else if (error.code === 'auth/invalid-email') msgUser = 'E-mail inválido.';
-                else if (error.code === 'auth/weak-password') msgUser = 'Senha muito fraca. Use pelo menos 6 caracteres.';
+                else if (['auth/weak-password','auth/password-does-not-meet-requirements'].includes(error.code)) msgUser = 'A senha precisa atender aos requisitos indicados no campo.';
                 else if (error.code === 'auth/network-request-failed') msgUser = 'Falha de conexão. Verifique sua internet.';
 
                 showMessage(msgUser);
@@ -1494,6 +1446,7 @@
            17. INICIALIZAÇÃO
            ============================================================ */
         document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('regDoc').addEventListener('input',()=>{if(document.getElementById('regDoc').value.replace(/\D/g,'').length<(currentPersonType==='fisica'?11:14))document.getElementById('docApiFeedback').classList.add('hidden');});
             // Limpa cooldowns expirados
             cleanExpiredCooldowns();
 

@@ -101,6 +101,7 @@ async function handle(action,req,res,dependencies={}) {
   try {
     if (req.method!=='POST') fail('Método não permitido.',405);
     const body=typeof req.body==='string' ? JSON.parse(req.body) : req.body||{};
+    if(action==='company-lookup')return res.status(200).json(await require('./company-lookup.cjs').lookupCompany(body.cnpj,dependencies.fetch||fetch));
     if (action==='webhook') {
       const webhookMode=new URL(req.url,'http://localhost').searchParams.get('environment')||paymentConfig.activeMode();
       const cfg=paymentConfig.settings(webhookMode);
@@ -129,6 +130,7 @@ async function handle(action,req,res,dependencies={}) {
     }
     const {auth,db}=getServices();
     const caller=await identity(req,auth);
+    if(action==='register-profile')return res.status(200).json(await require('./registration.cjs').registerProfile(db,caller,body));
     const user={...((await db.ref('users/'+caller.uid).get()).val()||{}),uid:caller.uid};
     if(['admin-notifications','admin-tests','admin-archive-legacy-order','admin-order-status','admin-session'].includes(action)){
       await (dependencies.requireAdminAccess||requireAdminAccess)(req,db);

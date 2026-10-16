@@ -4864,7 +4864,9 @@ async function createClientAdm(){
   try{
     const cred=await auth.createUserWithEmailAndPassword(email,pass);
     const userData={ email, name, photoURL:'', authProvider:'manual', telefone, userType:type, cpf:type==='PF'?cpf:'', cnpj:type==='PJ'?cnpj:'', companyData:null, isAdmin:false, mustChangePassword:true, createdAt:Date.now(), lastAccess:Date.now() };
-    await database.ref(`users/${cred.user.uid}`).set(userData);
+    const token=await cred.user.getIdToken();
+    const response=await fetch('/api/register-profile',{method:'POST',headers:{'Content-Type':'application/json',Authorization:'Bearer '+token},body:JSON.stringify(userData),signal:AbortSignal.timeout(30000)});
+    if(!response.ok){if(response.status===409){try{await cred.user.delete();}catch{}throw Error('Não foi possível utilizar este documento. Confira os dados ou entre em contato com o suporte.');}throw Error('Não foi possível concluir o cadastro.');}
     hideLoading();
     closeModal('modalCliente');
     showToast(`Cliente ${name} criado. Senha: ${pass}`);
