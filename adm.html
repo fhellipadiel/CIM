@@ -478,6 +478,22 @@ tbody tr:last-child td{border-bottom:none}
 
 .notification-manager{max-width:850px!important}.notification-manager .modal-body{display:grid;gap:22px}.notification-muted{font-size:.78rem;color:var(--text-muted);line-height:1.6;margin:5px 0}.notification-label{display:block;font-weight:600;margin-bottom:10px}.notification-target-options{display:flex;gap:10px;margin-bottom:16px}.recipient-mode{flex:1;border:1px solid #393939;border-radius:12px;padding:14px;color:#ccc;background:#171717;cursor:pointer;font:inherit}.recipient-mode.selected{color:#fff;border-color:#ff3601;background:rgba(255,54,1,.12)}.notification-search{display:flex;align-items:center;gap:10px;background:#151515;border:1px solid #393939;border-radius:12px;padding:10px 14px;margin:12px 0}.notification-search span{font-size:24px;color:#ff3601}.notification-search input{width:100%;min-width:0;background:transparent!important;border:0!important;padding:0!important;color:#fff;font:inherit;outline:0}.notification-recipients{max-height:220px;overflow:auto;display:grid;gap:8px}.notification-recipient{width:100%;display:flex;align-items:center;gap:12px;text-align:left;padding:12px;border-radius:12px;border:1px solid #333;color:#fff;background:#151515;cursor:pointer}.notification-recipient.selected{border-color:#ff3601;background:rgba(255,54,1,.08)}.recipient-avatar{height:36px;width:36px;border-radius:50%;background:#302019;color:#ff3601;display:grid;place-items:center;font-weight:700;flex-shrink:0}.notification-recipient strong,.notification-recipient small{display:block;overflow-wrap:anywhere}.notification-recipient small{color:#999;margin-top:4px}.recipient-check{margin-left:auto;color:#ff3601}.notification-form-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}.notification-history-head{display:flex;justify-content:space-between;gap:12px;align-items:center;border-top:1px solid #333;padding-top:20px}.notification-empty{color:#888;text-align:center;padding:24px 12px}.announcement-card{padding:18px;border:1px solid #333;background:#121212;border-radius:14px;margin:12px 0}.announcement-card-top{display:flex;align-items:center;justify-content:space-between;gap:10px;color:#888;font-size:.75rem}.announcement-chip{border-radius:20px;background:#292019;color:#ff9d7f;padding:5px 10px;overflow-wrap:anywhere}.announcement-card h4{font-size:1rem;margin:14px 0 8px}.announcement-text{white-space:pre-wrap;overflow-wrap:anywhere;color:#ccc;font-size:.86rem;line-height:1.65}.announcement-recipient-delete{border-top:1px solid #292929;padding-top:12px;margin-top:16px}.announcement-recipient-delete summary{color:#aaa;font-size:.78rem;cursor:pointer}.announcement-recipient-delete select{width:100%;margin:12px 0;background:#191919;color:#fff;padding:10px;border:1px solid #444;border-radius:8px}#announcementFeedback{min-height:20px;color:#72d39b;font-size:.85rem;margin-top:14px}#announcementFeedback.notification-error{color:#ff9984}.cleanup-order{display:flex;justify-content:space-between;align-items:center;gap:12px;border:1px solid #333;background:#151515;border-radius:12px;padding:16px;margin:12px 0}.cleanup-order strong{color:#ff3601}.cleanup-order>div{min-width:0;overflow-wrap:anywhere}.cleanup-order button{flex-shrink:0}.cleanup-launch-icon{display:grid;place-items:center;width:48px;height:48px;border-radius:14px;background:rgba(255,54,1,.1);color:#ff3601}.cleanup-launch{display:flex;align-items:center;gap:16px;flex-wrap:wrap}.notification-manager textarea{resize:vertical;min-height:110px}@media(max-width:600px){.notification-target-options{flex-direction:column}.notification-manager .modal-body{padding:16px}.announcement-card{padding:14px}}
 .modal-close,.modal-close:hover{background:transparent!important;border:0!important;box-shadow:none!important}
+
+/* Editor de perfil dos administradores */
+#modalAdminProfile .modal{width:100%;max-width:480px}
+#modalAdminProfile .modal-body{display:grid;gap:22px;padding:24px}
+#modalAdminProfile .field{margin:0}
+#modalAdminProfile .field input{box-sizing:border-box;border-radius:12px;background:var(--panel-alt);padding:13px 15px}
+#modalAdminProfile .field label{padding:0;margin-bottom:9px;font-weight:600;color:var(--text)}
+.admin-profile-photo-card{display:flex;align-items:center;gap:18px;padding:18px;background:var(--panel-alt);border:1px solid var(--border);border-radius:14px}
+.admin-profile-avatar{width:84px;height:84px;object-fit:cover;border-radius:50%;flex-shrink:0;border:2px solid var(--border);background:var(--panel)}
+.admin-profile-photo-actions{min-width:0;display:grid;gap:10px}
+.admin-profile-photo-actions p{margin:0;line-height:1.5}
+#modalAdminProfile .admin-photo-upload{display:inline-flex;align-items:center;justify-content:center;gap:8px;cursor:pointer;margin:0;padding:10px 14px;width:fit-content;font-size:.85rem}
+.admin-photo-input{position:absolute;width:1px;height:1px;opacity:0;overflow:hidden}
+.admin-photo-input:focus-visible+.admin-photo-upload{outline:2px solid var(--accent);outline-offset:4px}
+@media(max-width:480px){#modalAdminProfile .modal-body{padding:18px}.admin-profile-photo-card{gap:12px;padding:14px}.admin-profile-avatar{width:68px;height:68px}}
+
 </style><script src="assets/payment-policy.js"></script>
 <!-- LEADS: estilos locais do painel e dos diálogos -->
 <style id="leads-admin-styles">
@@ -4615,6 +4631,7 @@ function switchUsersTabAdm(tab){
   renderUsers();
 }
 
+const ADMIN_PROFILE_AVATAR='data:image/svg+xml;charset=utf-8,'+encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96"><rect width="96" height="96" rx="48" fill="#202020"/><circle cx="48" cy="35" r="16" fill="#777"/><path d="M18 86c0-22 13-32 30-32s30 10 30 32" fill="#777"/></svg>');
 let editingAdminUid=null;
 async function recordAdminEntryAdm(){
  try{
@@ -4637,7 +4654,9 @@ function openAdminProfileEditor(uid){
  editingAdminUid=uid;
  document.getElementById('adminProfileName').value=user.name||'';
  document.getElementById('adminProfilePhoto').value='';
- document.getElementById('adminProfilePhotoPreview').src=user.photoURL||DEFAULT_AVATAR;
+ const preview=document.getElementById('adminProfilePhotoPreview');
+ preview.onerror=()=>{preview.onerror=null;preview.src=ADMIN_PROFILE_AVATAR;};
+ preview.src=user.photoURL&&user.photoURL!==DEFAULT_AVATAR?user.photoURL:ADMIN_PROFILE_AVATAR;
  openModal('modalAdminProfile');
 }
 function previewAdminProfilePhoto(input){
@@ -6013,8 +6032,8 @@ async function exportContactsCsv(kind){
  <div class="modal" style="max-width:460px">
   <div class="modal-head"><h3 id="adminProfileTitle">Editar administrador</h3><button type="button" class="modal-close" aria-label="Fechar" onclick="closeModal('modalAdminProfile')"><i class="fas fa-times"></i></button></div>
   <div class="modal-body">
-   <div class="form-group"><label for="adminProfileName">Nome</label><input id="adminProfileName" type="text" maxlength="200" autocomplete="name"></div>
-   <div class="form-group"><label for="adminProfilePhoto">Foto</label><img id="adminProfilePhotoPreview" alt="Foto do administrador" style="display:block;width:80px;height:80px;object-fit:cover;border-radius:50%;margin:12px 0"><input id="adminProfilePhoto" type="file" accept="image/jpeg,image/png,image/webp" onchange="previewAdminProfilePhoto(this)"><p class="td-sub">JPG, PNG ou WebP de ate 5 MB.</p></div>
+   <div class="field"><label for="adminProfileName">Nome do administrador</label><input id="adminProfileName" type="text" maxlength="200" autocomplete="name"></div>
+   <div class="field"><label>Foto do perfil</label><div class="admin-profile-photo-card"><img id="adminProfilePhotoPreview" class="admin-profile-avatar" alt="Foto do administrador"><div class="admin-profile-photo-actions"><input id="adminProfilePhoto" class="admin-photo-input" type="file" accept="image/jpeg,image/png,image/webp" onchange="previewAdminProfilePhoto(this)"><label for="adminProfilePhoto" class="btn btn-ghost admin-photo-upload"><i class="fas fa-camera" aria-hidden="true"></i> Escolher foto</label><p class="td-sub">JPG, PNG ou WebP.<br>Arquivo de at&eacute; 5 MB.</p></div></div></div>
   </div>
   <div class="modal-foot"><button type="button" class="btn btn-ghost" onclick="closeModal('modalAdminProfile')">Cancelar</button><button type="button" class="btn btn-accent" id="saveAdminProfileButton" onclick="saveAdminProfileEditor()">Salvar</button></div>
  </div>
