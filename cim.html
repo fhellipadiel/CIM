@@ -3614,8 +3614,8 @@ function toggleBottomMenu() {
             return list.map(product=>{
                 const id=String(product.id);
                 if(!catalogRandomRanks.has(id))catalogRandomRanks.set(id,Math.random());
-                return {product,rank:catalogRandomRanks.get(id)};
-            }).sort((a,b)=>Number(!!a.product.soldOut)-Number(!!b.product.soldOut)||a.rank-b.rank||String(a.product.id).localeCompare(String(b.product.id))).map(item=>item.product);
+                return {product,group:product.soldOut?2:((product.prices?.PF||0)>0||(product.prices?.PJ||0)>0)?0:1,rank:catalogRandomRanks.get(id)};
+            }).sort((a,b)=>a.group-b.group||a.rank-b.rank||String(a.product.id).localeCompare(String(b.product.id))).map(item=>item.product);
         }
         function reshuffleCatalog(){
             catalogRandomRanks.clear();
