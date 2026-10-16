@@ -1001,7 +1001,7 @@
                 const data=await response.json();if(!current())return;
                 const fields={regName:'razao_social',regFantasia:'nome_fantasia',regSituacao:'descricao_situacao_cadastral',regLogradouro:'logradouro',regNumero:'numero',regBairro:'bairro',regMunicipio:'municipio',regUf:'uf',regCep:'cep'};
                 Object.entries(fields).forEach(([id,key])=>document.getElementById(id).value=data[key]||'');
-                feedback.textContent='Dados do CNPJ consultados com sucesso.';feedback.className='text-[11px] text-emerald-400 mt-1 font-medium block';
+                feedback.textContent='Dados públicos da empresa preenchidos. O cadastro ainda será validado ao finalizar.';feedback.className='text-[11px] text-gray-400 mt-1 font-medium block';
             }catch(error){if(current()){feedback.textContent=error.name==='TimeoutError'?'A consulta demorou mais que o esperado. Tente novamente.':(/^(Não foi possível localizar|A consulta de CNPJ)/.test(error.message)?error.message:'Não foi possível consultar o CNPJ agora. Tente novamente.');feedback.className='text-[11px] text-amber-400 mt-1 font-medium block';}}
             finally{if(current())loading.classList.add('hidden');}
         }
@@ -1160,7 +1160,7 @@
                 registerSuccess(KEY);
                 window.location.href = 'cim.html';
             } catch (error) {
-                console.error('[Login] Erro Firebase:', error);
+                console.error('[Login] Falha na autenticação.');
 
                 submitBtn.disabled = false;
                 submitBtn.innerHTML = '<span>Entrar</span><i class="fa-solid fa-arrow-right text-xs"></i>';
@@ -1237,7 +1237,7 @@
                     registerSuccess('login');
                     window.location.href = 'cim.html';
                 } catch (err) {
-                    console.error('[Registro Google] Erro:', err);
+                    console.error('[Registro Google] Não foi possível concluir o cadastro.');
                     registerBtn.disabled = false;
                     registerBtn.innerHTML = '<span>Finalizar Cadastro</span><i class="fa-solid fa-arrow-right text-xs"></i>';
                     if(err.code==='registration/document-unavailable')registrationDocumentError();
@@ -1293,7 +1293,7 @@
 
                 window.location.href = 'cim.html';
             } catch (error) {
-                console.error('[Cadastro] Erro Firebase:', error);
+                console.error('[Cadastro] Não foi possível concluir a solicitação.');
                 registerBtn.disabled = false;
                 registerBtn.innerHTML = '<span>Finalizar Cadastro</span><i class="fa-solid fa-arrow-right text-xs"></i>';
 
@@ -1302,9 +1302,8 @@
                     if(createdRegistrationUser)try{await createdRegistrationUser.delete();}catch{}
                     return;
                 }
-                let msgUser = 'Erro ao criar conta. Tente novamente.';
-                if (error.code === 'auth/email-already-in-use') msgUser = 'Este e-mail já está cadastrado.';
-                else if (error.code === 'auth/invalid-email') msgUser = 'E-mail inválido.';
+                let msgUser = 'Não foi possível concluir o cadastro com os dados informados. Confira os dados ou entre em contato com o suporte.';
+                if (error.code === 'auth/invalid-email') msgUser = 'E-mail inválido.';
                 else if (['auth/weak-password','auth/password-does-not-meet-requirements'].includes(error.code)) msgUser = 'A senha precisa atender aos requisitos indicados no campo.';
                 else if (error.code === 'auth/network-request-failed') msgUser = 'Falha de conexão. Verifique sua internet.';
 
@@ -1347,7 +1346,7 @@
                     }, 450);
                 }
             } catch (error) {
-                console.error('[Google] Erro:', error);
+                console.error('[Google] Falha na autenticação.');
                 if (error.code === 'auth/popup-closed-by-user') {
                     showMessage('Janela de autenticação fechada. Tente novamente.');
                 } else if (error.code === 'auth/popup-blocked') {

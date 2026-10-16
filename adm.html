@@ -4856,10 +4856,6 @@ async function createClientAdm(){
   if(type==='PF'&&cpf.length!==11){ errEl.textContent='CPF deve ter 11 dígitos.'; return; }
   if(type==='PJ'&&cnpj.length!==14){ errEl.textContent='CNPJ deve ter 14 dígitos.'; return; }
   if(!pass||pass.length<6){ pass=Math.random().toString(36).slice(-8)+'A1!'; document.getElementById('ccPass').value=pass; }
-  try{
-    const methods=await auth.fetchSignInMethodsForEmail(email);
-    if(methods.length>0){ errEl.textContent='E-mail já em uso.'; return; }
-  }catch(e){ errEl.textContent='Erro ao verificar e-mail.'; return; }
   showLoading('Criando cliente...');
   try{
     const cred=await auth.createUserWithEmailAndPassword(email,pass);
@@ -4870,7 +4866,7 @@ async function createClientAdm(){
     hideLoading();
     closeModal('modalCliente');
     showToast(`Cliente ${name} criado. Senha: ${pass}`);
-  }catch(e){ hideLoading(); errEl.textContent='Erro: '+e.message; }
+  }catch(e){ hideLoading(); errEl.textContent='Não foi possível concluir o cadastro com os dados informados. Confira os dados ou entre em contato com o suporte.'; }
 }
 
 /* ============================================================
