@@ -3285,6 +3285,8 @@ document.addEventListener('change',e=>{
   }
 });
 
+const ADMIN_PRODUCTS_BATCH=40;
+let adminProductsList=[],adminProductsShown=0,adminProductsObserver=null;
 function renderProducts(){
   const text=(document.getElementById('prodFilterText')?.value||'').toLowerCase().trim();
   const cat=document.getElementById('prodFilterCategory')?.value||'';
@@ -3306,8 +3308,13 @@ function renderProducts(){
   });
   const body=document.getElementById('productsTableBody');
   if(!body) return;
-  if(list.length===0){ body.innerHTML=`<tr><td colspan="9"><div class="empty-state"><i class="fas fa-box-open"></i><p>Nenhuma peça encontrada</p></div></td></tr>`; return; }
-  body.innerHTML=list.map(p=>{
+  if(adminProductsObserver)adminProductsObserver.disconnect();
+  if(list.length===0){adminProductsList=[];adminProductsShown=0; body.innerHTML=`<tr><td colspan="9"><div class="empty-state"><i class="fas fa-box-open"></i><p>Nenhuma peça encontrada</p></div></td></tr>`; return; }
+  adminProductsList=list;adminProductsShown=0;
+  body.innerHTML='';
+  appendAdminProductsBatch();
+}
+function renderAdminProductRow(p){
     const meta=p.metaClicks||0, clicks=p.clicks||0; const pct=meta>0? Math.min(100,Math.round(clicks/meta*100)) : 0;
     const pricePFDisplay = p.hidePricePF ? `<span style="color:var(--warn);font-size:.72rem;"><i class="fas fa-eye-slash"></i> oculto</span>` : `R$ ${(p.prices?.PF||0).toFixed(2)}`;
     const pricePJDisplay = p.hidePricePJ ? `<span style="color:var(--warn);font-size:.72rem;"><i class="fas fa-eye-slash"></i> oculto</span>` : `R$ ${(p.prices?.PJ||0).toFixed(2)}`;
@@ -3321,7 +3328,7 @@ function renderProducts(){
     if(isProductNoCategory(p)) statusChips+=`<span class="chip chip-mut"><i class="fas fa-folder-open"></i> Sem categoria</span> `;
     if(!p.soldOut && !p.featured && !(p.hidePricePF || p.hidePricePJ) && !isProductNoCategory(p)) statusChips='<span class="chip chip-ok">Ativo</span>';
     return `<tr>
-      <td><img class="td-img" src="${p.image||PLACEHOLDER_IMG}" onerror="this.src='${PLACEHOLDER_IMG}'" onclick="openImageViewer(this.src,'${esc(p.name)}')"></td>
+      <td><img class="td-img" loading="lazy" decoding="async" src="${p.image||PLACEHOLDER_IMG}" onerror="this.src='${PLACEHOLDER_IMG}'" onclick="openImageViewer(this.src,'${esc(p.name)}')"></td>
       <td><div class="td-name">${esc(p.name)}</div><div class="td-sub">${esc(p.codigo||'sem código')}</div></td>
       <td>${esc(p.category||'—')}</td>
       <td>${esc(p.brand||'—')}</td>
@@ -3337,7 +3344,21 @@ function renderProducts(){
         <button class="btn btn-icon btn-danger" onclick="deleteProductAdm('${p.id}')"><i class="fas fa-trash"></i></button>
       </div></td>
     </tr>`;
-  }).join('');
+
+}
+function appendAdminProductsBatch(){
+ const body=document.getElementById('productsTableBody');if(!body)return;
+ document.getElementById('adminProductsMoreRow')?.remove();
+ if(adminProductsObserver)adminProductsObserver.disconnect();
+ const next=adminProductsList.slice(adminProductsShown,adminProductsShown+ADMIN_PRODUCTS_BATCH);
+ body.insertAdjacentHTML('beforeend',next.map(renderAdminProductRow).join(''));
+ adminProductsShown+=next.length;
+ if(adminProductsShown>=adminProductsList.length)return;
+ body.insertAdjacentHTML('beforeend','<tr id="adminProductsMoreRow"><td colspan="9" style="text-align:center;padding:20px"><p class="td-sub">'+adminProductsShown+' de '+adminProductsList.length+' produtos</p><button type="button" class="btn btn-ghost" onclick="appendAdminProductsBatch()">Carregar mais produtos</button></td></tr>');
+ if(typeof IntersectionObserver!=='undefined'){
+  if(!adminProductsObserver)adminProductsObserver=new IntersectionObserver(entries=>{if(entries.some(entry=>entry.isIntersecting))appendAdminProductsBatch();},{rootMargin:'300px'});
+  adminProductsObserver.observe(document.getElementById('adminProductsMoreRow'));
+ }
 }
 
 function openProductModal(){
@@ -4640,19 +4661,28 @@ async function recordAdminEntryAdm(){
   if(!response.ok)throw Error('history');
  }catch{console.warn('Nao foi possivel registrar a entrada no ADM.');}
 }
+
+function adminDeviceLabel(userAgent){
+ const ua=String(userAgent||'');
+ const device=/iPhone/i.test(ua)?'iPhone':/iPad/i.test(ua)?'iPad':/Android/i.test(ua)?'Android':/Windows/i.test(ua)?'Windows':/Macintosh|Mac OS X/i.test(ua)?'Mac':/Linux/i.test(ua)?'Linux':'Dispositivo não identificado';
+ const browser=/Edg(?:e|A|iOS)?\//i.test(ua)?'Edge':/OPR\/|Opera/i.test(ua)?'Opera':/SamsungBrowser/i.test(ua)?'Samsung Internet':/Firefox|FxiOS/i.test(ua)?'Firefox':/Chrome|CriOS/i.test(ua)?'Chrome':/Safari/i.test(ua)?'Safari':'';
+ return browser?device+' · '+browser:device;
+}
+
 async function loadAdminHistoryAdm(uid){
  const target=document.getElementById('admin-history-'+uid);if(!target)return;
  target.textContent='Carregando entradas...';
  try{
   const snap=await database.ref('adminLoginHistory/'+uid).orderByChild('enteredAt').limitToLast(30).once('value');
   const entries=Object.values(snap.val()||{}).sort((a,b)=>b.enteredAt-a.enteredAt);
-  target.innerHTML=entries.length?'<ul style="padding-left:18px;display:grid;gap:10px">'+entries.map(entry=>'<li><strong>'+esc(fmtDate(entry.enteredAt)+' '+fmtTime(entry.enteredAt))+'</strong><div class="td-sub" style="overflow-wrap:anywhere">'+esc(entry.browser||'Navegador nao informado')+'</div></li>').join('')+'</ul>':'Nenhuma entrada registrada ainda. O historico comeca nesta atualizacao.';
+  target.innerHTML=entries.length?'<ul style="padding-left:18px;display:grid;gap:10px">'+entries.map(entry=>'<li><strong>'+esc(fmtDate(entry.enteredAt)+' '+fmtTime(entry.enteredAt))+'</strong><div class="td-sub" style="overflow-wrap:anywhere">'+esc(adminDeviceLabel(entry.browser))+'</div></li>').join('')+'</ul>':'Nenhuma entrada registrada ainda. O historico comeca nesta atualizacao.';
  }catch{target.textContent='Nao foi possivel carregar o historico. Clique no nome para fechar e tentar novamente.';}
 }
 function openAdminProfileEditor(uid){
  const user=usersCache.find(u=>u.uid===uid);if(!user||(!user.isAdmin&&uid!==currentAdmin?.uid))return;
  editingAdminUid=uid;
  document.getElementById('adminProfileName').value=user.name||'';
+ document.getElementById('adminProfileEmail').value=user.email||(uid===currentAdmin?.uid?auth.currentUser?.email:'')||'';
  document.getElementById('adminProfilePhoto').value='';
  const preview=document.getElementById('adminProfilePhotoPreview');
  preview.onerror=()=>{preview.onerror=null;preview.src=ADMIN_PROFILE_AVATAR;};
@@ -6033,6 +6063,7 @@ async function exportContactsCsv(kind){
   <div class="modal-head"><h3 id="adminProfileTitle">Editar administrador</h3><button type="button" class="modal-close" aria-label="Fechar" onclick="closeModal('modalAdminProfile')"><i class="fas fa-times"></i></button></div>
   <div class="modal-body">
    <div class="field"><label for="adminProfileName">Nome do administrador</label><input id="adminProfileName" type="text" maxlength="200" autocomplete="name"></div>
+   <div class="field"><label for="adminProfileEmail">E-mail de cadastro</label><input id="adminProfileEmail" type="email" readonly aria-readonly="true"></div>
    <div class="field"><label>Foto do perfil</label><div class="admin-profile-photo-card"><img id="adminProfilePhotoPreview" class="admin-profile-avatar" alt="Foto do administrador"><div class="admin-profile-photo-actions"><input id="adminProfilePhoto" class="admin-photo-input" type="file" accept="image/jpeg,image/png,image/webp" onchange="previewAdminProfilePhoto(this)"><label for="adminProfilePhoto" class="btn btn-ghost admin-photo-upload"><i class="fas fa-camera" aria-hidden="true"></i> Escolher foto</label><p class="td-sub">JPG, PNG ou WebP.<br>Arquivo de at&eacute; 5 MB.</p></div></div></div>
   </div>
   <div class="modal-foot"><button type="button" class="btn btn-ghost" onclick="closeModal('modalAdminProfile')">Cancelar</button><button type="button" class="btn btn-accent" id="saveAdminProfileButton" onclick="saveAdminProfileEditor()">Salvar</button></div>
