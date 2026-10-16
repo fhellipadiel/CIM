@@ -494,6 +494,12 @@ tbody tr:last-child td{border-bottom:none}
 .admin-photo-input:focus-visible+.admin-photo-upload{outline:2px solid var(--accent);outline-offset:4px}
 @media(max-width:480px){#modalAdminProfile .modal-body{padding:18px}.admin-profile-photo-card{gap:12px;padding:14px}.admin-profile-avatar{width:68px;height:68px}}
 
+
+@media(min-width:901px){
+ .sidebar.collapsed:not(.hover-expanded) .sb-item .online-badge{display:none!important}
+ .sidebar.collapsed:not(.hover-expanded) .sb-item.has-online-users>i{color:var(--ok)!important}
+}
+
 </style><script src="assets/payment-policy.js"></script>
 <!-- LEADS: estilos locais do painel e dos diálogos -->
 <style id="leads-admin-styles">
@@ -2335,6 +2341,7 @@ function updateOnlineUsersBadge(){
   const count = onlineUsers.length;
   const badge = document.getElementById('onlineUsersBadge');
   const countEl = document.getElementById('onlineUsersCount');
+  badge.closest('.sb-item')?.classList.toggle('has-online-users',count>0);
   if(count > 0){ badge.style.display = 'flex'; countEl.textContent = count; }
   else badge.style.display = 'none';
 }
@@ -4703,7 +4710,7 @@ async function saveAdminProfileEditor(){
  try{
   const changes={name};
   if(file){if(!['image/jpeg','image/png','image/webp'].includes(file.type)||file.size>5*1024*1024)throw Error('Imagem invalida. Use JPG, PNG ou WebP de ate 5 MB.');
-   const url=await uploadImg(file,'admins');if(!url)throw Error('A foto nao foi enviada.');changes.photoURL=url;}
+   const url=await uploadImg(file,'avatars/'+auth.currentUser.uid);if(!url)throw Error('A foto nao foi enviada.');changes.photoURL=url;}
   await database.ref('users/'+uid).update(changes);
   if(currentAdmin?.uid===uid){Object.assign(currentAdmin,changes);document.getElementById('cfgAdminName').textContent=name;}
   closeModal('modalAdminProfile');showToast('Perfil do administrador atualizado.');
