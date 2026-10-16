@@ -121,11 +121,15 @@ test('somente admin exclui pedido antigo; cliente e dados do pedido ficam preser
  await call('admin-archive-legacy-order',body,db,{token:'admin'});
  assert.equal(db.data.orders.alice.old.archivedAt,timestamp);
 }));
-test('exclusão de legado recusa qualquer evidência de integração ou pagamento',()=>withProduction(async()=>{
+test('admin arquiva teste integrado e preserva dados de pagamento',()=>withProduction(async()=>{
  for(const change of [{provider:'orders'},{paymentId:'123'},{mercadoOrderId:'ORDREAL1'},{paymentStatus:'accredited'},{checkoutUrl:'https://www.mercadopago.com.br/checkout'},{testMode:false},{preferenceId:'abc'},{reference:'abc'}]){
   const order={status:'pago',total:100,...change};
   const db=memoryDb({users:{admin:{isAdmin:true}},orders:{alice:{real:order}}});
   const result=await call('admin-archive-legacy-order',{uid:'alice',orderId:'real'},db,{token:'admin'});
-  assert.equal(result.code,409);assert.deepEqual(db.data.orders.alice.real,order);
+  assert.equal(result.code,200);
+  const archived=db.data.orders.alice.real;
+  assert.ok(archived.archivedAt);assert.equal(archived.archivedBy,'admin');assert.equal(archived.archiveReason,'test_order');
+  for(const [key,value] of Object.entries(order))assert.deepEqual(archived[key],value);
+  const policy=require('../assets/payment-policy.js');assert.equal(policy.isOrderVisible(archived),false);assert.equal(policy.isPaidOrder(archived),false);
  }
 }));

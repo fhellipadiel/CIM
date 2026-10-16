@@ -161,8 +161,7 @@ async function handle(action,req,res,dependencies={}) {
       try{
         const current=(await ref.once('value')).val();
         if(!current)fail('Pedido não encontrado.',404);
-        if(!orderPolicy.isLegacyOrder(current))fail('Esta exclusão permite somente pedidos antigos sem integração de pagamento.',409);
-        const result=await ref.transaction(order=>orderPolicy.isLegacyOrder(order)?{...order,archivedAt:order.archivedAt||Date.now(),archivedBy:caller.uid,archiveReason:'legacy_test'}:undefined);
+        const result=await ref.transaction(order=>order?{...order,archivedAt:order.archivedAt||Date.now(),archivedBy:caller.uid,archiveReason:order.archiveReason||'test_order'}:undefined);
         if(!result.committed)fail('O pedido mudou. Atualize a lista.',409);
         return res.status(200).json({archived:true});
       }finally{ref.off('value',retain);}

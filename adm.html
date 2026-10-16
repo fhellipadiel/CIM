@@ -1368,7 +1368,7 @@ tbody tr:last-child td{border-bottom:none}
          PAINEL: CONFIGURAÇÕES
          ============================================================ -->
     <section class="panel" id="panel-config">
-<div class="block"><div class="block-head"><h3>Gerenciar pedidos</h3></div><div class="block-body cleanup-launch"><span class="cleanup-launch-icon" aria-hidden="true"><svg width="25" height="25" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 7h16M9 7V4h6v3M7 7l1 13h8l1-13M10 10v7M14 10v7"/></svg></span><div style="flex:1"><strong>Excluir pedidos da lista</strong><p class="notification-muted">Abra a lista para pesquisar e remover pedidos antigos de teste.</p></div><button type="button" class="btn btn-ghost" onclick="openOrderCleanup()">Gerenciar exclusões</button></div></div>
+<div class="block"><div class="block-head"><h3>Gerenciar pedidos</h3></div><div class="block-body cleanup-launch"><span class="cleanup-launch-icon" aria-hidden="true"><svg width="25" height="25" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 7h16M9 7V4h6v3M7 7l1 13h8l1-13M10 10v7M14 10v7"/></svg></span><div style="flex:1"><strong>Excluir pedidos da lista</strong><p class="notification-muted">Abra a lista para pesquisar e remover pedidos de teste.</p></div><button type="button" class="btn btn-ghost" onclick="openOrderCleanup()">Gerenciar exclusões</button></div></div>
 <div class="panel-head"><div><h1>Configurações</h1><p>Ações administrativas gerais</p></div></div>
 
       <div class="block">
@@ -2459,8 +2459,8 @@ function renderLegacySettings(){
  const query=(document.getElementById('cleanupOrderSearch')?.value||'').toLocaleLowerCase('pt-BR').trim();
  const orders=allOrdersCache.filter(o=>!o.archivedAt&&(!query||[orderShortIdAdm(o),o.customerName,o.customerEmail,o.id].join(' ').toLocaleLowerCase('pt-BR').includes(query)));
  list.innerHTML=orders.length?orders.map(o=>{
- const user=usersCache.find(u=>u.uid===o.uid)||{},eligible=CimPaymentPolicy.isLegacyOrder(o);
- return '<article class="cleanup-order"><div><strong>'+esc(orderShortIdAdm(o))+'</strong><div>'+esc(o.customerName||user.name||o.customerEmail||user.email||'Cliente')+'</div><small class="notification-muted">'+esc(o.customerEmail||user.email||'')+' · '+esc(o.status||'pendente')+'</small>'+(eligible?'':'<p class="notification-muted">Pedido integrado ao pagamento: exclusão indisponível.</p>')+'</div><button type="button" class="btn btn-danger btn-sm" data-uid="'+esc(o.uid)+'" data-order="'+esc(o.id)+'" '+(eligible?'onclick="removeCleanupOrder(this.dataset.uid,this.dataset.order)"':'disabled')+'>Excluir</button></article>';
+ const user=usersCache.find(u=>u.uid===o.uid)||{};
+ return '<article class="cleanup-order"><div><strong>'+esc(orderShortIdAdm(o))+'</strong><div>'+esc(o.customerName||user.name||o.customerEmail||user.email||'Cliente')+'</div><small class="notification-muted">'+esc(o.customerEmail||user.email||'')+' · '+esc(o.status||'pendente')+'</small>'+'</div><button type="button" class="btn btn-danger btn-sm" data-uid="'+esc(o.uid)+'" data-order="'+esc(o.id)+'" onclick="removeCleanupOrder(this.dataset.uid,this.dataset.order)">Excluir</button></article>';
  }).join(''):'<p class="notification-empty">Nenhum pedido encontrado.</p>';
 }
 function openOrderCleanup(){document.getElementById('cleanupOrderSearch').value='';renderLegacySettings();openModal('modalOrderCleanup');}
@@ -2541,15 +2541,15 @@ function deleteAnnouncementRecipient(id){const uid=document.getElementById('reci
 Object.assign(window,{openOrderCleanup,removeCleanupOrder,openAnnouncements,setAnnouncementMode,renderNotificationRecipients,selectNotificationUser,loadAnnouncements,resetAnnouncement,saveAnnouncement,editAnnouncement,deleteAnnouncement,deleteAnnouncementRecipient});
 async function archiveLegacyOrderAdm(uid,id){
   const order=allOrdersCache.find(o=>o.uid===uid&&o.id===id);
-  if(!order||!CimPaymentPolicy.isLegacyOrder(order))return;
-  if(!confirm('Excluir o pedido antigo '+orderShortIdAdm(order)+' da lista? Use apenas para pedidos de teste criados antes da integração. O cadastro do cliente será mantido.'))return;
-  showLoading('Excluindo pedido antigo...');
+  if(!order)return;
+  if(!confirm('Excluir o pedido '+orderShortIdAdm(order)+' da lista e do faturamento por ser um teste? O histórico do pagamento e o cadastro do cliente serão mantidos. Esta ação não cancela nem estorna o pagamento.'))return;
+  showLoading('Excluindo pedido de teste...');
   try{
     const token=await auth.currentUser.getIdToken();
     const response=await fetch('/api/admin-archive-legacy-order',{method:'POST',headers:{'Content-Type':'application/json',Authorization:'Bearer '+token},body:JSON.stringify({uid,orderId:id}),signal:AbortSignal.timeout(30000)});
     const result=await response.json().catch(()=>({}));
     if(!response.ok)throw Error(result.error||'Não foi possível excluir o pedido.');
-    showToast('Pedido antigo excluído da lista.');
+    showToast('Pedido de teste excluído da lista e do faturamento.');
   }catch(error){showToast(error.message,'err');}
   finally{hideLoading();}
 }
