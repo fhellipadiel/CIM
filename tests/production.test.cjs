@@ -52,7 +52,7 @@ async function call(action,body,db,options={}){
  let code=200,result;
  const res={setHeader:()=>{},status:value=>{code=value;return res;},json:value=>{result=value;return res;}};
  const auth={verifyIdToken:async token=>({uid:token==='admin'?'admin':'alice'})};
- await handle(action,{method:'POST',url:options.url||'/api/'+action,headers:{authorization:'Bearer '+(options.token||'alice'),...(options.headers||{})},body},res,{services:()=>({auth,db}),mp:options.mp||(()=>{throw Error('Unexpected provider call');}),refreshOrder:options.refresh||asyncNoop,reconcileOrder:options.reconcile});
+ await handle(action,{method:'POST',url:options.url||'/api/'+action,headers:{authorization:'Bearer '+(options.token||'alice'),...(options.headers||{})},body},res,{services:()=>({auth,db}),requireAdminAccess:async()=>{if(options.token!=='admin')require('../server/core.cjs').fail('Acesso restrito.',403);},mp:options.mp||(()=>{throw Error('Unexpected provider call');}),refreshOrder:options.refresh||asyncNoop,reconcileOrder:options.reconcile});
  return {code,body:result};
 }
 async function asyncNoop(){}

@@ -4661,15 +4661,7 @@ function toggleBottomMenu() {
                 }
             }
             if (!snap || !snap.exists()) {
-                if (user.email === 'cim@gmail.com') {
-                    const adminData = {
-                        email: user.email, name: 'Admin CIM', photoURL: user.photoURL || DEFAULT_USER_AVATAR,
-                        userType: 'PF', isAdmin: true, telefone: '5511986866888',
-                        createdAt: Date.now(), lastAccess: Date.now(), mustChangePassword: false
-                    };
-                    try { await database.ref(`users/${uid}`).set(adminData); loadUserData(uid); unlockPage(); }
-                    catch (e) { redirectToLogin(); }
-                } else window.location.replace('login.html?complete=true');
+                window.location.replace('login.html?complete=true');
                 return;
             }
             database.ref(`users/${uid}/lastAccess`).set(Date.now()).catch(() => {});

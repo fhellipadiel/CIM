@@ -3,6 +3,7 @@ const {quote,validSignature,verifiedPayment,fail}=require('./core.cjs');
 const crypto=require('node:crypto');
 const paymentConfig=require('./payment-config.cjs');
 const orderPolicy=require('../assets/payment-policy.js');
+const {requireAdminAccess}=require('./admin-access.cjs');
 let app;
 function services() {
   if (!process.env.GOOGLE_APPLICATION_CREDENTIALS && !process.env.FIREBASE_SERVICE_ACCOUNT_JSON) fail('Falta configurar a credencial do servidor Firebase de pagamentos.',503);
@@ -129,6 +130,10 @@ async function handle(action,req,res,dependencies={}) {
     const {auth,db}=getServices();
     const caller=await identity(req,auth);
     const user={...((await db.ref('users/'+caller.uid).get()).val()||{}),uid:caller.uid};
+    if(['admin-notifications','admin-tests','admin-archive-legacy-order','admin-order-status'].includes(action)){
+      await (dependencies.requireAdminAccess||requireAdminAccess)(req,db);
+      user.isAdmin=true;
+    }
     if(action==='admin-notifications')return res.status(200).json(await require('./notifications.cjs')(db,user,body));
     if (action==='admin-tests') {
       if (user.isAdmin!==true) fail('Acesso restrito ao administrador.',403);

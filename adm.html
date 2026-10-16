@@ -565,7 +565,7 @@ tbody tr:last-child td{border-bottom:none}
     <div class="mark" id="sbBrandLogo"><i class="fas fa-cogs"></i></div>
     <div class="txt">
       <strong>CIM Global Parts</strong>
-      <span class="admin-email" id="sbUserEmailDisplay">cim@gmail.com</span>
+      <span class="admin-email" id="sbUserEmailDisplay">Administrador</span>
     </div>
   </div>
   <nav class="sb-nav">
@@ -1995,13 +1995,13 @@ function doLogout(){ if(!confirm('Deseja sair do painel?')) return; auth.signOut
 auth.onAuthStateChanged(user=>{
   hideLoading();
   if(user){
-    database.ref(`users/${user.uid}`).once('value').then(snap=>{
-      const data=snap.val();
-      if(data && data.isAdmin){
+    database.ref('adminAccess').once('value').then(()=>database.ref(`users/${user.uid}`).once('value')).then(snap=>{
+      const data=snap.val()||{};
+      if(auth.currentUser && auth.currentUser.uid===user.uid){
         currentAdmin={uid:user.uid,...data};
         document.getElementById('loginScreen').style.display='none';
         updateOrdersRevenueDisplay();
-        document.getElementById('sbUserEmailDisplay').textContent = data.email || user.email || 'cim@gmail.com';
+        document.getElementById('sbUserEmailDisplay').textContent = data.email || user.email || 'Administrador';
         document.getElementById('cfgAdminName').textContent=data.name||'Admin';
         document.getElementById('cfgAdminEmail').textContent=data.email||user.email;
         loadAllData(); loadLeadsAdmin();
@@ -2010,6 +2010,10 @@ auth.onAuthStateChanged(user=>{
         document.getElementById('loginScreen').style.display='flex';
         auth.signOut();
       }
+    }).catch(()=>{
+      document.getElementById('loginError').textContent='Conta sem permissao de administrador.';
+      document.getElementById('loginScreen').style.display='flex';
+      auth.signOut();
     });
   }else{ document.getElementById('loginScreen').style.display='flex'; }
 });

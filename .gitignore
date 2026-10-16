@@ -9,3 +9,6 @@ firebase-admin*.json
 .env*
 
 public/
+
+# Private Firebase rules: never commit
+/[Ff][Ii][Rr][Ee][Bb][Aa][Ss][Ee]
