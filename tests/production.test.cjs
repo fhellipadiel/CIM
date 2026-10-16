@@ -51,7 +51,7 @@ async function withProduction(run){
 async function call(action,body,db,options={}){
  let code=200,result;
  const res={setHeader:()=>{},status:value=>{code=value;return res;},json:value=>{result=value;return res;}};
- const auth={verifyIdToken:async token=>({uid:token==='admin'?'admin':'alice'})};
+ const auth={verifyIdToken:async token=>({uid:token==='admin'?'admin':'alice',auth_time:100})};
  await handle(action,{method:'POST',url:options.url||'/api/'+action,headers:{authorization:'Bearer '+(options.token||'alice'),...(options.headers||{})},body},res,{services:()=>({auth,db}),requireAdminAccess:async()=>{if(options.token!=='admin')require('../server/core.cjs').fail('Acesso restrito.',403);},mp:options.mp||(()=>{throw Error('Unexpected provider call');}),refreshOrder:options.refresh||asyncNoop,reconcileOrder:options.reconcile});
  return {code,body:result};
 }
@@ -132,4 +132,12 @@ test('admin arquiva teste integrado e preserva dados de pagamento',()=>withProdu
   for(const [key,value] of Object.entries(order))assert.deepEqual(archived[key],value);
   const policy=require('../assets/payment-policy.js');assert.equal(policy.isOrderVisible(archived),false);assert.equal(policy.isPaidOrder(archived),false);
  }
+}));
+
+test('historico de entrada exige autorizacao por regras, mesmo com isAdmin no perfil',()=>withProduction(async()=>{
+ const db=memoryDb({users:{alice:{isAdmin:true},admin:{isAdmin:true}}});
+ assert.equal((await call('admin-session',{},db)).code,403);
+ assert.equal(db.data.adminLoginHistory,undefined);
+ const result=await call('admin-session',{},db,{token:'admin'});assert.equal(result.code,200);assert.equal(result.body.recorded,true);
+ assert.equal(Object.keys(db.data.adminLoginHistory.admin).length,1);
 }));

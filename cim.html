@@ -4019,7 +4019,6 @@ function toggleBottomMenu() {
             hoursValue.textContent = hours;
         }
 
-        let userNamePermissionRef=null;
         function loadUserData(uid) {
             if (!uid) return;
             database.ref(`users/${uid}`).once('value').then((snapshot) => {
@@ -4030,19 +4029,12 @@ function toggleBottomMenu() {
                     userPhoto = DEFAULT_USER_AVATAR;
                 }
                 currentUser = {
-                    uid, canEditName: data.canEditName===true, email: data.email || '', name: data.name || '', photoURL: userPhoto,
+                    uid, email: data.email || '', name: data.name || '', photoURL: userPhoto,
                     userType: data.userType || null, cpf: data.cpf || '', cnpj: data.cnpj || '',
                     telefone: data.telefone || '', cep: data.cep || '', logradouro: data.logradouro || '',
                     numero: data.numero || '', complemento: data.complemento || '',
                     bairro: data.bairro || '', cidade: data.cidade || '', uf: data.uf || ''
                 };
-                if(userNamePermissionRef)userNamePermissionRef.off();
-                userNamePermissionRef=database.ref('users/'+uid+'/canEditName');
-                userNamePermissionRef.on('value',snap=>{
-                    if(currentUser?.uid!==uid)return;
-                    const allowed=snap.val()===true;
-                    if(currentUser.canEditName!==allowed){currentUser.canEditName=allowed;renderUserSettings();}
-                });
                 updateProfileUIUser();
                 updatePriceDisplay(); updateCart(); renderPromotionBadgesOnly();
 
@@ -4345,14 +4337,13 @@ function toggleBottomMenu() {
             const isPF = currentUser.userType === 'PF';
             const isPJ = currentUser.userType === 'PJ';
             const disabled = isPF ? '' : 'disabled';
-            const canEditName=currentUser.canEditName===true;
             const docLabel = isPF ? 'CPF' : (isPJ ? 'CNPJ' : 'Documento');
             let docValue = '';
             if (isPF) docValue = formatCpfCnpj(currentUser.cpf || '', 'PF');
             if (isPJ) docValue = formatCpfCnpj(currentUser.cnpj || '', 'PJ');
             const typeLabel = isPF ? 'Pessoa Física' : (isPJ ? 'Pessoa Jurídica' : 'Tipo não definido');
             body.innerHTML = `
-                <div class="settings-field"><label>Nome completo</label><input type="text" id="setName" maxlength="200" value="${escapeHtml(currentUser.name || '')}" ${canEditName?'':'disabled'}></div>
+                <div class="settings-field"><label>Nome completo</label><input type="text" id="setName" value="${escapeHtml(currentUser.name || '')}" ${disabled}></div>
                 <div class="settings-field"><label>E-mail</label><input type="email" value="${escapeHtml(currentUser.email || '')}" disabled></div>
                 <div class="settings-field"><label>${docLabel}</label><input type="text" value="${escapeHtml(docValue)}" disabled><span class="settings-user-type">${escapeHtml(typeLabel)}</span></div>
                 <div class="settings-field"><label>Telefone</label><input type="tel" id="setTelefone" value="${escapeHtml(currentUser.telefone || '')}" ${disabled} inputmode="numeric"></div>
@@ -4367,7 +4358,7 @@ function toggleBottomMenu() {
                     <div class="settings-field"><label>Cidade</label><input type="text" id="setCidade" value="${escapeHtml(currentUser.cidade || '')}" ${disabled}></div>
                     <div class="settings-field"><label>UF</label><input type="text" id="setUf" value="${escapeHtml(currentUser.uf || '')}" ${disabled} maxlength="2"></div>
                 </div>
-                ${isPF||canEditName ? `<button class="settings-save-btn" id="settingsSaveBtn" onclick="saveUserSettings()"><i class="fas fa-save"></i> Salvar Alterações</button>` : `<div style="text-align:center;"><span class="settings-why-link" onclick="openPjExplanation()">Por que não posso editar?</span></div>`}
+                ${isPF ? `<button class="settings-save-btn" id="settingsSaveBtn" onclick="saveUserSettings()"><i class="fas fa-save"></i> Salvar Alterações</button>` : `<div style="text-align:center;"><span class="settings-why-link" onclick="openPjExplanation()">Por que não posso editar?</span></div>`}
             `;
             if (isPF) {
                 const cepEl = document.getElementById('setCep');
@@ -4435,7 +4426,7 @@ function toggleBottomMenu() {
         }
 
         async function saveUserSettings() {
-            if (!currentUser || (currentUser.userType !== 'PF' && currentUser.canEditName!==true)) return;
+            if (!currentUser || currentUser.userType !== 'PF') return;
             const btn = document.getElementById('settingsSaveBtn');
             if (btn) btn.disabled = true;
             const data = {
@@ -4449,9 +4440,7 @@ function toggleBottomMenu() {
                 cidade:      (document.getElementById('setCidade').value || '').trim(),
                 uf:          (document.getElementById('setUf').value || '').trim().toUpperCase()
             };
-            if(currentUser.canEditName!==true)delete data.name;
-            if(currentUser.userType!=='PF')for(const key of Object.keys(data))if(key!=='name')delete data[key];
-            if (currentUser.canEditName===true && (!data.name||data.name.length>200)) { showToast('Nome é obrigatório', 'error'); if (btn) btn.disabled = false; return; }
+            if (!data.name) { showToast('Nome é obrigatório', 'error'); if (btn) btn.disabled = false; return; }
             if (data.telefone && data.telefone.length < 10) { showToast('Telefone inválido', 'error'); if (btn) btn.disabled = false; return; }
             if (data.cep && data.cep.length !== 8) { showToast('CEP inválido', 'error'); if (btn) btn.disabled = false; return; }
             showLoading('Salvando...');

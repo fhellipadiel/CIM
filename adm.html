@@ -2005,7 +2005,7 @@ auth.onAuthStateChanged(user=>{
         document.getElementById('sbUserEmailDisplay').textContent = data.email || user.email || 'Administrador';
         document.getElementById('cfgAdminName').textContent=data.name||'Admin';
         document.getElementById('cfgAdminEmail').textContent=data.email||user.email;
-        loadAllData(); loadLeadsAdmin();
+        loadAllData(); loadLeadsAdmin(); recordAdminEntryAdm();
       }else{
         document.getElementById('loginError').textContent='Conta sem permissão de administrador.';
         document.getElementById('loginScreen').style.display='flex';
@@ -4614,16 +4614,59 @@ function switchUsersTabAdm(tab){
   if(tab === 'novos') database.ref('settings/lastSeenNewUsers').set(Date.now());
   renderUsers();
 }
-async function toggleUserNameEditingAdm(uid){
-  const user=usersCache.find(u=>u.uid===uid);if(!user||user.isAdmin||uid===currentAdmin?.uid)return;
-  const allow=user.canEditName!==true;
-  try{await database.ref('users/'+uid+'/canEditName').set(allow);showToast(allow?'Edição do nome liberada.':'Edição do nome bloqueada.');}
-  catch{showToast('Não foi possível alterar a permissão.','err');}
+
+let editingAdminUid=null;
+async function recordAdminEntryAdm(){
+ try{
+  const token=await auth.currentUser.getIdToken();
+  const response=await fetch('/api/admin-session',{method:'POST',headers:{'Content-Type':'application/json',Authorization:'Bearer '+token},body:'{}',signal:AbortSignal.timeout(20000)});
+  if(!response.ok)throw Error('history');
+ }catch{console.warn('Nao foi possivel registrar a entrada no ADM.');}
 }
+async function loadAdminHistoryAdm(uid){
+ const target=document.getElementById('admin-history-'+uid);if(!target)return;
+ target.textContent='Carregando entradas...';
+ try{
+  const snap=await database.ref('adminLoginHistory/'+uid).orderByChild('enteredAt').limitToLast(30).once('value');
+  const entries=Object.values(snap.val()||{}).sort((a,b)=>b.enteredAt-a.enteredAt);
+  target.innerHTML=entries.length?'<ul style="padding-left:18px;display:grid;gap:10px">'+entries.map(entry=>'<li><strong>'+esc(fmtDate(entry.enteredAt)+' '+fmtTime(entry.enteredAt))+'</strong><div class="td-sub" style="overflow-wrap:anywhere">'+esc(entry.browser||'Navegador nao informado')+'</div></li>').join('')+'</ul>':'Nenhuma entrada registrada ainda. O historico comeca nesta atualizacao.';
+ }catch{target.textContent='Nao foi possivel carregar o historico. Clique no nome para fechar e tentar novamente.';}
+}
+function openAdminProfileEditor(uid){
+ const user=usersCache.find(u=>u.uid===uid);if(!user||(!user.isAdmin&&uid!==currentAdmin?.uid))return;
+ editingAdminUid=uid;
+ document.getElementById('adminProfileName').value=user.name||'';
+ document.getElementById('adminProfilePhoto').value='';
+ document.getElementById('adminProfilePhotoPreview').src=user.photoURL||DEFAULT_AVATAR;
+ openModal('modalAdminProfile');
+}
+function previewAdminProfilePhoto(input){
+ const file=input.files?.[0];if(!file)return;
+ if(!['image/jpeg','image/png','image/webp'].includes(file.type)||file.size>5*1024*1024){showToast('Escolha JPG, PNG ou WebP de ate 5 MB.','err');input.value='';return;}
+ const reader=new FileReader();reader.onload=()=>document.getElementById('adminProfilePhotoPreview').src=reader.result;reader.readAsDataURL(file);
+}
+async function saveAdminProfileEditor(){
+ const uid=editingAdminUid,user=usersCache.find(u=>u.uid===uid);
+ if(!user||(!user.isAdmin&&uid!==currentAdmin?.uid))return;
+ const name=document.getElementById('adminProfileName').value.trim(),file=document.getElementById('adminProfilePhoto').files?.[0];
+ if(!name||name.length>200){showToast('Informe um nome de ate 200 caracteres.','err');return;}
+ const button=document.getElementById('saveAdminProfileButton');button.disabled=true;
+ try{
+  const changes={name};
+  if(file){if(!['image/jpeg','image/png','image/webp'].includes(file.type)||file.size>5*1024*1024)throw Error('Imagem invalida. Use JPG, PNG ou WebP de ate 5 MB.');
+   const url=await uploadImg(file,'admins');if(!url)throw Error('A foto nao foi enviada.');changes.photoURL=url;}
+  await database.ref('users/'+uid).update(changes);
+  if(currentAdmin?.uid===uid){Object.assign(currentAdmin,changes);document.getElementById('cfgAdminName').textContent=name;}
+  closeModal('modalAdminProfile');showToast('Perfil do administrador atualizado.');
+ }catch(error){showToast(error.message||'Nao foi possivel salvar o perfil.','err');}
+ finally{button.disabled=false;}
+}
+
 function toggleUserDetails(uid) {
   const row = document.getElementById(`detail-row-${uid}`); if (!row) return;
   const isHidden = row.style.display === 'none' || row.style.display === '';
   row.style.display = isHidden ? 'table-row' : 'none';
+  if(isHidden && (usersCache.find(u=>u.uid===uid)?.isAdmin||uid===currentAdmin?.uid))loadAdminHistoryAdm(uid);
 }
 function filteredUsersForCsv(){
   let filtered=[]; const now=Date.now();
@@ -4693,18 +4736,17 @@ function renderUsers(){
       <td class="td-sub">${lastAccess}</td>
       <td><div class="row-actions">
         ${!(u.isAdmin||u.uid===currentAdmin?.uid)?`
-          <button type="button" class="btn btn-sm btn-ghost" aria-pressed="${u.canEditName===true}" onclick="toggleUserNameEditingAdm(this.dataset.uid)" data-uid="${esc(u.uid)}">${u.canEditName===true?'Bloquear edição do nome':'Liberar edição do nome'}</button>
           <button class="btn btn-icon btn-ghost" title="Email" onclick="sendEmailToUser('${u.uid}')" style="color:var(--accent);"><i class="fas fa-envelope"></i></button>
           <button class="btn btn-icon btn-ghost" title="Alterar tipo" onclick="changeUserTypeAdm('${u.uid}')"><i class="fas fa-right-left"></i></button>
           <button class="btn btn-icon btn-ghost" title="Promoção" onclick="applyPromoUserAdm('${u.uid}')"><i class="fas fa-percent"></i></button>
           <button class="btn btn-icon btn-danger" title="Excluir" onclick="deleteUserAdm('${u.uid}')"><i class="fas fa-trash"></i></button>
-        `:'<span class="chip chip-warn">Admin</span>'}
+        `:`<button type="button" class="btn btn-icon btn-ghost" title="Editar nome e foto" aria-label="Editar nome e foto do administrador" data-uid="${esc(u.uid)}" onclick="openAdminProfileEditor(this.dataset.uid)"><i class="fas fa-user-pen"></i></button>`}
       </div></td>
     </tr>
     <tr id="detail-row-${u.uid}" class="user-detail-row" style="display:none;"><td colspan="8"><div class="detail-content">
-      <div class="detail-item"><label>Endereço</label><span>${esc(address)}</span></div>
+      ${(u.isAdmin||u.uid===currentAdmin?.uid)?`<div class="detail-item" style="grid-column:1/-1;width:100%"><label>Entradas recentes no ADM</label><div id="admin-history-${esc(u.uid)}" aria-live="polite">Clique no nome para carregar o histórico.</div></div>`:`<div class="detail-item"><label>Endereço</label><span>${esc(address)}</span></div>
       <div class="detail-item"><label>CEP</label><span class="mono">${esc(cep)}</span></div>
-      <div class="detail-item"><label>Origem</label><span>${origin==='google.com'?'Google':'Manual'}</span></div>
+      <div class="detail-item"><label>Origem</label><span>${origin==='google.com'?'Google':'Manual'}</span></div>`}
     </div></td></tr>`;
   });
   html += `</tbody></table></div></div>`;
@@ -5965,6 +6007,18 @@ async function exportContactsCsv(kind){
   return true;
 }
 </script>
+
+
+<div class="modal-overlay" id="modalAdminProfile" role="dialog" aria-modal="true" aria-labelledby="adminProfileTitle">
+ <div class="modal" style="max-width:460px">
+  <div class="modal-head"><h3 id="adminProfileTitle">Editar administrador</h3><button type="button" class="modal-close" aria-label="Fechar" onclick="closeModal('modalAdminProfile')"><i class="fas fa-times"></i></button></div>
+  <div class="modal-body">
+   <div class="form-group"><label for="adminProfileName">Nome</label><input id="adminProfileName" type="text" maxlength="200" autocomplete="name"></div>
+   <div class="form-group"><label for="adminProfilePhoto">Foto</label><img id="adminProfilePhotoPreview" alt="Foto do administrador" style="display:block;width:80px;height:80px;object-fit:cover;border-radius:50%;margin:12px 0"><input id="adminProfilePhoto" type="file" accept="image/jpeg,image/png,image/webp" onchange="previewAdminProfilePhoto(this)"><p class="td-sub">JPG, PNG ou WebP de ate 5 MB.</p></div>
+  </div>
+  <div class="modal-foot"><button type="button" class="btn btn-ghost" onclick="closeModal('modalAdminProfile')">Cancelar</button><button type="button" class="btn btn-accent" id="saveAdminProfileButton" onclick="saveAdminProfileEditor()">Salvar</button></div>
+ </div>
+</div>
 
 </body>
 </html>

@@ -130,10 +130,11 @@ async function handle(action,req,res,dependencies={}) {
     const {auth,db}=getServices();
     const caller=await identity(req,auth);
     const user={...((await db.ref('users/'+caller.uid).get()).val()||{}),uid:caller.uid};
-    if(['admin-notifications','admin-tests','admin-archive-legacy-order','admin-order-status'].includes(action)){
+    if(['admin-notifications','admin-tests','admin-archive-legacy-order','admin-order-status','admin-session'].includes(action)){
       await (dependencies.requireAdminAccess||requireAdminAccess)(req,db);
       user.isAdmin=true;
     }
+    if(action==='admin-session')return res.status(200).json(await require('./admin-sessions.cjs').recordAdminSession(db,caller,req.headers['user-agent']));
     if(action==='admin-notifications')return res.status(200).json(await require('./notifications.cjs')(db,user,body));
     if (action==='admin-tests') {
       if (user.isAdmin!==true) fail('Acesso restrito ao administrador.',403);
