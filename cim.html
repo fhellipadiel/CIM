@@ -1134,6 +1134,8 @@ body.fullscreen-panel-open{overflow:hidden!important}
 </style>
     <script src="assets/payment-policy.js" defer></script>
 <link rel="stylesheet" href="assets/support-chat.css">
+<script src="assets/shared-product.js"></script>
+<style>body.shared-public> :not(#productModal):not(#fullscreenImageModal):not(#sessionGate):not(.toast){display:none!important}.shared-public #productModal .modal-close{display:none!important}.shared-product-controls{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:18px 0}.shared-product-controls[hidden]{display:none}.shared-product-controls input{width:90px;background:#181818;color:#fff;border:1px solid #333;border-radius:12px;padding:10px;font-size:16px}.product-share-button{background:#1a1a1a;color:#fff;border:1px solid #333;border-radius:24px;padding:11px 18px;cursor:pointer;font:inherit}.product-share-button i{color:#ff3601;margin-right:7px}.shared-unavailable{padding:32px;display:grid;place-content:center;gap:18px;height:100dvh;text-align:center;background:#0a0a0a;color:#eee}.shared-unavailable a{color:#ff3601}</style>
 </head>
 <body>
     <div id="sessionGate">
@@ -1451,6 +1453,8 @@ body.fullscreen-panel-open{overflow:hidden!important}
 
                         <p class="modal-description-inline" id="modalDescription"></p>
 
+                        <div class="shared-product-controls" id="sharedProductControls" hidden><label for="sharedProductQuantity">Quantidade</label><input id="sharedProductQuantity" type="number" min="1" max="1000" step="1" value="1" onchange="updateSharedQuantity(this.value)"></div>
+                        <button type="button" class="product-share-button" onclick="shareCurrentProduct()"><i class="fas fa-share-nodes"></i>Compartilhar</button>
                         <button class="modal-add-link" id="modalAddButton" onclick="addFromModal()">
                             <i class="fas fa-cart-plus"></i> Adicionar no carrinho
                         </button>
@@ -1667,6 +1671,9 @@ body.fullscreen-panel-open{overflow:hidden!important}
         let currentUser = null;
         let dataLoaded = false;
         let currentProduct = null;
+        let sharedSelection=CimProductLink.read(location.search);
+        let directCartBackup=null;
+        let sharedCatalogReady=false;
         let lastProductsJson = '';
 
         let cartMode = localStorage.getItem('cim_cart_mode') || 'Transportadora';
@@ -1936,6 +1943,7 @@ body.fullscreen-panel-open{overflow:hidden!important}
         let cartSaveTimer;
         function cartStorageKey(){return 'cim_cart_'+(auth.currentUser?.uid||'guest');}
         function saveCart(){
+            if(directCartBackup!==null)return;
             try{localStorage.setItem(cartStorageKey(),JSON.stringify(cart));}catch{}
             if(!cartReady||!auth.currentUser)return;
             clearTimeout(cartSaveTimer);
@@ -1950,7 +1958,7 @@ body.fullscreen-panel-open{overflow:hidden!important}
 
 
         async function registerClick(product, origem = 'detalhes') {
-            if (!product || !product.id) return;
+            if (!product || !product.id || !auth.currentUser) return;
             const now = Date.now();
             const dataObj = new Date(now);
             const dataStr = dataObj.toLocaleDateString('pt-BR');
@@ -2271,6 +2279,7 @@ body.fullscreen-panel-open{overflow:hidden!important}
         function toggleCart() { closeNotifDropdown();closeBottomMenu();
             cartPanel.classList.toggle('open');
             if (!cartPanel.classList.contains('open')) {
+                restoreDirectCart();
                 const succ = document.getElementById('cartSuccessScreen');
                 if (succ && succ.style.display === 'flex') {
                     closeSuccessAndReset();
@@ -2654,6 +2663,7 @@ body.fullscreen-panel-open{overflow:hidden!important}
                 const result = await checkoutRequest('checkout', {...payload,requestId:attempt.id});
                 const target = new URL(result.checkoutUrl);
                 if (target.protocol !== 'https:' || target.hostname !== 'www.mercadopago.com.br' || typeof result.testMode !== 'boolean') throw new Error('Endereço de pagamento inválido.');
+                if(directCartBackup!==null)await checkoutRequest('cart-save',{items:directCartBackup.map(item=>({id:item.id,quantity:item.quantity}))});
                 clearCartAfterOrder();
                 sessionStorage.removeItem('cim_checkout_attempt');
                 window.location.assign(target.href);
@@ -2693,6 +2703,7 @@ body.fullscreen-panel-open{overflow:hidden!important}
             });
         }
         function clearCartAfterOrder() {
+            if(restoreDirectCart()){cartPanel.classList.remove('open');return;}
             cart = [];
             cartConfirmed = false;
             const cb = document.getElementById('cartConfirmCheckbox');
@@ -3924,15 +3935,24 @@ function toggleBottomMenu() {
                 }
             }
             document.getElementById('modalPriceBox').innerHTML = priceHtml;
-            document.getElementById('modalAddButton').style.display = (!hideForUser && userType && priceHtml) ? 'inline-flex' : 'none';
+            const direct=sharedSelection?.id===product.id,guest=!auth.currentUser;
+            const buyButton=document.getElementById('modalAddButton');
+            buyButton.style.display=direct?'inline-flex':(!hideForUser&&userType&&priceHtml)?'inline-flex':'none';
+            buyButton.disabled=!!product.soldOut||(direct&&!guest&&(!priceHtml||hideForUser));
+            buyButton.innerHTML=product.soldOut?'Esgotado':direct?'<i class="fas fa-bag-shopping"></i> Comprar':'<i class="fas fa-cart-plus"></i> Adicionar no carrinho';
+            document.getElementById('sharedProductControls').hidden=!direct;
+            if(direct)document.getElementById('sharedProductQuantity').value=sharedSelection.quantity;
+            productModal.querySelector('.modal-close').hidden=guest&&direct;
             productModal.classList.add('active');
             document.body.style.overflow = 'hidden';
-            renderRelatedProducts(product);
+            if(!direct)renderRelatedProducts(product);else document.getElementById('modalRelated').style.display='none';
             const inner = document.querySelector('.modal-product-inner');
             if (inner) inner.scrollTop = 0;
         }
 
         function closeModal() {
+            if(sharedSelection&&!auth.currentUser)return;
+            if(sharedSelection){sharedSelection=null;const url=new URL(location.href);url.searchParams.delete('p');url.searchParams.delete('q');history.replaceState({},'',url);}
             productModal.classList.remove('active');
             currentProduct = null;
             document.body.style.overflow = '';
@@ -3941,7 +3961,26 @@ function toggleBottomMenu() {
             const scroll = document.getElementById('modalRelatedScroll');
             if (scroll) scroll.innerHTML = '';
         }
-        function addFromModal() { if (currentProduct) { addToCart(currentProduct.id); closeModal(); } }
+        function updateSharedQuantity(value){
+            if(!sharedSelection)return;const q=Number(value);
+            if(!Number.isInteger(q)||q<1||q>1000){document.getElementById('sharedProductQuantity').value=sharedSelection.quantity;return;}
+            sharedSelection.quantity=q;const url=new URL(location.href);url.searchParams.set('q',String(q));history.replaceState({},'',url);
+        }
+        function restoreDirectCart(){if(directCartBackup===null)return false;cart=directCartBackup;directCartBackup=null;cartConfirmed=false;updateCart();saveCart();return true;}
+        function addFromModal() {
+            if(!currentProduct)return;
+            if(!sharedSelection){addToCart(currentProduct.id);closeModal();return;}
+            if(currentProduct.soldOut){showToast('Produto esgotado','error');return;}
+            updateSharedQuantity(document.getElementById('sharedProductQuantity').value);
+            if(!auth.currentUser){location.assign(CimProductLink.login(location.search));return;}
+            if(!currentUser||!cartReady){showToast('Aguarde o carregamento da sua conta.','error');return;}
+            if(getBasePriceForItem(currentProduct)<=0){showToast('Esta peça precisa de orçamento.','error');return;}
+            if(directCartBackup===null)directCartBackup=cart.map(item=>({...item}));
+            clearTimeout(cartSaveTimer);
+            cart=[{...currentProduct,quantity:sharedSelection.quantity}];cartConfirmed=false;updateCart();
+            productModal.classList.remove('active');document.body.style.overflow='';
+            cartPanel.classList.add('open');currentProduct=null;
+        }
 
         function openFullscreenImage(url) {
             if (!url) return;
@@ -3984,28 +4023,30 @@ function toggleBottomMenu() {
             input.remove();
         }
         function checkSharedProduct() {
-            if (_sharedProductHandled) return;
-            const params = new URLSearchParams(window.location.search);
-            const pid = params.get('p');
-            if (!pid) return;
-            const tryOpen = () => {
-                const prod = products.find(x => x.id === pid);
-                if (prod) {
-                    _sharedProductHandled = true;
-                    showDetails(pid);
-                    const url = new URL(window.location.href);
-                    url.searchParams.delete('p');
-                    window.history.replaceState({}, '', url.toString());
-                    return true;
-                }
-                return false;
-            };
-            if (tryOpen()) return;
-            let attempts = 0;
-            const interval = setInterval(() => {
-                attempts++;
-                if (tryOpen() || attempts >= 50) clearInterval(interval);
-            }, 200);
+            if(!sharedSelection)return;
+            const prod=products.find(p=>p.id===sharedSelection.id);
+            if(prod){if(!_sharedProductHandled||(sharedCatalogReady&&currentProduct)){_sharedProductHandled=true;showDetails(prod.id);}}
+            else if(sharedCatalogReady)showSharedUnavailable();
+        }
+        function showSharedUnavailable(){
+            if(sessionGate)sessionGate.remove();productModal.classList.add('active');
+            const box=document.createElement('div');box.className='shared-unavailable';
+            const title=document.createElement('h2');title.textContent='Esta peça não está disponível.';
+            const link=document.createElement('a');link.href=CimProductLink.login(location.search);link.textContent='Entrar na minha conta';
+            box.append(title,link);
+            link.href=auth.currentUser?'cim.html':'login.html';
+            const inner=productModal.querySelector('.modal-product-inner');if(inner)inner.hidden=true;
+            productModal.querySelector('.modal-close').hidden=true;
+            productModal.querySelector('.shared-unavailable')?.remove();productModal.querySelector('.modal-content').append(box);
+        }
+        async function openSharedGuest(){
+            document.body.classList.add('shared-public');
+            try{const snap=await database.ref('products/'+sharedSelection.id).once('value');
+                if(auth.currentUser)return;
+                if(!snap.exists()){showSharedUnavailable();return;}
+                const product={...snap.val(),id:sharedSelection.id};products=[product];_productsLoaded=true;
+                if(sessionGate)sessionGate.remove();showDetails(product.id);
+            }catch{if(sessionGate){sessionGate.replaceChildren();const text=document.createElement('span');text.textContent='Não foi possível carregar a peça. Atualize a página para tentar novamente.';sessionGate.append(text);}}
         }
 
         function updateMenuContactInfo() {
@@ -4235,7 +4276,7 @@ function toggleBottomMenu() {
                 handlePageScroll();
             }
         }
-        function redirectToLogin() { currentUser = null; window.location.replace('login.html'); }
+        function redirectToLogin() { currentUser = null; window.location.replace(CimProductLink.login(location.search)); }
 
         function openUserSettings() {
             if (!currentUser || !currentUser.uid) { showToast('Você precisa estar logado', 'error'); return; }
@@ -4640,7 +4681,8 @@ function toggleBottomMenu() {
         }
 
         auth.onAuthStateChanged(async (user) => {
-            if (!user) { redirectToLogin(); return; }
+            if (!user) { if(sharedSelection){currentUser=null;openSharedGuest();}else redirectToLogin();return; }
+            document.body.classList.remove('shared-public');
             if (localStorage.getItem(CACHE_KEY)) unlockPage();
             const uid = user.uid;
             let snap = null;
@@ -4657,7 +4699,7 @@ function toggleBottomMenu() {
                 }
             }
             if (!snap || !snap.exists()) {
-                window.location.replace('login.html?complete=true');
+                window.location.replace(CimProductLink.login(location.search,true));
                 return;
             }
             database.ref(`users/${uid}/lastAccess`).set(Date.now()).catch(() => {});
@@ -4676,7 +4718,7 @@ function toggleBottomMenu() {
                 _productsLoaded = true;
                 products.forEach(p => { if (isImgbbUrl(p.image)) p.image = DEFAULT_PLACEHOLDER_IMAGE; });
                 scheduleCategoryTabs();updateBrandTabs();scheduleFilter(true);
-                updateCart();saveCache();checkSharedProduct();
+                sharedCatalogReady=true;updateCart();saveCache();checkSharedProduct();
             });
             database.ref('sessions').on('value', (snapshot) => {
                 sessions = snapshot.val() || {};
@@ -4740,7 +4782,7 @@ function toggleBottomMenu() {
             openUserSettings, closeUserSettings, saveUserSettings, openUserContacts, closeUserContacts,
             openUserOrders, closeUserOrders,
             openPjExplanation, closePjExplanation,
-            shareCurrentProduct, shareProduct,
+            shareCurrentProduct, shareProduct, updateSharedQuantity,
             setCartMode, toggleCartModeDropdown, setPaymentMethod, onInstallmentsChange,
             toggleCardInstallments,
             toggleCartConfirm, updateSettingsAvatar,

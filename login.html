@@ -226,6 +226,7 @@
     .password-rules{list-style:none;margin:8px 4px 0;padding:0;font-size:11px;line-height:1.7;background:none}.password-rules[hidden]{display:none!important}.password-rules li{color:#fb7185}.password-rules li.is-met{color:#34d399}
 </style>
 <script src="assets/signup-policy.js"></script>
+<script src="assets/shared-product.js"></script>
 </head>
 <body class="h-full bg-darkbg text-white flex overflow-hidden font-sans relative">
 
@@ -1158,7 +1159,7 @@
             try {
                 await auth.signInWithEmailAndPassword(email, password);
                 registerSuccess(KEY);
-                window.location.href = 'cim.html';
+                window.location.href = CimProductLink.destination(location.search);
             } catch (error) {
                 console.error('[Login] Falha na autenticação.');
 
@@ -1235,7 +1236,7 @@
                     registerSuccess('cnpj');
                     registerSuccess('cpf');
                     registerSuccess('login');
-                    window.location.href = 'cim.html';
+                    window.location.href = CimProductLink.destination(location.search);
                 } catch (err) {
                     console.error('[Registro Google] Não foi possível concluir o cadastro.');
                     registerBtn.disabled = false;
@@ -1291,7 +1292,7 @@
                 registerSuccess('cpf');
                 registerSuccess('login');
 
-                window.location.href = 'cim.html';
+                window.location.href = CimProductLink.destination(location.search);
             } catch (error) {
                 console.error('[Cadastro] Não foi possível concluir a solicitação.');
                 registerBtn.disabled = false;
@@ -1329,7 +1330,7 @@
                 const snapshot = await database.ref(`users/${user.uid}`).once('value');
                 if (snapshot.exists()) {
                     registerSuccess('login');
-                    window.location.href = 'cim.html';
+                    window.location.href = CimProductLink.destination(location.search);
                 } else {
                     // Novo usuário via Google → completa cadastro
                     modoGoogleCadastro = true;
@@ -1464,7 +1465,7 @@
                     if (user) {
                         database.ref(`users/${user.uid}`).once('value').then(snapshot => {
                             if (snapshot.exists()) {
-                                window.location.href = 'cim.html';
+                                window.location.href = CimProductLink.destination(location.search);
                             }
                         });
                     }
