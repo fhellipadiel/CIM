@@ -1,6 +1,18 @@
 {
   "rewrites": [
     {
+      "source": "/api/admin-media",
+      "destination": "/api/checkout?signupAction=admin-media"
+    },
+    {
+      "source": "/api/admin-access",
+      "destination": "/api/checkout?signupAction=admin-access"
+    },
+    {
+      "source": "/api/admin-recovery",
+      "destination": "/api/checkout?signupAction=admin-recovery"
+    },
+    {
       "source": "/api/admin-mfa",
       "destination": "/api/checkout?signupAction=admin-mfa"
     },
@@ -72,6 +84,19 @@
         {
           "key": "Cache-Control",
           "value": "private, no-store, max-age=0"
+        }
+      ]
+    },
+    {
+      "source": "/recuperar-acesso.html",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "private, no-store, max-age=0"
+        },
+        {
+          "key": "X-Robots-Tag",
+          "value": "noindex, nofollow"
         }
       ]
     }

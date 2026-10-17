@@ -9,4 +9,5 @@ async function checkAccess(req,db,path,request){
 // Private rules authorize the account; setup access never grants business-data access.
 function requireAdminAccess(req,db,request=fetch){return checkAccess(req,db,'adminAccess',request);}
 function requireAdminSetupAccess(req,db,request=fetch){return checkAccess(req,db,'adminSetupAccess',request);}
-module.exports={requireAdminAccess,requireAdminSetupAccess};
+function requireAdminWriteAccess(req,db,request=fetch){return checkAccess(req,db,'adminWriteAccess',request);}
+module.exports={requireAdminAccess,requireAdminSetupAccess,requireAdminWriteAccess};

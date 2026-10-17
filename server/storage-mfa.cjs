@@ -4,6 +4,7 @@ async function configureStorageMfa(auth,uid,enabled){
  const token=(await credential.getAccessToken()).access_token,base='https://firebaserules.googleapis.com/v1/';
  async function request(path,method='GET',body){const r=await fetch(base+path,{method,headers:{Authorization:'Bearer '+token,'Content-Type':'application/json'},...(body?{body:JSON.stringify(body)}:{}),signal:AbortSignal.timeout(15000)});if(!r.ok)throw Error('Nao foi possivel atualizar a protecao das fotos ('+r.status+').');return r.json();}
  const name='projects/'+project+'/releases/firebase.storage/'+bucket,release=await request(name),ruleset=await request(release.rulesetName),files=ruleset.source?.files;
+ if(files?.some(f=>f.content.includes('// Administrative media is authorized by the server.')))return;
  if(!files?.length)throw Error('Regras de armazenamento indisponiveis.');
  const guard=' && (request.auth.uid != '+JSON.stringify(uid)+" || request.auth.token.firebase.sign_in_second_factor == 'totp')";
  let found=false,changed=false;

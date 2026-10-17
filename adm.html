@@ -1944,9 +1944,7 @@ async function uploadImg(file, folder = 'products'){
     const ext  = (file.name.split('.').pop() || 'jpg').toLowerCase().replace(/[^a-z0-9]/g,'');
     const safeExt = ['jpg','jpeg','png','webp','gif'].includes(ext) ? ext : 'jpg';
     const filename = `${folder}/${Date.now()}_${Math.random().toString(36).slice(2,8)}.${safeExt}`;
-    const ref = storage.ref(filename);
-    const snap = await ref.put(comp, { contentType: comp.type || 'image/jpeg', cacheControl: 'public, max-age=31536000' });
-    const url = await snap.ref.getDownloadURL();
+    const url = await CimAdminMedia.upload(filename, comp);
     hideLoading();
     return url;
   } catch(e){
@@ -1960,7 +1958,7 @@ async function uploadImg(file, folder = 'products'){
 async function deleteImageByUrl(url){
   if(!url || typeof url !== 'string') return false;
   if(!url.includes('firebasestorage.googleapis.com')) return false;
-  try{ const ref = storage.refFromURL(url); await ref.delete(); return true; }
+  try{ const ref = storage.refFromURL(url); await CimAdminMedia.remove(ref.fullPath); return true; }
   catch(e){ console.warn('delete:', e.code); return false; }
 }
 
@@ -2042,7 +2040,8 @@ auth.onAuthStateChanged(user=>{
         document.getElementById('loginScreen').style.display='flex';
         auth.signOut();
       }
-    }).catch(()=>{
+    }).catch(async()=>{
+      try{await database.ref('adminSetupAccess').once('value');location.replace('/recuperar-acesso.html#configurar');return;}catch{}
       document.getElementById('loginError').textContent='Conta sem permissao de administrador.';
       document.getElementById('loginScreen').style.display='flex';
       auth.signOut();
@@ -2307,8 +2306,8 @@ function loadAllData(){
       uploadedProfileImg=d.photo; updateBrandLogo(d.photo);
     } else updateBrandLogo(null);
   });
-  database.ref('users').on('value',snap=>{
-    const d=snap.val()||{}; usersCache=Object.keys(d).map(uid=>({...d[uid],uid}));
+  database.ref('users').on('value',async snap=>{
+    const d=snap.val()||{};try{const response=await fetch('/api/admin-access',{method:'POST',headers:{'Content-Type':'application/json',Authorization:'Bearer '+await auth.currentUser.getIdToken()},body:'{}'});if(!response.ok)throw Error('Acesso negado');const directory=await response.json(),ids=new Set(directory.admins.map(a=>a.uid));usersCache=Object.keys(d).map(uid=>({...d[uid],uid,isAdmin:ids.has(uid)}));}catch{usersCache=[];showToast('Não foi possível conferir as permissões dos administradores.','err');return;}
     renderLeads(); renderUsers(); renderDashboard(); updateOnlineUsersBadge(); renderOrders(); renderOrderInvoicesAdm();
   });
 
@@ -4998,13 +4997,7 @@ async function scanOrphanImagesAdm(){
     const folders = ['products', 'sessions', 'brands', 'contacts', 'profile', 'avatars', 'links', 'about'];
     for(const folder of folders){
       try{
-        const listRef = storage.ref(folder);
-        const result = await listRef.listAll();
-        for(const item of result.items){ const url = await item.getDownloadURL(); allFiles.push({ path: item.fullPath, url }); }
-        for(const prefix of result.prefixes){
-          const subResult = await prefix.listAll();
-          for(const item of subResult.items){ const url = await item.getDownloadURL(); allFiles.push({ path: item.fullPath, url }); }
-        }
+        allFiles.push(...await CimAdminMedia.list(folder));
       }catch(e){ console.warn(`Pasta ${folder} vazia:`, e.code); }
     }
     const orphans = allFiles.filter(f => !referencedUrls.has(f.url));
@@ -5028,7 +5021,7 @@ async function cleanOrphanImagesAdm(){
   let deleted = 0, failed = 0;
   try{
     for(const orphan of orphanReport.orphans){
-      try{ await storage.ref(orphan.path).delete(); deleted++; }
+      try{ await CimAdminMedia.remove(orphan.path); deleted++; }
       catch(e){ console.warn(e); failed++; }
     }
     hideLoading();
@@ -5825,10 +5818,9 @@ async function uploadLeadEmployeePhoto(file){
   const extensions={'image/jpeg':'jpg','image/png':'png','image/webp':'webp'};
   const extension=extensions[blob.type];if(!extension)throw new Error('Formato de foto não suportado.');
   const filename='leadCampaigns/'+auth.currentUser.uid+'/'+Date.now()+'_'+Math.random().toString(36).slice(2,10)+'.'+extension;
-  const ref=storage.ref(filename);
+  const ref={delete:()=>CimAdminMedia.remove(filename)};
   try{
-    const snapshot=await ref.put(blob,{contentType:blob.type,cacheControl:'public,max-age=31536000'});
-    const url=await snapshot.ref.getDownloadURL();
+    const url=await CimAdminMedia.upload(filename,blob);
     return {url,ref};
   }catch(error){
     try{await ref.delete();}catch(cleanupError){}
@@ -6087,6 +6079,7 @@ async function exportContactsCsv(kind){
 
 <script src="assets/support-chat.js" data-support-role="admin" defer></script>
 <script src="assets/qrcode.min.js" defer></script>
+<script src="assets/admin-media.js"></script>
 <script src="assets/admin-mfa.js" defer></script>
 </body>
 </html>

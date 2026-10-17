@@ -3,7 +3,7 @@ const {quote,validSignature,verifiedPayment,fail}=require('./core.cjs');
 const crypto=require('node:crypto');
 const paymentConfig=require('./payment-config.cjs');
 const orderPolicy=require('../assets/payment-policy.js');
-const {requireAdminAccess,requireAdminSetupAccess}=require('./admin-access.cjs');
+const {requireAdminAccess,requireAdminSetupAccess,requireAdminWriteAccess}=require('./admin-access.cjs');
 let app;
 function services() {
   if (!process.env.GOOGLE_APPLICATION_CREDENTIALS && !process.env.FIREBASE_SERVICE_ACCOUNT_JSON) fail('Falta configurar a credencial do servidor Firebase de pagamentos.',503);
@@ -100,13 +100,14 @@ async function handle(action,req,res,dependencies={}) {
   res.setHeader('Cache-Control','no-store');
   try {
     if (req.method!=='POST') fail('Método não permitido.',405);
-    if(Number(req.headers['content-length']||0)>65536)fail('Solicitacao muito grande.',413);
+    const bodyLimit=action==='admin-media'?4250000:65536;
+    if(Number(req.headers['content-length']||0)>bodyLimit)fail('Solicitacao muito grande.',413);
     const body=typeof req.body==='string' ? JSON.parse(req.body) : req.body||{};
-    if(!body||typeof body!=='object'||Array.isArray(body)||Buffer.byteLength(JSON.stringify(body))>65536)fail('Solicitacao invalida.',400);
+    if(!body||typeof body!=='object'||Array.isArray(body)||Buffer.byteLength(JSON.stringify(body))>bodyLimit)fail('Solicitacao invalida.',400);
     if(action==='analytics'){const {auth,db}=getServices();return res.status(200).json(await require('./analytics.cjs').recordAnalytics({db,req,body,verifyCaller:()=>identity(req,auth)}));}
     if(action==='support'){
       const {auth,db}=getServices();
-      return res.status(200).json(await require('./support.cjs').handleSupport({db,req,body,verifyCaller:()=>identity(req,auth),requireAdmin:()=> (dependencies.requireAdminAccess||requireAdminAccess)(req,db)}));
+      return res.status(200).json(await require('./support.cjs').handleSupport({db,req,body,verifyCaller:()=>identity(req,auth),requireAdmin:()=> (['list','sync','older','read'].includes(body.op)?(dependencies.requireAdminAccess||requireAdminAccess):(dependencies.requireAdminWriteAccess||dependencies.requireAdminAccess||requireAdminWriteAccess))(req,db)}));
     }
     if(action==='company-lookup')return res.status(200).json(await require('./company-lookup.cjs').lookupCompany(body.cnpj,dependencies.fetch||fetch));
     if (action==='webhook') {
@@ -137,11 +138,14 @@ async function handle(action,req,res,dependencies={}) {
     }
     const {auth,db}=getServices();
     const caller=await identity(req,auth);
+    if(action==='admin-recovery')return res.status(200).json(await require('./admin-recovery.cjs').handleRecovery({auth,db,caller,body}));
+    if(action==='admin-access'){await (dependencies.requireAdminAccess||requireAdminAccess)(req,db);return res.status(200).json({admins:await require('./access-registry.cjs').adminDirectory(db)});}
+    if(action==='admin-media')return res.status(200).json(await require('./admin-media.cjs').handleMedia({auth,caller,body,requireRead:()=> (dependencies.requireAdminAccess||requireAdminAccess)(req,db),requireWrite:()=> (dependencies.requireAdminWriteAccess||dependencies.requireAdminAccess||requireAdminWriteAccess)(req,db)}));
     if(action==='admin-mfa')return res.status(200).json(await require('./admin-mfa.cjs').handleAdminMfa({auth,db,caller,body,requireSetup:()=> (dependencies.requireAdminSetupAccess||requireAdminSetupAccess)(req,db),requireAdmin:()=> (dependencies.requireAdminAccess||requireAdminAccess)(req,db)}));
     if(action==='register-profile')return res.status(200).json(await require('./registration.cjs').registerProfile(db,caller,body));
     const user={...((await db.ref('users/'+caller.uid).get()).val()||{}),uid:caller.uid};
     if(['admin-notifications','admin-tests','admin-archive-legacy-order','admin-order-status','admin-session'].includes(action)){
-      await (dependencies.requireAdminAccess||requireAdminAccess)(req,db);
+      await ((['admin-order-status','admin-archive-legacy-order'].includes(action)||(action==='admin-notifications'&&body.action!=='list'))?(dependencies.requireAdminWriteAccess||dependencies.requireAdminAccess||requireAdminWriteAccess):(dependencies.requireAdminAccess||requireAdminAccess))(req,db);
       user.isAdmin=true;
     }
     if(action==='admin-session')return res.status(200).json(await require('./admin-sessions.cjs').recordAdminSession(db,caller,req.headers['user-agent']));
