@@ -1,6 +1,7 @@
 (function(){'use strict';
 let modulePromise;function sdk(){return modulePromise||(modulePromise=import('https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js').catch(error=>{modulePromise=null;throw error;}));}
 const native=value=>value?._delegate||value;
+function factor(user,module){return user.multiFactor?native(user.multiFactor):module.multiFactor(native(user));}
 function el(tag,cls,text){const node=document.createElement(tag);if(cls)node.className=cls;if(text!==undefined)node.textContent=text;return node;}
 function dialog(title){const box=el('dialog','mfa-dialog'),head=el('header','mfa-head'),name=el('h2','',title),close=el('button','mfa-close','×'),content=el('div','mfa-body');name.id='mfa-title-'+Math.random().toString(36).slice(2);box.setAttribute('aria-labelledby',name.id);close.type='button';close.setAttribute('aria-label','Fechar');head.append(name,close);box.append(head,content);document.body.append(box);const previous=document.activeElement;function remove(){box.close();box.remove();previous?.focus();}close.onclick=()=>box.dispatchEvent(new Event('cancel',{cancelable:true}));return {box,content,close,show:()=>box.showModal(),remove};}
 function recoveryText(){return 'Se você guardou a chave de configuração, adicione essa chave no autenticador do novo celular. Os códigos voltarão a funcionar. Sem a chave, procure o responsável pelo Firebase para recuperar o acesso com segurança. Trocar apenas a senha não desativa o autenticador.';}
@@ -18,5 +19,5 @@ async function challenge(auth,error){
 }
 async function signIn(auth,email,password){const m=await sdk();try{const result=await m.signInWithEmailAndPassword(native(auth),email,password);return {...result,user:auth.currentUser||result.user};}catch(error){return challenge(auth,error);}}
 async function withChallenge(auth,operation){try{return await operation();}catch(error){return challenge(auth,error);}}
-window.CimMfaAuth={sdk,native,el,dialog,recoveryText,challenge,signIn,withChallenge};
+window.CimMfaAuth={sdk,native,factor,el,dialog,recoveryText,challenge,signIn,withChallenge};
 })();
