@@ -562,6 +562,7 @@ tbody tr:last-child td{border-bottom:none}
 .lead-week{margin-bottom:20px}.lead-week-controls,.lead-date-actions{display:flex;gap:8px;flex-wrap:wrap;align-items:end}.lead-week-controls label{min-width:160px}.lead-week-chart{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:10px;padding:22px}.lead-week-day{text-align:center;min-width:0}.lead-week-track{height:160px;display:flex;align-items:end;justify-content:center;border-bottom:1px solid var(--border)}.lead-week-bar{width:65%;max-width:44px;background:var(--accent);border-radius:6px 6px 0 0;min-height:2px}.lead-week-value{display:block;margin-bottom:8px;font-size:.85rem}.lead-week-label{display:block;margin-top:10px;font-size:.75rem;color:var(--text-muted)}.lead-week-label small{display:block;margin-top:4px}.lead-week-total{padding:16px 22px 0;color:var(--text-muted);font-size:.82rem}#leadToday.active{background:var(--accent-soft);color:var(--accent);border-color:var(--accent)}@media(max-width:600px){.lead-week-chart{padding:18px 10px;gap:5px}.lead-week-track{height:120px}.lead-week-controls{width:100%}.lead-week-controls label{flex:1}}
 </style>
 <link rel="stylesheet" href="assets/support-chat.css">
+<script src="assets/admin-security.js"></script>
 </head>
 <body>
 
@@ -1853,7 +1854,9 @@ let orphanReport = { orphans: [], total: 0, kept: 0 };
 /* ============================================================
    UTILITÁRIOS
    ============================================================ */
-function esc(t){ if(!t) return ''; const d=document.createElement('div'); d.textContent=t; return d.innerHTML; }
+function esc(t){return CimAdminSecurity.escapeHtml(t);}
+function escJs(t){return CimAdminSecurity.escapeJs(t);}
+function safeAdminImage(t){return CimAdminSecurity.image(t);}
 
 function matchTokens(haystack, query){
   if(!query || !query.trim()) return true;
@@ -1897,11 +1900,11 @@ function normalizeImageUrl(url){
 function showToast(msg,type='ok'){
   const t=document.createElement('div'); t.className='toast'+(type==='err'?' err':'');
   t.style.animation='toastin .25s ease';
-  t.innerHTML=`<i class="fas ${type==='err'?'fa-circle-exclamation':'fa-circle-check'}"></i> ${msg}`;
+  t.innerHTML=`<i class="fas ${type==='err'?'fa-circle-exclamation':'fa-circle-check'}"></i> ${esc(msg)}`;
   document.body.appendChild(t);
   setTimeout(()=>{ t.style.animation='toastout .25s ease'; setTimeout(()=>t.remove(),250); },2600);
 }
-function showLoading(msg='Processando...'){ const ex=document.querySelector('.loading-ov'); if(ex) ex.remove(); const ov=document.createElement('div'); ov.className='loading-ov'; ov.innerHTML=`<i class="fas fa-spinner"></i><span>${msg}</span>`; document.body.appendChild(ov); }
+function showLoading(msg='Processando...'){ const ex=document.querySelector('.loading-ov'); if(ex) ex.remove(); const ov=document.createElement('div'); ov.className='loading-ov'; ov.innerHTML=`<i class="fas fa-spinner"></i><span>${esc(msg)}</span>`; document.body.appendChild(ov); }
 function hideLoading(){ const e=document.querySelector('.loading-ov'); if(e) e.remove(); }
 function openModal(id){ document.getElementById(id).classList.add('active'); }
 function closeModal(id){ document.getElementById(id).classList.remove('active'); }
@@ -1939,7 +1942,7 @@ async function uploadImg(file, folder = 'products'){
     const safeExt = ['jpg','jpeg','png','webp','gif'].includes(ext) ? ext : 'jpg';
     const filename = `${folder}/${Date.now()}_${Math.random().toString(36).slice(2,8)}.${safeExt}`;
     const ref = storage.ref(filename);
-    const snap = await ref.put(comp, { contentType: file.type || 'image/jpeg', cacheControl: 'public, max-age=31536000' });
+    const snap = await ref.put(comp, { contentType: comp.type || 'image/jpeg', cacheControl: 'public, max-age=31536000' });
     const url = await snap.ref.getDownloadURL();
     hideLoading();
     return url;
@@ -1997,8 +2000,8 @@ function updateBrandLogo(photoUrl){
   const brandLogo = document.getElementById('sbBrandLogo');
   const loginLogo = document.getElementById('loginLogoMark');
   if(photoUrl && photoUrl !== DEFAULT_AVATAR){
-    brandLogo.innerHTML = `<img src="${photoUrl}" alt="Logo">`;
-    loginLogo.innerHTML = `<img src="${photoUrl}" alt="Logo">`;
+    brandLogo.innerHTML = `<img src="${esc(safeAdminImage(photoUrl))}" alt="Logo">`;
+    loginLogo.innerHTML = `<img src="${esc(safeAdminImage(photoUrl))}" alt="Logo">`;
   } else {
     brandLogo.innerHTML = `<i class="fas fa-cogs"></i>`;
     loginLogo.innerHTML = '';
@@ -2024,7 +2027,7 @@ auth.onAuthStateChanged(user=>{
     database.ref('adminAccess').once('value').then(()=>database.ref(`users/${user.uid}`).once('value')).then(snap=>{
       const data=snap.val()||{};
       if(auth.currentUser && auth.currentUser.uid===user.uid){
-        currentAdmin={uid:user.uid,...data};
+        currentAdmin={...data,uid:user.uid};
         document.getElementById('loginScreen').style.display='none';
         updateOrdersRevenueDisplay();
         document.getElementById('sbUserEmailDisplay').textContent = data.email || user.email || 'Administrador';
@@ -2302,7 +2305,7 @@ function loadAllData(){
     } else updateBrandLogo(null);
   });
   database.ref('users').on('value',snap=>{
-    const d=snap.val()||{}; usersCache=Object.keys(d).map(uid=>({uid,...d[uid]}));
+    const d=snap.val()||{}; usersCache=Object.keys(d).map(uid=>({...d[uid],uid}));
     renderLeads(); renderUsers(); renderDashboard(); updateOnlineUsersBadge(); renderOrders(); renderOrderInvoicesAdm();
   });
 
@@ -2419,7 +2422,7 @@ function showActiveUsersModal(days){
   else {
     list.innerHTML = active.map(u => {
       const avatarHtml = userHasRealPhoto(u)
-        ? `<img src="${u.photoURL}" class="user-avatar-img" onclick="openImageViewer(this.src,'${esc(u.name||'')}')">`
+        ? `<img src="${esc(safeAdminImage(u.photoURL))}" class="user-avatar-img" onclick="openImageViewer(this.src,'${escJs(u.name||'')}')">`
         : `<div class="user-avatar-icon no-photo"><i class="fas fa-user"></i></div>`;
       return `<div class="mini-item">${avatarHtml}<div class="mi-t">${esc(u.name||'Sem nome')} <span style="color:var(--text-dim);font-size:.78rem;">${esc(u.email||'')}</span></div><span class="chip chip-ok">${fmtDate(u.lastAccess)}</span></div>`;
     }).join('');
@@ -2892,7 +2895,7 @@ function renderOrderInvoicesAdm(){
       </div>
       <div class="invoice-order-items">${items}</div>
       <div class="invoice-order-actions">
-        <button class="btn btn-ghost btn-sm" onclick="setOrderInvoiceStatusAdm('${esc(order.uid)}','${esc(order.id)}','${nextStatus}')"><i class="fas ${sent?'fa-rotate-left':'fa-envelope-circle-check'}"></i> ${actionLabel}</button>
+        <button class="btn btn-ghost btn-sm" onclick="setOrderInvoiceStatusAdm('${escJs(order.uid)}','${escJs(order.id)}','${nextStatus}')"><i class="fas ${sent?'fa-rotate-left':'fa-envelope-circle-check'}"></i> ${actionLabel}</button>
       </div>
     </article>`;
   }).join('');
@@ -2983,7 +2986,7 @@ function openOrderDetailAdm(uid, orderId){
   const dateStr = o.createdAt ? new Date(o.createdAt).toLocaleString('pt-BR') : '—';
   const itemsHtml = (o.items || []).map(it => `
     <div class="mini-item" style="padding:10px 12px;">
-      <img src="${it.image || PLACEHOLDER_IMG}" onerror="this.src='${PLACEHOLDER_IMG}'" style="width:44px;height:44px;border-radius:8px;object-fit:cover;">
+      <img src="${esc(safeAdminImage(it.image || PLACEHOLDER_IMG))}" onerror="this.src='${PLACEHOLDER_IMG}'" style="width:44px;height:44px;border-radius:8px;object-fit:cover;">
       <div class="mi-t">
         <div>${esc(it.name || 'Peça')}</div>
         <div style="color:var(--text-dim);font-size:.72rem;font-weight:400;">${it.quantity}x ${fmtBRLAdm(it.unitPrice)}</div>
@@ -3339,7 +3342,7 @@ function renderAdminProductRow(p){
     if(isProductNoCategory(p)) statusChips+=`<span class="chip chip-mut"><i class="fas fa-folder-open"></i> Sem categoria</span> `;
     if(!p.soldOut && !p.featured && !(p.hidePricePF || p.hidePricePJ) && !isProductNoCategory(p)) statusChips='<span class="chip chip-ok">Ativo</span>';
     return `<tr>
-      <td><img class="td-img" loading="lazy" decoding="async" src="${p.image||PLACEHOLDER_IMG}" onerror="this.src='${PLACEHOLDER_IMG}'" onclick="openImageViewer(this.src,'${esc(p.name)}')"></td>
+      <td><img class="td-img" loading="lazy" decoding="async" src="${esc(safeAdminImage(p.image||PLACEHOLDER_IMG))}" onerror="this.src='${PLACEHOLDER_IMG}'" onclick="openImageViewer(this.src,'${escJs(p.name)}')"></td>
       <td><div class="td-name">${esc(p.name)}</div><div class="td-sub">${esc(p.codigo||'sem código')}</div></td>
       <td>${esc(p.category||'—')}</td>
       <td>${esc(p.brand||'—')}</td>
@@ -3481,10 +3484,10 @@ function renderCategories(){
     const count=products.filter(p=>p.category===c).length; const clicks=categoryClicks[c]||0;
     return `<div class="mini-item"><div class="mi-t">${esc(c)} <span style="color:var(--text-dim);font-weight:400;">· ${count} peça(s) · ${clicks} cliques</span></div>
       <div class="mi-actions">
-        ${idx>0?`<button class="btn btn-icon btn-ghost" onclick="moveCategoryAdm('${esc(c)}',-1)"><i class="fas fa-chevron-up"></i></button>`:''}
-        ${idx<ordered.length-1?`<button class="btn btn-icon btn-ghost" onclick="moveCategoryAdm('${esc(c)}',1)"><i class="fas fa-chevron-down"></i></button>`:''}
-        <button class="btn btn-icon btn-ghost" onclick="renameCategoryAdm('${esc(c)}')"><i class="fas fa-pencil"></i></button>
-        <button class="btn btn-icon btn-danger" onclick="deleteCategoryAdm('${esc(c)}')"><i class="fas fa-trash"></i></button>
+        ${idx>0?`<button class="btn btn-icon btn-ghost" onclick="moveCategoryAdm('${escJs(c)}',-1)"><i class="fas fa-chevron-up"></i></button>`:''}
+        ${idx<ordered.length-1?`<button class="btn btn-icon btn-ghost" onclick="moveCategoryAdm('${escJs(c)}',1)"><i class="fas fa-chevron-down"></i></button>`:''}
+        <button class="btn btn-icon btn-ghost" onclick="renameCategoryAdm('${escJs(c)}')"><i class="fas fa-pencil"></i></button>
+        <button class="btn btn-icon btn-danger" onclick="deleteCategoryAdm('${escJs(c)}')"><i class="fas fa-trash"></i></button>
       </div></div>`;
   }).join('');
 }
@@ -3532,7 +3535,7 @@ function openDeleteNoCategoryModalAdm(){
     confirmInput.disabled = false;
     previewList.innerHTML = list.slice(0, 60).map(p => `
       <div class="mini-item">
-        <img src="${p.image || PLACEHOLDER_IMG}" onerror="this.src='${PLACEHOLDER_IMG}'" style="width:34px;height:34px;border-radius:6px;object-fit:cover;">
+        <img src="${esc(safeAdminImage(p.image || PLACEHOLDER_IMG))}" onerror="this.src='${PLACEHOLDER_IMG}'" style="width:34px;height:34px;border-radius:6px;object-fit:cover;">
         <div class="mi-t">${esc(p.name || 'Sem nome')}<div style="color:var(--text-dim);font-size:.72rem;font-weight:400;">${esc(p.brand || 'sem marca')}</div></div>
       </div>`).join('') + (list.length > 60 ? `<div class="td-sub">... e mais ${list.length - 60}</div>` : '');
   }
@@ -3574,7 +3577,7 @@ function renderBrands(){
     const pieceCount = products.filter(p => (p.brand||'') === (b.name||'')).length;
     const clickCount = brandClicks[b.name]||0;
     return `<div class="mini-item">
-    <img src="${b.image||PLACEHOLDER_IMG}" style="object-fit:contain;background:#0e0f11;">
+    <img src="${esc(safeAdminImage(b.image||PLACEHOLDER_IMG))}" style="object-fit:contain;background:#0e0f11;">
     <div class="mi-t" style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;overflow:visible;">
       <strong>${esc(b.name||'Sem nome')}</strong>
       <span class="chip ${pieceCount>0?'chip-warn':'chip-mut'}"><i class="fas fa-box"></i> ${pieceCount} peça(s)</span>
@@ -3634,7 +3637,7 @@ function deleteBrandAdm(id){
   } else {
     previewEl.innerHTML = list.slice(0, 60).map(p => `
       <div class="mini-item">
-        <img src="${p.image || PLACEHOLDER_IMG}" onerror="this.src='${PLACEHOLDER_IMG}'" style="width:34px;height:34px;border-radius:6px;object-fit:cover;">
+        <img src="${esc(safeAdminImage(p.image || PLACEHOLDER_IMG))}" onerror="this.src='${PLACEHOLDER_IMG}'" style="width:34px;height:34px;border-radius:6px;object-fit:cover;">
         <div class="mi-t">${esc(p.name || 'Sem nome')}<div style="color:var(--text-dim);font-size:.72rem;font-weight:400;">${esc(p.category || 'sem categoria')} · ${esc(p.codigo || 'sem código')}</div></div>
       </div>`).join('') + (list.length > 60 ? `<div class="td-sub" style="padding:6px 0;">... e mais ${list.length - 60}</div>` : '');
   }
@@ -3698,7 +3701,7 @@ function renderSessions(){
   if(arr.length===0){ list.innerHTML=`<div class="empty-state"><i class="fas fa-layer-group"></i><p>Nenhuma sessão cadastrada</p></div>`; return; }
   list.innerHTML=arr.map((s,idx)=>{
     const hide=[s.hidePF?'PF':'',s.hidePJ?'PJ':''].filter(Boolean).join(', ');
-    return `<div class="mini-item"><img src="${s.image||DEFAULT_SESSION_IMG}" onerror="this.src='${DEFAULT_SESSION_IMG}'">
+    return `<div class="mini-item"><img src="${esc(safeAdminImage(s.image||DEFAULT_SESSION_IMG))}" onerror="this.src='${DEFAULT_SESSION_IMG}'">
       <div class="mi-t">${esc(s.name)} ${hide?`<span class="chip chip-warn" style="margin-left:6px;">oculta ${hide}</span>`:''} <span style="color:var(--text-dim);font-weight:400;">· ${sessionClicks[s.id]||0} cliques</span></div>
       <div class="mi-actions">
         ${idx>0?`<button class="btn btn-icon btn-ghost" onclick="moveSessionAdm('${s.id}',-1)"><i class="fas fa-chevron-up"></i></button>`:''}
@@ -4038,7 +4041,7 @@ function renderLinks(){
   list.innerHTML = items.map(l=>{
     const shortUrl = `/${esc(l.slug)}`;
     return `<div class="mini-item" style="padding:14px 16px;gap:14px;">
-      <img src="${l.image || DEFAULT_AVATAR}" style="width:52px;height:52px;border-radius:12px;object-fit:cover;background:#111;border:1px solid var(--border);" onerror="this.src='${DEFAULT_AVATAR}'" onclick="openImageViewer(this.src,'${esc(l.name)}')">
+      <img src="${esc(safeAdminImage(l.image || DEFAULT_AVATAR))}" style="width:52px;height:52px;border-radius:12px;object-fit:cover;background:#111;border:1px solid var(--border);" onerror="this.src='${DEFAULT_AVATAR}'" onclick="openImageViewer(this.src,'${escJs(l.name)}')">
       <div class="mi-t" style="display:flex;flex-direction:column;align-items:flex-start;gap:3px;overflow:visible;white-space:normal;">
         <strong style="font-size:.95rem;">${esc(l.name)}</strong>
         <span class="link-slug-chip">${shortUrl}</span>
@@ -4211,7 +4214,7 @@ document.getElementById('csvFileAdm').onchange=async(e)=>{
 
   document.getElementById('importPreviewListAdm').innerHTML = items.slice(0,12).map(it => `
     <div class="mini-item">
-      <img src="${it.image || PLACEHOLDER_IMG}" onerror="this.src='${PLACEHOLDER_IMG}'" style="width:38px;height:38px;border-radius:6px;object-fit:cover;background:#111;border:1px solid var(--border);">
+      <img src="${esc(safeAdminImage(it.image || PLACEHOLDER_IMG))}" onerror="this.src='${PLACEHOLDER_IMG}'" style="width:38px;height:38px;border-radius:6px;object-fit:cover;background:#111;border:1px solid var(--border);">
       <div class="mi-t">${esc(it.name)}
         <div style="color:var(--text-dim);font-size:.7rem;font-weight:400;word-break:break-all;">
           ${it.image ? esc(it.image.slice(0, 70)) + (it.image.length > 70 ? '…' : '') : '<span style="color:var(--danger);">sem imagem</span>'}
@@ -4355,7 +4358,7 @@ function renderImportHistory(){
     return `<div class="mini-item" style="align-items:flex-start;flex-direction:column;gap:8px;padding:12px 14px;">
       <div style="display:flex;justify-content:space-between;width:100%;align-items:center;flex-wrap:wrap;gap:8px;">
         <div><div class="td-name"><i class="fas fa-file-csv" style="color:var(--accent);margin-right:6px;"></i>${esc(item.fileName)}</div>
-          <div class="td-sub">${item.date||''} ${item.time||''} · ${esc(item.userName||'Admin')}</div></div>
+          <div class="td-sub">${esc(item.date||'')} ${esc(item.time||'')} · ${esc(item.userName||'Admin')}</div></div>
         <div style="display:flex;gap:6px;align-items:center;">${hideInfo}<span class="chip ${hasPriority?'chip-ok':'chip-mut'}">${hasPriority?'Fixado':'Não fixado'}</span></div>
       </div>
       <div style="font-size:.78rem;color:var(--text-muted);">
@@ -4406,7 +4409,7 @@ function deleteImportAdm(historyId){
   } else {
     preview.innerHTML = list.slice(0, 60).map(p => `
       <div class="mini-item">
-        <img src="${p.image || PLACEHOLDER_IMG}" onerror="this.src='${PLACEHOLDER_IMG}'" style="width:34px;height:34px;border-radius:6px;object-fit:cover;">
+        <img src="${esc(safeAdminImage(p.image || PLACEHOLDER_IMG))}" onerror="this.src='${PLACEHOLDER_IMG}'" style="width:34px;height:34px;border-radius:6px;object-fit:cover;">
         <div class="mi-t">${esc(p.name || 'Sem nome')}<div style="color:var(--text-dim);font-size:.72rem;font-weight:400;">${esc(p.brand || 'sem marca')} · ${esc(p.codigo || 'sem código')}</div></div>
       </div>`).join('') +
       (list.length > 60 ? `<div class="td-sub" style="padding:6px 0;">... e mais ${list.length - 60}</div>` : '');
@@ -4563,10 +4566,10 @@ function renderClickHistory(){
     }
     return `<tr>
       <td class="td-name">${esc(l.productName || l.sessionName || '—')}</td>
-      <td>${esc(l.userName || 'Visitante')}${l.userType ? ` <span style="color:var(--text-dim);font-size:.72rem;">(${l.userType})</span>` : ''}</td>
-      <td><span class="chip chip-mut">${srcLabel}</span></td>
+      <td>${esc(l.userName || 'Visitante')}${l.userType ? ` <span style="color:var(--text-dim);font-size:.72rem;">(${esc(l.userType)})</span>` : ''}</td>
+      <td><span class="chip chip-mut">${esc(srcLabel)}</span></td>
       <td>${campaignHtml}</td>
-      <td class="td-sub">${l.date || ''} ${l.time || ''}</td>
+      <td class="td-sub">${esc(l.date || '')} ${esc(l.time || '')}</td>
     </tr>`;
   }).join('');
 }
@@ -4575,7 +4578,7 @@ function renderMetaAchievements(){
   const body=document.getElementById('metaAchBody');
   if(!body) return;
   if(metaAchievements.length===0){ body.innerHTML=`<tr><td colspan="2"><div class="empty-state"><i class="fas fa-trophy"></i><p>Nenhuma meta batida</p></div></td></tr>`; return; }
-  body.innerHTML=metaAchievements.map(a=>`<tr><td class="td-name">${esc(a.productName)}</td><td class="td-sub">${a.date||''} ${a.time||''}</td></tr>`).join('');
+  body.innerHTML=metaAchievements.map(a=>`<tr><td class="td-name">${esc(a.productName)}</td><td class="td-sub">${esc(a.date||'')} ${esc(a.time||'')}</td></tr>`).join('');
 }
 function clearMetaAchievementsAdm(){ if(confirm('Limpar metas?')) database.ref('metaAchievements').remove().then(()=>showToast('Registros limpos')); }
 
@@ -4603,7 +4606,7 @@ function renderContactClicks(){
       <td>${chip}</td>
       <td>${sourceLabel}</td>
       <td>${campaignHtml}</td>
-      <td class="td-sub">${c.date || ''} ${c.time || ''}</td>
+      <td class="td-sub">${esc(c.date || '')} ${esc(c.time || '')}</td>
     </tr>`;
   }).join('');
 }
@@ -4783,14 +4786,14 @@ function renderUsers(){
     const origin = getUserOrigin(u);
     const originChip = origin === 'google.com' ? `<span class="chip chip-google"><i class="fab fa-google"></i> Google</span>` : `<span class="chip chip-mut"><i class="fas fa-user-plus"></i> Manual</span>`;
     const hasPhoto = userHasRealPhoto(u);
-    const avatarHtml = hasPhoto ? `<img src="${u.photoURL}" class="user-avatar-img" onclick="openImageViewer(this.src,'${esc(u.name||'')}')">` : `<div class="user-avatar-icon no-photo"><i class="fas fa-user"></i></div>`;
+    const avatarHtml = hasPhoto ? `<img src="${esc(safeAdminImage(u.photoURL))}" class="user-avatar-img" onclick="openImageViewer(this.src,'${escJs(u.name||'')}')">` : `<div class="user-avatar-icon no-photo"><i class="fas fa-user"></i></div>`;
     const address = u.logradouro ? `${u.logradouro}, ${u.numero || 'S/N'}${u.complemento ? ', '+u.complemento : ''}, ${u.bairro || ''}, ${u.cidade || ''}-${u.uf || ''}` : '—';
     const cep = u.cep ? u.cep.replace(/^(\d{5})(\d{3})$/, '$1-$2') : '—';
     html += `<tr data-uid="${u.uid}">
       <td>${avatarHtml}</td>
       <td><div class="td-name" style="cursor:pointer;color:var(--accent);" onclick="toggleUserDetails('${u.uid}')">${esc(u.name||'Sem nome')}</div><div class="td-sub">${esc(u.email||'')}</div></td>
       <td class="mono">${esc(doc)}</td>
-      <td>${phone!=='—'?`<a href="https://wa.me/55${phone}" target="_blank" style="color:var(--ok)"><i class="fab fa-whatsapp"></i> ${esc(phone)}</a>`:'—'}</td>
+      <td>${phone!=='—'?`<a href="https://wa.me/55${String(phone).replace(/\D/g,'')}" target="_blank" style="color:var(--ok)"><i class="fab fa-whatsapp"></i> ${esc(phone)}</a>`:'—'}</td>
       <td>${originChip}</td>
       <td><span class="chip ${online?'chip-ok':'chip-mut'}">${online?'Online':'Offline'}</span></td>
       <td class="td-sub">${lastAccess}</td>
@@ -4895,7 +4898,7 @@ function renderContacts(){
   const keys=Object.keys(contacts);
   if(keys.length===0){ list.innerHTML=`<div class="empty-state"><i class="fas fa-headset"></i><p>Nenhum contato</p></div>`; return; }
   const items=keys.map(id=>({id,...contacts[id]})).sort((a,b)=>(a.order||0)-(b.order||0));
-  list.innerHTML=items.map(c=>`<div class="mini-item"><img src="${c.image||DEFAULT_AVATAR}" style="border-radius:50%;" onerror="this.src='${DEFAULT_AVATAR}'">
+  list.innerHTML=items.map(c=>`<div class="mini-item"><img src="${esc(safeAdminImage(c.image||DEFAULT_AVATAR))}" style="border-radius:50%;" onerror="this.src='${DEFAULT_AVATAR}'">
     <div class="mi-t">${esc(c.name)} <span style="color:var(--text-dim);font-weight:400;">${c.subtitle?'· '+esc(c.subtitle):''}</span></div>
     <div class="mi-actions">
       <a href="https://wa.me/${c.phone}" target="_blank" class="btn btn-icon btn-ghost" style="color:var(--ok)"><i class="fab fa-whatsapp"></i></a>
@@ -5064,7 +5067,7 @@ function renderFeaturedPanelAdm(){
       }
       return `<div class="mini-item">
         <div class="featured-slot-num">${idx+1}</div>
-        <img src="${p.image || PLACEHOLDER_IMG}" onerror="this.src='${PLACEHOLDER_IMG}'" style="width:44px;height:44px;border-radius:8px;object-fit:cover;">
+        <img src="${esc(safeAdminImage(p.image || PLACEHOLDER_IMG))}" onerror="this.src='${PLACEHOLDER_IMG}'" style="width:44px;height:44px;border-radius:8px;object-fit:cover;">
         <div class="mi-t">${esc(p.name)}<div style="color:var(--text-dim);font-size:.75rem;font-weight:400;">${esc(p.brand||'sem marca')}${p.codigo?' · '+esc(p.codigo):''}</div></div>
         <div class="mi-actions">
           ${idx > 0 ? `<button class="btn btn-icon btn-ghost" onclick="moveFeaturedAdm(${idx},-1)"><i class="fas fa-chevron-up"></i></button>` : ''}
@@ -5086,7 +5089,7 @@ function renderFeaturedPickerAdm(){
   const full = featuredDraft.length >= 5;
   el.innerHTML = list.slice(0, 200).map(p => `
     <div class="mini-item">
-      <img src="${p.image || PLACEHOLDER_IMG}" onerror="this.src='${PLACEHOLDER_IMG}'" style="width:36px;height:36px;border-radius:8px;object-fit:cover;">
+      <img src="${esc(safeAdminImage(p.image || PLACEHOLDER_IMG))}" onerror="this.src='${PLACEHOLDER_IMG}'" style="width:36px;height:36px;border-radius:8px;object-fit:cover;">
       <div class="mi-t">${esc(p.name)}<div style="color:var(--text-dim);font-size:.75rem;font-weight:400;">${esc(p.brand||'sem marca')}</div></div>
       <div class="mi-actions"><button class="btn btn-sm btn-accent" onclick="addFeaturedAdm('${p.id}')" ${full ? 'disabled style="opacity:.4;cursor:not-allowed;"' : ''}><i class="fas fa-plus"></i> Adicionar</button></div>
     </div>`).join('');
@@ -5148,7 +5151,7 @@ function renderGalleryPanelAdm(){
       }
       return `<div class="mini-item">
         <div class="gallery-slot-num">${idx+1}</div>
-        <img src="${p.image || PLACEHOLDER_IMG}" onerror="this.src='${PLACEHOLDER_IMG}'" style="width:44px;height:44px;border-radius:8px;object-fit:cover;">
+        <img src="${esc(safeAdminImage(p.image || PLACEHOLDER_IMG))}" onerror="this.src='${PLACEHOLDER_IMG}'" style="width:44px;height:44px;border-radius:8px;object-fit:cover;">
         <div class="mi-t">${esc(p.name)}<div style="color:var(--text-dim);font-size:.75rem;font-weight:400;">${esc(p.brand||'sem marca')}</div></div>
         <div class="mi-actions">
           ${idx > 0 ? `<button class="btn btn-icon btn-ghost" onclick="moveGalleryAdm(${idx},-1)"><i class="fas fa-chevron-up"></i></button>` : ''}
@@ -5170,7 +5173,7 @@ function renderGalleryPickerAdm(){
   const full = galleryDraft.length >= GALLERY_MAX;
   el.innerHTML = list.slice(0, 200).map(p => `
     <div class="mini-item">
-      <img src="${p.image || PLACEHOLDER_IMG}" onerror="this.src='${PLACEHOLDER_IMG}'" style="width:36px;height:36px;border-radius:8px;object-fit:cover;">
+      <img src="${esc(safeAdminImage(p.image || PLACEHOLDER_IMG))}" onerror="this.src='${PLACEHOLDER_IMG}'" style="width:36px;height:36px;border-radius:8px;object-fit:cover;">
       <div class="mi-t">${esc(p.name)}<div style="color:var(--text-dim);font-size:.75rem;font-weight:400;">${esc(p.brand||'sem marca')}</div></div>
       <div class="mi-actions"><button class="btn btn-sm btn-accent" onclick="addGalleryAdm('${p.id}')" ${full ? 'disabled style="opacity:.4;cursor:not-allowed;"' : ''}><i class="fas fa-plus"></i> Adicionar</button></div>
     </div>`).join('');
@@ -5230,7 +5233,7 @@ function renderAboutPhotosPanelAdm(){
   }
   grid.innerHTML = aboutPhotosDraft.map((url, idx) => `
     <div style="position:relative;border-radius:12px;overflow:hidden;border:1px solid var(--border);background:var(--panel-alt);aspect-ratio:4/3;">
-      <img src="${esc(url)}" alt="Foto ${idx+1}" style="width:100%;height:100%;object-fit:cover;cursor:zoom-in;" onclick="openImageViewer(this.src,'Foto #' + ${idx+1})" onerror="this.src='${PLACEHOLDER_IMG}'">
+      <img src="${esc(safeAdminImage(esc(url)))}" alt="Foto ${idx+1}" style="width:100%;height:100%;object-fit:cover;cursor:zoom-in;" onclick="openImageViewer(this.src,'Foto #' + ${idx+1})" onerror="this.src='${PLACEHOLDER_IMG}'">
       <div style="position:absolute;top:6px;right:6px;display:flex;gap:4px;">
         ${idx > 0 ? `<button class="btn btn-icon btn-ghost" style="background:rgba(0,0,0,.75);" onclick="moveAboutPhotoAdm(${idx},-1)"><i class="fas fa-chevron-up"></i></button>` : ''}
         ${idx < aboutPhotosDraft.length-1 ? `<button class="btn btn-icon btn-ghost" style="background:rgba(0,0,0,.75);" onclick="moveAboutPhotoAdm(${idx},1)"><i class="fas fa-chevron-down"></i></button>` : ''}

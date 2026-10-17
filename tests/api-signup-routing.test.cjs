@@ -6,8 +6,9 @@ test('rotas de cadastro compartilham funcao sem permitir acoes arbitrarias',()=>
  module.exports({url:'/api/checkout?signupAction=webhook'},{});
  module.exports({url:'/api/checkout'},{});
  module.exports({url:'/api/checkout?signupAction=support'},{});
- assert.deepEqual(forwarded,['company-lookup','register-profile','checkout','checkout','support']);
+ module.exports({url:'/api/checkout?signupAction=analytics'},{});
+ assert.deepEqual(forwarded,['company-lookup','register-profile','checkout','checkout','support','analytics']);
  const config=JSON.parse(fs.readFileSync(path.join(__dirname,'../vercel.json'),'utf8'));
- for(const route of ['company-lookup','register-profile','support'])assert.ok(config.rewrites.some(r=>r.source==='/api/'+route&&r.destination==='/api/checkout?signupAction='+route));
+ for(const route of ['company-lookup','register-profile','support','analytics'])assert.ok(config.rewrites.some(r=>r.source==='/api/'+route&&r.destination==='/api/checkout?signupAction='+route));
  assert.ok(fs.readdirSync(path.join(__dirname,'../api')).filter(f=>f.endsWith('.js')).length<=12);
 });

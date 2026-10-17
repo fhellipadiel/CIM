@@ -1136,6 +1136,7 @@ body.fullscreen-panel-open{overflow:hidden!important}
 <link rel="stylesheet" href="assets/support-chat.css">
 <script src="assets/shared-product.js"></script>
 <style>body.shared-public> :not(#productModal):not(#fullscreenImageModal):not(#sessionGate):not(.toast){display:none!important}.shared-public #productModal .modal-close{display:none!important}.shared-product-controls{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:18px 0}.shared-product-controls[hidden]{display:none}.shared-product-controls input{width:90px;background:#181818;color:#fff;border:1px solid #333;border-radius:12px;padding:10px;font-size:16px}.product-share-button{background:#1a1a1a;color:#fff;border:1px solid #333;border-radius:24px;padding:11px 18px;cursor:pointer;font:inherit}.product-share-button i{color:#ff3601;margin-right:7px}.shared-unavailable{padding:32px;display:grid;place-content:center;gap:18px;height:100dvh;text-align:center;background:#0a0a0a;color:#eee}.shared-unavailable a{color:#ff3601}</style>
+<script src="assets/analytics-client.js"></script>
 </head>
 <body>
     <div id="sessionGate">
@@ -1957,45 +1958,10 @@ body.fullscreen-panel-open{overflow:hidden!important}
         function clearCartStorage(){clearTimeout(cartSaveTimer);localStorage.removeItem(cartStorageKey());}
 
 
-        async function registerClick(product, origem = 'detalhes') {
-            if (!product || !product.id || !auth.currentUser) return;
-            const now = Date.now();
-            const dataObj = new Date(now);
-            const dataStr = dataObj.toLocaleDateString('pt-BR');
-            const horaStr = dataObj.toLocaleTimeString('pt-BR');
-            const clicksAntes = product.clicks || 0;
-            const meta = product.metaClicks || 0;
-            const clicksDepois = clicksAntes + 1;
-            try {
-                database.ref(`products/${product.id}/clicks`).transaction(v => (v || 0) + 1);
-                if (product.category) database.ref(`categoryClicks/${product.category}`).transaction(v => (v || 0) + 1);
-                if (product.sessionId && sessions[product.sessionId]) database.ref(`sessionClicks/${product.sessionId}`).transaction(v => (v || 0) + 1);
-                if (product.brand) database.ref(`brandClicks/${product.brand}`).transaction(v => (v || 0) + 1);
-                database.ref('clickLogs').push({
-                    productId: product.id, productName: product.name || 'Sem nome',
-                    sessionId: product.sessionId || null,
-                    sessionName: product.sessionId && sessions[product.sessionId] ? sessions[product.sessionId].name : '',
-                    category: product.category || '', brand: product.brand || '',
-                    userId: currentUser ? currentUser.uid : null,
-                    userName: currentUser ? (currentUser.name || currentUser.email || 'Cliente') : 'Visitante',
-                    userType: currentUser ? (currentUser.userType || null) : null,
-                    origem: origem, timestamp: now, date: dataStr, time: horaStr
-                });
-                if (meta > 0 && clicksAntes < meta && clicksDepois >= meta) {
-                    database.ref('metaAchievements').push({
-                        productId: product.id, productName: product.name || 'Sem nome',
-                        category: product.category || '', timestamp: now, date: dataStr, time: horaStr
-                    });
-                    database.ref(`products/${product.id}/featured`).set(true);
-                }
-            } catch (e) { console.warn('[registerClick] falhou:', e); }
+        function registerClick(product,origem='detalhes'){
+            if(!product?.id||!auth.currentUser)return;
+            CimAnalytics.record({type:'product',productId:product.id,source:origem});
         }
-
-        window.clickAndZoom = function(id, url) {
-            const p = products.find(x => x.id === id);
-            if (p) registerClick(p, 'imagem');
-            openFullscreenImage(url);
-        };
 
         function fmtBRL(v) { return `R$ ${v.toFixed(2).replace('.', ',')}`; }
 

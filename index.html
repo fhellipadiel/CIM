@@ -430,6 +430,7 @@
         }
     </style>
 <link rel="stylesheet" href="assets/support-chat.css">
+<script src="assets/analytics-client.js"></script>
 </head>
 <body class="bg-black text-white min-h-screen">
 
@@ -943,66 +944,9 @@
             }).catch(() => {});
         })();
 
-        (function trackCampaignEntry() {
-            const ref = window.campaignRef;
-            if (!ref) return;
-
-            database.ref('trackingLinks').orderByChild('slug').equalTo(ref).once('value')
-                .then(snap => {
-                    if (!snap.exists()) return;
-                    const data = snap.val();
-                    const key  = Object.keys(data)[0];
-                    const link = data[key] || {};
-                    const nowTs = Date.now();
-
-                    database.ref('trackingLinkLogs').push({
-                        linkId:    key,
-                        slug:      link.slug || ref,
-                        name:      link.name || ref,
-                        timestamp: nowTs,
-                        date:      new Date(nowTs).toLocaleDateString('pt-BR'),
-                        time:      new Date(nowTs).toLocaleTimeString('pt-BR')
-                    }).catch(() => {});
-
-                    return database.ref(`trackingLinks/${key}/entries`)
-                        .transaction(cur => (cur || 0) + 1);
-                })
-                .catch(err => console.warn('Campanha:', err));
-        })();
-
-        function logVisitorClick(type, data = {}) {
-            try {
-                const now = new Date();
-                const ref = window.campaignRef || sessionStorage.getItem('campaignRef') || null;
-                const refName = (ref && window.trackingLinksMap[ref])
-                    ? window.trackingLinksMap[ref].name
-                    : ref;
-
-                const log = {
-                    type,
-                    source:       data.source       || 'unknown',
-                    productId:    data.productId    || null,
-                    productName:  data.productName  || null,
-                    campaignRef:  ref       || null,
-                    campaignName: refName   || null,
-                    userName:     'Visitante',
-                    userType:     'visitante',
-                    date:         now.toLocaleDateString('pt-BR'),
-                    time:         now.toLocaleTimeString('pt-BR'),
-                    timestamp:    Date.now()
-                };
-
-                if (type === 'product') {
-                    database.ref('clickLogs').push(log).catch(() => {});
-                    if (data.productId) {
-                        database.ref(`products/${data.productId}/clicks`)
-                            .transaction(c => (c || 0) + 1)
-                            .catch(() => {});
-                    }
-                } else if (type === 'whatsapp' || type === 'phone') {
-                    database.ref('contactClicks').push(log).catch(() => {});
-                }
-            } catch (e) { console.warn('Erro ao registrar clique:', e); }
+        (function trackCampaignEntry(){if(window.campaignRef)CimAnalytics.record({type:'campaign',campaignRef:window.campaignRef});})();
+        function logVisitorClick(type,data={}){
+            CimAnalytics.record({type,productId:data.productId||undefined,source:data.source||'unknown',campaignRef:window.campaignRef||sessionStorage.getItem('campaignRef')||undefined});
         }
 
         (function trackContactClicks(){

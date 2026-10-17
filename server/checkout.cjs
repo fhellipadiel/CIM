@@ -100,7 +100,10 @@ async function handle(action,req,res,dependencies={}) {
   res.setHeader('Cache-Control','no-store');
   try {
     if (req.method!=='POST') fail('Método não permitido.',405);
+    if(Number(req.headers['content-length']||0)>65536)fail('Solicitacao muito grande.',413);
     const body=typeof req.body==='string' ? JSON.parse(req.body) : req.body||{};
+    if(!body||typeof body!=='object'||Array.isArray(body)||Buffer.byteLength(JSON.stringify(body))>65536)fail('Solicitacao invalida.',400);
+    if(action==='analytics'){const {auth,db}=getServices();return res.status(200).json(await require('./analytics.cjs').recordAnalytics({db,req,body,verifyCaller:()=>identity(req,auth)}));}
     if(action==='support'){
       const {auth,db}=getServices();
       return res.status(200).json(await require('./support.cjs').handleSupport({db,req,body,verifyCaller:()=>identity(req,auth),requireAdmin:()=> (dependencies.requireAdminAccess||requireAdminAccess)(req,db)}));
