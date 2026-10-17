@@ -3,7 +3,7 @@ const {quote,validSignature,verifiedPayment,fail}=require('./core.cjs');
 const crypto=require('node:crypto');
 const paymentConfig=require('./payment-config.cjs');
 const orderPolicy=require('../assets/payment-policy.js');
-const {requireAdminAccess}=require('./admin-access.cjs');
+const {requireAdminAccess,requireAdminSetupAccess}=require('./admin-access.cjs');
 let app;
 function services() {
   if (!process.env.GOOGLE_APPLICATION_CREDENTIALS && !process.env.FIREBASE_SERVICE_ACCOUNT_JSON) fail('Falta configurar a credencial do servidor Firebase de pagamentos.',503);
@@ -137,6 +137,7 @@ async function handle(action,req,res,dependencies={}) {
     }
     const {auth,db}=getServices();
     const caller=await identity(req,auth);
+    if(action==='admin-mfa')return res.status(200).json(await require('./admin-mfa.cjs').handleAdminMfa({auth,db,caller,body,requireSetup:()=> (dependencies.requireAdminSetupAccess||requireAdminSetupAccess)(req,db),requireAdmin:()=> (dependencies.requireAdminAccess||requireAdminAccess)(req,db)}));
     if(action==='register-profile')return res.status(200).json(await require('./registration.cjs').registerProfile(db,caller,body));
     const user={...((await db.ref('users/'+caller.uid).get()).val()||{}),uid:caller.uid};
     if(['admin-notifications','admin-tests','admin-archive-legacy-order','admin-order-status','admin-session'].includes(action)){

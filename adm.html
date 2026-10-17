@@ -563,6 +563,8 @@ tbody tr:last-child td{border-bottom:none}
 </style>
 <link rel="stylesheet" href="assets/support-chat.css">
 <script src="assets/admin-security.js"></script>
+<link rel="stylesheet" href="assets/admin-mfa.css">
+<script src="assets/mfa-auth.js"></script>
 </head>
 <body>
 
@@ -1395,6 +1397,7 @@ tbody tr:last-child td{border-bottom:none}
          PAINEL: CONFIGURAÇÕES
          ============================================================ -->
     <section class="panel" id="panel-config">
+<div class="block"><div class="block-head"><h3>Segurança da conta</h3></div><div class="block-body"><div class="mfa-card" id="adminMfaCard" aria-live="polite">Carregando proteção da conta...</div></div></div>
 <div class="block"><div class="block-head"><h3>Gerenciar pedidos</h3></div><div class="block-body cleanup-launch"><span class="cleanup-launch-icon" aria-hidden="true"><svg width="25" height="25" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 7h16M9 7V4h6v3M7 7l1 13h8l1-13M10 10v7M14 10v7"/></svg></span><div style="flex:1"><strong>Excluir pedidos da lista</strong><p class="notification-muted">Abra a lista para pesquisar e remover pedidos de teste.</p></div><button type="button" class="btn btn-ghost" onclick="openOrderCleanup()">Gerenciar exclusões</button></div></div>
 <div class="panel-head"><div><h1>Configurações</h1><p>Ações administrativas gerais</p></div></div>
 
@@ -2011,13 +2014,13 @@ function updateBrandLogo(photoUrl){
 /* ============================================================
    AUTENTICAÇÃO
    ============================================================ */
-function doLogin(){
-  const email=document.getElementById('loginEmail').value.trim();
-  const pass=document.getElementById('loginPassword').value;
-  const errEl=document.getElementById('loginError'); errEl.textContent='';
-  if(!email||!pass){ errEl.textContent='Preencha e-mail e senha.'; return; }
-  showLoading('Autenticando...');
-  auth.signInWithEmailAndPassword(email,pass).catch(()=>{ hideLoading(); errEl.textContent='Credenciais inválidas.'; });
+async function doLogin(){
+ const email=document.getElementById('loginEmail').value.trim(),pass=document.getElementById('loginPassword').value,err=document.getElementById('loginError');err.textContent='';
+ if(!email||!pass){err.textContent='Preencha e-mail e senha.';return;}
+ showLoading('Autenticando...');
+ try{await auth.setPersistence(firebase.auth.Auth.Persistence.SESSION);await CimMfaAuth.signIn(auth,email,pass);document.getElementById('loginPassword').value='';}
+ catch(error){err.textContent=error.code==='auth/mfa-cancelled'?'Confirmação cancelada. Entre novamente para continuar.':'Não foi possível entrar. Confira os dados e tente novamente.';}
+ finally{hideLoading();}
 }
 function doLogout(){ if(!confirm('Deseja sair do painel?')) return; auth.signOut(); }
 
@@ -6083,5 +6086,7 @@ async function exportContactsCsv(kind){
 </div>
 
 <script src="assets/support-chat.js" data-support-role="admin" defer></script>
+<script src="assets/qrcode.min.js" defer></script>
+<script src="assets/admin-mfa.js" defer></script>
 </body>
 </html>

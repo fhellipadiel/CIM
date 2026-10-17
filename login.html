@@ -227,6 +227,8 @@
 </style>
 <script src="assets/signup-policy.js"></script>
 <script src="assets/shared-product.js"></script>
+<link rel="stylesheet" href="assets/admin-mfa.css">
+<script src="assets/mfa-auth.js"></script>
 </head>
 <body class="h-full bg-darkbg text-white flex overflow-hidden font-sans relative">
 
@@ -1157,7 +1159,7 @@
             submitBtn.innerHTML = '<i class="fa-solid fa-spinner animate-spin text-sm"></i><span>Entrando...</span>';
 
             try {
-                await auth.signInWithEmailAndPassword(email, password);
+                await CimMfaAuth.signIn(auth,email,password);
                 registerSuccess(KEY);
                 window.location.href = CimProductLink.destination(location.search);
             } catch (error) {
@@ -1276,7 +1278,7 @@
             try {
                 let userCredential;
                 if(auth.currentUser?.email===email && !(await database.ref('users/'+auth.currentUser.uid).once('value')).exists()){
-                    userCredential=await auth.signInWithEmailAndPassword(email,password);
+                    userCredential=await CimMfaAuth.signIn(auth,email,password);
                 }else{
                     userCredential=await auth.createUserWithEmailAndPassword(email,password);
                     createdRegistrationUser=userCredential.user;
@@ -1324,7 +1326,7 @@
             const provider = new firebase.auth.GoogleAuthProvider();
 
             try {
-                const result = await auth.signInWithPopup(provider);
+                const result = await CimMfaAuth.withChallenge(auth,()=>auth.signInWithPopup(provider));
                 const user = result.user;
 
                 const snapshot = await database.ref(`users/${user.uid}`).once('value');

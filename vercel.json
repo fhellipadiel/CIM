@@ -1,6 +1,10 @@
 {
   "rewrites": [
     {
+      "source": "/api/admin-mfa",
+      "destination": "/api/checkout?signupAction=admin-mfa"
+    },
+    {
       "source": "/api/analytics",
       "destination": "/api/checkout?signupAction=analytics"
     },
