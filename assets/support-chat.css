@@ -73,3 +73,10 @@
 .cs-verified{display:inline-flex;flex-shrink:0;width:18px;height:18px;color:#3897f0}.cs-verified svg{width:100%;height:100%}
 #panel-suporte>.panel-head{display:none}
 .cs-search{font-size:16px}
+
+.cs-widget .cs-brand{border:0;background:transparent}
+.cs-widget .cs-brand img{padding:0;background:transparent}
+.cs-widget .cs-composer{border-top:0}
+.cs-widget .cs-composer textarea{border:0;border-radius:28px}
+.cs-widget .cs-composer textarea:focus{box-shadow:none}
+.cs-widget .cs-send{border-radius:50%}
