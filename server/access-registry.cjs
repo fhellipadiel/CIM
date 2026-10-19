@@ -8,7 +8,7 @@ async function requireRegistryAdmin(db,caller,{write=false,setup=false}={}){
  const entry=await adminEntry(db,caller?.uid);
  if(entry.enabled!==true||entry.canRead!==true||(write&&entry.canWrite!==true))fail('Acesso restrito ao administrador.',403);
  const policy=(await db.ref('adminMfaPolicy/'+caller.uid).get()).val()||{};
- if(!setup&&(policy.recoveryPending===true||(policy.required===true&&caller?.firebase?.sign_in_second_factor!=='totp')))fail('Confirma��o de duas etapas obrigat�ria.',403);
+ if(!setup&&(policy.recoveryPending===true||(policy.required===true&&caller?.firebase?.sign_in_second_factor!=='totp')))fail('Confirmação de duas etapas obrigatória.',403);
  return true;
 }
 module.exports={ROOT,validUid,adminEntry,recoveryEntry,adminDirectory,requireRegistryAdmin};
