@@ -16,7 +16,7 @@
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-storage-compat.js"></script>
 <style>
-/* ============================================================
+/* ===========================================================  =
    1. VARIÁVEIS E RESET
    ============================================================ */
 :root{
@@ -69,6 +69,8 @@ h1,h2,h3,h4{font-family:var(--font-head)}
    3. SIDEBAR
    ============================================================ */
 .sidebar{width:250px;flex-shrink:0;background:var(--panel);border-right:1px solid var(--border);height:100vh;position:fixed;top:0;left:0;display:flex;flex-direction:column;z-index:1000;overflow:hidden}
+body:not(.admin-authorized) .sidebar,body:not(.admin-authorized) .main{visibility:hidden;pointer-events:none;user-select:none}
+body.admin-authorized .sidebar,body.admin-authorized .main{visibility:visible}
 .sb-brand{display:flex;align-items:center;gap:10px;padding:20px 20px 4px;cursor:pointer}
 .sb-brand .mark{width:34px;height:34px;border-radius:var(--radius-sm);background:var(--accent-soft);display:flex;align-items:center;justify-content:center;font-size:1.05rem;flex-shrink:0;overflow:hidden}
 .sb-brand .mark img{width:100%;height:100%;object-fit:cover}
@@ -158,6 +160,16 @@ h1,h2,h3,h4{font-family:var(--font-head)}
 .panel-head h1{font-size:1.5rem;font-weight:700}
 .panel-head p{color:var(--text-muted);font-size:.85rem;margin-top:4px}
 .panel-actions{display:flex;gap:10px;flex-wrap:wrap}
+.create-fab-wrap{position:fixed;right:28px;bottom:28px;z-index:850;display:flex;flex-direction:column;align-items:flex-end;gap:10px}
+.create-fab{width:58px;height:58px;border:0;border-radius:50%;background:var(--accent);color:#fff;display:grid;place-items:center;font-size:1.35rem;cursor:pointer;box-shadow:0 12px 32px rgba(0,0,0,.48),0 0 0 1px rgba(255,255,255,.08);transition:transform .2s ease,background .2s ease}
+.create-fab:hover{transform:translateY(-2px) scale(1.04);background:#ff4b1a}
+.create-fab[aria-expanded="true"]{transform:rotate(45deg)}
+.create-fab-menu{display:none;min-width:210px;padding:8px;background:var(--panel);border:1px solid var(--border);border-radius:14px;box-shadow:0 16px 42px rgba(0,0,0,.55)}
+.create-fab-wrap.open .create-fab-menu{display:grid;gap:4px;animation:fabMenuIn .16s ease-out}
+.create-fab-option{width:100%;border:0;background:transparent;color:var(--text);padding:11px 13px;border-radius:9px;display:flex;align-items:center;gap:10px;text-align:left;font:inherit;font-size:.82rem;cursor:pointer}
+.create-fab-option i{width:18px;color:var(--accent);text-align:center}
+.create-fab-option:hover{background:var(--panel-hover)}
+@keyframes fabMenuIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
 .invoice-pending-count{min-width:18px;height:18px;padding:0 5px;border-radius:9px;background:var(--danger);color:#fff;font-size:.68rem;display:inline-flex;align-items:center;justify-content:center}
 .invoice-order-card{padding:14px;background:var(--panel-alt);border:1px solid var(--border);border-radius:10px}
 .invoice-order-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:10px}
@@ -468,6 +480,7 @@ tbody tr:last-child td{border-bottom:none}
   .stats-grid{grid-template-columns:repeat(2,1fr)}
   .tb-search{width:140px}
 }
+@media(max-width:600px){.create-fab-wrap{right:18px;bottom:18px}.create-fab{width:54px;height:54px}.create-fab-menu{max-width:calc(100vw - 36px)}}
 @media(max-width:640px){.form-grid{grid-template-columns:1fr}}
 @media(max-width:480px){
   .login-box .lb-logo .mark{width:120px;height:120px}
@@ -564,6 +577,12 @@ tbody tr:last-child td{border-bottom:none}
 <link rel="stylesheet" href="assets/support-chat.css">
 <script src="assets/admin-security.js"></script>
 <link rel="stylesheet" href="assets/admin-mfa.css">
+<style>
+/* Mantém a confirmação em duas etapas centralizada e sem contorno de cartão. */
+.mfa-dialog{position:fixed;inset:0;margin:auto;border:0!important;box-shadow:none!important}
+.mfa-head{border-bottom:0!important}
+.mfa-card{border:0!important}
+</style>
 <script src="assets/mfa-auth.js"></script>
 </head>
 <body>
@@ -966,7 +985,6 @@ tbody tr:last-child td{border-bottom:none}
     <section class="panel" id="panel-produtos">
       <div class="panel-head">
         <div><h1>Produtos</h1><p>Gerencie o catálogo de peças mecânicas</p></div>
-        <div class="panel-actions"><button class="btn btn-accent" onclick="openProductModal()"><i class="fas fa-plus"></i> Nova peça</button></div>
       </div>
       <div class="filter-bar">
         <input type="text" id="prodFilterText" placeholder="Buscar por nome, código ou marca..." oninput="renderProducts()">
@@ -984,6 +1002,7 @@ tbody tr:last-child td{border-bottom:none}
         <thead><tr><th></th><th>Peça</th><th>Categoria</th><th>Marca</th><th>PF</th><th>PJ</th><th>Cliques/Meta</th><th>Status</th><th></th></tr></thead>
         <tbody id="productsTableBody"></tbody>
       </table></div></div>
+      <div class="create-fab-wrap"><button class="create-fab" type="button" aria-label="Adicionar peça ao estoque" title="Adicionar peça ao estoque" onclick="openProductModal()"><i class="fas fa-plus"></i></button></div>
     </section>
 
     <!-- ============================================================
@@ -1001,7 +1020,7 @@ tbody tr:last-child td{border-bottom:none}
         </div>
         <div class="block-body"><div class="mini-list" id="featuredSlotsAdm"></div></div>
       </div>
-      <div class="block">
+      <div class="block" id="featuredAddBlock">
         <div class="block-head"><h3><i class="fas fa-plus-circle" style="color:var(--accent)"></i> Adicionar peça aos destaques</h3></div>
         <div class="block-body">
           <input type="text" id="featuredSearchInput" placeholder="Buscar..." oninput="renderFeaturedPickerAdm()" style="width:100%;padding:11px 14px;background:var(--panel-alt);border:1px solid var(--border);border-radius:8px;color:var(--text);margin-bottom:12px;font-size:.85rem;">
@@ -1021,12 +1040,19 @@ tbody tr:last-child td{border-bottom:none}
           <div class="mini-list" id="gallerySlotsAdm"></div>
         </div>
       </div>
-      <div class="block">
+      <div class="block" id="galleryAddBlock">
         <div class="block-head"><h3><i class="fas fa-plus-circle" style="color:var(--ok)"></i> Adicionar peça à galeria do login</h3></div>
         <div class="block-body">
           <input type="text" id="gallerySearchInput" placeholder="Buscar..." oninput="renderGalleryPickerAdm()" style="width:100%;padding:11px 14px;background:var(--panel-alt);border:1px solid var(--border);border-radius:8px;color:var(--text);margin-bottom:12px;font-size:.85rem;">
           <div class="mini-list" id="galleryPickerAdm" style="max-height:480px;overflow-y:auto;"></div>
         </div>
+      </div>
+      <div class="create-fab-wrap">
+        <div class="create-fab-menu" role="menu">
+          <button class="create-fab-option" type="button" role="menuitem" onclick="focusCreateSection('featuredAddBlock','featuredSearchInput')"><i class="fas fa-star"></i> Peça em destaque</button>
+          <button class="create-fab-option" type="button" role="menuitem" onclick="focusCreateSection('galleryAddBlock','gallerySearchInput')"><i class="fas fa-images"></i> Peça na galeria do login</button>
+        </div>
+        <button class="create-fab" type="button" aria-label="Abrir opções para adicionar" aria-haspopup="menu" aria-expanded="false" title="Adicionar" onclick="toggleCreateMenu(this)"><i class="fas fa-plus"></i></button>
       </div>
     </section>
 
@@ -1047,9 +1073,9 @@ tbody tr:last-child td{border-bottom:none}
     <section class="panel" id="panel-marcas">
       <div class="panel-head">
         <div><h1>Marcas</h1><p>Logos e ordem de exibição das marcas</p></div>
-        <div class="panel-actions"><button class="btn btn-accent" onclick="openBrandModal()"><i class="fas fa-plus"></i> Nova marca</button></div>
       </div>
       <div class="block"><div class="block-body"><div class="mini-list" id="brandsList"></div></div></div>
+      <div class="create-fab-wrap"><button class="create-fab" type="button" aria-label="Adicionar marca" title="Adicionar marca" onclick="openBrandModal()"><i class="fas fa-plus"></i></button></div>
     </section>
 
     <!-- ============================================================
@@ -1058,9 +1084,9 @@ tbody tr:last-child td{border-bottom:none}
     <section class="panel" id="panel-sessoes">
       <div class="panel-head">
         <div><h1>Sessões</h1><p>Agrupamentos de peças exibidos na loja</p></div>
-        <div class="panel-actions"><button class="btn btn-accent" onclick="openSessionModal()"><i class="fas fa-plus"></i> Nova sessão</button></div>
       </div>
       <div class="block"><div class="block-body"><div class="mini-list" id="sessionsList"></div></div></div>
+      <div class="create-fab-wrap"><button class="create-fab" type="button" aria-label="Adicionar sessão" title="Adicionar sessão" onclick="openSessionModal()"><i class="fas fa-plus"></i></button></div>
     </section>
 
     <!-- ============================================================
@@ -1112,12 +1138,12 @@ tbody tr:last-child td{border-bottom:none}
     <section class="panel" id="panel-promocoes">
       <div class="panel-head">
         <div><h1>Promoções</h1><p>Descontos temporários por sessão, categoria, produto ou usuário</p></div>
-        <div class="panel-actions"><button class="btn btn-accent" onclick="openPromoModal()"><i class="fas fa-plus"></i> Nova promoção</button></div>
       </div>
       <div class="block"><div class="block-body tight"><table>
         <thead><tr><th>Alvo</th><th>Tipo</th><th>Público</th><th>Desconto</th><th>Expira</th><th>Status</th><th></th></tr></thead>
         <tbody id="promoTableBody"></tbody>
       </table></div></div>
+      <div class="create-fab-wrap"><button class="create-fab" type="button" aria-label="Adicionar promoção" title="Adicionar promoção" onclick="openPromoModal()"><i class="fas fa-plus"></i></button></div>
     </section>
 
     <!-- ============================================================
@@ -1126,12 +1152,12 @@ tbody tr:last-child td{border-bottom:none}
     <section class="panel" id="panel-cupons">
       <div class="panel-head">
         <div><h1>Cupons</h1><p>Códigos de desconto com prazo de validade e limite de uso</p></div>
-        <div class="panel-actions"><button class="btn btn-accent" onclick="openCouponModal()"><i class="fas fa-plus"></i> Novo cupom</button></div>
       </div>
       <div class="block"><div class="block-body tight"><table>
         <thead><tr><th>Código</th><th>Desconto</th><th>Público</th><th>Expira</th><th>Usos</th><th>Status</th><th></th></tr></thead>
         <tbody id="couponTableBody"></tbody>
       </table></div></div>
+      <div class="create-fab-wrap"><button class="create-fab" type="button" aria-label="Adicionar cupom" title="Adicionar cupom" onclick="openCouponModal()"><i class="fas fa-plus"></i></button></div>
     </section>
 
     <!-- ============================================================
@@ -1140,7 +1166,7 @@ tbody tr:last-child td{border-bottom:none}
     <section class="panel" id="panel-leads">
   <div class="panel-head">
     <div><h1>Leads</h1><p>Dos primeiros contatos ao cadastro completo.</p></div>
-    <div class="panel-actions"><button type="button" class="btn btn-ghost" aria-haspopup="dialog" onclick="openContactsCsvModal('leads')"><i class="fas fa-file-csv"></i> Exportar CSV <i class="fas fa-chevron-down" style="margin-left:12px;font-size:.7rem" aria-hidden="true"></i></button><button type="button" class="btn btn-ghost" onclick="openContactsCsvHistory('leads')"><i class="fas fa-clock-rotate-left"></i> Hist&oacute;rico CSV</button><button class="btn btn-accent" onclick="openLeadCampaign()"><i class="fas fa-plus"></i> Nova campanha</button></div>
+    <div class="panel-actions"><button type="button" class="btn btn-ghost" aria-haspopup="dialog" onclick="openContactsCsvModal('leads')"><i class="fas fa-file-csv"></i> Exportar CSV <i class="fas fa-chevron-down" style="margin-left:12px;font-size:.7rem" aria-hidden="true"></i></button><button type="button" class="btn btn-ghost" onclick="openContactsCsvHistory('leads')"><i class="fas fa-clock-rotate-left"></i> Hist&oacute;rico CSV</button></div>
   </div>
   <div class="lead-nav" role="tablist" aria-label="Área de Leads"><button id="leadContactsTab" class="lead-tab active" role="tab" aria-controls="leadContactsPane" aria-selected="true" data-lead-view="contacts" onclick="switchLeadTab('contacts')"><i class="fas fa-address-book"></i>Contatos</button><button id="leadCampaignsTab" class="lead-tab" role="tab" aria-controls="leadCampaignsPane" aria-selected="false" tabindex="-1" data-lead-view="campaigns" onclick="switchLeadTab('campaigns')"><i class="fas fa-bullhorn"></i>Campanhas e URLs</button></div><div id="leadContactsPane" role="tabpanel" aria-labelledby="leadContactsTab" data-lead-pane="contacts"><div class="lead-overview">
     <div class="lead-overview-icon"><i class="fas fa-address-book"></i></div>
@@ -1169,20 +1195,20 @@ tbody tr:last-child td{border-bottom:none}
   </div>
   </div><div id="leadCampaignsPane" role="tabpanel" aria-labelledby="leadCampaignsTab" data-lead-pane="campaigns" hidden><div class="lead-section-head"><div><h2>Campanhas e URLs</h2><p>Compartilhe cada URL com o funcionário responsável pela coleta.</p></div></div>
   <div class="lead-campaign-grid" id="leadCampaignRows"></div></div>
-  <button class="lead-fab" aria-label="Criar campanha de leads" title="Nova campanha" onclick="openLeadCampaign()"><i class="fas fa-plus"></i></button>
+  <div class="create-fab-wrap"><button class="create-fab" type="button" aria-label="Adicionar campanha de leads" title="Adicionar campanha" onclick="openLeadCampaign()"><i class="fas fa-plus"></i></button></div>
 </section>
 <section class="panel" id="panel-links">
       <div class="panel-head">
         <div><h1>Links de Campanha</h1><p>Crie links curtos e rastreáveis para saber de onde o público está vindo</p></div>
         <div class="panel-actions">
           <button class="btn btn-ghost" onclick="resetAllLinkCounts()"><i class="fas fa-undo"></i> Zerar todos</button>
-          <button class="btn btn-accent" onclick="openLinkModal()"><i class="fas fa-plus"></i> Novo link</button>
         </div>
       </div>
       <div class="stats-grid" style="margin-bottom:20px;">
         <div class="stat-card"><div class="sc-top"><div class="sc-icon"><i class="fas fa-link"></i></div></div><div class="sc-val" id="statLinksTotal">0</div><div class="sc-label">Links cadastrados</div></div>
         <div class="stat-card"><div class="sc-top"><div class="sc-icon"><i class="fas fa-sign-in-alt"></i></div></div><div class="sc-val" id="statLinksEntries">0</div><div class="sc-label">Entradas totais</div></div>
       </div>
+      <div class="create-fab-wrap"><button class="create-fab" type="button" aria-label="Adicionar link de campanha" title="Adicionar link" onclick="openLinkModal()"><i class="fas fa-plus"></i></button></div>
       <div class="block">
         <div class="block-head"><h3><i class="fas fa-link" style="color:var(--accent)"></i> Links ativos</h3></div>
         <div class="block-body"><div class="mini-list" id="linksListAdm"></div></div>
@@ -1235,6 +1261,7 @@ tbody tr:last-child td{border-bottom:none}
       <div id="importTabHist" style="display:none;">
         <div class="block"><div class="block-body"><div class="mini-list" id="importHistoryListAdm"></div></div></div>
       </div>
+      <div class="create-fab-wrap"><button class="create-fab" type="button" aria-label="Adicionar importação" title="Nova importação" onclick="startNewImport()"><i class="fas fa-plus"></i></button></div>
     </section>
 
     <!-- ============================================================
@@ -1312,7 +1339,7 @@ tbody tr:last-child td{border-bottom:none}
     <section class="panel" id="panel-usuarios">
       <div class="panel-head">
         <div><h1>Usuários</h1><p>Clientes pessoa física e jurídica cadastrados</p></div>
-        <div class="panel-actions"><button type="button" class="btn btn-accent" onclick="openAnnouncements()">Enviar notificação</button><button type="button" class="btn btn-ghost" aria-haspopup="dialog" onclick="openContactsCsvModal('users')"><i class="fas fa-file-csv"></i> Exportar CSV <i class="fas fa-chevron-down" style="margin-left:12px;font-size:.7rem" aria-hidden="true"></i></button><button type="button" class="btn btn-ghost" onclick="openContactsCsvHistory('users')"><i class="fas fa-clock-rotate-left"></i> Hist&oacute;rico CSV</button><button class="btn btn-accent" onclick="openCreateClientModal()"><i class="fas fa-user-plus"></i> Criar cliente</button></div>
+        <div class="panel-actions"><button type="button" class="btn btn-ghost" aria-haspopup="dialog" onclick="openContactsCsvModal('users')"><i class="fas fa-file-csv"></i> Exportar CSV <i class="fas fa-chevron-down" style="margin-left:12px;font-size:.7rem" aria-hidden="true"></i></button><button type="button" class="btn btn-ghost" onclick="openContactsCsvHistory('users')"><i class="fas fa-clock-rotate-left"></i> Hist&oacute;rico CSV</button></div>
       </div>
       <div class="filter-bar">
         <input type="text" id="userFilterText" placeholder="Buscar por nome, e-mail, telefone, CPF/CNPJ..." oninput="renderUsers()">
@@ -1328,6 +1355,13 @@ tbody tr:last-child td{border-bottom:none}
         <button data-usertab="manual" onclick="switchUsersTabAdm('manual')"><i class="fas fa-user-plus"></i> Manual</button>
       </div>
       <div id="usersListAdm"></div>
+      <div class="create-fab-wrap">
+        <div class="create-fab-menu" id="usersCreateMenu" role="menu">
+          <button class="create-fab-option" type="button" role="menuitem" onclick="closeCreateMenus();openCreateClientModal()"><i class="fas fa-user-plus"></i> Criar cliente</button>
+          <button class="create-fab-option" type="button" role="menuitem" onclick="closeCreateMenus();openAnnouncements()"><i class="fas fa-bell"></i> Enviar notificação</button>
+        </div>
+        <button class="create-fab" type="button" aria-label="Abrir opções para adicionar" aria-haspopup="menu" aria-expanded="false" title="Adicionar" onclick="toggleCreateMenu(this)"><i class="fas fa-plus"></i></button>
+      </div>
     </section>
 
     <!-- ============================================================
@@ -1355,6 +1389,7 @@ tbody tr:last-child td{border-bottom:none}
           </div>
         </div>
       </div>
+      <div class="create-fab-wrap"><button class="create-fab" type="button" aria-label="Adicionar foto" title="Adicionar foto" onclick="document.getElementById('aboutPhotoInput').click()"><i class="fas fa-plus"></i></button></div>
     </section>
 
     <!-- ============================================================
@@ -1388,9 +1423,9 @@ tbody tr:last-child td{border-bottom:none}
     <section class="panel" id="panel-contatos">
       <div class="panel-head">
         <div><h1>Contatos</h1><p>Atendentes exibidos no menu da loja</p></div>
-        <div class="panel-actions"><button class="btn btn-accent" onclick="openContactModal()"><i class="fas fa-plus"></i> Novo contato</button></div>
       </div>
       <div class="block"><div class="block-body"><div class="mini-list" id="contactsListAdm"></div></div></div>
+      <div class="create-fab-wrap"><button class="create-fab" type="button" aria-label="Adicionar contato" title="Adicionar contato" onclick="openContactModal()"><i class="fas fa-plus"></i></button></div>
     </section>
 
     <!-- ============================================================
@@ -1398,7 +1433,7 @@ tbody tr:last-child td{border-bottom:none}
          ============================================================ -->
     <section class="panel" id="panel-config">
 <div class="block"><div class="block-head"><h3>Segurança da conta</h3></div><div class="block-body"><div class="mfa-card" id="adminMfaCard" aria-live="polite">Carregando proteção da conta...</div></div></div>
-<div class="block"><div class="block-head"><h3>Gerenciar pedidos</h3></div><div class="block-body cleanup-launch"><span class="cleanup-launch-icon" aria-hidden="true"><svg width="25" height="25" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 7h16M9 7V4h6v3M7 7l1 13h8l1-13M10 10v7M14 10v7"/></svg></span><div style="flex:1"><strong>Excluir pedidos da lista</strong><p class="notification-muted">Abra a lista para pesquisar e remover pedidos de teste.</p></div><button type="button" class="btn btn-ghost" onclick="openOrderCleanup()">Gerenciar exclusões</button></div></div>
+<div class="block"><div class="block-head"><h3>Gerenciar pedidos</h3></div><div class="block-body cleanup-launch"><span class="cleanup-launch-icon" aria-hidden="true"><svg width="25" height="25" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 7h16M9 7V4h6v3M7 7l1 13h8l1-13M10 10v7M14 10v7"/></svg></span><div style="flex:1"><strong>Excluir pedidos da lista</strong><p class="notification-muted">Abra a lista para pesquisar e remover pedidos antigos de teste.</p></div><button type="button" class="btn btn-ghost" onclick="openOrderCleanup()">Gerenciar exclusões</button></div></div>
 <div class="panel-head"><div><h1>Configurações</h1><p>Ações administrativas gerais</p></div></div>
 
       <div class="block">
@@ -2020,29 +2055,70 @@ async function doLogin(){
  catch(error){err.textContent=error.code==='auth/mfa-cancelled'?'Confirmação cancelada. Entre novamente para continuar.':'Não foi possível entrar. Confira os dados e tente novamente.';}
  finally{hideLoading();}
 }
-function doLogout(){ if(!confirm('Deseja sair do painel?')) return; auth.signOut(); }
+async function verifyAdminAuthorization(user){
+  const token=await user.getIdToken(true);
+  const response=await fetch('/api/admin-access',{
+    method:'POST',
+    headers:{'Content-Type':'application/json',Authorization:'Bearer '+token},
+    body:'{}',
+    signal:AbortSignal.timeout(15000)
+  });
+  const result=await response.json().catch(()=>({}));
+  if(!response.ok||result.authorized!==true){
+    const error=new Error(result.error||'Conta sem permissão de administrador.');
+    error.code='auth/admin-access-denied';
+    error.status=response.status;
+    throw error;
+  }
+  return true;
+}
+function lockAdminInterface(){
+  document.body.classList.remove('admin-authorized');
+  closeCreateMenus?.();
+  currentAdmin=null;
+  products=[];sessions={};brands={};contacts={};promocoes={};cupons={};categoryOrder=[];
+  categoryClicks={};sessionClicks={};brandClicks={};clickHistory=[];metaAchievements=[];importHistoryCache=[];usersCache=[];contactClicks=[];
+  trackingLinks={};profileData={};ordersCache=[];allOrdersCache=[];featuredDraft=[];galleryDraft=[];
+  document.querySelectorAll('.sc-val').forEach(el=>el.textContent='0');
+  document.querySelectorAll('tbody,.mini-list,#usersListAdm,#leadRows,#leadCampaignRows,#supportCenter').forEach(el=>el.replaceChildren());
+  document.querySelectorAll('canvas').forEach(canvas=>{
+    const context=canvas.getContext?.('2d');
+    if(context) context.clearRect(0,0,canvas.width,canvas.height);
+  });
+  const email=document.getElementById('sbUserEmailDisplay');if(email)email.textContent='Administrador';
+  const cfgName=document.getElementById('cfgAdminName');if(cfgName)cfgName.textContent='—';
+  const cfgEmail=document.getElementById('cfgAdminEmail');if(cfgEmail)cfgEmail.textContent='—';
+}
+function unlockAdminInterface(){ document.body.classList.add('admin-authorized'); }
+async function doLogout(){
+  if(!confirm('Deseja sair do painel?')) return;
+  lockAdminInterface();
+  try{await auth.signOut();}finally{location.reload();}
+}
 
 auth.onAuthStateChanged(user=>{
   hideLoading();
+  lockAdminInterface();
   if(user){
-    database.ref('adminAccess').once('value').then(()=>database.ref(`users/${user.uid}`).once('value')).then(snap=>{
+    verifyAdminAuthorization(user).then(()=>database.ref(`users/${user.uid}`).once('value')).then(snap=>{
       const data=snap.val()||{};
       if(auth.currentUser && auth.currentUser.uid===user.uid){
         currentAdmin={...data,uid:user.uid};
-        document.getElementById('loginScreen').style.display='none';
         updateOrdersRevenueDisplay();
         document.getElementById('sbUserEmailDisplay').textContent = data.email || user.email || 'Administrador';
         document.getElementById('cfgAdminName').textContent=data.name||'Admin';
         document.getElementById('cfgAdminEmail').textContent=data.email||user.email;
+        unlockAdminInterface();
+        document.getElementById('loginScreen').style.display='none';
         loadAllData(); loadLeadsAdmin(); recordAdminEntryAdm();
       }else{
         document.getElementById('loginError').textContent='Conta sem permissão de administrador.';
         document.getElementById('loginScreen').style.display='flex';
         auth.signOut();
       }
-    }).catch(async()=>{
-      try{await database.ref('adminSetupAccess').once('value');location.replace('/recuperar-acesso.html#configurar');return;}catch{}
-      document.getElementById('loginError').textContent='Conta sem permissao de administrador.';
+    }).catch(async error=>{
+      if(error?.status===403){try{await database.ref('adminSetupAccess').once('value');location.replace('/recuperar-acesso.html#configurar');return;}catch{}}
+      document.getElementById('loginError').textContent=error?.status===403?'Conta sem permissão de administrador.':'Não foi possível validar o acesso administrativo. Use o servidor da aplicação.';
       document.getElementById('loginScreen').style.display='flex';
       auth.signOut();
     });
@@ -2114,7 +2190,38 @@ adminSidebar.addEventListener('mouseleave', () => {
   document.body.classList.remove('sidebar-hover-expanded');
 });
 
+function closeCreateMenus(){
+  document.querySelectorAll('.create-fab-wrap.open').forEach(wrap => {
+    wrap.classList.remove('open');
+    const button = wrap.querySelector('.create-fab');
+    if(button) button.setAttribute('aria-expanded','false');
+  });
+}
+function toggleCreateMenu(button){
+  const wrap = button.closest('.create-fab-wrap');
+  const willOpen = !wrap.classList.contains('open');
+  closeCreateMenus();
+  if(willOpen){
+    wrap.classList.add('open');
+    button.setAttribute('aria-expanded','true');
+    wrap.querySelector('.create-fab-option')?.focus();
+  }
+}
+function focusCreateSection(sectionId,inputId){
+  closeCreateMenus();
+  const section = document.getElementById(sectionId);
+  if(section) section.scrollIntoView({behavior:'smooth',block:'center'});
+  window.setTimeout(() => document.getElementById(inputId)?.focus(), 350);
+}
+document.addEventListener('click', event => {
+  if(!event.target.closest('.create-fab-wrap')) closeCreateMenus();
+});
+document.addEventListener('keydown', event => {
+  if(event.key === 'Escape') closeCreateMenus();
+});
+
 function switchPanel(name){
+  closeCreateMenus();
   document.querySelectorAll('.sb-item[data-panel]').forEach(i=>i.classList.toggle('active',i.dataset.panel===name));
   document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
   const panelEl = document.getElementById('panel-'+name);
@@ -2496,8 +2603,8 @@ function renderLegacySettings(){
  const query=(document.getElementById('cleanupOrderSearch')?.value||'').toLocaleLowerCase('pt-BR').trim();
  const orders=allOrdersCache.filter(o=>!o.archivedAt&&(!query||[orderShortIdAdm(o),o.customerName,o.customerEmail,o.id].join(' ').toLocaleLowerCase('pt-BR').includes(query)));
  list.innerHTML=orders.length?orders.map(o=>{
- const user=usersCache.find(u=>u.uid===o.uid)||{};
- return '<article class="cleanup-order"><div><strong>'+esc(orderShortIdAdm(o))+'</strong><div>'+esc(o.customerName||user.name||o.customerEmail||user.email||'Cliente')+'</div><small class="notification-muted">'+esc(o.customerEmail||user.email||'')+' · '+esc(o.status||'pendente')+'</small>'+'</div><button type="button" class="btn btn-danger btn-sm" data-uid="'+esc(o.uid)+'" data-order="'+esc(o.id)+'" onclick="removeCleanupOrder(this.dataset.uid,this.dataset.order)">Excluir</button></article>';
+ const user=usersCache.find(u=>u.uid===o.uid)||{},eligible=CimPaymentPolicy.isLegacyOrder(o);
+ return '<article class="cleanup-order"><div><strong>'+esc(orderShortIdAdm(o))+'</strong><div>'+esc(o.customerName||user.name||o.customerEmail||user.email||'Cliente')+'</div><small class="notification-muted">'+esc(o.customerEmail||user.email||'')+' · '+esc(o.status||'pendente')+'</small>'+(eligible?'':'<p class="notification-muted">Pedido integrado ao pagamento: exclusão indisponível.</p>')+'</div><button type="button" class="btn btn-danger btn-sm" data-uid="'+esc(o.uid)+'" data-order="'+esc(o.id)+'" '+(eligible?'onclick="removeCleanupOrder(this.dataset.uid,this.dataset.order)"':'disabled')+'>Excluir</button></article>';
  }).join(''):'<p class="notification-empty">Nenhum pedido encontrado.</p>';
 }
 function openOrderCleanup(){document.getElementById('cleanupOrderSearch').value='';renderLegacySettings();openModal('modalOrderCleanup');}
@@ -2578,15 +2685,15 @@ function deleteAnnouncementRecipient(id){const uid=document.getElementById('reci
 Object.assign(window,{openOrderCleanup,removeCleanupOrder,openAnnouncements,setAnnouncementMode,renderNotificationRecipients,selectNotificationUser,loadAnnouncements,resetAnnouncement,saveAnnouncement,editAnnouncement,deleteAnnouncement,deleteAnnouncementRecipient});
 async function archiveLegacyOrderAdm(uid,id){
   const order=allOrdersCache.find(o=>o.uid===uid&&o.id===id);
-  if(!order)return;
-  if(!confirm('Excluir o pedido '+orderShortIdAdm(order)+' da lista e do faturamento por ser um teste? O histórico do pagamento e o cadastro do cliente serão mantidos. Esta ação não cancela nem estorna o pagamento.'))return;
-  showLoading('Excluindo pedido de teste...');
+  if(!order||!CimPaymentPolicy.isLegacyOrder(order))return;
+  if(!confirm('Excluir o pedido antigo '+orderShortIdAdm(order)+' da lista? Use apenas para pedidos de teste criados antes da integração. O cadastro do cliente será mantido.'))return;
+  showLoading('Excluindo pedido antigo...');
   try{
     const token=await auth.currentUser.getIdToken();
     const response=await fetch('/api/admin-archive-legacy-order',{method:'POST',headers:{'Content-Type':'application/json',Authorization:'Bearer '+token},body:JSON.stringify({uid,orderId:id}),signal:AbortSignal.timeout(30000)});
     const result=await response.json().catch(()=>({}));
     if(!response.ok)throw Error(result.error||'Não foi possível excluir o pedido.');
-    showToast('Pedido de teste excluído da lista e do faturamento.');
+    showToast('Pedido antigo excluído da lista.');
   }catch(error){showToast(error.message,'err');}
   finally{hideLoading();}
 }
@@ -4179,6 +4286,10 @@ function switchImportTab(tab){
   document.getElementById('importTabNovo').style.display=tab==='novo'?'block':'none';
   document.getElementById('importTabHist').style.display=tab==='hist'?'block':'none';
 }
+function startNewImport(){
+  switchImportTab('novo');
+  document.getElementById('csvFileAdm').click();
+}
 document.getElementById('filterByColHAdm').onchange=function(){
   const f=document.getElementById('csvFileAdm'); if(f.files&&f.files.length>0) f.dispatchEvent(new Event('change'));
 };
@@ -4554,7 +4665,7 @@ function renderClickHistory(){
   }
 
   body.innerHTML = lista.map(l => {
-    const srcLabel = SOURCE_LABELS[l.source] || l.source || '—';
+    const srcLabel = SOURCE_LABELS[l.source] || esc(l.source || '—');
     let campaignHtml;
     if (l.campaignName) {
       campaignHtml = `<span class="chip" style="background:rgba(255,54,1,.12);color:var(--accent);border:1px solid rgba(255,54,1,.25);"><i class="fas fa-bullhorn"></i> ${esc(l.campaignName)}</span>`;
@@ -4569,7 +4680,7 @@ function renderClickHistory(){
     return `<tr>
       <td class="td-name">${esc(l.productName || l.sessionName || '—')}</td>
       <td>${esc(l.userName || 'Visitante')}${l.userType ? ` <span style="color:var(--text-dim);font-size:.72rem;">(${esc(l.userType)})</span>` : ''}</td>
-      <td><span class="chip chip-mut">${esc(srcLabel)}</span></td>
+      <td><span class="chip chip-mut">${srcLabel}</span></td>
       <td>${campaignHtml}</td>
       <td class="td-sub">${esc(l.date || '')} ${esc(l.time || '')}</td>
     </tr>`;
