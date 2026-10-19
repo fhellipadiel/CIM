@@ -1,4 +1,4 @@
-const ordersApi=require('./orders.cjs');
+﻿const ordersApi=require('./orders.cjs');
 const {quote,validSignature,verifiedPayment,fail}=require('./core.cjs');
 const crypto=require('node:crypto');
 const paymentConfig=require('./payment-config.cjs');
@@ -16,24 +16,24 @@ function services() {
 async function mp(path, options={},mode=paymentConfig.activeMode()) {
   const cfg=paymentConfig.settings(mode);
   const res=await fetch('https://api.mercadopago.com'+path,{...options,headers:{Authorization:'Bearer '+cfg.token,'Content-Type':'application/json',...(options.headers||{})},signal:AbortSignal.timeout(15000)});
-  if (!res.ok) fail('O Mercado Pago não conseguiu processar esta solicitação.',502);
+  if (!res.ok) fail('O Mercado Pago nÃ£o conseguiu processar esta solicitaÃ§Ã£o.',502);
   return res.json();
 }
 async function identity(req, auth) {
   const token=(req.headers.authorization||'').match(/^Bearer (.+)$/)?.[1];
   if (!token) fail('Entre na sua conta para continuar.',401);
-  try { return await auth.verifyIdToken(token,true); } catch { fail('Faça login novamente para continuar.',401); }
+  try { return await auth.verifyIdToken(token,true); } catch { fail('FaÃ§a login novamente para continuar.',401); }
 }
 const key=/^[a-zA-Z0-9_-]{1,128}$/;
 async function reconcile(db, payment) {
   const ref=String(payment.external_reference||'').split(':');
-  if (ref.length!==3 || ref[0]!=='cimtest' || !key.test(ref[1]) || !key.test(ref[2])) fail('Pedido de teste não encontrado.',404);
+  if (ref.length!==3 || ref[0]!=='cimtest' || !key.test(ref[1]) || !key.test(ref[2])) fail('Pedido de teste nÃ£o encontrado.',404);
   const path=db.ref(`paymentTests/${ref[1]}/${ref[2]}`);
   const retain=()=>{};
   path.on('value',retain);
   try {
   const order=(await path.once('value')).val();
-  if (!order) fail('Pedido de teste não encontrado.',404);
+  if (!order) fail('Pedido de teste nÃ£o encontrado.',404);
   const buyerId=process.env.MP_BUYER_ID;
   if (!buyerId || String(payment.payer?.id)!==buyerId) fail('Comprador diferente da conta de teste configurada.',409);
   const [seller,buyer]=await Promise.all([mp('/users/me',{},'test'),mp('/users/'+encodeURIComponent(buyerId),{},'test')]);
@@ -54,19 +54,19 @@ async function reconcile(db, payment) {
 }
 async function reconcileOrder(db,remote,mode=paymentConfig.activeMode(),dependencies={}){
   const requestMp=dependencies.mp||mp;
-  if(!paymentConfig.validOrderId(remote.id,mode))fail('Order incompatível com o ambiente.',409);
+  if(!paymentConfig.validOrderId(remote.id,mode))fail('Order incompatÃ­vel com o ambiente.',409);
   const index=(await db.ref('paymentOrderIndex/'+remote.id).get()).val();
-  if(!index || !key.test(index.uid)||!key.test(index.orderId)||(index.environment||'test')!==mode)fail('Pedido não encontrado neste ambiente.',404);
+  if(!index || !key.test(index.uid)||!key.test(index.orderId)||(index.environment||'test')!==mode)fail('Pedido nÃ£o encontrado neste ambiente.',404);
   const cfg=paymentConfig.settings(mode);
   paymentConfig.verifySeller(await requestMp('/users/me',{},mode),cfg);
   const ref=db.ref(cfg.root+'/'+index.uid+'/'+index.orderId);
   const retain=()=>{};ref.on('value',retain);
   try{
     const existing=(await ref.once('value')).val();
-    if(!existing)fail('Pedido não encontrado.',404);
+    if(!existing)fail('Pedido nÃ£o encontrado.',404);
     const details=ordersApi.verify(remote,existing,cfg.sellerId,mode);
     const incoming=Date.parse(remote.last_updated_date||remote.created_date);
-    if(!Number.isFinite(incoming))fail('Data da Order inválida.',409);
+    if(!Number.isFinite(incoming))fail('Data da Order invÃ¡lida.',409);
     const result=await ref.transaction(current=>{
       if(!current || current.mercadoOrderId!==remote.id)return;
       return ordersApi.applyPayment(current,details,incoming);
@@ -85,11 +85,11 @@ async function notifyOrder(db,uid,id,order){
   if(order.status==='pendente' && !visibleOrder(order))return;
   const paid=order.status==='pago';
   const prefix=order.testMode===false?'production_':'';
-  await db.ref('notifications/'+uid+'/checkout_'+prefix+id+'_'+order.status).transaction(current=>current||{type:paid?'order_confirmed':'order_updated',title:paid?'Pagamento aprovado':'Pagamento pendente',message:paid?'Seu pedido foi confirmado com sucesso. Acesse o menu > Pedidos.':'Seu pedido está aguardando pagamento. Você tem até uma hora para pagar pelo menu > Pedidos.',orderId:id,createdAt:Date.now(),read:false});
+  await db.ref('notifications/'+uid+'/checkout_'+prefix+id+'_'+order.status).transaction(current=>current||{type:paid?'order_confirmed':'order_updated',title:paid?'Pagamento aprovado':'Pagamento pendente',message:paid?'Seu pedido foi confirmado com sucesso. Acesse o menu > Pedidos.':'Seu pedido estÃ¡ aguardando pagamento. VocÃª tem atÃ© uma hora para pagar pelo menu > Pedidos.',orderId:id,createdAt:Date.now(),read:false});
 }
 async function refreshOrder(db,order){
   if(order.provider==='orders' && order.mercadoOrderId){const mode=paymentConfig.orderMode(order);await reconcileOrder(db,await mp('/v1/orders/'+encodeURIComponent(order.mercadoOrderId),{},mode),mode);return;}
-  // Mantém o histórico das preferências antigas; não usa a nova aplicação para conciliá-las.
+  // MantÃ©m o histÃ³rico das preferÃªncias antigas; nÃ£o usa a nova aplicaÃ§Ã£o para conciliÃ¡-las.
 }
 
 async function handle(action,req,res,dependencies={}) {
@@ -99,7 +99,7 @@ async function handle(action,req,res,dependencies={}) {
   const reconcileRemote=dependencies.reconcileOrder||reconcileOrder;
   res.setHeader('Cache-Control','no-store');
   try {
-    if (req.method!=='POST') fail('Método não permitido.',405);
+    if (req.method!=='POST') fail('MÃ©todo nÃ£o permitido.',405);
     const bodyLimit=action==='admin-media'?4250000:65536;
     if(Number(req.headers['content-length']||0)>bodyLimit)fail('Solicitacao muito grande.',413);
     const body=typeof req.body==='string' ? JSON.parse(req.body) : req.body||{};
@@ -114,23 +114,23 @@ async function handle(action,req,res,dependencies={}) {
       const webhookMode=new URL(req.url,'http://localhost').searchParams.get('environment')||paymentConfig.activeMode();
       const cfg=paymentConfig.settings(webhookMode);
       const secret=body.type==='order' ? cfg.webhookSecret : webhookMode==='test'?process.env.MP_WEBHOOK_SECRET:null;
-      if (!secret) fail('Falta configurar a assinatura do webhook desta aplicação.',503);
+      if (!secret) fail('Falta configurar a assinatura do webhook desta aplicaÃ§Ã£o.',503);
       const url=new URL(req.url,'http://localhost');
       const id=url.searchParams.get('data.id');
-      if (!validSignature(id,req.headers['x-request-id'],req.headers['x-signature'],secret)) fail('Assinatura inválida.',401);
-      if(!['payment','order'].includes(body.type) || String(body.data?.id)!==id)fail('Notificação inválida.');
+      if (!validSignature(id,req.headers['x-request-id'],req.headers['x-signature'],secret)) fail('Assinatura invÃ¡lida.',401);
+      if(!['payment','order'].includes(body.type) || String(body.data?.id)!==id)fail('NotificaÃ§Ã£o invÃ¡lida.');
       const {db}=getServices();
       if(body.type==='order'){
-        if(!paymentConfig.validOrderId(id,webhookMode))fail('Order inválida.',400);
+        if(!paymentConfig.validOrderId(id,webhookMode))fail('Order invÃ¡lida.',400);
         const remote=await requestMp('/v1/orders/'+encodeURIComponent(id),{},webhookMode);
         const updated=await reconcileRemote(db,remote,webhookMode);
-        if(!updated)fail('Confirmação não aplicada.',409);
+        if(!updated)fail('ConfirmaÃ§Ã£o nÃ£o aplicada.',409);
         const index=(await db.ref('paymentOrderIndex/'+id).get()).val();
         await db.ref(cfg.root+'/'+index.uid+'/'+index.orderId).update({webhookReceivedAt:Date.now(),webhookOrderId:id});
       }else{
         const payment=await requestMp('/v1/payments/'+encodeURIComponent(id),{},'test');
         const updated=await reconcile(db,payment);
-        if(!updated)fail('Confirmação não aplicada.',409);
+        if(!updated)fail('ConfirmaÃ§Ã£o nÃ£o aplicada.',409);
         const [,uid,orderId]=payment.external_reference.split(':');
         await db.ref(`paymentTests/${uid}/${orderId}`).update({webhookReceivedAt:Date.now(),webhookPaymentId:String(payment.id)});
       }
@@ -139,7 +139,12 @@ async function handle(action,req,res,dependencies={}) {
     const {auth,db}=getServices();
     const caller=await identity(req,auth);
     if(action==='admin-recovery')return res.status(200).json(await require('./admin-recovery.cjs').handleRecovery({auth,db,caller,body}));
-    if(action==='admin-access'){await (dependencies.requireAdminAccess||requireAdminAccess)(req,db);return res.status(200).json({admins:await require('./access-registry.cjs').adminDirectory(db)});}
+    if(action==='admin-access'){
+      const registry=require('./access-registry.cjs');
+      if(dependencies.requireAdminAccess)await dependencies.requireAdminAccess(req,db);
+      else await registry.requireRegistryAdmin(db,caller);
+      return res.status(200).json({authorized:true,admins:await registry.adminDirectory(db)});
+    }
     if(action==='admin-media')return res.status(200).json(await require('./admin-media.cjs').handleMedia({auth,caller,body,requireRead:()=> (dependencies.requireAdminAccess||requireAdminAccess)(req,db),requireWrite:()=> (dependencies.requireAdminWriteAccess||dependencies.requireAdminAccess||requireAdminWriteAccess)(req,db)}));
     if(action==='admin-mfa')return res.status(200).json(await require('./admin-mfa.cjs').handleAdminMfa({auth,db,caller,body,requireSetup:()=> (dependencies.requireAdminSetupAccess||requireAdminSetupAccess)(req,db),requireAdmin:()=> (dependencies.requireAdminAccess||requireAdminAccess)(req,db)}));
     if(action==='register-profile')return res.status(200).json(await require('./registration.cjs').registerProfile(db,caller,body));
@@ -162,8 +167,8 @@ async function handle(action,req,res,dependencies={}) {
     if(action==='cart-save' || action==='cart-load'){
       const cartRef=db.ref('customerCarts/'+caller.uid);
       if(action==='cart-save'){
-        if(!Array.isArray(body.items)||body.items.length>100)fail('Carrinho inválido.');
-        const items=body.items.map(item=>{if(!key.test(item.id||'')||!Number.isInteger(item.quantity)||item.quantity<1||item.quantity>999)fail('Item inválido.');return {id:item.id,quantity:item.quantity};});
+        if(!Array.isArray(body.items)||body.items.length>100)fail('Carrinho invÃ¡lido.');
+        const items=body.items.map(item=>{if(!key.test(item.id||'')||!Number.isInteger(item.quantity)||item.quantity<1||item.quantity>999)fail('Item invÃ¡lido.');return {id:item.id,quantity:item.quantity};});
         await cartRef.set({items,updatedAt:Date.now()});
         return res.status(200).json({saved:true});
       }
@@ -175,12 +180,12 @@ async function handle(action,req,res,dependencies={}) {
     }
     if(action==='admin-archive-legacy-order'){
       if(user.isAdmin!==true)fail('Acesso restrito ao administrador.',403);
-      if(!key.test(body.uid||'')||!key.test(body.orderId||''))fail('Pedido inválido.');
+      if(!key.test(body.uid||'')||!key.test(body.orderId||''))fail('Pedido invÃ¡lido.');
       const ref=db.ref('orders/'+body.uid+'/'+body.orderId);
       const retain=()=>{};ref.on('value',retain);
       try{
         const current=(await ref.once('value')).val();
-        if(!current)fail('Pedido não encontrado.',404);
+        if(!current)fail('Pedido nÃ£o encontrado.',404);
         const result=await ref.transaction(order=>order?{...order,archivedAt:order.archivedAt||Date.now(),archivedBy:caller.uid,archiveReason:order.archiveReason||'test_order'}:undefined);
         if(!result.committed)fail('O pedido mudou. Atualize a lista.',409);
         return res.status(200).json({archived:true});
@@ -189,10 +194,10 @@ async function handle(action,req,res,dependencies={}) {
     const cfg=paymentConfig.settings();
     if (action==='admin-order-status') {
       if(user.isAdmin!==true)fail('Acesso restrito ao administrador.',403);
-      if(!key.test(body.uid||'')||!key.test(body.orderId||''))fail('Pedido inválido.');
+      if(!key.test(body.uid||'')||!key.test(body.orderId||''))fail('Pedido invÃ¡lido.');
       const ref=db.ref('orders/'+body.uid+'/'+body.orderId);
       let order=(await ref.get()).val();
-      if(!order||order.provider!=='orders'||order.testMode!==false)fail('Pedido de produção não encontrado.',404);
+      if(!order||order.provider!=='orders'||order.testMode!==false)fail('Pedido de produÃ§Ã£o nÃ£o encontrado.',404);
       await refresh(db,order);order=(await ref.get()).val();
       const next=body.status;
       if(next==='cancelado'){
@@ -202,7 +207,7 @@ async function handle(action,req,res,dependencies={}) {
         return res.status(200).json({updated:true});
       }
       const flow={pago:'preparando',confirmado:'preparando',preparando:'enviado',enviado:'entregue'};
-      if(order.paymentStatus!=='accredited'||flow[order.status]!==next)fail('Aguarde a aprovação e siga as etapas do pedido.',409);
+      if(order.paymentStatus!=='accredited'||flow[order.status]!==next)fail('Aguarde a aprovaÃ§Ã£o e siga as etapas do pedido.',409);
       const retain=()=>{};ref.on('value',retain);
       try{await ref.once('value');
         const result=await ref.transaction(current=>current?.status===order.status&&current.paymentStatus==='accredited'?{...current,status:next,updatedAt:Date.now()}:undefined);
@@ -211,13 +216,13 @@ async function handle(action,req,res,dependencies={}) {
       return res.status(200).json({updated:true});
     }
     if (action==='resume-payment') {
-      if(!key.test(body.orderId||''))fail('Pedido inválido.');
+      if(!key.test(body.orderId||''))fail('Pedido invÃ¡lido.');
       const ref=db.ref(cfg.root+'/'+caller.uid+'/'+body.orderId);
       let order=(await ref.get()).val();
-      if(!order)fail('Pedido não encontrado.',404);
+      if(!order)fail('Pedido nÃ£o encontrado.',404);
       await refresh(db,order);order=(await ref.get()).val();
-      if(order.status!=='pendente'||!visibleOrder(order))fail('O pedido já foi pago, cancelado ou o prazo terminou.',409);
-      if(!order.checkoutUrl)fail('Pagamento indisponível.',409);
+      if(order.status!=='pendente'||!visibleOrder(order))fail('O pedido jÃ¡ foi pago, cancelado ou o prazo terminou.',409);
+      if(!order.checkoutUrl)fail('Pagamento indisponÃ­vel.',409);
       return res.status(200).json({checkoutUrl:order.checkoutUrl});
     }
     if (action==='customer-orders') {
@@ -231,16 +236,16 @@ async function handle(action,req,res,dependencies={}) {
       return res.status(200).json({orders:orders.sort((a,b)=>b.createdAt-a.createdAt)});
     }
     if (action==='payment-status') {
-      if (!key.test(body.orderId||'')) fail('Pedido inválido.');
+      if (!key.test(body.orderId||'')) fail('Pedido invÃ¡lido.');
       const order=(await db.ref(cfg.root+'/'+caller.uid+'/'+body.orderId).get()).val();
-      if (!order) fail('Pedido não encontrado.',404);
+      if (!order) fail('Pedido nÃ£o encontrado.',404);
       await refresh(db,order);
       const updated=(await db.ref(cfg.root+'/'+caller.uid+'/'+body.orderId).get()).val();
       return res.status(200).json({status:updated.status,paymentStatus:updated.paymentStatus||'',total:updated.total,orderId:body.orderId});
     }
-    if (action!=='checkout') fail('Rota inválida.',404);
+    if (action!=='checkout') fail('Rota invÃ¡lida.',404);
     for (const field of ['telefone','cep','logradouro','numero','bairro','cidade','uf']) if (!String(user[field]||'').trim()) fail('Complete os dados de entrega antes de continuar.');
-    if (!key.test(body.requestId||'')) fail('Solicitação inválida.');
+    if (!key.test(body.requestId||'')) fail('SolicitaÃ§Ã£o invÃ¡lida.');
     paymentConfig.verifySeller(await requestMp('/users/me'),cfg);
     const names=['products','sessions','promocoes','cupons','categoryHidePF','categoryHidePJ','settings/pricesHidden'];
     const values=await Promise.all(names.map(n=>db.ref(n).get()));
@@ -250,7 +255,7 @@ async function handle(action,req,res,dependencies={}) {
     const reference=body.requestId;
     const fingerprint=crypto.createHash('sha256').update(cfg.mode+':orders-v2:'+JSON.stringify(priced)).digest('hex');
     const base=new URL(cfg.base);
-    if (base.protocol!=='https:' && !['localhost','127.0.0.1'].includes(base.hostname)) fail('Endereço de teste inválido.',503);
+    if (base.protocol!=='https:' && !['localhost','127.0.0.1'].includes(base.hostname)) fail('EndereÃ§o de teste invÃ¡lido.',503);
     const returnUrl=new URL('/cim.html',base);
     returnUrl.searchParams.set(cfg.testMode?'checkout_test':'checkout_order',body.requestId);
     const created=await ref.transaction(current=>current||{...priced,reference,fingerprint,provider:'orders',status:'pendente',testMode:cfg.testMode,environment:cfg.mode,uid:caller.uid,customerName:String(user.name||''),customerEmail:String(user.email||''),createdAt:Date.now(),expiresAt:Date.now()+PAYMENT_WINDOW,deliveryAddress:Object.fromEntries(['cep','logradouro','numero','complemento','bairro','cidade','uf'].map(k=>[k,String(user[k]||'')]))});
@@ -258,16 +263,16 @@ async function handle(action,req,res,dependencies={}) {
     if (existing.fingerprint!==fingerprint && !(cfg.testMode && existing.fingerprint===crypto.createHash('sha256').update('orders-v2:'+JSON.stringify(priced)).digest('hex'))) fail('Revise o carrinho e tente novamente.',409);
     if (!visibleOrder(existing)) fail('Prazo de pagamento encerrado. Monte um novo pedido.',409);
     if (existing.checkoutUrl && existing.status==='pendente') { await notifyOrder(db,caller.uid,body.requestId,existing); await db.ref('customerCarts/'+caller.uid).set({items:[],updatedAt:Date.now()}); return res.status(200).json({checkoutUrl:existing.checkoutUrl,orderId:body.requestId,testMode:cfg.testMode}); }
-    if (existing.status==='pago') fail('Este pedido já foi pago.',409);
+    if (existing.status==='pago') fail('Este pedido jÃ¡ foi pago.',409);
     const request=ordersApi.payload(priced,reference,returnUrl.href);
     const remote=await requestMp('/v1/orders',{method:'POST',headers:{'X-Idempotency-Key':body.requestId},body:JSON.stringify(request)});
-    if(!paymentConfig.validOrderId(remote.id,cfg.mode) || String(remote.user_id)!==cfg.sellerId || (!cfg.testMode && remote.live_mode===false))fail('A API não retornou um pedido da conta recebedora configurada.',502);
+    if(!paymentConfig.validOrderId(remote.id,cfg.mode) || String(remote.user_id)!==cfg.sellerId || (!cfg.testMode && remote.live_mode===false))fail('A API nÃ£o retornou um pedido da conta recebedora configurada.',502);
     const target=new URL(remote.checkout_url);
-    if(target.protocol!=='https:' || target.hostname!=='www.mercadopago.com.br')fail('Endereço de checkout inesperado.',502);
+    if(target.protocol!=='https:' || target.hostname!=='www.mercadopago.com.br')fail('EndereÃ§o de checkout inesperado.',502);
     await db.ref().update({[`paymentOrderIndex/${remote.id}`]:{uid:caller.uid,orderId:body.requestId,environment:cfg.mode},[cfg.root+'/'+caller.uid+'/'+body.requestId+'/mercadoOrderId']:remote.id,[cfg.root+'/'+caller.uid+'/'+body.requestId+'/checkoutUrl']:target.href});
     await notifyOrder(db,caller.uid,body.requestId,existing);
     await db.ref('customerCarts/'+caller.uid).set({items:[],updatedAt:Date.now()});
     res.status(200).json({checkoutUrl:target.href,orderId:body.requestId,testMode:cfg.testMode});
-  } catch(e) { if(!e.status){let message=String(e.message||'').replace(/-----BEGIN[\s\S]*?-----END[^-]*-----/g,'[redacted]');for(const [name,value]of Object.entries(process.env))if(/TOKEN|SECRET|CREDENTIAL|PRIVATE_KEY/.test(name)&&value&&value.length>3)message=message.split(value).join('[redacted]');console.error('[checkout-error]',JSON.stringify({action,name:e.name,code:e.code||'',message:message.slice(0,350)}));} res.status(e.status||500).json({error:e.status ? e.message : 'Não foi possível concluir a operação. Confira a configuração do servidor.'}); }
+  } catch(e) { if(!e.status){let message=String(e.message||'').replace(/-----BEGIN[\s\S]*?-----END[^-]*-----/g,'[redacted]');for(const [name,value]of Object.entries(process.env))if(/TOKEN|SECRET|CREDENTIAL|PRIVATE_KEY/.test(name)&&value&&value.length>3)message=message.split(value).join('[redacted]');console.error('[checkout-error]',JSON.stringify({action,name:e.name,code:e.code||'',message:message.slice(0,350)}));} res.status(e.status||500).json({error:e.status ? e.message : 'NÃ£o foi possÃ­vel concluir a operaÃ§Ã£o. Confira a configuraÃ§Ã£o do servidor.'}); }
 }
 module.exports={handle,reconcile,reconcileOrder,expiresAt,visibleOrder,notifyOrder};
