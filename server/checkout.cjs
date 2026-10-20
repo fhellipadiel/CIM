@@ -4,6 +4,7 @@ const crypto=require('node:crypto');
 const paymentConfig=require('./payment-config.cjs');
 const orderPolicy=require('../assets/payment-policy.js');
 const {requireAdminAccess,requireAdminSetupAccess,requireAdminWriteAccess}=require('./admin-access.cjs');
+const requestSecurity=require('./request-security.cjs');
 let app;
 function services() {
   if (!process.env.GOOGLE_APPLICATION_CREDENTIALS && !process.env.FIREBASE_SERVICE_ACCOUNT_JSON) fail('Falta configurar a credencial do servidor Firebase de pagamentos.',503);
@@ -100,6 +101,7 @@ async function handle(action,req,res,dependencies={}) {
   res.setHeader('Cache-Control','no-store');
   try {
     if (req.method!=='POST') fail('Método não permitido.',405);
+    requestSecurity.originAllowed(req,action);
     const bodyLimit=action==='admin-media'?4250000:65536;
     if(Number(req.headers['content-length']||0)>bodyLimit)fail('Solicitacao muito grande.',413);
     const body=typeof req.body==='string' ? JSON.parse(req.body) : req.body||{};
@@ -109,7 +111,7 @@ async function handle(action,req,res,dependencies={}) {
       const {auth,db}=getServices();
       return res.status(200).json(await require('./support.cjs').handleSupport({db,req,body,verifyCaller:()=>identity(req,auth),requireAdmin:()=> (['list','sync','older','read'].includes(body.op)?(dependencies.requireAdminAccess||requireAdminAccess):(dependencies.requireAdminWriteAccess||dependencies.requireAdminAccess||requireAdminWriteAccess))(req,db)}));
     }
-    if(action==='company-lookup')return res.status(200).json(await require('./company-lookup.cjs').lookupCompany(body.cnpj,dependencies.fetch||fetch));
+    if(action==='company-lookup'){const {db}=getServices();await requestSecurity.rateLimit(db,req,'company_lookup','',{limit:12,windowMs:60000});return res.status(200).json(await require('./company-lookup.cjs').lookupCompany(body.cnpj,dependencies.fetch||fetch));}
     if (action==='webhook') {
       const webhookMode=new URL(req.url,'http://localhost').searchParams.get('environment')||paymentConfig.activeMode();
       const cfg=paymentConfig.settings(webhookMode);
@@ -138,6 +140,8 @@ async function handle(action,req,res,dependencies={}) {
     }
     const {auth,db}=getServices();
     const caller=await identity(req,auth);
+    const limits={checkout:10,'register-profile':8,'claim-referral':20,employee:90,'admin-recovery':5,'admin-media':20};
+    await requestSecurity.rateLimit(db,req,action,caller.uid,{limit:limits[action]||120,windowMs:60000});
     if(action==='admin-recovery')return res.status(200).json(await require('./admin-recovery.cjs').handleRecovery({auth,db,caller,body}));
     if(action==='admin-access'){
       const registry=require('./access-registry.cjs');

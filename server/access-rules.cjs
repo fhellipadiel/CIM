@@ -9,7 +9,7 @@ function withAccessRegistry(input){
  rules.adminAccess={'.read':'auth != null && ('+READ+') && ('+MFA+')','.write':false};
  rules.adminWriteAccess={'.read':'auth != null && ('+WRITE+') && ('+MFA+')','.write':false};
  rules.adminSetupAccess={'.read':'auth != null && ('+READ+')','.write':false};
- for(const path of ['accessControl','adminMfaPolicy','mfaRecoveryChallenges','mfaRecoveryLocks','mfaRecoveryRateLimits','securityAudit'])rules[path]={'.read':false,'.write':false};
+ for(const path of ['accessControl','adminMfaPolicy','mfaRecoveryChallenges','mfaRecoveryLocks','mfaRecoveryRateLimits','apiRateLimits','securityAudit'])rules[path]={'.read':false,'.write':false};
  if(JSON.stringify(rules).match(/auth\.uid\s*===?\s*['"][^'"]+['"]/))throw Error('Literal account authorization remains.');
  return result;
 }
