@@ -4,6 +4,11 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>CIM · Painel Administrativo</title>
+<script>
+if((location.hostname==='127.0.0.1'||location.hostname==='localhost')&&/^550\d$/.test(location.port)){
+  location.replace(`http://${location.hostname}:3000${location.pathname}${location.search}${location.hash}`);
+}
+</script>
 <link rel="icon" type="image/webp" href="assets/logo.webp">
 <link rel="shortcut icon" type="image/webp" href="assets/logo.webp">
 <link rel="apple-touch-icon" href="assets/logo.webp">
@@ -1387,7 +1392,7 @@ tbody tr:last-child td{border-bottom:none}
 .employee-link-carousel.dragging{cursor:grabbing;scroll-behavior:auto}
 .employee-link-choice{flex:0 0 94px;display:flex;flex-direction:column;align-items:center;gap:7px;min-height:112px;padding:9px 6px;border-radius:12px;cursor:pointer;text-align:center;transition:background .16s ease}
 .employee-link-choice:hover{background:rgba(255,54,1,.08)}
-.employee-link-choice input{position:absolute;opacity:0;pointer-events:none}
+.employee-link-choice input{position:absolute;opacity:0}.employee-campaign-check{display:block;padding:4px 7px;border-radius:999px;background:#242424;color:#aaa;font-size:9px}.employee-link-choice:has(input:checked) .employee-campaign-check{background:var(--accent);color:#fff}
 .employee-link-choice img{display:block;width:64px;height:64px;border-radius:50%;object-fit:cover;background:#090909;border:2px solid transparent;transition:border-color .16s ease,transform .16s ease}
 .employee-link-choice strong{display:-webkit-box;color:var(--text);font-size:.75rem;line-height:1.2;max-width:86px;overflow:hidden;-webkit-line-clamp:2;-webkit-box-orient:vertical;transition:color .16s ease}
 .employee-link-choice:has(input:checked){background:rgba(255,54,1,.1)}
@@ -1734,7 +1739,7 @@ tbody tr:last-child td{border-bottom:none}
 <div class="f-group"><label>Senha temporária <span class="req">*</span></label><input id="employeePassword" type="password" minlength="12" pattern="(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{12,}" title="Use 12 caracteres com maiúscula, minúscula, número e símbolo" autocomplete="new-password" required></div>
 <div class="form-grid"><div class="f-group"><label>Dia de início do ciclo</label><input id="employeeCycleStartDay" type="number" min="1" max="31" value="10"></div><div class="f-group"><label>Dia de término do ciclo</label><input id="employeeCycleEndDay" type="number" min="1" max="31" value="24"></div></div><div class="f-group"><label>Comissão (%)</label><input id="employeeRate" type="number" min="0" max="100" step=".1" value="3"></div>
 <div class="f-group"><label>Foto do funcionário</label><input id="employeePhoto" type="hidden"><div class="upload-box" id="employeePhotoUploadBox" onclick="employeePhotoInput.click()"><i class="fas fa-image"></i><p>Escolher foto da galeria</p><input id="employeePhotoInput" type="file" accept="image/*" style="display:none"></div><div class="upload-preview" id="employeePhotoPreview" style="display:none"><img id="employeePhotoPreviewImg"><div class="chg" onclick="employeePhotoInput.click()">Trocar foto</div></div></div>
-<div class="f-group"><label>Links da aba Links</label><p class="td-sub" style="margin-bottom:9px">Escolha as campanhas que serão enviadas para este funcionário.</p><div id="employeeLinksPicker"><button id="employeeLinksFilterButton" type="button" class="btn btn-ghost" style="width:100%;justify-content:flex-start" aria-expanded="false" onclick="toggleEmployeeLinksFilter()"><i class="fas fa-filter"></i> Selecionar campanhas <i class="fas fa-chevron-down" style="margin-left:auto;font-size:.68rem"></i></button><div id="employeeCreateLinks" hidden style="display:grid;gap:5px"></div></div></div>
+<div class="f-group"><label>Campanhas da aba Leads</label><p class="td-sub" style="margin-bottom:9px">Selecione as campanhas que serão atribuídas a este funcionário.</p><div id="employeeLinksPicker"><button id="employeeLinksFilterButton" type="button" class="btn btn-ghost" style="width:100%;justify-content:flex-start" aria-expanded="false" onclick="toggleEmployeeLinksFilter()"><i class="fas fa-filter"></i><span id="employeeLinksFilterLabel">Selecionar campanhas</span><i class="fas fa-chevron-down" style="margin-left:auto;font-size:.68rem"></i></button><div id="employeeCreateLinks" hidden style="display:grid;gap:5px"></div></div></div>
 <p class="td-sub"><i class="fas fa-shield-halved"></i> A senha deverá ser trocada no primeiro acesso.</p>
 </div><div class="modal-foot"><button type="button" class="btn btn-ghost" onclick="closeModal('modalEmployee')">Cancelar</button><button class="btn btn-accent" type="submit"><i class="fas fa-plus"></i> Criar funcionário</button></div></form></div></div>
 <div class="modal-overlay" id="modalCliente"><div class="modal">
@@ -1991,6 +1996,8 @@ let ordersRevenueHidden=localStorage.getItem(ORDERS_REVENUE_VISIBILITY_KEY)==='t
 let currentOrderDetail=null;
 let revenueWeekOffset=0;
 let deletingBrandId=null, deletingImportId=null;
+let importInProgressAdm=false;
+let cleaningDuplicateProductsAdm=false,duplicateProductsCleanedAdm=false;
 let orphanReport = { orphans: [], total: 0, kept: 0 };
 
 /* ============================================================
@@ -2011,10 +2018,45 @@ function normalizeLookupText(value){
   return String(value || '').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLocaleLowerCase('pt-BR').trim();
 }
 
+function productDuplicateKey(product){
+  const name=normalizeLookupText(product?.name);
+  if(name) return `name:${name}`;
+  const code=normalizeLookupText(product?.codigo);
+  return code?`code:${code}`:'';
+}
+
 function productImportSources(product){
   const sources = {...(product?.importSources || {})};
   if(product?.importedFrom) sources[product.importedFrom] = true;
   return sources;
+}
+
+async function cleanupDuplicateProductsAdm(){
+  if(cleaningDuplicateProductsAdm||duplicateProductsCleanedAdm||importInProgressAdm||!currentAdmin||products.length<2)return;
+  cleaningDuplicateProductsAdm=true;
+  try{
+    const keepers=new Map(),updates={};
+    let removed=0;
+    [...products].sort((a,b)=>String(a.id).localeCompare(String(b.id))).forEach(product=>{
+      const key=productDuplicateKey(product);
+      if(!key)return;
+      const keeper=keepers.get(key);
+      if(!keeper){keepers.set(key,product);return;}
+      const sources={...productImportSources(keeper),...productImportSources(product)};
+      keeper.importSources=sources;
+      updates[`products/${keeper.id}/importSources`]=sources;
+      const priority={...(keeper.priorityImports||{}),...(product.priorityImports||{})};
+      if(Object.keys(priority).length){keeper.priorityImports=priority;updates[`products/${keeper.id}/priorityImports`]=priority;}
+      if(product.topPriority===true){keeper.topPriority=true;updates[`products/${keeper.id}/topPriority`]=true;}
+      updates[`products/${product.id}`]=null;
+      removed++;
+    });
+    if(removed){await database.ref().update(updates);showToast(`${removed} peça(s) duplicada(s) excluída(s)`);}
+    duplicateProductsCleanedAdm=true;
+  }catch(error){
+    console.error('Erro ao excluir peças duplicadas:',error);
+    showToast('Não foi possível excluir as peças duplicadas: '+(error.message||error.code),'err');
+  }finally{cleaningDuplicateProductsAdm=false;}
 }
 
 function productBelongsToImport(product, historyId){
@@ -2355,7 +2397,7 @@ function switchPanel(name){
     document.getElementById('topbarCrumb').textContent=t[1];
   }
   document.getElementById('sidebar').classList.remove('open');
-  if(name === 'destaques'){ renderFeaturedPanelAdm(); renderGalleryPanelAdm(); }
+  if(name === 'destaques'){ renderFeaturedPanelAdm(); renderGalleryPanelAdm(); renderImportHistory(); syncLegacyImportFixedStates(); }
   if(name === 'quem-somos') renderAboutPhotosPanelAdm();
   if(name === 'analises') renderAnalytics();
   if(name === 'analises-links'){ updateLinkSlugFilter(); renderLinksAnalytics(); }
@@ -2502,6 +2544,7 @@ function loadAllData(){
     products = snap.val()? Object.values(snap.val()) : [];
     renderDashboard(); renderProducts(); renderCategories(); updateSelectPopulators(); renderNoPrice(); refreshPromoTargets();
     renderFeaturedPanelAdm(); renderGalleryPanelAdm();
+    cleanupDuplicateProductsAdm();
   });
   database.ref('sessions').on('value',snap=>{ sessions=snap.val()||{}; renderSessions(); updateSelectPopulators(); });
   database.ref('brands').on('value',snap=>{ brands=snap.val()||{}; renderBrands(); updateSelectPopulators(); });
@@ -2548,9 +2591,9 @@ function loadAllData(){
       snap.forEach(c => list.push({ id: c.key, ...c.val() }));
       list.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
       importHistoryCache = list.slice(0, 100);
-      renderImportHistory();
+      renderImportHistory(); syncLegacyImportFixedStates();
     },
-    err => { console.error('Erro listener importHistory:', err.code, err.message); }
+    err => { console.error('Erro listener importHistory:', err.code, err.message); const list=document.getElementById('importHistoryListAdm');if(list)list.innerHTML='<div class="empty-state"><p>Não foi possível carregar o histórico de importações.</p></div>';showToast('Não foi possível carregar o histórico de importações.','err'); }
   );
 
   database.ref('trackingLinks').on('value', snap => {
@@ -2755,7 +2798,7 @@ function renderNotificationRecipients(){
  const query=(document.getElementById('notificationUserSearch').value||'').trim().toLocaleLowerCase('pt-BR');
  const selected=document.getElementById('announcementTarget').value,editing=!!document.getElementById('announcementId').value;
  const users=usersCache.filter(u=>!u.isAdmin&&(!query||[u.name,u.email,u.cpf,u.cnpj].join(' ').toLocaleLowerCase('pt-BR').includes(query)));
- document.getElementById('notificationRecipients').innerHTML=users.length?users.map(u=>'<button type="button" class="notification-recipient '+(u.uid===selected?'selected':'')+'" data-uid="'+esc(u.uid)+'" onclick="selectNotificationUser(this.dataset.uid)" '+(editing?'disabled':'')+'><span class="recipient-avatar" aria-hidden="true">'+esc((u.name||u.email||'?').charAt(0).toUpperCase())+'</span><span><strong>'+esc(u.name||'Cliente')+'</strong><small>'+esc(u.email||u.cpf||u.cnpj||u.uid)+'</small></span><span class="recipient-check" aria-hidden="true">'+(u.uid===selected?'✓':'○')+'</span></button>').join(''):'<p class="notification-empty">Nenhum cliente encontrado.</p>';
+ document.getElementById('notificationRecipients').innerHTML=users.length?users.map(u=>'<button type="button" class="notification-recipient '+(u.uid===selected?'selected':'')+'" data-uid="'+esc(u.uid)+'" onclick="selectNotificationUser(this.dataset.uid)" '+(editing?'disabled':'')+'><span class="recipient-avatar" aria-hidden="true">'+esc((u.name||u.email||'?').charAt(0).toUpperCase())+'</span><span><strong>'+esc(u.name||'Cliente')+'</strong><small>'+esc(u.email||u.cpf||u.cnpj||u.uid)+'</small></span><span class="recipient-check" aria-hidden="true">'+(u.uid===selected?'Selecionado':'')+'</span></button>').join(''):'<p class="notification-empty">Nenhum cliente encontrado.</p>';
 }
 function selectNotificationUser(uid){
  if(document.getElementById('announcementId').value)return;
@@ -3548,8 +3591,9 @@ function renderProducts(){
   if(status==='hidden') list=list.filter(p=>p.hidePricePF || p.hidePricePJ);
   if(status==='nocategory') list=list.filter(p=>isProductNoCategory(p));
   list.sort((a,b) => {
-    if(a.featured && !b.featured) return -1; if(!a.featured && b.featured) return 1;
     if(a.soldOut && !b.soldOut) return 1; if(!a.soldOut && b.soldOut) return -1;
+    if(a.topPriority && !b.topPriority) return -1; if(!a.topPriority && b.topPriority) return 1;
+    if(a.featured && !b.featured) return -1; if(!a.featured && b.featured) return 1;
     const aHas=(a.prices?.PF||0)>0||(a.prices?.PJ||0)>0; const bHas=(b.prices?.PF||0)>0||(b.prices?.PJ||0)>0;
     if(aHas && !bHas) return -1; if(!aHas && bHas) return 1;
     return (a.name||'').localeCompare(b.name||'');
@@ -4606,14 +4650,26 @@ document.getElementById('csvFileAdm').onchange=async(e)=>{
 
   if(items.length === 0){ showToast('Nenhuma peça válida encontrada','err'); return; }
 
-  window.importItemsAdm=items;
+  const uniqueItems=[];
+  const itemKeys=new Set();
+  let duplicateRows=0;
+  items.forEach(item=>{
+    const key=productDuplicateKey(item);
+    if(key&&itemKeys.has(key)){ duplicateRows++; return; }
+    if(key)itemKeys.add(key);
+    uniqueItems.push(item);
+  });
+  window.importItemsAdm=uniqueItems;
+  window.importDuplicateCountAdm=duplicateRows;
   window.importFileNameAdm=file.name;
   renderImportPreviewAdm();
   document.getElementById('importPreviewAdm').style.display='block';
+  if(duplicateRows) showToast(`${duplicateRows} peça(s) repetida(s) removida(s) do arquivo`);
 };
 document.getElementById('confirmImportAdm').onchange=(e)=>{ document.getElementById('importBtnAdm').disabled=!e.target.checked; };
 
 async function importNamesAdm(){
+  if(importInProgressAdm){ showToast('A importação já está sendo salva. Aguarde.','err'); return; }
   const items = window.importItemsAdm;
   if(!items || items.length === 0){ showToast('Nenhum item para importar','err'); return; }
 
@@ -4629,13 +4685,17 @@ async function importNamesAdm(){
   }
   const applyMarkup = value => Math.round((Number(value)||0) * (1 + markupPercent / 100) * 100) / 100;
 
+  importInProgressAdm=true;
+  const importButton=document.getElementById('importBtnAdm');
+  if(importButton)importButton.disabled=true;
   showLoading('Importando peças...');
 
   const originalFileName = window.importFileNameAdm || 'arquivo.csv';
-  const normalizedFileName = normalizeLookupText(originalFileName);
-  const previousHistory = importHistoryCache.find(entry =>
-    normalizeLookupText(entry.originalFileName || entry.fileName) === normalizedFileName
-  );
+  const normalizedFileName = normalizeLookupText(originalFileName).replace(/\\/g,'/');
+  const previousHistory = importHistoryCache.find(entry => {
+    const savedName = normalizeLookupText(entry.originalFileName || entry.fileName || '').replace(/\\/g,'/');
+    return savedName === normalizedFileName;
+  }) || null;
   const now = Date.now();
   const historyEntry = {
     fileName: previousHistory?.fileName || originalFileName,
@@ -4655,33 +4715,46 @@ async function importNamesAdm(){
     hidePricePF: impHidePF, hidePricePJ: impHidePJ, markupPercent
   };
 
-  let historyKey = previousHistory?.id;
-  try {
-    if(historyKey) await database.ref(`importHistory/${historyKey}`).update(historyEntry);
-    else {
-      const ref = await database.ref('importHistory').push(historyEntry);
-      historyKey = ref.key;
-    }
-  } catch(err){
-    hideLoading();
-    showToast('Erro ao registrar histórico: ' + (err.code || err.message), 'err');
-    return;
-  }
-
+  const historyKey = previousHistory?.id || database.ref().child('importHistory').push().key;
   try {
     const snap = await database.ref('products').once('value');
+    const rawExistingProducts = [];
+    snap.forEach(c => rawExistingProducts.push({ id: c.key, ...c.val() }));
+    const updates = {};
+    const canonicalByKey = new Map();
+    const duplicateReplacements = new Map();
     const existingProducts = [];
-    snap.forEach(c => existingProducts.push({ id: c.key, ...c.val() }));
+    let removedDuplicates = 0;
+    rawExistingProducts.forEach(product=>{
+      const key=productDuplicateKey(product);
+      const keeper=key&&canonicalByKey.get(key);
+      if(!keeper){
+        if(key)canonicalByKey.set(key,product);
+        existingProducts.push(product);
+        return;
+      }
+      const mergedSources={...productImportSources(keeper),...productImportSources(product)};
+      keeper.importSources=mergedSources;
+      updates[`products/${keeper.id}/importSources`]=mergedSources;
+      const mergedPriority={...(keeper.priorityImports||{}),...(product.priorityImports||{})};
+      if(Object.keys(mergedPriority).length){
+        keeper.priorityImports=mergedPriority;
+        updates[`products/${keeper.id}/priorityImports`]=mergedPriority;
+      }
+      if(product.topPriority===true){ keeper.topPriority=true; updates[`products/${keeper.id}/topPriority`]=true; }
+      updates[`products/${product.id}`]=null;
+      duplicateReplacements.set(product.id,keeper.id);
+      removedDuplicates++;
+    });
     const sourceProducts = existingProducts.filter(product=>productBelongsToImport(product,historyKey));
     const byCode = new Map(existingProducts.filter(p=>p.codigo).map(p=>[normalizeLookupText(p.codigo),p]));
     const byNameCategory = new Map(existingProducts.map(p=>[`${normalizeLookupText(p.name)}|${normalizeLookupText(p.category)}`,p]));
     const sourceByName = new Map(sourceProducts.map(p=>[normalizeLookupText(p.name),p]));
 
-    const updates = {};
     let added = 0, updated = 0, skipped = 0;
     const addedIds = [...(previousHistory?.addedProductIds || [])];
     const updatedIds = [...(previousHistory?.updatedProductIds || [])];
-    const linkedIds = new Set(getImportProductIds(previousHistory));
+    const linkedIds = new Set(getImportProductIds(previousHistory).map(id=>duplicateReplacements.get(id)||id));
 
     items.forEach(item => {
       const effectiveCategory = category || item.category || '';
@@ -4741,17 +4814,36 @@ async function importNamesAdm(){
       }
     });
 
-    if(Object.keys(updates).length > 0) await database.ref().update(updates);
-
-    await database.ref(`importHistory/${historyKey}`).update({
-      newItems: added, updatedItems: updated, skippedItems: skipped,
-      totalItems: items.length, addedProductIds: addedIds, updatedProductIds: updatedIds,
-      productIds: [...linkedIds], finishedAt: Date.now()
-    });
+    const finishedAt=Date.now();
+    const completedHistory={
+      ...(previousHistory||{}), id:historyKey, ...historyEntry,
+      newItems:added, updatedItems:updated, skippedItems:skipped,
+      totalItems:items.length,
+      addedProductIds:[...new Set(addedIds)],
+      updatedProductIds:[...new Set(updatedIds)],
+      productIds:[...linkedIds], finishedAt
+      ,savedAt:finishedAt
+    };
+    const persistedHistory={...completedHistory};
+    delete persistedHistory.id;
+    updates[`importHistory/${historyKey}`]=persistedHistory;
+    await database.ref().update(updates);
+    const token=await auth.currentUser.getIdToken();
+    const serverResponse=await fetch('/api/admin-import-history',{method:'POST',headers:{'Content-Type':'application/json',Authorization:'Bearer '+token},body:JSON.stringify({historyId:historyKey,history:persistedHistory})});
+    const serverResult=await serverResponse.json().catch(()=>({}));
+    if(!serverResponse.ok||serverResult.saved!==true)throw new Error(serverResult.error||serverResult.message||'O servidor não confirmou o histórico.');
+    completedHistory.savedAt=Number(serverResult.savedAt)||finishedAt;
+    completedHistory.savedByServer=true;
+    const savedSnapshot=await database.ref(`importHistory/${historyKey}`).once('value');
+    if(!savedSnapshot.exists())throw new Error('O histórico não foi confirmado no Firebase.');
+    importHistoryCache=[completedHistory,...importHistoryCache.filter(entry=>entry.id!==historyKey)].slice(0,100);
+    renderImportHistory();
 
     hideLoading();
-    showToast(`Importação: ${added} novas, ${updated} atualizadas, ${skipped} ignoradas${markupPercent ? ` · +${markupPercent}% nos preços` : ''}`);
+    const fileDuplicates=Number(window.importDuplicateCountAdm)||0;
+    showToast(`Salvo no Firebase: ${added} novas, ${updated} atualizadas, ${skipped} ignoradas${fileDuplicates||removedDuplicates?` · ${fileDuplicates+removedDuplicates} repetida(s) removida(s)`:''}${markupPercent ? ` · +${markupPercent}% nos preços` : ''}`);
   } catch(err){
+    importInProgressAdm=false;
     hideLoading();
     console.error('Erro na importação:', err);
     showToast('Erro na importação: ' + (err.code || err.message), 'err');
@@ -4766,26 +4858,31 @@ async function importNamesAdm(){
   document.getElementById('impMarkupPercentAdm').value = '';
   window.importItemsAdm = null;
   window.importFileNameAdm = null;
+  window.importDuplicateCountAdm = 0;
+  importInProgressAdm=false;
 
   switchImportTab('hist');
   renderImportHistory();
 }
 
+let syncingImportFixedStates=false;
+async function syncLegacyImportFixedStates(){if(syncingImportFixedStates||!auth?.currentUser||!importHistoryCache.length||!products.length)return;const updates={};for(const item of importHistoryCache){if(item.fixed===true)continue;const fixed=importProductsAdm(item.id).some(product=>product.priorityImports?.[item.id]===true||(product.importedFrom===item.id&&product.topPriority===true));if(fixed){updates[`importHistory/${item.id}/fixed`]=true;updates[`importHistory/${item.id}/fixedAt`]=Number(item.timestamp)||Date.now();item.fixed=true;}}if(!Object.keys(updates).length)return;syncingImportFixedStates=true;try{await database.ref().update(updates);renderImportHistory()}catch(error){console.error('Erro ao migrar fixações antigas:',error)}finally{syncingImportFixedStates=false}}
 function renderImportHistory(){
   const list=document.getElementById('importHistoryListAdm');
   if(!list) return;
   if(importHistoryCache.length===0){ list.innerHTML=`<div class="empty-state"><i class="fas fa-file-import"></i><p>Nenhum arquivo importado</p></div>`; return; }
-  list.innerHTML=importHistoryCache.map(item=>{
+  const ordered=[...importHistoryCache].sort((a,b)=>{const fixedA=a.fixed===true||importProductsAdm(a.id).some(p=>p.priorityImports?.[a.id]===true||(p.importedFrom===a.id&&p.topPriority===true)),fixedB=b.fixed===true||importProductsAdm(b.id).some(p=>p.priorityImports?.[b.id]===true||(p.importedFrom===b.id&&p.topPriority===true));return Number(fixedB)-Number(fixedA)||(Number(b.timestamp)||0)-(Number(a.timestamp)||0)});
+  list.innerHTML=ordered.map(item=>{
     const linkedIds=getImportProductIds(item);
     const linkedProducts=products.filter(p=>linkedIds.includes(p.id)||productBelongsToImport(p,item.id));
-    const hasPriority=linkedProducts.some(p=>p.priorityImports?.[item.id]===true || (p.importedFrom===item.id && p.topPriority===true));
+    const hasPriority=item.fixed===true||linkedProducts.some(p=>p.priorityImports?.[item.id]===true || (p.importedFrom===item.id && p.topPriority===true));
     const hideInfo = (item.hidePricePF || item.hidePricePJ) ? `<span class="chip chip-warn"><i class="fas fa-eye-slash"></i> ${[item.hidePricePF?'PF':'',item.hidePricePJ?'PJ':''].filter(Boolean).join('+')}</span>` : '';
     const markupInfo = Number(item.markupPercent)>0 ? `<span class="chip chip-warn"><i class="fas fa-percent"></i> +${item.markupPercent}%</span>` : '';
     return `<div class="mini-item" style="align-items:flex-start;flex-direction:column;gap:8px;padding:12px 14px;">
       <div style="display:flex;justify-content:space-between;width:100%;align-items:center;flex-wrap:wrap;gap:8px;">
         <div><div class="td-name"><i class="fas fa-file-csv" style="color:var(--accent);margin-right:6px;"></i>${esc(item.fileName)}</div>
           <div class="td-sub">${esc(item.date||'')} ${esc(item.time||'')} · ${linkedProducts.length} peça(s) · ${esc(item.userName||'Admin')}${item.revisionCount>1?` · ${item.revisionCount} atualizações`:''}</div></div>
-        <div style="display:flex;gap:6px;align-items:center;">${markupInfo}${hideInfo}<span class="chip ${hasPriority?'chip-ok':'chip-mut'}">${hasPriority?'Fixado':'Não fixado'}</span></div>
+        <div style="display:flex;gap:6px;align-items:center;">${markupInfo}${hideInfo}${item.savedAt?'<span class="chip chip-ok"><i class="fas fa-cloud"></i> Salvo no Firebase</span>':''}<span class="chip ${hasPriority?'chip-ok':'chip-mut'}">${hasPriority?'Fixado':'Não fixado'}</span></div>
       </div>
       <div style="font-size:.78rem;color:var(--text-muted);">
         <span style="color:var(--ok)">+${item.newItems||0} novas</span> · <span style="color:var(--warn)">${item.updatedItems||0} atualizadas</span> · <span>${item.skippedItems||0} ignoradas</span>
@@ -4835,8 +4932,8 @@ function downloadImportCsvAdm(historyId){
 function fixImportAdm(historyId){
   const ids=importProductsAdm(historyId).map(p=>p.id);
   if(ids.length===0){ showToast('Nenhuma peça vinculada','err'); return; }
-  const updates={}; ids.forEach(id=>{ updates[`products/${id}/priorityImports/${historyId}`]=true; updates[`products/${id}/topPriority`]=true; });
-  database.ref().update(updates).then(()=>showToast(`${ids.length} peças fixadas`));
+  const updates={}; ids.forEach(id=>{ updates[`products/${id}/priorityImports/${historyId}`]=true; updates[`products/${id}/topPriority`]=true; });updates[`importHistory/${historyId}/fixed`]=true;updates[`importHistory/${historyId}/fixedAt`]=Date.now();
+  database.ref().update(updates).then(()=>{const item=importHistoryCache.find(entry=>entry.id===historyId);if(item)item.fixed=true;renderImportHistory();showToast(`${ids.length} peças fixadas`)}).catch(err=>showToast('Não foi possível salvar a fixação: '+(err.message||err.code),'err'));
 }
 function unfixImportAdm(historyId){
   const linked=importProductsAdm(historyId);
@@ -4847,7 +4944,8 @@ function unfixImportAdm(historyId){
     const hasOther=Object.keys(product.priorityImports||{}).some(id=>id!==historyId&&product.priorityImports[id]===true);
     updates[`products/${product.id}/topPriority`]=hasOther;
   });
-  database.ref().update(updates).then(()=>showToast('Fixação removida'));
+  updates[`importHistory/${historyId}/fixed`]=null;updates[`importHistory/${historyId}/fixedAt`]=null;
+  database.ref().update(updates).then(()=>{const item=importHistoryCache.find(entry=>entry.id===historyId);if(item)item.fixed=false;renderImportHistory();showToast('Fixação removida')}).catch(err=>showToast('Não foi possível remover a fixação: '+(err.message||err.code),'err'));
 }
 
 function deleteImportAdm(historyId){
@@ -6562,20 +6660,18 @@ async function exportContactsCsv(kind){
 <script>let employeesAdm=[],availableEmployeeLinksAdm=[],uploadedEmployeePhoto='';
 async function employeeApi(action,extra={}){const token=await auth.currentUser.getIdToken();const r=await fetch('/api/employee',{method:'POST',headers:{'Content-Type':'application/json',Authorization:'Bearer '+token},body:JSON.stringify({action,...extra})}),j=await r.json();if(!r.ok)throw Error(j.error||j.message||'Falha na operação.');return j}
 async function loadEmployeesAdm(){try{const result=await employeeApi('admin-list');employeesAdm=result.employees||[];availableEmployeeLinksAdm=result.availableLinks||[];renderEmployeesAdm()}catch(e){employeesAdmList.innerHTML='<div class="block"><div class="block-body">'+esc(e.message)+'</div></div>'}}
-function employeeLinkChoices(selected=[],withSearch=false){if(!availableEmployeeLinksAdm.length)return'<p class="td-sub" style="padding:8px">Nenhum link criado. Crie primeiro na aba Links.</p>';const cards=availableEmployeeLinksAdm.map(l=>`<label class="employee-link-choice" data-link-search="${esc((l.name+' /'+l.slug).toLowerCase())}"><input type="checkbox" value="${esc(l.id)}" ${selected.includes(l.id)?'checked':''} onchange="updateEmployeeLinksFilterLabel()"><img src="${esc(l.image||'assets/logo.webp')}" alt=""><strong>${esc(l.name)}</strong></label>`).join('');return(withSearch?'<input class="employee-link-search" type="search" placeholder="Buscar campanha..." oninput="filterEmployeeCreateLinks(this.value)">':'')+'<div class="employee-link-carousel" title="Arraste para os lados">'+cards+'</div>'}
+function employeeLinkChoices(selected=[],withSearch=false){if(!availableEmployeeLinksAdm.length)return'<p class="td-sub" style="padding:8px">Nenhuma campanha criada. Crie primeiro na aba Leads.</p>';const cards=availableEmployeeLinksAdm.map(l=>`<label class="employee-link-choice" data-link-search="${esc((l.name+' /'+l.slug).toLowerCase())}"><input type="checkbox" value="${esc(l.id)}" ${selected.includes(l.id)?'checked':''} onchange="updateEmployeeLinksFilterLabel()"><img src="${esc(l.image||'assets/logo.webp')}" alt=""><strong>${esc(l.name)}</strong><span class="employee-campaign-check">${selected.includes(l.id)?'Selecionada':'Selecionar'}</span></label>`).join('');return(withSearch?'<input class="employee-link-search" type="search" placeholder="Buscar campanha..." oninput="filterEmployeeCreateLinks(this.value)">':'')+'<div class="employee-link-carousel" title="Arraste para os lados">'+cards+'</div>'}
 function filterEmployeeCreateLinks(value){const q=String(value||'').trim().toLowerCase();employeeCreateLinks.querySelectorAll('[data-link-search]').forEach(item=>item.hidden=Boolean(q&&!item.dataset.linkSearch.includes(q)))}
 function toggleEmployeeLinksFilter(){const open=employeeCreateLinks.hidden;employeeCreateLinks.hidden=!open;employeeLinksFilterButton.setAttribute('aria-expanded',String(open));const icon=employeeLinksFilterButton.querySelector('.fa-chevron-down,.fa-chevron-up');if(icon){icon.classList.toggle('fa-chevron-down',!open);icon.classList.toggle('fa-chevron-up',open)}}
-function updateEmployeeLinksFilterLabel(){const total=employeeCreateLinks.querySelectorAll('input:checked').length;const text=employeeLinksFilterButton.childNodes[1];if(text)text.textContent=total?' '+total+' campanha'+(total===1?' selecionada':'s selecionadas'):' Selecionar campanhas'}
+function updateEmployeeLinksFilterLabel(){const total=employeeCreateLinks.querySelectorAll('input:checked').length;employeeLinksFilterLabel.textContent=total?total+' campanha'+(total===1?' selecionada':'s selecionadas'):'Selecionar campanhas';employeeCreateLinks.querySelectorAll('.employee-link-choice').forEach(card=>{const status=card.querySelector('.employee-campaign-check'),input=card.querySelector('input');if(status)status.textContent=input.checked?'Selecionada':'Selecionar'})}
 document.addEventListener('click',event=>{if(!event.target.closest('#employeeLinksPicker')&&!employeeCreateLinks.hidden){employeeCreateLinks.hidden=true;employeeLinksFilterButton.setAttribute('aria-expanded','false');const icon=employeeLinksFilterButton.querySelector('.fa-chevron-up');if(icon){icon.classList.remove('fa-chevron-up');icon.classList.add('fa-chevron-down')}}});
-document.addEventListener('pointerdown',event=>{const carousel=event.target.closest('.employee-link-carousel');if(!carousel)return;carousel.dataset.dragX=event.clientX;carousel.dataset.dragScroll=carousel.scrollLeft;carousel.dataset.dragged='0';carousel.classList.add('dragging');carousel.setPointerCapture(event.pointerId)});
-document.addEventListener('pointermove',event=>{const carousel=event.target.closest('.employee-link-carousel.dragging');if(!carousel)return;const distance=event.clientX-Number(carousel.dataset.dragX);if(Math.abs(distance)>5)carousel.dataset.dragged='1';carousel.scrollLeft=Number(carousel.dataset.dragScroll)-distance});
-document.addEventListener('pointerup',event=>{const carousel=event.target.closest('.employee-link-carousel.dragging');if(carousel)carousel.classList.remove('dragging')});
-document.addEventListener('click',event=>{const carousel=event.target.closest('.employee-link-carousel');if(carousel?.dataset.dragged==='1'){event.preventDefault();event.stopPropagation();carousel.dataset.dragged='0'}},true);
-function renderEmployeesAdm(){employeesAdmList.innerHTML=employeesAdm.length?employeesAdm.map(e=>{const selected=Array.isArray(e.linkIds)?e.linkIds:[];return `<div class="block"><div class="block-body"><div style="display:flex;justify-content:space-between;gap:18px;align-items:center;flex-wrap:wrap"><div style="display:flex;gap:12px;align-items:center"><img src="${esc(e.photoURL||'assets/logo.webp')}" style="width:52px;height:52px;border-radius:50%;object-fit:cover"><div><strong>${esc(e.name)}</strong><div class="td-sub">${esc(e.email)}</div><div class="td-sub">${location.origin}/${esc(e.slug)} · reinicia dia ${e.cycleDay||10}</div></div></div><div style="display:flex;gap:18px;align-items:center"><div><strong>${fmtBRLAdm(e.paidTotal||0)}</strong><div class="td-sub">Vendas pagas</div></div><div><strong>${fmtBRLAdm(e.commission||0)}</strong><div class="td-sub">Comissão (${e.commissionRate||3}%)</div></div><button class="btn btn-sm ${e.enabled?'btn-danger':'btn-primary'}" onclick="toggleEmployeeAdm('${e.uid}',${!e.enabled})">${e.enabled?'Bloquear':'Ativar'}</button></div></div><details style="margin-top:16px"><summary style="cursor:pointer;color:var(--accent);font-size:.8rem;font-weight:600">Gerenciar links enviados (${selected.length})</summary><div data-employee-links="${esc(e.uid)}" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:7px;margin-top:12px">${employeeLinkChoices(selected)}</div><div style="display:flex;justify-content:flex-end;margin-top:10px"><button class="btn btn-sm btn-primary" onclick="saveEmployeeLinksAdm('${e.uid}')">Salvar links</button></div></details></div></div>`}).join(''):'<div class="block"><div class="block-body td-sub">Nenhum funcionário criado.</div></div>'}
+
+function renderEmployeesAdm(){employeesAdmList.innerHTML=employeesAdm.length?employeesAdm.map(e=>{const selected=Array.isArray(e.campaignIds)?e.campaignIds:[];return `<div class="block"><div class="block-body"><div style="display:flex;justify-content:space-between;gap:18px;align-items:center;flex-wrap:wrap"><div style="display:flex;gap:12px;align-items:center"><img src="${esc(e.photoURL||'assets/logo.webp')}" style="width:52px;height:52px;border-radius:50%;object-fit:cover"><div><strong>${esc(e.name)}</strong><div class="td-sub">${esc(e.email)}</div><div class="td-sub">${location.origin}/${esc(e.slug)} · reinicia dia ${e.cycleDay||10}</div></div></div><div style="display:flex;gap:18px;align-items:center"><div><strong>${fmtBRLAdm(e.paidTotal||0)}</strong><div class="td-sub">Vendas pagas</div></div><div><strong>${fmtBRLAdm(e.commission||0)}</strong><div class="td-sub">Comissão (${e.commissionRate||3}%)</div></div><button class="btn btn-sm ${e.enabled?'btn-danger':'btn-primary'}" onclick="toggleEmployeeAdm('${e.uid}',${!e.enabled})">${e.enabled?'Bloquear':'Ativar'}</button><button class="btn btn-sm btn-danger" onclick="deleteEmployeeAdm('${e.uid}','${esc(e.name)}')"><i class="fas fa-trash"></i> Excluir</button></div></div><details style="margin-top:16px"><summary style="cursor:pointer;color:var(--accent);font-size:.8rem;font-weight:600">Gerenciar campanhas de leads (${selected.length})</summary><div data-employee-links="${esc(e.uid)}" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:7px;margin-top:12px">${employeeLinkChoices(selected)}</div><div style="display:flex;justify-content:flex-end;margin-top:10px"><button class="btn btn-sm btn-primary" onclick="saveEmployeeLinksAdm('${e.uid}')">Salvar campanhas</button></div></details></div></div>`}).join(''):'<div class="block"><div class="block-body td-sub">Nenhum funcionário criado.</div></div>'}
+async function deleteEmployeeAdm(uid,name){if(!confirm('Excluir definitivamente o funcionário '+name+'? O acesso será removido e os leads serão redistribuídos.'))return;try{await employeeApi('admin-delete',{uid});showToast('Funcionário excluído.');await loadEmployeesAdm()}catch(e){showToast(e.message,'err')}}
 async function toggleEmployeeAdm(uid,enabled){try{await employeeApi('admin-update',{uid,enabled});showToast(enabled?'Funcionário ativado.':'Funcionário bloqueado.');loadEmployeesAdm()}catch(e){showToast(e.message,'err')}}
-async function saveEmployeeLinksAdm(uid){const box=document.querySelector('[data-employee-links="'+uid+'"]'),linkIds=[...box.querySelectorAll('input:checked')].map(input=>input.value);try{await employeeApi('admin-update',{uid,linkIds});showToast('Links do funcionário atualizados.');await loadEmployeesAdm()}catch(e){showToast(e.message,'err')}}
-async function openCreateEmployeeModal(){uploadedEmployeePhoto='';employeeCreateForm.reset();employeeCycleStartDay.value=10;employeeCycleEndDay.value=24;employeeRate.value=3;employeePhoto.value='';resetUpload('employeePhotoUploadBox','employeePhotoPreview');employeeCreateLinks.hidden=true;employeeLinksFilterButton.setAttribute('aria-expanded','false');const filterIcon=employeeLinksFilterButton.querySelector('.fa-chevron-up');if(filterIcon){filterIcon.classList.remove('fa-chevron-up');filterIcon.classList.add('fa-chevron-down')}employeeCreateLinks.innerHTML='<p class="td-sub">Carregando links...</p>';openModal('modalEmployee');await loadEmployeesAdm();employeeCreateLinks.innerHTML=employeeLinkChoices([],true);updateEmployeeLinksFilterLabel();setupUpload('employeePhotoInput','employeePhotoUploadBox','employeePhotoPreview','employeePhotoPreviewImg',url=>{uploadedEmployeePhoto=url;employeePhoto.value=url},'employees')}
-employeeCreateForm.addEventListener('submit',async event=>{event.preventDefault();const b=event.submitter,linkIds=[...employeeCreateLinks.querySelectorAll('input:checked')].map(input=>input.value);b.disabled=true;try{await employeeApi('admin-create',{name:employeeName.value,email:employeeEmail.value,password:employeePassword.value,photoURL:uploadedEmployeePhoto,cycleStartDay:+employeeCycleStartDay.value,cycleEndDay:+employeeCycleEndDay.value,commissionRate:+employeeRate.value,linkIds});showToast('Funcionário criado. Envie a senha temporária.');closeModal('modalEmployee');await loadEmployeesAdm()}catch(e){showToast(e.message,'err')}finally{b.disabled=false}});
+async function saveEmployeeLinksAdm(uid){const box=document.querySelector('[data-employee-links="'+uid+'"]'),campaignIds=[...box.querySelectorAll('input:checked')].map(input=>input.value);try{await employeeApi('admin-update',{uid,campaignIds});showToast('Campanhas do funcionário atualizadas.');await loadEmployeesAdm()}catch(e){showToast(e.message,'err')}}
+async function openCreateEmployeeModal(){uploadedEmployeePhoto='';employeeCreateForm.reset();employeeCycleStartDay.value=10;employeeCycleEndDay.value=24;employeeRate.value=3;employeePhoto.value='';resetUpload('employeePhotoUploadBox','employeePhotoPreview');employeeCreateLinks.hidden=true;employeeLinksFilterButton.setAttribute('aria-expanded','false');const filterIcon=employeeLinksFilterButton.querySelector('.fa-chevron-up');if(filterIcon){filterIcon.classList.remove('fa-chevron-up');filterIcon.classList.add('fa-chevron-down')}employeeCreateLinks.innerHTML='<p class="td-sub">Carregando campanhas...</p>';openModal('modalEmployee');await loadEmployeesAdm();employeeCreateLinks.innerHTML=employeeLinkChoices([],true);updateEmployeeLinksFilterLabel();setupUpload('employeePhotoInput','employeePhotoUploadBox','employeePhotoPreview','employeePhotoPreviewImg',url=>{uploadedEmployeePhoto=url;employeePhoto.value=url},'employees')}
+employeeCreateForm.addEventListener('submit',async event=>{event.preventDefault();const b=event.submitter,campaignIds=[...employeeCreateLinks.querySelectorAll('input:checked')].map(input=>input.value);b.disabled=true;try{await employeeApi('admin-create',{name:employeeName.value,email:employeeEmail.value,password:employeePassword.value,photoURL:uploadedEmployeePhoto,cycleStartDay:+employeeCycleStartDay.value,cycleEndDay:+employeeCycleEndDay.value,commissionRate:+employeeRate.value,campaignIds});showToast('Funcionário criado. Envie a senha temporária.');closeModal('modalEmployee');await loadEmployeesAdm()}catch(e){showToast(e.message,'err')}finally{b.disabled=false}});
 </script>
 </body>
 </html>
