@@ -2215,7 +2215,7 @@ async function doLogin(){
  const email=document.getElementById('loginEmail').value.trim(),pass=document.getElementById('loginPassword').value,err=document.getElementById('loginError');err.textContent='';
  if(!email||!pass){err.textContent='Preencha e-mail e senha.';return;}
  showLoading('Autenticando...');
- try{await auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL);await CimMfaAuth.signIn(auth,email,pass);document.getElementById('loginPassword').value='';}
+ try{await auth.setPersistence(firebase.auth.Auth.Persistence.SESSION);await CimMfaAuth.signIn(auth,email,pass);document.getElementById('loginPassword').value='';}
  catch(error){err.textContent=error.code==='auth/mfa-cancelled'?'Confirmação cancelada. Entre novamente para continuar.':'Não foi possível entrar. Confira os dados e tente novamente.';}
  finally{hideLoading();}
 }
@@ -2289,7 +2289,9 @@ async function initializeAdminSession(user){
     }
   }else{ document.getElementById('loginScreen').style.display='flex'; }
 }
-auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL).catch(()=>{});
+// O ADM usa a sessão desta aba para não substituir a conta do catálogo,
+// que compartilha o mesmo projeto Firebase e pode estar aberta em outra aba.
+auth.setPersistence(firebase.auth.Auth.Persistence.SESSION).catch(()=>{});
 auth.onAuthStateChanged(user=>{
   if(!user)adminSessionGeneration++;
   initializeAdminSession(user);
