@@ -170,7 +170,17 @@ async function handle(action,req,res,dependencies={}) {
         hidePricePF:source.hidePricePF===true,hidePricePJ:source.hidePricePJ===true,markupPercent:Math.max(0,Number(source.markupPercent)||0),finishedAt:Number(source.finishedAt)||Date.now(),savedAt:Date.now(),savedByServer:true
       };
       if(source.fixed===true){history.fixed=true;history.fixedAt=Number(source.fixedAt)||Date.now();}
-      await db.ref('importHistory/'+historyId).set(history);
+      const clientUpdates=body.updates;
+      if(!clientUpdates||typeof clientUpdates!=='object'||Array.isArray(clientUpdates))fail('Alteracoes da importacao invalidas.',400);
+      const updates={};
+      const entries=Object.entries(clientUpdates);
+      if(!entries.length||entries.length>300000)fail('Quantidade de alteracoes da importacao invalida.',400);
+      for(const [path,value] of entries){
+        if(!/^products\/[A-Za-z0-9_-]+(?:\/[A-Za-z0-9_-]+)*$/.test(path))fail('Caminho da importacao invalido.',400);
+        updates[path]=value;
+      }
+      updates['importHistory/'+historyId]=history;
+      await db.ref().update(updates);
       const confirmed=(await db.ref('importHistory/'+historyId).get()).val();
       if(!confirmed)fail('O servidor não confirmou o histórico.',500);
       return res.status(200).json({saved:true,historyId,savedAt:confirmed.savedAt});

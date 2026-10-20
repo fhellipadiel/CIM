@@ -1,5 +1,5 @@
 const crypto=require('node:crypto');const {fail}=require('./core.cjs');
-const FOLDERS=['products','sessions','brands','contacts','profile','links','about','leadCampaigns','avatars'];
+const FOLDERS=['products','sessions','brands','contacts','profile','links','about','leadCampaigns','employees','avatars'];
 function validPath(path){return typeof path==='string'&&path.length<=500&&/^[A-Za-z0-9_./-]+$/.test(path)&&!path.split('/').some(p=>!p||p==='.'||p==='..')&&FOLDERS.includes(path.split('/')[0])&&path.includes('/');}
 function imageType(b){if(b.length>=8&&b.subarray(0,8).equals(Buffer.from([137,80,78,71,13,10,26,10])))return 'image/png';if(b.length>=3&&b[0]===255&&b[1]===216&&b[2]===255)return 'image/jpeg';if(b.length>=12&&b.toString('ascii',0,4)==='RIFF'&&b.toString('ascii',8,12)==='WEBP')return 'image/webp';if(b.toString('ascii',0,6)==='GIF89a'||b.toString('ascii',0,6)==='GIF87a')return 'image/gif';return null;}
 function bucketFor(auth){return require('firebase-admin/storage').getStorage(auth.app).bucket(process.env.FIREBASE_STORAGE_BUCKET||(auth.app.options.projectId||auth.app.options.credential.projectId||'redx-6b53f')+'.firebasestorage.app');}

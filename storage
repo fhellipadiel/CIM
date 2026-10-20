@@ -1,0 +1,16 @@
+rules_version = '2';
+service firebase.storage {
+ // Administrative media is authorized by the server.
+ match /b/{bucket}/o {
+  function image(){return request.resource.size > 0 && request.resource.size <= 5 * 1024 * 1024 && request.resource.contentType.matches('image/(jpeg|png|webp|gif)');}
+  match /{folder}/{allPaths=**} {
+   allow get: if folder in ['products','sessions','brands','contacts','profile','links','about','leadCampaigns','employees'];
+   allow write, list: if false;
+  }
+  match /avatars/{userId}/{allPaths=**} {
+   allow get: if true;
+   allow create, update: if request.auth != null && request.auth.uid == userId && image();
+   allow delete: if request.auth != null && request.auth.uid == userId;
+  }
+ }
+}

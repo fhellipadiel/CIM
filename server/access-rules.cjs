@@ -19,7 +19,7 @@ service firebase.storage {
  match /b/{bucket}/o {
   function image(){return request.resource.size > 0 && request.resource.size <= 5 * 1024 * 1024 && request.resource.contentType.matches('image/(jpeg|png|webp|gif)');}
   match /{folder}/{allPaths=**} {
-   allow get: if folder in ['products','sessions','brands','contacts','profile','links','about','leadCampaigns'];
+   allow get: if folder in ['products','sessions','brands','contacts','profile','links','about','leadCampaigns','employees'];
    allow write, list: if false;
   }
   match /avatars/{userId}/{allPaths=**} {

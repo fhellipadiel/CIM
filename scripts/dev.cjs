@@ -11,18 +11,18 @@ http.createServer(async(req,res)=>{
     const pathname=new URL(req.url,'http://localhost').pathname;
     if(pathname.startsWith('/api/')) {
       const action=pathname.slice(5);
-      if(!routes.has(action))return res.status(404).json({error:'Rota nÃ£o encontrada'});
-      let raw='';for await(const chunk of req){raw+=chunk;if(Buffer.byteLength(raw)>(action==='admin-media'?4250000:65536))return res.status(413).json({error:'SolicitaÃ§Ã£o muito grande'});}
+      if(!routes.has(action))return res.status(404).json({error:'Rota não encontrada'});
+      let raw='';for await(const chunk of req){raw+=chunk;if(Buffer.byteLength(raw)>(action==='admin-media'?4250000:65536))return res.status(413).json({error:'Solicitação muito grande'});}
       req.body=raw ? JSON.parse(raw) : {};
       return await handle(action,req,res);
     }
     const local=pathname==='/' ? '/index.html' : pathname==='/admin' ? '/adm.html' : pathname==='/login' ? '/login.html' : pathname==='/funcionario' ? '/funcionario.html' : pathname;
-    if(!['/index.html','/cim.html','/adm.html','/login.html','/funcionario.html','/leads.html','/recuperar-acesso.html'].includes(local) && !/^\/assets\/[a-zA-Z0-9_./ -]+$/.test(local))return res.status(404).end('NÃ£o encontrado');
+    if(!['/index.html','/cim.html','/adm.html','/login.html','/funcionario.html','/leads.html','/recuperar-acesso.html'].includes(local) && !/^\/assets\/[a-zA-Z0-9_./ -]+$/.test(local))return res.status(404).end('Não encontrado');
     const target=path.resolve(root,'.'+local);
     if(!target.startsWith(root+path.sep))return res.status(403).end();
     const content=await fs.readFile(target);
     const mime={'.html':'text/html; charset=utf-8','.webp':'image/webp','.png':'image/png','.jpg':'image/jpeg','.svg':'image/svg+xml','.css':'text/css','.js':'text/javascript'};
     res.setHeader('Content-Type',mime[path.extname(target)]||'application/octet-stream');
     res.end(content);
-  }catch{res.status(400).end('NÃ£o foi possÃ­vel atender Ã  solicitaÃ§Ã£o');}
+  }catch{res.status(400).end('Não foi possível atender à solicitação');}
 }).listen(Number(process.env.PORT||3000),'127.0.0.1',()=>console.log('Teste local: http://localhost:'+ (process.env.PORT||3000) +'/cim.html'));
