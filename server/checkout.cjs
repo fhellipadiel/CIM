@@ -147,6 +147,8 @@ async function handle(action,req,res,dependencies={}) {
     }
     if(action==='admin-media')return res.status(200).json(await require('./admin-media.cjs').handleMedia({auth,caller,body,requireRead:()=> (dependencies.requireAdminAccess||requireAdminAccess)(req,db),requireWrite:()=> (dependencies.requireAdminWriteAccess||dependencies.requireAdminAccess||requireAdminWriteAccess)(req,db)}));
     if(action==='admin-mfa')return res.status(200).json(await require('./admin-mfa.cjs').handleAdminMfa({auth,db,caller,body,requireSetup:()=> (dependencies.requireAdminSetupAccess||requireAdminSetupAccess)(req,db),requireAdmin:()=> (dependencies.requireAdminAccess||requireAdminAccess)(req,db)}));
+    if(action==='employee')return res.status(200).json(await require('./employees.cjs').handleEmployees({auth,db,caller,body,requireAdmin:()=> (dependencies.requireAdminWriteAccess||dependencies.requireAdminAccess||requireAdminWriteAccess)(req,db)}));
+    if(action==='claim-referral')return res.status(200).json(await require('./registration.cjs').claimReferral(db,caller,body));
     if(action==='register-profile')return res.status(200).json(await require('./registration.cjs').registerProfile(db,caller,body));
     const user={...((await db.ref('users/'+caller.uid).get()).val()||{}),uid:caller.uid};
     if(['admin-notifications','admin-tests','admin-archive-legacy-order','admin-order-status','admin-session'].includes(action)){
@@ -258,7 +260,7 @@ async function handle(action,req,res,dependencies={}) {
     if (base.protocol!=='https:' && !['localhost','127.0.0.1'].includes(base.hostname)) fail('Endereço de teste inválido.',503);
     const returnUrl=new URL('/cim.html',base);
     returnUrl.searchParams.set(cfg.testMode?'checkout_test':'checkout_order',body.requestId);
-    const created=await ref.transaction(current=>current||{...priced,reference,fingerprint,provider:'orders',status:'pendente',testMode:cfg.testMode,environment:cfg.mode,uid:caller.uid,customerName:String(user.name||''),customerEmail:String(user.email||''),createdAt:Date.now(),expiresAt:Date.now()+PAYMENT_WINDOW,deliveryAddress:Object.fromEntries(['cep','logradouro','numero','complemento','bairro','cidade','uf'].map(k=>[k,String(user[k]||'')]))});
+    const created=await ref.transaction(current=>current||{...priced,reference,fingerprint,provider:'orders',status:'pendente',testMode:cfg.testMode,environment:cfg.mode,uid:caller.uid,customerName:String(user.name||''),customerEmail:String(user.email||''),employeeId:String(user.employeeId||''),employeeSlug:String(user.employeeSlug||''),employeeName:String(user.employeeName||''),createdAt:Date.now(),expiresAt:Date.now()+PAYMENT_WINDOW,deliveryAddress:Object.fromEntries(['cep','logradouro','numero','complemento','bairro','cidade','uf'].map(k=>[k,String(user[k]||'')]))});
     const existing=created.snapshot.val();
     if (existing.fingerprint!==fingerprint && !(cfg.testMode && existing.fingerprint===crypto.createHash('sha256').update('orders-v2:'+JSON.stringify(priced)).digest('hex'))) fail('Revise o carrinho e tente novamente.',409);
     if (!visibleOrder(existing)) fail('Prazo de pagamento encerrado. Monte um novo pedido.',409);

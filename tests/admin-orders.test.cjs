@@ -14,3 +14,11 @@ test('faturamento não inclui pedido pendente, cancelado ou excluído',()=>{
  assert.equal(policy.isPaidOrder({status:'enviado',provider:'orders',paymentStatus:'accredited'}),true);
  assert.equal(policy.isPaidOrder({status:'pago'}),true);
 });
+
+test('pedido integrado arquivado fica fora da lista e do faturamento ap?s atualiza??o de pagamento',()=>{
+ const order={provider:'orders',testMode:false,status:'pago',paymentStatus:'accredited',total:100,archivedAt:123,archivedBy:'admin',archiveReason:'test_order'};
+ assert.equal(policy.isOrderVisible(order),false);
+ assert.equal(policy.isPaidOrder(order),false);
+ assert.equal(policy.isOrderVisible({...order,status:'enviado'}),false);
+ assert.equal(policy.isPaidOrder({...order,status:'enviado'}),false);
+});

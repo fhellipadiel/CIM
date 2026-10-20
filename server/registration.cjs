@@ -5,7 +5,8 @@ async function registerProfile(db,caller,input,now=Date.now()){
  if(!policy.validDocument(type,doc))fail(DOCUMENT_MESSAGE,409);
  const name=String(input.name||'').trim(),phone=policy.digits(input.telefone);
  if(!name||name.length>200||phone.length<10||phone.length>13||!caller.email)fail('Confira os dados obrigatorios do cadastro.',400);
- const profile={userType:type,name,email:caller.email,telefone:phone,cpf:type==='PF'?doc:'',cnpj:type==='PJ'?doc:'',createdAt:now,lastAccess:now,isAdmin:false,mustChangePassword:input.mustChangePassword===true,authProvider:caller.firebase?.sign_in_provider||'password'};
+ let attribution={};const referral=String(input.employeeRef||'').trim().toLowerCase();if(referral){const employees=(await db.ref('employees').get()).val()||{};const found=Object.entries(employees).find(([,e])=>e.enabled===true&&e.slug===referral);if(found)attribution={employeeId:found[0],employeeSlug:found[1].slug,employeeName:found[1].name,employeeReferredAt:now};}
+ const profile={userType:type,name,email:caller.email,telefone:phone,cpf:type==='PF'?doc:'',cnpj:type==='PJ'?doc:'',createdAt:now,lastAccess:now,isAdmin:false,mustChangePassword:input.mustChangePassword===true,authProvider:caller.firebase?.sign_in_provider||'password',...attribution};
  for(const field of ['cep','logradouro','numero','complemento','bairro','cidade','uf','nome_fantasia','situacao_cadastral','photoURL']){
   const value=input[field];if(value!==undefined){if(typeof value!=='string'||value.length>(field==='photoURL'?500:200))fail('Confira os dados do cadastro.',400);profile[field]=value;}
  }
@@ -28,4 +29,10 @@ async function registerProfile(db,caller,input,now=Date.now()){
   return {registered:true};
  }finally{ref.off('value',retain);}
 }
-module.exports={registerProfile,DOCUMENT_MESSAGE};
+
+async function claimReferral(db,caller,input,now=Date.now()){
+ const referral=String(input.employeeRef||'').trim().toLowerCase();if(!referral)return{claimed:false};
+ const employees=(await db.ref('employees').get()).val()||{},found=Object.entries(employees).find(([,e])=>e.enabled===true&&e.slug===referral);if(!found)return{claimed:false};
+ const ref=db.ref('users/'+caller.uid);let claimed=false;await ref.transaction(user=>{if(!user||user.employeeId)return user;claimed=true;return{...user,employeeId:found[0],employeeSlug:found[1].slug,employeeName:found[1].name,employeeReferredAt:now}});return{claimed};
+}
+module.exports={registerProfile,claimReferral,DOCUMENT_MESSAGE};

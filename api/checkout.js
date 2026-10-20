@@ -1,4 +1,4 @@
 module.exports=(req,res)=>{
  const action=req.query?.signupAction||new URL(req.url,'http://localhost').searchParams.get('signupAction');
- return require('../server/checkout.cjs').handle(['company-lookup','register-profile','support','analytics','admin-mfa','admin-recovery','admin-access','admin-media'].includes(action)?action:'checkout',req,res);
+ return require('../server/checkout.cjs').handle(['company-lookup','register-profile','claim-referral','support','analytics','admin-mfa','admin-recovery','admin-access','admin-media','employee'].includes(action)?action:'checkout',req,res);
 };

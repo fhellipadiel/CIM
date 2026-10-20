@@ -12,4 +12,3 @@ test('editor salva apenas nome e foto e nao altera permissoes',async()=>{
  vm.runInContext(html.match(/async function saveAdminProfileEditor\(\)\{[\s\S]*?\n\}/)[0],ctx);await ctx.saveAdminProfileEditor();
  assert.deepEqual(updates,[{target:'users/admin',value:{name:'Updated Admin',photoURL:'https://example.com/photo.png'}}]);assert.equal(inputs.saveAdminProfileButton.disabled,false);assert.deepEqual(uploads,['avatars/editor']);
 });
-

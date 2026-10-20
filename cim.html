@@ -3593,7 +3593,7 @@ function toggleBottomMenu() {
             return list.map(product=>{
                 const id=String(product.id);
                 if(!catalogRandomRanks.has(id))catalogRandomRanks.set(id,Math.random());
-                return {product,group:product.soldOut?2:((product.prices?.PF||0)>0||(product.prices?.PJ||0)>0)?0:1,rank:catalogRandomRanks.get(id)};
+                return {product,group:product.soldOut?3:(product.topPriority?0:(((product.prices?.PF||0)>0||(product.prices?.PJ||0)>0)?1:2)),rank:catalogRandomRanks.get(id)};
             }).sort((a,b)=>a.group-b.group||a.rank-b.rank||String(a.product.id).localeCompare(String(b.product.id))).map(item=>item.product);
         }
         function reshuffleCatalog(){
@@ -3748,15 +3748,7 @@ function toggleBottomMenu() {
         let lastBrandsHash = '';
         function updateBrandTabs() {
             if (!brandTabs) return;
-            const hasSessionFilter = selectedSessionId !== null;
-            let brandArray;
-            if (!hasSessionFilter) brandArray = Object.keys(brands).map(id => ({ id, ...brands[id] }));
-            else {
-                const filteredBySession = products.filter(p => p.sessionId === selectedSessionId);
-                const validBrandNames = new Set(filteredBySession.map(p => p.brand).filter(b => b && b.trim() !== ''));
-                if (selectedBrand && selectedBrand !== '' && !validBrandNames.has(selectedBrand)) selectedBrand = '';
-                brandArray = Object.keys(brands).map(id => ({ id, ...brands[id] })).filter(b => validBrandNames.has(b.name));
-            }
+            const brandArray = Object.keys(brands).map(id => ({ id, ...brands[id] }));
             brandArray.sort((a, b) => (a.order || 0) - (b.order || 0));
             const hash = JSON.stringify(brandArray.map(b => `${b.id}|${b.name}|${b.image || ''}`)) + '|' + selectedBrand;
             if (hash === lastBrandsHash) return;

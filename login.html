@@ -1109,6 +1109,7 @@
                 dados.situacao_cadastral = document.getElementById('regSituacao').value || '';
             }
 
+            dados.employeeRef=sessionStorage.getItem('employeeRef')||sessionStorage.getItem('campaignRef')||'';
             const token=await auth.currentUser.getIdToken();
             const response=await fetch('/api/register-profile',{method:'POST',headers:{'Content-Type':'application/json',Authorization:'Bearer '+token},body:JSON.stringify(dados),signal:AbortSignal.timeout(30000)});
             if(!response.ok){const error=new Error('Não foi possível concluir o cadastro.');if(response.status===409)error.code='registration/document-unavailable';throw error;}
@@ -1117,6 +1118,8 @@
         /* ============================================================
            13. LOGIN
            ============================================================ */
+        async function claimEmployeeReferral(){const employeeRef=sessionStorage.getItem('employeeRef')||sessionStorage.getItem('campaignRef')||'';if(!employeeRef||!auth?.currentUser)return;try{const token=await auth.currentUser.getIdToken();await fetch('/api/claim-referral',{method:'POST',headers:{'Content-Type':'application/json',Authorization:'Bearer '+token},body:JSON.stringify({employeeRef}),signal:AbortSignal.timeout(10000)})}catch{}}
+
         async function handleLogin(event) {
             event.preventDefault();
 
@@ -1161,7 +1164,8 @@
             try {
                 await CimMfaAuth.signIn(auth,email,password);
                 registerSuccess(KEY);
-                window.location.href = CimProductLink.destination(location.search);
+                await claimEmployeeReferral();
+                    window.location.href = CimProductLink.destination(location.search);
             } catch (error) {
                 console.error('[Login] Falha na autenticação.');
 
@@ -1238,6 +1242,7 @@
                     registerSuccess('cnpj');
                     registerSuccess('cpf');
                     registerSuccess('login');
+                    await claimEmployeeReferral();
                     window.location.href = CimProductLink.destination(location.search);
                 } catch (err) {
                     console.error('[Registro Google] Não foi possível concluir o cadastro.');
@@ -1294,7 +1299,8 @@
                 registerSuccess('cpf');
                 registerSuccess('login');
 
-                window.location.href = CimProductLink.destination(location.search);
+                await claimEmployeeReferral();
+                    window.location.href = CimProductLink.destination(location.search);
             } catch (error) {
                 console.error('[Cadastro] Não foi possível concluir a solicitação.');
                 registerBtn.disabled = false;
@@ -1332,6 +1338,7 @@
                 const snapshot = await database.ref(`users/${user.uid}`).once('value');
                 if (snapshot.exists()) {
                     registerSuccess('login');
+                    await claimEmployeeReferral();
                     window.location.href = CimProductLink.destination(location.search);
                 } else {
                     // Novo usuário via Google → completa cadastro
@@ -1463,11 +1470,12 @@
                 database = firebase.database();
 
                 // Redireciona se já logado
-                auth.onAuthStateChanged(user => {
+                auth.onAuthStateChanged(async user => {
                     if (user) {
-                        database.ref(`users/${user.uid}`).once('value').then(snapshot => {
+                        database.ref(`users/${user.uid}`).once('value').then(async snapshot => {
                             if (snapshot.exists()) {
-                                window.location.href = CimProductLink.destination(location.search);
+                                await claimEmployeeReferral();
+                    window.location.href = CimProductLink.destination(location.search);
                             }
                         });
                     }

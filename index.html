@@ -907,6 +907,8 @@
             let ref = null;
             const params = new URLSearchParams(window.location.search);
             const fromQuery = (params.get('ref') || '').trim().toLowerCase();
+            const employeeFromQuery = (params.get('seller') || params.get('funcionario') || '').trim().toLowerCase();
+            if (/^[a-z0-9_-]{2,80}$/.test(employeeFromQuery)) sessionStorage.setItem('employeeRef', employeeFromQuery);
 
             if (fromQuery) {
                 ref = fromQuery;

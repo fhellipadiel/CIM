@@ -158,7 +158,8 @@ body.admin-authorized .sidebar,body.admin-authorized .main{visibility:visible}
 @keyframes fadein{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
 .panel-head{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:22px;gap:14px;flex-wrap:wrap}
 .panel-head h1{font-size:1.5rem;font-weight:700}
-.panel-head p{color:var(--text-muted);font-size:.85rem;margin-top:4px}
+.panel-head p{display:none}
+.topbar-heading{display:none}
 .panel-actions{display:flex;gap:10px;flex-wrap:wrap}
 .create-fab-wrap{position:fixed;right:28px;bottom:28px;z-index:850;display:flex;flex-direction:column;align-items:flex-end;gap:10px}
 .create-fab{width:58px;height:58px;border:0;border-radius:50%;background:var(--accent);color:#fff;display:grid;place-items:center;font-size:1.35rem;cursor:pointer;box-shadow:0 12px 32px rgba(0,0,0,.48),0 0 0 1px rgba(255,255,255,.08);transition:transform .2s ease,background .2s ease}
@@ -320,6 +321,10 @@ tbody tr:last-child td{border-bottom:none}
 .modal-overlay.active{display:flex}
 .modal{background:var(--panel);border:1px solid var(--border);border-radius:var(--radius);width:100%;max-width:520px;max-height:88vh;overflow-y:auto;animation:modalin .2s ease}
 .modal.large{max-width:760px}
+.modal.fullscreen-tool{width:calc(100vw - 48px);max-width:none;height:calc(100vh - 48px);max-height:none;display:flex;flex-direction:column;overflow:hidden}
+.modal.fullscreen-tool .modal-body{flex:1;overflow:auto}
+.modal.fullscreen-tool .mini-list{max-height:none!important}
+@media(max-width:600px){.modal.fullscreen-tool{width:100vw;height:100vh;border-radius:0;border:0}.modal-overlay:has(.fullscreen-tool){padding:0}}
 @keyframes modalin{from{opacity:0;transform:scale(.97) translateY(6px)}to{opacity:1;transform:scale(1) translateY(0)}}
 .modal-head{padding:18px 20px;border-bottom:1px solid var(--border-soft);display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;background:var(--panel);z-index:5}
 .modal-head h3{font-size:1rem;font-weight:600}
@@ -573,6 +578,23 @@ tbody tr:last-child td{border-bottom:none}
 @media(max-width:1100px){.lead-filters{grid-template-columns:repeat(2,minmax(0,1fr))}.lead-filters>.btn{justify-self:start}.lead-box-head{align-items:start;flex-direction:column}}
 @media(max-width:600px){.lead-filters{grid-template-columns:1fr;padding:16px}.lead-box-head{padding:16px}.lead-overview{padding:16px}.lead-campaign-grid{grid-template-columns:1fr}.lead-dialog-body,.lead-dialog-head{padding:18px}.lead-photo-upload{align-items:start;flex-wrap:wrap}#panel-leads .panel-head{flex-wrap:wrap;gap:16px}}
 .lead-week{margin-bottom:20px}.lead-week-controls,.lead-date-actions{display:flex;gap:8px;flex-wrap:wrap;align-items:end}.lead-week-controls label{min-width:160px}.lead-week-chart{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:10px;padding:22px}.lead-week-day{text-align:center;min-width:0}.lead-week-track{height:160px;display:flex;align-items:end;justify-content:center;border-bottom:1px solid var(--border)}.lead-week-bar{width:65%;max-width:44px;background:var(--accent);border-radius:6px 6px 0 0;min-height:2px}.lead-week-value{display:block;margin-bottom:8px;font-size:.85rem}.lead-week-label{display:block;margin-top:10px;font-size:.75rem;color:var(--text-muted)}.lead-week-label small{display:block;margin-top:4px}.lead-week-total{padding:16px 22px 0;color:var(--text-muted);font-size:.82rem}#leadToday.active{background:var(--accent-soft);color:var(--accent);border-color:var(--accent)}@media(max-width:600px){.lead-week-chart{padding:18px 10px;gap:5px}.lead-week-track{height:120px}.lead-week-controls{width:100%}.lead-week-controls label{flex:1}}
+
+/* Central de suporte integrada ao visual dos demais painéis do ADM. */
+#panel-suporte>.panel-head{display:flex!important}
+#panel-suporte .cs-center{background:var(--panel);border-color:var(--border);box-shadow:0 14px 38px rgba(0,0,0,.22)}
+#panel-suporte .cs-list-pane{background:var(--panel);border-right-color:var(--border)}
+#panel-suporte .cs-list-head{background:var(--panel);border-bottom-color:var(--border-soft)}
+#panel-suporte .cs-search{background:var(--panel-alt);border-color:var(--border);color:var(--text)}
+#panel-suporte .cs-search:focus{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent-soft)}
+#panel-suporte .cs-thread{border-bottom-color:var(--border-soft)}
+#panel-suporte .cs-thread:hover{background:var(--panel-hover)}
+#panel-suporte .cs-thread.is-selected{background:var(--accent-soft);border-left-color:var(--accent)}
+#panel-suporte .cs-chat-pane{background:var(--panel-alt)}
+#panel-suporte .cs-top{background:var(--panel);border-bottom-color:var(--border)}
+#panel-suporte .cs-messages{background-color:var(--panel-alt);background-image:radial-gradient(rgba(255,255,255,.035) .8px,transparent .8px);scrollbar-color:var(--border) var(--panel-alt)}
+#panel-suporte .cs-empty strong{color:var(--text)}
+#panel-suporte .cs-composer,#panel-suporte .cs-status{background:var(--panel);border-top-color:var(--border)}
+#panel-suporte .cs-composer textarea{background:var(--panel-alt);border-color:var(--border);color:var(--text)}
 </style>
 <link rel="stylesheet" href="assets/support-chat.css">
 <script src="assets/admin-security.js"></script>
@@ -651,6 +673,7 @@ tbody tr:last-child td{border-bottom:none}
     <div class="sb-group">
       <div class="sb-group-label">Pessoas</div>
       <div class="sb-item" data-panel="suporte"><i class="fas fa-headset"></i> Suporte <span id="supportUnreadBadge" class="cs-nav-count" hidden>0</span></div>
+      <div class="sb-item" data-panel="funcionarios"><i class="fas fa-id-badge"></i> Funcionários</div>
       <div class="sb-item" data-panel="usuarios"><i class="fas fa-users"></i> Usuários <span class="online-badge" id="onlineUsersBadge" style="display:none;"><i class="fas fa-circle"></i> <span id="onlineUsersCount">0</span></span></div>
     </div>
     <div class="sb-group">
@@ -676,7 +699,7 @@ tbody tr:last-child td{border-bottom:none}
 <div class="main">
   <div class="topbar">
     <button class="mobile-menu-btn" onclick="document.getElementById('sidebar').classList.toggle('open')"><i class="fas fa-bars"></i></button>
-    <div><h2 id="topbarTitle">Dashboard</h2><div class="crumb" id="topbarCrumb">Visão geral do sistema</div></div>
+    <div class="topbar-heading"><h2 id="topbarTitle">Dashboard</h2><div class="crumb" id="topbarCrumb">Visão geral do sistema</div></div>
     <div class="topbar-actions">
       <div class="tb-search">
         <i class="fas fa-search"></i>
@@ -1002,7 +1025,14 @@ tbody tr:last-child td{border-bottom:none}
         <thead><tr><th></th><th>Peça</th><th>Categoria</th><th>Marca</th><th>PF</th><th>PJ</th><th>Cliques/Meta</th><th>Status</th><th></th></tr></thead>
         <tbody id="productsTableBody"></tbody>
       </table></div></div>
-      <div class="create-fab-wrap"><button class="create-fab" type="button" aria-label="Adicionar peça ao estoque" title="Adicionar peça ao estoque" onclick="openProductModal()"><i class="fas fa-plus"></i></button></div>
+      <div class="create-fab-wrap">
+        <div class="create-fab-menu" role="menu">
+          <button class="create-fab-option" type="button" role="menuitem" onclick="closeCreateMenus();openProductModal()"><i class="fas fa-box"></i> Nova peça</button>
+          <button class="create-fab-option" type="button" role="menuitem" onclick="openLocateApplyAdm()"><i class="fas fa-wand-magic-sparkles"></i> Localizar e aplicar</button>
+          <button class="create-fab-option" type="button" role="menuitem" onclick="openLocateExportAdm()"><i class="fas fa-file-csv"></i> Localizar e exportar CSV</button>
+        </div>
+        <button class="create-fab" type="button" aria-label="Abrir opções de produtos" aria-haspopup="menu" aria-expanded="false" title="Adicionar" onclick="toggleCreateMenu(this)"><i class="fas fa-plus"></i></button>
+      </div>
     </section>
 
     <!-- ============================================================
@@ -1237,7 +1267,9 @@ tbody tr:last-child td{border-bottom:none}
               <div class="f-group"><label>Sessão</label><div class="select-wrap"><select id="impSessionAdm"><option value="">— Nenhuma —</option></select></div></div>
               <div class="f-group"><label>Categoria</label><div class="select-wrap"><select id="impCategoryAdm"><option value="">— Nenhuma —</option></select></div></div>
               <div class="f-group"><label>Marca</label><div class="select-wrap"><select id="impBrandAdm"><option value="">— Nenhuma —</option></select></div></div>
+              <div class="f-group"><label>Acréscimo nos preços (%)</label><input type="number" id="impMarkupPercentAdm" min="0" max="1000" step="0.01" placeholder="Vazio mantém o valor original" oninput="renderImportPreviewAdm()"></div>
             </div>
+            <p class="td-sub" style="margin:-4px 0 14px;"><i class="fas fa-calculator" style="color:var(--accent);"></i> Exemplo: preço no CSV R$ 100,00 + 10% = R$ 110,00. O cálculo é aplicado em PF e PJ.</p>
             <div class="f-group" style="background:var(--panel-alt);padding:14px;border-radius:8px;border:1px solid var(--border);">
               <label><i class="fas fa-eye-slash" style="color:var(--accent);"></i> Ocultar valores</label>
               <div class="hide-price-group">
@@ -1336,6 +1368,37 @@ tbody tr:last-child td{border-bottom:none}
          PAINEL: USUÁRIOS
          ============================================================ -->
     <section class="panel" id="panel-suporte"><div class="panel-head"><div><h1>Suporte</h1><p>Conversas com clientes e visitantes</p></div></div><div id="supportCenter"></div></section>
+    <section class="panel" id="panel-funcionarios">
+<style>
+#panel-funcionarios .employee-form{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+#panel-funcionarios .employee-form label{display:grid;gap:8px;color:var(--text-muted);font-size:.78rem;font-weight:600}
+#panel-funcionarios .employee-form input{width:100%;min-height:45px;padding:0 13px;background:#0d0d0d;border:1px solid var(--border);border-radius:10px;color:#fff;outline:none}
+#panel-funcionarios .employee-form input:focus{border-color:var(--accent)}
+#panel-funcionarios .employee-form-actions{grid-column:1/-1;display:flex;align-items:center;justify-content:space-between;gap:15px;padding-top:5px}
+#panel-funcionarios .employee-layout{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(280px,.65fr);gap:18px}
+#panel-funcionarios .employee-note{padding:18px;border:1px solid var(--border);border-radius:14px;background:#101010}
+#panel-funcionarios .employee-note li{margin:10px 0;color:var(--text-muted)}
+#employeeLinksPicker{position:relative}
+#employeeCreateLinks[hidden]{display:none!important}
+#employeeCreateLinks{position:absolute;left:0;right:0;top:calc(100% + 7px);z-index:30;padding:12px;background:#151515;border:1px solid var(--border);border-radius:12px;box-shadow:0 18px 45px rgba(0,0,0,.65)}
+.employee-link-search{width:100%;height:39px;margin-bottom:10px;padding:0 12px;border:1px solid var(--border);border-radius:9px;background:#0c0c0c;color:var(--text);outline:none}
+.employee-link-search:focus{border-color:var(--accent)}
+.employee-link-carousel{display:flex;align-items:flex-start;gap:10px;width:100%;overflow-x:auto;padding:3px 2px 8px;scrollbar-width:thin;scrollbar-color:var(--accent) transparent;cursor:grab;user-select:none;touch-action:pan-x}
+.employee-link-carousel.dragging{cursor:grabbing;scroll-behavior:auto}
+.employee-link-choice{flex:0 0 94px;display:flex;flex-direction:column;align-items:center;gap:7px;min-height:112px;padding:9px 6px;border-radius:12px;cursor:pointer;text-align:center;transition:background .16s ease}
+.employee-link-choice:hover{background:rgba(255,54,1,.08)}
+.employee-link-choice input{position:absolute;opacity:0;pointer-events:none}
+.employee-link-choice img{display:block;width:64px;height:64px;border-radius:50%;object-fit:cover;background:#090909;border:2px solid transparent;transition:border-color .16s ease,transform .16s ease}
+.employee-link-choice strong{display:-webkit-box;color:var(--text);font-size:.75rem;line-height:1.2;max-width:86px;overflow:hidden;-webkit-line-clamp:2;-webkit-box-orient:vertical;transition:color .16s ease}
+.employee-link-choice:has(input:checked){background:rgba(255,54,1,.1)}
+.employee-link-choice:has(input:checked) strong{color:var(--accent)}
+.employee-link-choice:has(input:checked) img{border-color:var(--accent);transform:scale(1.03)}
+.employee-link-choice:has(input:focus-visible){outline:2px solid var(--accent);outline-offset:-2px}
+@media(max-width:850px){#panel-funcionarios .employee-layout,#panel-funcionarios .employee-form{grid-template-columns:1fr}.employee-form-actions{align-items:stretch!important;flex-direction:column}}
+</style>
+<div style="display:flex;align-items:center;justify-content:space-between;margin:0 0 12px"><h1 style="margin:0">Equipe cadastrada</h1></div><div id="employeesAdmList"></div>
+<div class="create-fab-wrap"><div class="create-fab-menu" role="menu"><button class="create-fab-option" type="button" role="menuitem" onclick="closeCreateMenus();openCreateEmployeeModal()"><i class="fas fa-user-plus"></i> Adicionar funcionário</button><button class="create-fab-option" type="button" role="menuitem" onclick="closeCreateMenus();window.open('/funcionario.html?preview=1','_blank')"><i class="fas fa-eye"></i> Visualizar tela do funcionário</button></div><button class="create-fab" type="button" aria-label="Abrir opções de funcionários" aria-haspopup="menu" aria-expanded="false" title="Opções" onclick="toggleCreateMenu(this)"><i class="fas fa-plus"></i></button></div>
+</section>
     <section class="panel" id="panel-usuarios">
       <div class="panel-head">
         <div><h1>Usuários</h1><p>Clientes pessoa física e jurídica cadastrados</p></div>
@@ -1664,6 +1727,16 @@ tbody tr:last-child td{border-bottom:none}
   <div class="modal-foot"><button class="btn btn-ghost" onclick="closeModal('modalContato')">Cancelar</button><button class="btn btn-accent" onclick="saveContactAdm()"><i class="fas fa-save"></i> Salvar</button></div>
 </div></div>
 
+<div class="modal-overlay" id="modalEmployee"><div class="modal" style="max-width:760px">
+<div class="modal-head"><h3>Novo funcionário</h3><button class="modal-close" onclick="closeModal('modalEmployee')"><i class="fas fa-times"></i></button></div>
+<form id="employeeCreateForm"><div class="modal-body">
+<div class="form-grid"><div class="f-group"><label>Nome completo <span class="req">*</span></label><input id="employeeName" required></div><div class="f-group"><label>E-mail de acesso <span class="req">*</span></label><input id="employeeEmail" type="email" required></div></div>
+<div class="f-group"><label>Senha temporária <span class="req">*</span></label><input id="employeePassword" type="password" minlength="8" required></div>
+<div class="form-grid"><div class="f-group"><label>Dia de início do ciclo</label><input id="employeeCycleStartDay" type="number" min="1" max="31" value="10"></div><div class="f-group"><label>Dia de término do ciclo</label><input id="employeeCycleEndDay" type="number" min="1" max="31" value="24"></div></div><div class="f-group"><label>Comissão (%)</label><input id="employeeRate" type="number" min="0" max="100" step=".1" value="3"></div>
+<div class="f-group"><label>Foto do funcionário</label><input id="employeePhoto" type="hidden"><div class="upload-box" id="employeePhotoUploadBox" onclick="employeePhotoInput.click()"><i class="fas fa-image"></i><p>Escolher foto da galeria</p><input id="employeePhotoInput" type="file" accept="image/*" style="display:none"></div><div class="upload-preview" id="employeePhotoPreview" style="display:none"><img id="employeePhotoPreviewImg"><div class="chg" onclick="employeePhotoInput.click()">Trocar foto</div></div></div>
+<div class="f-group"><label>Links da aba Links</label><p class="td-sub" style="margin-bottom:9px">Escolha as campanhas que serão enviadas para este funcionário.</p><div id="employeeLinksPicker"><button id="employeeLinksFilterButton" type="button" class="btn btn-ghost" style="width:100%;justify-content:flex-start" aria-expanded="false" onclick="toggleEmployeeLinksFilter()"><i class="fas fa-filter"></i> Selecionar campanhas <i class="fas fa-chevron-down" style="margin-left:auto;font-size:.68rem"></i></button><div id="employeeCreateLinks" hidden style="display:grid;gap:5px"></div></div></div>
+<p class="td-sub"><i class="fas fa-shield-halved"></i> A senha deverá ser trocada no primeiro acesso.</p>
+</div><div class="modal-foot"><button type="button" class="btn btn-ghost" onclick="closeModal('modalEmployee')">Cancelar</button><button class="btn btn-accent" type="submit"><i class="fas fa-plus"></i> Criar funcionário</button></div></form></div></div>
 <div class="modal-overlay" id="modalCliente"><div class="modal">
   <div class="modal-head"><h3>Criar cliente</h3><button class="modal-close" onclick="closeModal('modalCliente')"><i class="fas fa-times"></i></button></div>
   <div class="modal-body">
@@ -1678,6 +1751,33 @@ tbody tr:last-child td{border-bottom:none}
     <div class="login-error" id="ccError"></div>
   </div>
   <div class="modal-foot"><button class="btn btn-ghost" onclick="closeModal('modalCliente')">Cancelar</button><button class="btn btn-accent" onclick="createClientAdm()"><i class="fas fa-save"></i> Criar</button></div>
+</div></div>
+
+<div class="modal-overlay" id="modalLocateApplyAdm"><div class="modal fullscreen-tool">
+  <div class="modal-head"><h3 id="locateToolTitleAdm"><i class="fas fa-wand-magic-sparkles" style="color:var(--accent);margin-right:8px;"></i>Localizar e aplicar</h3><button class="modal-close" onclick="closeModal('modalLocateApplyAdm')"><i class="fas fa-times"></i></button></div>
+  <div class="modal-body">
+    <div class="tabbar" style="margin-bottom:20px;">
+      <button type="button" id="locateToolApplyTabAdm" onclick="setLocateToolModeAdm('apply')">Localizar e aplicar</button>
+      <button type="button" id="locateToolImportTabAdm" onclick="setLocateToolModeAdm('export')">Localizar e exportar CSV</button>
+    </div>
+    <div id="locateApplyPaneAdm">
+      <p style="color:var(--text-muted);font-size:.85rem;line-height:1.6;margin-bottom:20px;">Localize produtos já cadastrados e aplique uma marca ou sessão em todos os resultados.</p>
+      <div class="form-grid">
+        <div class="f-group"><label>Palavra para localizar</label><input type="text" id="locateApplyQueryAdm" placeholder="Ex: Honda" oninput="previewLocateApplyAdm()"></div>
+        <div class="f-group"><label>Aplicar em</label><div class="select-wrap"><select id="locateApplyTypeAdm" onchange="updateLocateApplyTargetsAdm()"><option value="brand">Marca</option><option value="session">Sessão</option></select></div></div>
+        <div class="f-group"><label>Valor</label><div class="select-wrap"><select id="locateApplyTargetAdm" onchange="previewLocateApplyAdm()"><option value="">Selecione...</option></select></div></div>
+      </div>
+      <div id="locateApplySummaryAdm" class="td-sub" aria-live="polite" style="margin:8px 0 14px;">Digite uma palavra para localizar as peças.</div>
+      <div class="mini-list" id="locateApplyPreviewAdm"></div>
+    </div>
+    <div id="locateImportPaneAdm" style="display:none;">
+      <p style="color:var(--text-muted);font-size:.85rem;line-height:1.6;margin-bottom:20px;">Localize peças já cadastradas e gere um arquivo CSV organizado contendo somente os resultados encontrados.</p>
+      <div class="f-group"><label>Palavra para localizar</label><input type="text" id="locateExportQueryAdm" placeholder="Ex: Honda" oninput="previewLocateExportAdm()"></div>
+      <div id="locateExportSummaryAdm" class="td-sub" aria-live="polite" style="margin:8px 0 14px;">Digite uma palavra para localizar as peças.</div>
+      <div class="mini-list" id="locateExportPreviewAdm"></div>
+    </div>
+  </div>
+  <div class="modal-foot"><button type="button" class="btn btn-ghost" onclick="closeModal('modalLocateApplyAdm')">Cancelar</button><button type="button" class="btn btn-accent" id="locateApplyBtnAdm" onclick="applyLocateApplyAdm()" disabled><i class="fas fa-check-double"></i> Aplicar aos resultados</button><button type="button" class="btn btn-accent" id="locateImportBtnAdm" onclick="exportLocatedProductsCsvAdm()" disabled style="display:none;"><i class="fas fa-download"></i> Baixar CSV dos resultados</button></div>
 </div></div>
 
 <div class="modal-overlay" id="modalDeleteAll"><div class="modal">
@@ -1713,6 +1813,10 @@ tbody tr:last-child td{border-bottom:none}
   <div class="modal-head"><h3><i class="fas fa-award" style="color:var(--danger)"></i> Excluir marca</h3><button class="modal-close" onclick="closeModal('modalDeleteBrand')"><i class="fas fa-times"></i></button></div>
   <div class="modal-body">
     <p style="color:var(--text-muted);font-size:.85rem;margin-bottom:14px;">Marca: <strong id="delBrandName" style="color:var(--text);"></strong></p>
+    <div class="f-group"><label>O que deseja excluir?</label><div style="display:grid;gap:8px;">
+      <label class="mini-item" style="cursor:pointer;"><input type="radio" name="delBrandMode" value="brand" checked onchange="updateBrandDeleteModeAdm()"> <span><strong>Marca e peças</strong><span class="td-sub" style="display:block;">Exclui a marca, seu logo e todas as peças vinculadas.</span></span></label>
+      <label class="mini-item" style="cursor:pointer;"><input type="radio" name="delBrandMode" value="products" onchange="updateBrandDeleteModeAdm()"> <span><strong>Somente as peças</strong><span class="td-sub" style="display:block;">Mantém a marca cadastrada e exclui apenas suas peças.</span></span></label>
+    </div></div>
     <div style="background:var(--danger-soft);border:1px solid var(--danger);border-radius:8px;padding:12px 14px;margin-bottom:14px;">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
         <span style="font-size:.78rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px;">Peças que serão excluídas junto</span>
@@ -1721,7 +1825,7 @@ tbody tr:last-child td{border-bottom:none}
       <div class="mini-list" id="delBrandPreviewList" style="max-height:220px;overflow-y:auto;"></div>
     </div>
     <div class="f-check"><input type="checkbox" id="delBrandAlsoFeatured" checked><label for="delBrandAlsoFeatured">Remover também dos <strong>Destaques da Busca</strong></label></div>
-    <p style="color:var(--text-muted);font-size:.85rem;margin:14px 0 10px;">Digite <strong style="color:var(--accent);">EXCLUIR MARCA</strong> para confirmar:</p>
+    <p style="color:var(--text-muted);font-size:.85rem;margin:14px 0 10px;">Digite <strong id="delBrandConfirmPhrase" style="color:var(--accent);">EXCLUIR MARCA</strong> para confirmar:</p>
     <input type="text" id="delBrandConfirmInput" placeholder="Digite a frase exata" style="width:100%;padding:11px;background:var(--panel-alt);border:1px solid var(--border);border-radius:8px;color:var(--text);">
   </div>
   <div class="modal-foot">
@@ -1753,7 +1857,7 @@ tbody tr:last-child td{border-bottom:none}
     </div>
     <div style="background:var(--danger-soft);border:1px solid var(--danger);border-radius:8px;padding:12px 14px;margin-bottom:14px;">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
-        <span style="font-size:.78rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px;">Peças que serão excluídas</span>
+        <span style="font-size:.78rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px;">Peças vinculadas ao arquivo</span>
         <span class="chip chip-danger" id="delImpCountChip">0</span>
       </div>
       <div class="mini-list" id="delImpPreviewList" style="max-height:220px;overflow-y:auto;"></div>
@@ -1901,6 +2005,24 @@ function matchTokens(haystack, query){
   const tokens = query.toLowerCase().trim().split(/\s+/).filter(Boolean);
   const hay = (haystack || '').toLowerCase();
   return tokens.every(t => hay.includes(t));
+}
+
+function normalizeLookupText(value){
+  return String(value || '').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLocaleLowerCase('pt-BR').trim();
+}
+
+function productImportSources(product){
+  const sources = {...(product?.importSources || {})};
+  if(product?.importedFrom) sources[product.importedFrom] = true;
+  return sources;
+}
+
+function productBelongsToImport(product, historyId){
+  return product?.importedFrom === historyId || product?.importSources?.[historyId] === true;
+}
+
+function getImportProductIds(history){
+  return [...new Set([...(history?.productIds || []), ...(history?.addedProductIds || []), ...(history?.updatedProductIds || [])])];
 }
 
 function parseCSVLine(line){
@@ -2080,7 +2202,7 @@ function lockAdminInterface(){
   categoryClicks={};sessionClicks={};brandClicks={};clickHistory=[];metaAchievements=[];importHistoryCache=[];usersCache=[];contactClicks=[];
   trackingLinks={};profileData={};ordersCache=[];allOrdersCache=[];featuredDraft=[];galleryDraft=[];
   document.querySelectorAll('.sc-val').forEach(el=>el.textContent='0');
-  document.querySelectorAll('tbody,.mini-list,#usersListAdm,#leadRows,#leadCampaignRows,#supportCenter').forEach(el=>el.replaceChildren());
+  document.querySelectorAll('tbody,.mini-list,#usersListAdm,#leadRows,#leadCampaignRows').forEach(el=>el.replaceChildren());
   document.querySelectorAll('canvas').forEach(canvas=>{
     const context=canvas.getContext?.('2d');
     if(context) context.clearRect(0,0,canvas.width,canvas.height);
@@ -2146,6 +2268,7 @@ leads:['Leads','Captura e acompanhamento comercial'],
   links:['Links de Campanha','Rastreamento de origem'],
   importacao:['Importação','Importação em lote via CSV'],
   cliques:['Cliques & metas','Engajamento dos produtos'],
+  funcionarios:['Funcionários','Equipe comercial e comissões'],
   usuarios:['Usuários','Clientes cadastrados'],
   'quem-somos':['Quem Somos','Fotos institucionais'],
   perfil:['Perfil da loja','Identidade exibida ao cliente'],
@@ -2238,6 +2361,7 @@ function switchPanel(name){
   if(name === 'analises-links'){ updateLinkSlugFilter(); renderLinksAnalytics(); }
   if(name === 'cliques'){ renderClickHistory(); renderContactClicks(); renderMetaAchievements(); }
   if(name === 'pedidos'){ renderOrders(); renderOrdersDashboard(); }
+  if(name === 'funcionarios') loadEmployeesAdm();
  if(name === 'config')renderLegacySettings();
 }
 
@@ -3395,6 +3519,7 @@ function updateSelectPopulators(){
     sel.innerHTML='<option value="">— Nenhuma —</option>'+list.map(b=>`<option value="${esc(b)}">${esc(b)}</option>`).join('');
     if(list.includes(cur)) sel.value=cur;
   });
+  updateLocateApplyTargetsAdm();
 }
 document.addEventListener('change',e=>{
   if(e.target.id==='pCategory' && e.target.value==='__NEW__'){
@@ -3482,6 +3607,134 @@ function appendAdminProductsBatch(){
   if(!adminProductsObserver)adminProductsObserver=new IntersectionObserver(entries=>{if(entries.some(entry=>entry.isIntersecting))appendAdminProductsBatch();},{rootMargin:'300px'});
   adminProductsObserver.observe(document.getElementById('adminProductsMoreRow'));
  }
+}
+
+function updateLocateApplyTargetsAdm(){
+  const type=document.getElementById('locateApplyTypeAdm')?.value||'brand';
+  const select=document.getElementById('locateApplyTargetAdm');
+  if(!select) return;
+  const current=select.value;
+  const options=type==='brand'
+    ? Object.keys(brands).map(id=>({value:brands[id].name||'',label:brands[id].name||''})).filter(x=>x.value).sort((a,b)=>a.label.localeCompare(b.label,'pt-BR'))
+    : Object.keys(sessions).map(id=>({value:id,label:sessions[id].name||''})).filter(x=>x.label).sort((a,b)=>a.label.localeCompare(b.label,'pt-BR'));
+  select.innerHTML='<option value="">Selecione...</option>'+options.map(x=>`<option value="${esc(x.value)}">${esc(x.label)}</option>`).join('');
+  if(options.some(x=>x.value===current)) select.value=current;
+  previewLocateApplyAdm();
+}
+
+function openLocateApplyAdm(){
+  closeCreateMenus();
+  document.getElementById('locateApplyQueryAdm').value='';
+  document.getElementById('locateApplyTypeAdm').value='brand';
+  updateLocateApplyTargetsAdm();
+  setLocateToolModeAdm('apply');
+  openModal('modalLocateApplyAdm');
+  requestAnimationFrame(()=>document.getElementById('locateApplyQueryAdm')?.focus());
+}
+
+function openLocateExportAdm(){
+  closeCreateMenus();
+  document.getElementById('locateExportQueryAdm').value='';
+  setLocateToolModeAdm('export');
+  previewLocateExportAdm();
+  openModal('modalLocateApplyAdm');
+}
+
+function setLocateToolModeAdm(mode){
+  const isExport=mode==='export';
+  document.getElementById('locateApplyPaneAdm').style.display=isExport?'none':'block';
+  document.getElementById('locateImportPaneAdm').style.display=isExport?'block':'none';
+  document.getElementById('locateApplyBtnAdm').style.display=isExport?'none':'inline-flex';
+  document.getElementById('locateImportBtnAdm').style.display=isExport?'inline-flex':'none';
+  document.getElementById('locateToolApplyTabAdm').classList.toggle('active',!isExport);
+  document.getElementById('locateToolImportTabAdm').classList.toggle('active',isExport);
+  document.getElementById('locateToolTitleAdm').innerHTML=isExport
+    ? '<i class="fas fa-file-csv" style="color:var(--accent);margin-right:8px;"></i>Localizar e exportar CSV'
+    : '<i class="fas fa-wand-magic-sparkles" style="color:var(--accent);margin-right:8px;"></i>Localizar e aplicar';
+  requestAnimationFrame(()=>document.getElementById(isExport?'locateExportQueryAdm':'locateApplyQueryAdm')?.focus());
+}
+
+function getLocatedExportProductsAdm(){
+  const query=normalizeLookupText(document.getElementById('locateExportQueryAdm')?.value);
+  if(!query) return [];
+  const tokens=query.split(/\s+/).filter(Boolean);
+  return products.filter(product=>{
+    const text=normalizeLookupText([product.name,product.codigo,product.description,product.category,product.brand].join(' '));
+    return tokens.every(token=>text.includes(token));
+  });
+}
+
+function previewLocateExportAdm(){
+  const summary=document.getElementById('locateExportSummaryAdm');
+  const preview=document.getElementById('locateExportPreviewAdm');
+  const button=document.getElementById('locateImportBtnAdm');
+  if(!summary||!preview||!button) return;
+  const query=(document.getElementById('locateExportQueryAdm')?.value||'').trim();
+  const matches=getLocatedExportProductsAdm();
+  summary.textContent=query?`${matches.length} peça(s) serão incluídas no CSV.`:'Digite uma palavra para localizar as peças.';
+  button.disabled=!query||matches.length===0;
+  preview.innerHTML=matches.slice(0,50).map(product=>`<div class="mini-item"><div class="mi-t">${esc(product.name||'Sem nome')}<div class="td-sub">${esc(product.codigo||'sem código')} · ${esc(product.brand||'sem marca')} · ${esc(product.category||'sem categoria')}</div></div></div>`).join('')+(matches.length>50?`<div class="td-sub" style="padding:8px">... e mais ${matches.length-50}</div>`:'');
+}
+
+function exportLocatedProductsCsvAdm(){
+  const query=(document.getElementById('locateExportQueryAdm')?.value||'').trim();
+  const matches=getLocatedExportProductsAdm().sort((a,b)=>(a.name||'').localeCompare(b.name||'','pt-BR',{numeric:true,sensitivity:'base'}));
+  if(!matches.length){ showToast('Nenhuma peça localizada para exportar','err'); return; }
+  const header=['Nome','Preço PF','Preço PJ','Categoria','Código','Marca','Link da foto','Sessão'];
+  const lines=[header,...matches.map(product=>[
+    product.name||'',Number(product.prices?.PF||0).toFixed(2).replace('.',','),Number(product.prices?.PJ||0).toFixed(2).replace('.',','),
+    product.category||'',product.codigo||'',product.brand||'',product.image||'',sessions[product.sessionId]?.name||''
+  ])].map(row=>row.map(csvCellAdm).join(';'));
+  const blob=new Blob(['\ufeff'+lines.join('\r\n')],{type:'text/csv;charset=utf-8'});
+  const url=URL.createObjectURL(blob),link=document.createElement('a');
+  const safeQuery=query.replace(/[\\/:*?"<>|]+/g,'-').trim()||'produtos';
+  link.href=url;link.download=`produtos-${safeQuery}.csv`;document.body.appendChild(link);link.click();link.remove();
+  setTimeout(()=>URL.revokeObjectURL(url),1000);
+  showToast(`${matches.length} peça(s) exportada(s) para CSV`);
+}
+
+function getLocateApplyMatchesAdm(){
+  const query=normalizeLookupText(document.getElementById('locateApplyQueryAdm')?.value);
+  if(!query) return [];
+  const tokens=query.split(/\s+/).filter(Boolean);
+  return products.filter(product=>{
+    const text=normalizeLookupText([product.name,product.codigo,product.description,product.category,product.brand].join(' '));
+    return tokens.every(token=>text.includes(token));
+  });
+}
+
+function previewLocateApplyAdm(){
+  const summary=document.getElementById('locateApplySummaryAdm');
+  const preview=document.getElementById('locateApplyPreviewAdm');
+  const button=document.getElementById('locateApplyBtnAdm');
+  if(!summary||!preview||!button) return;
+  const query=(document.getElementById('locateApplyQueryAdm')?.value||'').trim();
+  const target=document.getElementById('locateApplyTargetAdm')?.value||'';
+  const matches=getLocateApplyMatchesAdm();
+  summary.textContent=query ? `${matches.length} peça(s) encontrada(s).` : 'Digite uma palavra para localizar as peças.';
+  button.disabled=!query||!target||matches.length===0;
+  preview.innerHTML=matches.slice(0,30).map(product=>`<div class="mini-item"><div class="mi-t">${esc(product.name||'Sem nome')}<div class="td-sub">${esc(product.codigo||'sem código')} · ${esc(product.brand||'sem marca')}</div></div></div>`).join('')+(matches.length>30?`<div class="td-sub" style="padding:8px">... e mais ${matches.length-30}</div>`:'');
+}
+
+async function applyLocateApplyAdm(){
+  const query=(document.getElementById('locateApplyQueryAdm')?.value||'').trim();
+  const type=document.getElementById('locateApplyTypeAdm')?.value||'brand';
+  const target=document.getElementById('locateApplyTargetAdm')?.value||'';
+  const targetSelect=document.getElementById('locateApplyTargetAdm');
+  const targetLabel=targetSelect?.selectedOptions?.[0]?.textContent||target;
+  const matches=getLocateApplyMatchesAdm();
+  if(!query||!target||matches.length===0){ showToast('Preencha a busca e o valor que será aplicado','err'); return; }
+  const field=type==='brand'?'marca':'sessão';
+  if(!confirm(`Aplicar a ${field} "${targetLabel}" em ${matches.length} peça(s) que contêm "${query}"?`)) return;
+  const updates={};
+  matches.forEach(product=>{ updates[`products/${product.id}/${type==='brand'?'brand':'sessionId'}`]=target; });
+  showLoading(`Aplicando ${field}...`);
+  try{
+    await database.ref().update(updates);
+    hideLoading();
+    closeModal('modalLocateApplyAdm');
+    showToast(`${targetLabel} aplicado em ${matches.length} peça(s)`);
+  }catch(err){ hideLoading(); showToast('Erro: '+(err.message||err.code),'err'); }
 }
 
 function openProductModal(){
@@ -3739,6 +3992,7 @@ function deleteBrandAdm(id){
   document.getElementById('delBrandConfirmInput').value = '';
   document.getElementById('delBrandConfirmBtn').disabled = true;
   document.getElementById('delBrandAlsoFeatured').checked = true;
+  document.querySelector('input[name="delBrandMode"][value="brand"]').checked = true;
 
   const previewEl = document.getElementById('delBrandPreviewList');
   if(list.length === 0){
@@ -3752,37 +4006,48 @@ function deleteBrandAdm(id){
   }
 
   const input = document.getElementById('delBrandConfirmInput');
-  const btn = document.getElementById('delBrandConfirmBtn');
-  input.oninput = (e) => { btn.disabled = e.target.value.trim() !== 'EXCLUIR MARCA'; };
+  input.oninput = updateBrandDeleteModeAdm;
+  updateBrandDeleteModeAdm();
 
   openModal('modalDeleteBrand');
 }
 
+function updateBrandDeleteModeAdm(){
+  const mode=document.querySelector('input[name="delBrandMode"]:checked')?.value||'brand';
+  const phrase=mode==='products'?'EXCLUIR PEÇAS':'EXCLUIR MARCA';
+  document.getElementById('delBrandConfirmPhrase').textContent=phrase;
+  const button=document.getElementById('delBrandConfirmBtn');
+  button.innerHTML=mode==='products'?'<i class="fas fa-box-open"></i> Excluir somente as peças':'<i class="fas fa-trash-alt"></i> Excluir marca + peças';
+  button.disabled=document.getElementById('delBrandConfirmInput').value.trim()!==phrase;
+}
+
 async function confirmDeleteBrandAdm(){
   const input = document.getElementById('delBrandConfirmInput');
-  if(input.value.trim() !== 'EXCLUIR MARCA'){ showToast('Frase incorreta','err'); return; }
+  const mode=document.querySelector('input[name="delBrandMode"]:checked')?.value||'brand';
+  const phrase=mode==='products'?'EXCLUIR PEÇAS':'EXCLUIR MARCA';
+  if(input.value.trim() !== phrase){ showToast('Frase incorreta','err'); return; }
   const id = deletingBrandId; if(!id) return;
   const b = brands[id]; if(!b) return;
   const brandName = b.name || '';
   const productsToDelete = products.filter(p => (p.brand||'') === brandName);
   const alsoRemoveFeatured = document.getElementById('delBrandAlsoFeatured').checked;
 
-  showLoading('Excluindo marca e peças...');
+  showLoading(mode==='products'?'Excluindo peças...':'Excluindo marca e peças...');
   try{
-    if(b.image) await deleteImageByUrl(b.image);
+    if(mode==='brand' && b.image) await deleteImageByUrl(b.image);
     await Promise.all(productsToDelete.map(p => p.image ? deleteImageByUrl(p.image) : Promise.resolve()));
     const updates = {};
-    updates[`brands/${id}`] = null;
+    if(mode==='brand') updates[`brands/${id}`] = null;
     const deletedIds = new Set();
     productsToDelete.forEach(p => { updates[`products/${p.id}`] = null; deletedIds.add(p.id); });
     if(alsoRemoveFeatured && featuredDraft && featuredDraft.length > 0){
       const newFeatured = featuredDraft.filter(fid => !deletedIds.has(fid));
       if(newFeatured.length !== featuredDraft.length) updates['featured'] = newFeatured.length > 0 ? newFeatured : null;
     }
-    if(brandClicks[brandName]) updates[`brandClicks/${brandName}`] = null;
+    if(mode==='brand' && brandClicks[brandName]) updates[`brandClicks/${brandName}`] = null;
     await database.ref().update(updates);
     hideLoading(); closeModal('modalDeleteBrand'); deletingBrandId = null;
-    showToast(`Marca excluída${productsToDelete.length > 0 ? ` + ${productsToDelete.length} peça(s)` : ''}`);
+    showToast(mode==='products'?`${productsToDelete.length} peça(s) excluída(s); marca mantida`:`Marca excluída${productsToDelete.length > 0 ? ` + ${productsToDelete.length} peça(s)` : ''}`);
   }catch(err){
     hideLoading(); showToast('Erro: ' + err.message, 'err');
   }
@@ -4293,6 +4558,22 @@ function startNewImport(){
 document.getElementById('filterByColHAdm').onchange=function(){
   const f=document.getElementById('csvFileAdm'); if(f.files&&f.files.length>0) f.dispatchEvent(new Event('change'));
 };
+function renderImportPreviewAdm(){
+  const items=window.importItemsAdm||[];
+  const preview=document.getElementById('importPreviewListAdm');
+  if(!preview||!items.length) return;
+  const percentage=Math.max(0,Number(document.getElementById('impMarkupPercentAdm')?.value)||0);
+  const adjusted=value=>Math.round((Number(value)||0)*(1+percentage/100)*100)/100;
+  preview.innerHTML=items.slice(0,12).map(it=>`
+    <div class="mini-item">
+      <img src="${esc(safeAdminImage(it.image || PLACEHOLDER_IMG))}" onerror="this.src='${PLACEHOLDER_IMG}'" style="width:38px;height:38px;border-radius:6px;object-fit:cover;background:#111;border:1px solid var(--border);">
+      <div class="mi-t">${esc(it.name)}
+        <div style="color:var(--text-dim);font-size:.7rem;font-weight:400;word-break:break-all;">${it.image?esc(it.image.slice(0,70))+(it.image.length>70?'…':''):'<span style="color:var(--danger);">sem imagem</span>'}</div>
+      </div>
+      <span class="chip chip-mut">PF ${adjusted(it.pricePF).toFixed(2)} / PJ ${adjusted(it.pricePJ).toFixed(2)}${percentage?` · +${percentage}%`:''}</span>
+    </div>`).join('')+(items.length>12?`<div class="td-sub" style="padding:6px 0;">... e mais ${items.length-12}</div>`:'');
+  document.getElementById('importCountAdm').innerHTML=`<strong>${items.length}</strong> peças encontradas${percentage?` · preços com <strong>+${percentage}%</strong>`:''}`;
+}
 document.getElementById('csvFileAdm').onchange=async(e)=>{
   const file=e.target.files[0]; if(!file) return;
   const text = await file.text();
@@ -4325,22 +4606,10 @@ document.getElementById('csvFileAdm').onchange=async(e)=>{
 
   if(items.length === 0){ showToast('Nenhuma peça válida encontrada','err'); return; }
 
-  document.getElementById('importPreviewListAdm').innerHTML = items.slice(0,12).map(it => `
-    <div class="mini-item">
-      <img src="${esc(safeAdminImage(it.image || PLACEHOLDER_IMG))}" onerror="this.src='${PLACEHOLDER_IMG}'" style="width:38px;height:38px;border-radius:6px;object-fit:cover;background:#111;border:1px solid var(--border);">
-      <div class="mi-t">${esc(it.name)}
-        <div style="color:var(--text-dim);font-size:.7rem;font-weight:400;word-break:break-all;">
-          ${it.image ? esc(it.image.slice(0, 70)) + (it.image.length > 70 ? '…' : '') : '<span style="color:var(--danger);">sem imagem</span>'}
-        </div>
-      </div>
-      <span class="chip chip-mut">PF ${it.pricePF} / PJ ${it.pricePJ}</span>
-    </div>`).join('') +
-    (items.length > 12 ? `<div class="td-sub" style="padding:6px 0;">... e mais ${items.length - 12}</div>` : '');
-
-  document.getElementById('importCountAdm').innerHTML=`<strong>${items.length}</strong> peças encontradas`;
-  document.getElementById('importPreviewAdm').style.display='block';
   window.importItemsAdm=items;
   window.importFileNameAdm=file.name;
+  renderImportPreviewAdm();
+  document.getElementById('importPreviewAdm').style.display='block';
 };
 document.getElementById('confirmImportAdm').onchange=(e)=>{ document.getElementById('importBtnAdm').disabled=!e.target.checked; };
 
@@ -4353,27 +4622,46 @@ async function importNamesAdm(){
   const brand       = document.getElementById('impBrandAdm').value || null;
   const impHidePF   = document.getElementById('impHidePF').checked;
   const impHidePJ   = document.getElementById('impHidePJ').checked;
+  const markupRaw   = document.getElementById('impMarkupPercentAdm').value.trim();
+  const markupPercent = markupRaw === '' ? 0 : Number(markupRaw);
+  if(!Number.isFinite(markupPercent) || markupPercent < 0 || markupPercent > 1000){
+    showToast('Informe uma porcentagem entre 0 e 1000','err'); return;
+  }
+  const applyMarkup = value => Math.round((Number(value)||0) * (1 + markupPercent / 100) * 100) / 100;
 
   showLoading('Importando peças...');
 
+  const originalFileName = window.importFileNameAdm || 'arquivo.csv';
+  const normalizedFileName = normalizeLookupText(originalFileName);
+  const previousHistory = importHistoryCache.find(entry =>
+    normalizeLookupText(entry.originalFileName || entry.fileName) === normalizedFileName
+  );
+  const now = Date.now();
   const historyEntry = {
-    fileName: window.importFileNameAdm || 'arquivo.csv',
-    timestamp: Date.now(),
-    date: new Date().toLocaleDateString('pt-BR'),
-    time: new Date().toLocaleTimeString('pt-BR'),
+    fileName: previousHistory?.fileName || originalFileName,
+    originalFileName,
+    timestamp: now,
+    date: new Date(now).toLocaleDateString('pt-BR'),
+    time: new Date(now).toLocaleTimeString('pt-BR'),
     totalItems: items.length,
     newItems: 0, updatedItems: 0, skippedItems: 0,
     userId: currentAdmin?.uid || 'unknown',
     userName: currentAdmin?.name || 'Admin',
-    addedProductIds: [], updatedProductIds: [],
+    addedProductIds: previousHistory?.addedProductIds || [],
+    updatedProductIds: previousHistory?.updatedProductIds || [],
+    productIds: getImportProductIds(previousHistory),
+    revisionCount: (previousHistory?.revisionCount || 0) + 1,
     organization: { sessionId: sessionId || '', category: category || '', brand: brand || '' },
-    hidePricePF: impHidePF, hidePricePJ: impHidePJ
+    hidePricePF: impHidePF, hidePricePJ: impHidePJ, markupPercent
   };
 
-  let historyKey;
+  let historyKey = previousHistory?.id;
   try {
-    const ref = await database.ref('importHistory').push(historyEntry);
-    historyKey = ref.key;
+    if(historyKey) await database.ref(`importHistory/${historyKey}`).update(historyEntry);
+    else {
+      const ref = await database.ref('importHistory').push(historyEntry);
+      historyKey = ref.key;
+    }
   } catch(err){
     hideLoading();
     showToast('Erro ao registrar histórico: ' + (err.code || err.message), 'err');
@@ -4382,36 +4670,55 @@ async function importNamesAdm(){
 
   try {
     const snap = await database.ref('products').once('value');
-    const map = {};
-    snap.forEach(c => { const p = c.val(); map[`${p.name}|${p.category||''}`] = { id: c.key, ...p }; });
+    const existingProducts = [];
+    snap.forEach(c => existingProducts.push({ id: c.key, ...c.val() }));
+    const sourceProducts = existingProducts.filter(product=>productBelongsToImport(product,historyKey));
+    const byCode = new Map(existingProducts.filter(p=>p.codigo).map(p=>[normalizeLookupText(p.codigo),p]));
+    const byNameCategory = new Map(existingProducts.map(p=>[`${normalizeLookupText(p.name)}|${normalizeLookupText(p.category)}`,p]));
+    const sourceByName = new Map(sourceProducts.map(p=>[normalizeLookupText(p.name),p]));
 
     const updates = {};
     let added = 0, updated = 0, skipped = 0;
-    const addedIds = [], updatedIds = [];
+    const addedIds = [...(previousHistory?.addedProductIds || [])];
+    const updatedIds = [...(previousHistory?.updatedProductIds || [])];
+    const linkedIds = new Set(getImportProductIds(previousHistory));
 
     items.forEach(item => {
-      const key = `${item.name}|${item.category||''}`;
-      const existing = map[key];
+      const effectiveCategory = category || item.category || '';
+      const adjustedPricePF = applyMarkup(item.pricePF);
+      const adjustedPricePJ = applyMarkup(item.pricePJ);
+      const existing = (item.codigo && byCode.get(normalizeLookupText(item.codigo)))
+        || sourceByName.get(normalizeLookupText(item.name))
+        || byNameCategory.get(`${normalizeLookupText(item.name)}|${normalizeLookupText(effectiveCategory)}`);
 
       if(existing){
+        linkedIds.add(existing.id);
+        const sources=productImportSources(existing);
+        sources[historyKey]=true;
+        updates[`products/${existing.id}/importSources`] = sources;
+        if(!existing.importedFrom) updates[`products/${existing.id}/importedFrom`] = historyKey;
         const hideChanged = (existing.hidePricePF||false) !== impHidePF || (existing.hidePricePJ||false) !== impHidePJ;
+        const nextBrand = brand || item.brand || existing.brand || '';
         updates[`products/${existing.id}/hidePricePF`] = impHidePF;
         updates[`products/${existing.id}/hidePricePJ`] = impHidePJ;
         const changed =
-          existing.prices?.PF !== item.pricePF ||
-          existing.prices?.PJ !== item.pricePJ ||
-          existing.brand      !== item.brand ||
+          existing.prices?.PF !== adjustedPricePF ||
+          existing.prices?.PJ !== adjustedPricePJ ||
+          existing.brand      !== nextBrand ||
+          existing.category   !== effectiveCategory ||
+          (sessionId && existing.sessionId !== sessionId) ||
           existing.codigo     !== item.codigo ||
           existing.image      !== item.image ||
           hideChanged;
         if(changed){
-          if(item.pricePF !== undefined) updates[`products/${existing.id}/prices/PF`] = item.pricePF;
-          if(item.pricePJ !== undefined) updates[`products/${existing.id}/prices/PJ`] = item.pricePJ;
-          if(item.brand)  updates[`products/${existing.id}/brand`]  = item.brand;
+          if(item.pricePF !== undefined) updates[`products/${existing.id}/prices/PF`] = adjustedPricePF;
+          if(item.pricePJ !== undefined) updates[`products/${existing.id}/prices/PJ`] = adjustedPricePJ;
+          updates[`products/${existing.id}/category`] = effectiveCategory;
+          updates[`products/${existing.id}/brand`] = nextBrand;
+          if(sessionId) updates[`products/${existing.id}/sessionId`] = sessionId;
           if(item.codigo) updates[`products/${existing.id}/codigo`] = item.codigo;
           if(item.image)  updates[`products/${existing.id}/image`]  = item.image;
-          if(!existing.importedFrom) updates[`products/${existing.id}/importedFrom`] = historyKey;
-          updated++; updatedIds.push(existing.id);
+          updated++; if(!updatedIds.includes(existing.id)) updatedIds.push(existing.id);
         } else skipped++;
       } else {
         const id = database.ref().child('products').push().key;
@@ -4426,10 +4733,11 @@ async function importNamesAdm(){
           sessionId,
           clicks: 0, metaClicks: 0,
           hidePricePF: impHidePF, hidePricePJ: impHidePJ,
-          prices: { PF: item.pricePF || 0, PJ: item.pricePJ || 0 },
-          importedFrom: historyKey
+          prices: { PF: adjustedPricePF, PJ: adjustedPricePJ },
+          importedFrom: historyKey,
+          importSources: { [historyKey]: true }
         };
-        added++; addedIds.push(id);
+        added++; addedIds.push(id); linkedIds.add(id);
       }
     });
 
@@ -4437,11 +4745,12 @@ async function importNamesAdm(){
 
     await database.ref(`importHistory/${historyKey}`).update({
       newItems: added, updatedItems: updated, skippedItems: skipped,
-      addedProductIds: addedIds, updatedProductIds: updatedIds, finishedAt: Date.now()
+      totalItems: items.length, addedProductIds: addedIds, updatedProductIds: updatedIds,
+      productIds: [...linkedIds], finishedAt: Date.now()
     });
 
     hideLoading();
-    showToast(`Importação: ${added} novas, ${updated} atualizadas, ${skipped} ignoradas`);
+    showToast(`Importação: ${added} novas, ${updated} atualizadas, ${skipped} ignoradas${markupPercent ? ` · +${markupPercent}% nos preços` : ''}`);
   } catch(err){
     hideLoading();
     console.error('Erro na importação:', err);
@@ -4454,6 +4763,7 @@ async function importNamesAdm(){
   document.getElementById('importBtnAdm').disabled = true;
   document.getElementById('impHidePF').checked = false;
   document.getElementById('impHidePJ').checked = false;
+  document.getElementById('impMarkupPercentAdm').value = '';
   window.importItemsAdm = null;
   window.importFileNameAdm = null;
 
@@ -4466,34 +4776,77 @@ function renderImportHistory(){
   if(!list) return;
   if(importHistoryCache.length===0){ list.innerHTML=`<div class="empty-state"><i class="fas fa-file-import"></i><p>Nenhum arquivo importado</p></div>`; return; }
   list.innerHTML=importHistoryCache.map(item=>{
-    const hasPriority=products.some(p=>p.importedFrom===item.id && p.topPriority===true);
+    const linkedIds=getImportProductIds(item);
+    const linkedProducts=products.filter(p=>linkedIds.includes(p.id)||productBelongsToImport(p,item.id));
+    const hasPriority=linkedProducts.some(p=>p.priorityImports?.[item.id]===true || (p.importedFrom===item.id && p.topPriority===true));
     const hideInfo = (item.hidePricePF || item.hidePricePJ) ? `<span class="chip chip-warn"><i class="fas fa-eye-slash"></i> ${[item.hidePricePF?'PF':'',item.hidePricePJ?'PJ':''].filter(Boolean).join('+')}</span>` : '';
+    const markupInfo = Number(item.markupPercent)>0 ? `<span class="chip chip-warn"><i class="fas fa-percent"></i> +${item.markupPercent}%</span>` : '';
     return `<div class="mini-item" style="align-items:flex-start;flex-direction:column;gap:8px;padding:12px 14px;">
       <div style="display:flex;justify-content:space-between;width:100%;align-items:center;flex-wrap:wrap;gap:8px;">
         <div><div class="td-name"><i class="fas fa-file-csv" style="color:var(--accent);margin-right:6px;"></i>${esc(item.fileName)}</div>
-          <div class="td-sub">${esc(item.date||'')} ${esc(item.time||'')} · ${esc(item.userName||'Admin')}</div></div>
-        <div style="display:flex;gap:6px;align-items:center;">${hideInfo}<span class="chip ${hasPriority?'chip-ok':'chip-mut'}">${hasPriority?'Fixado':'Não fixado'}</span></div>
+          <div class="td-sub">${esc(item.date||'')} ${esc(item.time||'')} · ${linkedProducts.length} peça(s) · ${esc(item.userName||'Admin')}${item.revisionCount>1?` · ${item.revisionCount} atualizações`:''}</div></div>
+        <div style="display:flex;gap:6px;align-items:center;">${markupInfo}${hideInfo}<span class="chip ${hasPriority?'chip-ok':'chip-mut'}">${hasPriority?'Fixado':'Não fixado'}</span></div>
       </div>
       <div style="font-size:.78rem;color:var(--text-muted);">
         <span style="color:var(--ok)">+${item.newItems||0} novas</span> · <span style="color:var(--warn)">${item.updatedItems||0} atualizadas</span> · <span>${item.skippedItems||0} ignoradas</span>
       </div>
       <div class="mi-actions">
+        <button class="btn btn-sm btn-ghost" onclick="renameImportAdm('${item.id}')"><i class="fas fa-pencil"></i> Renomear</button>
+        <button class="btn btn-sm btn-ghost" onclick="downloadImportCsvAdm('${item.id}')"><i class="fas fa-download"></i> Baixar CSV</button>
         <button class="btn btn-sm btn-ghost" onclick="fixImportAdm('${item.id}')"><i class="fas fa-thumbtack"></i> Fixar</button>
         <button class="btn btn-sm btn-ghost" onclick="unfixImportAdm('${item.id}')"><i class="fas fa-undo"></i> Desfixar</button>
         <button class="btn btn-sm btn-danger" onclick="deleteImportAdm('${item.id}')"><i class="fas fa-trash"></i> Excluir</button>
       </div></div>`;
   }).join('');
 }
+function importProductsAdm(historyId){
+  const history=importHistoryCache.find(item=>item.id===historyId);
+  const ids=new Set(getImportProductIds(history));
+  return products.filter(product=>ids.has(product.id)||productBelongsToImport(product,historyId));
+}
+async function renameImportAdm(historyId){
+  const history=importHistoryCache.find(item=>item.id===historyId); if(!history) return;
+  const name=prompt('Nome do arquivo no histórico:',history.fileName||'arquivo.csv');
+  if(name===null) return;
+  const clean=name.trim();
+  if(!clean){ showToast('Digite um nome válido','err'); return; }
+  try{ await database.ref(`importHistory/${historyId}/fileName`).set(clean); showToast('Nome atualizado'); }
+  catch(err){ showToast('Erro: '+(err.message||err.code),'err'); }
+}
+function csvCellAdm(value){
+  const text=String(value??'');
+  return /[;"\r\n]/.test(text)?`"${text.replace(/"/g,'""')}"`:text;
+}
+function downloadImportCsvAdm(historyId){
+  const history=importHistoryCache.find(item=>item.id===historyId); if(!history) return;
+  const rows=importProductsAdm(historyId).sort((a,b)=>(a.name||'').localeCompare(b.name||'','pt-BR',{numeric:true,sensitivity:'base'}));
+  if(rows.length===0){ showToast('Nenhuma peça vinculada a este arquivo','err'); return; }
+  const header=['Nome','Preço PF','Preço PJ','Categoria','Código','Marca','Link da foto','Sessão'];
+  const lines=[header,...rows.map(product=>[
+    product.name||'', Number(product.prices?.PF||0).toFixed(2).replace('.',','), Number(product.prices?.PJ||0).toFixed(2).replace('.',','),
+    product.category||'', product.codigo||'', product.brand||'', product.image||'', sessions[product.sessionId]?.name||''
+  ])].map(row=>row.map(csvCellAdm).join(';'));
+  const blob=new Blob(['\ufeff'+lines.join('\r\n')],{type:'text/csv;charset=utf-8'});
+  const url=URL.createObjectURL(blob),link=document.createElement('a');
+  const safeName=(history.fileName||'importacao').replace(/\.csv$/i,'').replace(/[\\/:*?"<>|]+/g,'-').trim()||'importacao';
+  link.href=url; link.download=`${safeName}-atualizado.csv`; document.body.appendChild(link); link.click(); link.remove();
+  setTimeout(()=>URL.revokeObjectURL(url),1000);
+}
 function fixImportAdm(historyId){
-  const ids=products.filter(p=>p.importedFrom===historyId).map(p=>p.id);
+  const ids=importProductsAdm(historyId).map(p=>p.id);
   if(ids.length===0){ showToast('Nenhuma peça vinculada','err'); return; }
-  const updates={}; ids.forEach(id=>updates[`products/${id}/topPriority`]=true);
+  const updates={}; ids.forEach(id=>{ updates[`products/${id}/priorityImports/${historyId}`]=true; updates[`products/${id}/topPriority`]=true; });
   database.ref().update(updates).then(()=>showToast(`${ids.length} peças fixadas`));
 }
 function unfixImportAdm(historyId){
-  const ids=products.filter(p=>p.importedFrom===historyId && p.topPriority===true).map(p=>p.id);
+  const linked=importProductsAdm(historyId);
+  const ids=linked.filter(p=>p.priorityImports?.[historyId]===true || (p.importedFrom===historyId && p.topPriority===true)).map(p=>p.id);
   if(ids.length===0){ showToast('Nenhuma peça fixada','err'); return; }
-  const updates={}; ids.forEach(id=>updates[`products/${id}/topPriority`]=false);
+  const updates={}; linked.forEach(product=>{
+    updates[`products/${product.id}/priorityImports/${historyId}`]=null;
+    const hasOther=Object.keys(product.priorityImports||{}).some(id=>id!==historyId&&product.priorityImports[id]===true);
+    updates[`products/${product.id}/topPriority`]=hasOther;
+  });
   database.ref().update(updates).then(()=>showToast('Fixação removida'));
 }
 
@@ -4502,8 +4855,7 @@ function deleteImportAdm(historyId){
   if(!h){ showToast('Registro não encontrado','err'); return; }
   deletingImportId = historyId;
 
-  const addedIds = h.addedProductIds || [];
-  const list = addedIds.map(id => products.find(p => p.id === id)).filter(Boolean);
+  const list = importProductsAdm(historyId);
 
   document.getElementById('delImpFileName').textContent = h.fileName || 'arquivo.csv';
   document.getElementById('delImpDate').textContent = `${h.date || ''} ${h.time || ''}`;
@@ -4518,7 +4870,7 @@ function deleteImportAdm(historyId){
 
   const preview = document.getElementById('delImpPreviewList');
   if(list.length === 0){
-    preview.innerHTML = `<div class="empty-state" style="padding:20px;"><i class="fas fa-circle-check" style="color:var(--ok);"></i><p>Nenhuma peça nova foi adicionada por esta importação (somente atualizações).</p></div>`;
+    preview.innerHTML = `<div class="empty-state" style="padding:20px;"><i class="fas fa-circle-check" style="color:var(--ok);"></i><p>Nenhuma peça vinculada a esta importação.</p></div>`;
   } else {
     preview.innerHTML = list.slice(0, 60).map(p => `
       <div class="mini-item">
@@ -4546,23 +4898,36 @@ async function confirmDeleteImportAdm(){
 
   showLoading('Excluindo importação...');
   try{
-    const addedIds   = h.addedProductIds   || [];
-    const updatedIds = h.updatedProductIds || [];
+    const linkedProducts = importProductsAdm(historyId);
+    const deletedIds = [];
+    const unlinkedIds = [];
+    linkedProducts.forEach(product=>{
+      const remainingSources=productImportSources(product);
+      delete remainingSources[historyId];
+      if(Object.keys(remainingSources).length===0) deletedIds.push(product.id);
+      else unlinkedIds.push({product,remainingSources});
+    });
 
-    if(deleteImgs && addedIds.length){
-      await Promise.all(addedIds.map(id => {
+    if(deleteImgs && deletedIds.length){
+      await Promise.all(deletedIds.map(id => {
         const p = products.find(x => x.id === id);
         return p && p.image ? deleteImageByUrl(p.image) : Promise.resolve();
       }));
     }
 
     const updates = {};
-    addedIds.forEach(id => { updates[`products/${id}`] = null; });
-    updatedIds.forEach(id => { updates[`products/${id}/importedFrom`] = null; });
+    deletedIds.forEach(id => { updates[`products/${id}`] = null; });
+    unlinkedIds.forEach(({product,remainingSources}) => {
+      updates[`products/${product.id}/importSources`] = remainingSources;
+      updates[`products/${product.id}/priorityImports/${historyId}`] = null;
+      if(product.importedFrom===historyId) updates[`products/${product.id}/importedFrom`] = Object.keys(remainingSources)[0]||null;
+      const hasOtherPriority=Object.keys(product.priorityImports||{}).some(id=>id!==historyId&&product.priorityImports[id]===true);
+      updates[`products/${product.id}/topPriority`] = hasOtherPriority;
+    });
 
     if(alsoRemoveFeatured && featuredDraft && featuredDraft.length > 0){
-      const deletedIds = new Set(addedIds);
-      const newFeatured = featuredDraft.filter(fid => !deletedIds.has(fid));
+      const deletedIdSet = new Set(deletedIds);
+      const newFeatured = featuredDraft.filter(fid => !deletedIdSet.has(fid));
       if(newFeatured.length !== featuredDraft.length) updates['featured'] = newFeatured.length > 0 ? newFeatured : null;
     }
 
@@ -4571,7 +4936,7 @@ async function confirmDeleteImportAdm(){
     hideLoading();
     closeModal('modalDeleteImport');
     deletingImportId = null;
-    showToast(`Importação excluída${addedIds.length > 0 ? ` + ${addedIds.length} peça(s)` : ''}`);
+    showToast(`Importação excluída · ${deletedIds.length} peça(s) apagada(s) · ${unlinkedIds.length} preservada(s) em outro arquivo`);
   }catch(err){
     hideLoading();
     showToast('Erro: ' + err.message, 'err');
@@ -4897,7 +5262,7 @@ function renderUsers(){
     const phone = u.telefone || '—';
     const lastAccess = u.lastAccess ? `${fmtDate(u.lastAccess)} ${fmtTime(u.lastAccess)}` : '—';
     const origin = getUserOrigin(u);
-    const originChip = origin === 'google.com' ? `<span class="chip chip-google"><i class="fab fa-google"></i> Google</span>` : `<span class="chip chip-mut"><i class="fas fa-user-plus"></i> Manual</span>`;
+    const originChip = u.employeeName ? `<span class="chip chip-ok"><i class="fas fa-id-badge"></i> Indicado por ${esc(u.employeeName)}</span>` : (origin === 'google.com' ? `<span class="chip chip-google"><i class="fab fa-google"></i> Google</span>` : `<span class="chip chip-mut"><i class="fas fa-user-plus"></i> Manual</span>`);
     const hasPhoto = userHasRealPhoto(u);
     const avatarHtml = hasPhoto ? `<img src="${esc(safeAdminImage(u.photoURL))}" class="user-avatar-img" onclick="openImageViewer(this.src,'${escJs(u.name||'')}')">` : `<div class="user-avatar-icon no-photo"><i class="fas fa-user"></i></div>`;
     const address = u.logradouro ? `${u.logradouro}, ${u.numero || 'S/N'}${u.complemento ? ', '+u.complemento : ''}, ${u.bairro || ''}, ${u.cidade || ''}-${u.uf || ''}` : '—';
@@ -5740,14 +6105,16 @@ Object.assign(window, {
   openQuickHidePrice, saveQuickHidePrice,
   renderProducts, renameCategoryAdm, deleteCategoryAdm, moveCategoryAdm,
   openDeleteNoCategoryModalAdm, deleteNoCategoryProductsAdm,
-  openBrandModal, editBrandAdm, saveBrandAdm, deleteBrandAdm, confirmDeleteBrandAdm, moveBrandAdm,
+  openBrandModal, editBrandAdm, saveBrandAdm, deleteBrandAdm, updateBrandDeleteModeAdm, confirmDeleteBrandAdm, moveBrandAdm,
   openSessionModal, editSessionAdm, saveSessionAdm, deleteSessionAdm, moveSessionAdm,
   togglePricesVisibility, applyMetaMass, applyBulk, saveNoPriceRow, updatePricesToggleBtn,
   openPromoModal, salvarPromoAdm, togglePromoAdm, deletePromoAdm, carregarAlvosPromoAdm,
   openCouponModal, saveCouponAdm, toggleCouponAdm, deleteCouponAdm,
   openLinkModal, editLinkAdm, saveLinkAdm, deleteLinkAdm, resetLinkCount, resetAllLinkCounts,
   copyLinkUrl, copyLinkFromRow,
-  switchImportTab, importNamesAdm, fixImportAdm, unfixImportAdm, deleteImportAdm, confirmDeleteImportAdm,
+  switchImportTab, renderImportPreviewAdm, importNamesAdm, renameImportAdm, downloadImportCsvAdm, fixImportAdm, unfixImportAdm, deleteImportAdm, confirmDeleteImportAdm,
+  openLocateApplyAdm, openLocateExportAdm, setLocateToolModeAdm, previewLocateExportAdm, exportLocatedProductsCsvAdm,
+  updateLocateApplyTargetsAdm, previewLocateApplyAdm, applyLocateApplyAdm,
   switchClickTab, setClickHistoryPeriod, clearClickHistoryAdm, clearMetaAchievementsAdm, clearContactClicksAdm,
   resetProductClicksAdm, resetAllClicksAdm,
   switchUsersTabAdm, toggleUserDetails, deleteUserAdm, changeUserTypeAdm, applyPromoUserAdm,
@@ -6192,5 +6559,23 @@ async function exportContactsCsv(kind){
 <script src="assets/qrcode.min.js" defer></script>
 <script src="assets/admin-media.js"></script>
 <script src="assets/admin-mfa.js" defer></script>
+<script>let employeesAdm=[],availableEmployeeLinksAdm=[],uploadedEmployeePhoto='';
+async function employeeApi(action,extra={}){const token=await auth.currentUser.getIdToken();const r=await fetch('/api/employee',{method:'POST',headers:{'Content-Type':'application/json',Authorization:'Bearer '+token},body:JSON.stringify({action,...extra})}),j=await r.json();if(!r.ok)throw Error(j.error||j.message||'Falha na operação.');return j}
+async function loadEmployeesAdm(){try{const result=await employeeApi('admin-list');employeesAdm=result.employees||[];availableEmployeeLinksAdm=result.availableLinks||[];renderEmployeesAdm()}catch(e){employeesAdmList.innerHTML='<div class="block"><div class="block-body">'+esc(e.message)+'</div></div>'}}
+function employeeLinkChoices(selected=[],withSearch=false){if(!availableEmployeeLinksAdm.length)return'<p class="td-sub" style="padding:8px">Nenhum link criado. Crie primeiro na aba Links.</p>';const cards=availableEmployeeLinksAdm.map(l=>`<label class="employee-link-choice" data-link-search="${esc((l.name+' /'+l.slug).toLowerCase())}"><input type="checkbox" value="${esc(l.id)}" ${selected.includes(l.id)?'checked':''} onchange="updateEmployeeLinksFilterLabel()"><img src="${esc(l.image||'assets/logo.webp')}" alt=""><strong>${esc(l.name)}</strong></label>`).join('');return(withSearch?'<input class="employee-link-search" type="search" placeholder="Buscar campanha..." oninput="filterEmployeeCreateLinks(this.value)">':'')+'<div class="employee-link-carousel" title="Arraste para os lados">'+cards+'</div>'}
+function filterEmployeeCreateLinks(value){const q=String(value||'').trim().toLowerCase();employeeCreateLinks.querySelectorAll('[data-link-search]').forEach(item=>item.hidden=Boolean(q&&!item.dataset.linkSearch.includes(q)))}
+function toggleEmployeeLinksFilter(){const open=employeeCreateLinks.hidden;employeeCreateLinks.hidden=!open;employeeLinksFilterButton.setAttribute('aria-expanded',String(open));const icon=employeeLinksFilterButton.querySelector('.fa-chevron-down,.fa-chevron-up');if(icon){icon.classList.toggle('fa-chevron-down',!open);icon.classList.toggle('fa-chevron-up',open)}}
+function updateEmployeeLinksFilterLabel(){const total=employeeCreateLinks.querySelectorAll('input:checked').length;const text=employeeLinksFilterButton.childNodes[1];if(text)text.textContent=total?' '+total+' campanha'+(total===1?' selecionada':'s selecionadas'):' Selecionar campanhas'}
+document.addEventListener('click',event=>{if(!event.target.closest('#employeeLinksPicker')&&!employeeCreateLinks.hidden){employeeCreateLinks.hidden=true;employeeLinksFilterButton.setAttribute('aria-expanded','false');const icon=employeeLinksFilterButton.querySelector('.fa-chevron-up');if(icon){icon.classList.remove('fa-chevron-up');icon.classList.add('fa-chevron-down')}}});
+document.addEventListener('pointerdown',event=>{const carousel=event.target.closest('.employee-link-carousel');if(!carousel)return;carousel.dataset.dragX=event.clientX;carousel.dataset.dragScroll=carousel.scrollLeft;carousel.dataset.dragged='0';carousel.classList.add('dragging');carousel.setPointerCapture(event.pointerId)});
+document.addEventListener('pointermove',event=>{const carousel=event.target.closest('.employee-link-carousel.dragging');if(!carousel)return;const distance=event.clientX-Number(carousel.dataset.dragX);if(Math.abs(distance)>5)carousel.dataset.dragged='1';carousel.scrollLeft=Number(carousel.dataset.dragScroll)-distance});
+document.addEventListener('pointerup',event=>{const carousel=event.target.closest('.employee-link-carousel.dragging');if(carousel)carousel.classList.remove('dragging')});
+document.addEventListener('click',event=>{const carousel=event.target.closest('.employee-link-carousel');if(carousel?.dataset.dragged==='1'){event.preventDefault();event.stopPropagation();carousel.dataset.dragged='0'}},true);
+function renderEmployeesAdm(){employeesAdmList.innerHTML=employeesAdm.length?employeesAdm.map(e=>{const selected=Array.isArray(e.linkIds)?e.linkIds:[];return `<div class="block"><div class="block-body"><div style="display:flex;justify-content:space-between;gap:18px;align-items:center;flex-wrap:wrap"><div style="display:flex;gap:12px;align-items:center"><img src="${esc(e.photoURL||'assets/logo.webp')}" style="width:52px;height:52px;border-radius:50%;object-fit:cover"><div><strong>${esc(e.name)}</strong><div class="td-sub">${esc(e.email)}</div><div class="td-sub">${location.origin}/${esc(e.slug)} · reinicia dia ${e.cycleDay||10}</div></div></div><div style="display:flex;gap:18px;align-items:center"><div><strong>${fmtBRLAdm(e.paidTotal||0)}</strong><div class="td-sub">Vendas pagas</div></div><div><strong>${fmtBRLAdm(e.commission||0)}</strong><div class="td-sub">Comissão (${e.commissionRate||3}%)</div></div><button class="btn btn-sm ${e.enabled?'btn-danger':'btn-primary'}" onclick="toggleEmployeeAdm('${e.uid}',${!e.enabled})">${e.enabled?'Bloquear':'Ativar'}</button></div></div><details style="margin-top:16px"><summary style="cursor:pointer;color:var(--accent);font-size:.8rem;font-weight:600">Gerenciar links enviados (${selected.length})</summary><div data-employee-links="${esc(e.uid)}" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:7px;margin-top:12px">${employeeLinkChoices(selected)}</div><div style="display:flex;justify-content:flex-end;margin-top:10px"><button class="btn btn-sm btn-primary" onclick="saveEmployeeLinksAdm('${e.uid}')">Salvar links</button></div></details></div></div>`}).join(''):'<div class="block"><div class="block-body td-sub">Nenhum funcionário criado.</div></div>'}
+async function toggleEmployeeAdm(uid,enabled){try{await employeeApi('admin-update',{uid,enabled});showToast(enabled?'Funcionário ativado.':'Funcionário bloqueado.');loadEmployeesAdm()}catch(e){showToast(e.message,'err')}}
+async function saveEmployeeLinksAdm(uid){const box=document.querySelector('[data-employee-links="'+uid+'"]'),linkIds=[...box.querySelectorAll('input:checked')].map(input=>input.value);try{await employeeApi('admin-update',{uid,linkIds});showToast('Links do funcionário atualizados.');await loadEmployeesAdm()}catch(e){showToast(e.message,'err')}}
+async function openCreateEmployeeModal(){uploadedEmployeePhoto='';employeeCreateForm.reset();employeeCycleStartDay.value=10;employeeCycleEndDay.value=24;employeeRate.value=3;employeePhoto.value='';resetUpload('employeePhotoUploadBox','employeePhotoPreview');employeeCreateLinks.hidden=true;employeeLinksFilterButton.setAttribute('aria-expanded','false');const filterIcon=employeeLinksFilterButton.querySelector('.fa-chevron-up');if(filterIcon){filterIcon.classList.remove('fa-chevron-up');filterIcon.classList.add('fa-chevron-down')}employeeCreateLinks.innerHTML='<p class="td-sub">Carregando links...</p>';openModal('modalEmployee');await loadEmployeesAdm();employeeCreateLinks.innerHTML=employeeLinkChoices([],true);updateEmployeeLinksFilterLabel();setupUpload('employeePhotoInput','employeePhotoUploadBox','employeePhotoPreview','employeePhotoPreviewImg',url=>{uploadedEmployeePhoto=url;employeePhoto.value=url},'employees')}
+employeeCreateForm.addEventListener('submit',async event=>{event.preventDefault();const b=event.submitter,linkIds=[...employeeCreateLinks.querySelectorAll('input:checked')].map(input=>input.value);b.disabled=true;try{await employeeApi('admin-create',{name:employeeName.value,email:employeeEmail.value,password:employeePassword.value,photoURL:uploadedEmployeePhoto,cycleStartDay:+employeeCycleStartDay.value,cycleEndDay:+employeeCycleEndDay.value,commissionRate:+employeeRate.value,linkIds});showToast('Funcionário criado. Envie a senha temporária.');closeModal('modalEmployee');await loadEmployeesAdm()}catch(e){showToast(e.message,'err')}finally{b.disabled=false}});
+</script>
 </body>
 </html>
