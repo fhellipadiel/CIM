@@ -230,7 +230,7 @@
 <link rel="stylesheet" href="assets/admin-mfa.css">
 <script src="assets/mfa-auth.js"></script>
 </head>
-<body class="h-full bg-darkbg text-white flex overflow-hidden font-sans relative">
+<script id="loginEmployeeReferral">(function(){const p=new URLSearchParams(location.search),value=(p.get('funcionario')||p.get('seller')||'').trim().toLowerCase();if(/^[a-z0-9_-]{2,80}$/.test(value))sessionStorage.setItem('employeeRef',value)})();</script><body class="h-full bg-darkbg text-white flex overflow-hidden font-sans relative">
 
     <!-- COLUNA ESQUERDA: FORMULÁRIOS -->
     <div class="w-full lg:w-[45%] h-full relative z-20 overflow-y-auto overflow-x-hidden no-scrollbar bg-gradient-to-r from-darkbg via-darkbg/95 to-transparent">
@@ -1468,6 +1468,7 @@
                 if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
                 auth = firebase.auth();
                 database = firebase.database();
+                auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL).catch(() => {});
 
                 // Redireciona se já logado
                 auth.onAuthStateChanged(async user => {
