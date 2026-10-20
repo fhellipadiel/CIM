@@ -2215,7 +2215,7 @@ async function doLogin(){
  const email=document.getElementById('loginEmail').value.trim(),pass=document.getElementById('loginPassword').value,err=document.getElementById('loginError');err.textContent='';
  if(!email||!pass){err.textContent='Preencha e-mail e senha.';return;}
  showLoading('Autenticando...');
- try{await auth.setPersistence(firebase.auth.Auth.Persistence.SESSION);await CimMfaAuth.signIn(auth,email,pass);document.getElementById('loginPassword').value='';}
+ try{await auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL);await CimMfaAuth.signIn(auth,email,pass);document.getElementById('loginPassword').value='';}
  catch(error){err.textContent=error.code==='auth/mfa-cancelled'?'Confirmação cancelada. Entre novamente para continuar.':'Não foi possível entrar. Confira os dados e tente novamente.';}
  finally{hideLoading();}
 }
@@ -2260,12 +2260,17 @@ async function doLogout(){
   try{await auth.signOut();}finally{location.reload();}
 }
 
-auth.onAuthStateChanged(user=>{
+let adminSessionGeneration=0;
+async function initializeAdminSession(user){
+  const generation=++adminSessionGeneration;
   hideLoading();
   lockAdminInterface();
   if(user){
-    verifyAdminAuthorization(user).then(()=>database.ref(`users/${user.uid}`).once('value')).then(snap=>{
+    try{
+      await verifyAdminAuthorization(user);
+      const snap=await database.ref(`users/${user.uid}`).once('value');
       const data=snap.val()||{};
+      if(generation!==adminSessionGeneration)return;
       if(auth.currentUser && auth.currentUser.uid===user.uid){
         currentAdmin={...data,uid:user.uid};
         updateOrdersRevenueDisplay();
@@ -2275,18 +2280,19 @@ auth.onAuthStateChanged(user=>{
         unlockAdminInterface();
         document.getElementById('loginScreen').style.display='none';
         loadAllData(); loadLeadsAdmin(); recordAdminEntryAdm();
-      }else{
-        document.getElementById('loginError').textContent='Conta sem permissão de administrador.';
-        document.getElementById('loginScreen').style.display='flex';
-        auth.signOut();
       }
-    }).catch(async error=>{
+    }catch(error){
+      if(generation!==adminSessionGeneration)return;
       if(error?.status===403){try{await database.ref('adminSetupAccess').once('value');location.replace('/recuperar-acesso.html#configurar');return;}catch{}}
-      document.getElementById('loginError').textContent=error?.status===403?'Conta sem permissão de administrador.':'Não foi possível validar o acesso administrativo. Use o servidor da aplicação.';
+      document.getElementById('loginError').textContent=error?.status===403?'Conta sem permissão de administrador.':'A conexão falhou ao validar o ADM. Sua sessão foi mantida; atualize a página para tentar novamente.';
       document.getElementById('loginScreen').style.display='flex';
-      auth.signOut();
-    });
+    }
   }else{ document.getElementById('loginScreen').style.display='flex'; }
+}
+auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL).catch(()=>{});
+auth.onAuthStateChanged(user=>{
+  if(!user)adminSessionGeneration++;
+  initializeAdminSession(user);
 });
 
 /* ============================================================
