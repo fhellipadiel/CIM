@@ -1957,6 +1957,8 @@ firebase.initializeApp(firebaseConfig);
 const database = firebase.database();
 const auth = firebase.auth();
 const storage = firebase.storage();
+// Aguarda a sessão isolada do ADM ficar pronta antes de observar ou trocar usuários.
+const adminAuthReady = auth.setPersistence(firebase.auth.Auth.Persistence.SESSION).catch(() => {});
 
 const PLACEHOLDER_IMG = 'https://i.ibb.co/F4dXSwVG/IMG-6495.jpg';
 const DEFAULT_AVATAR  = 'https://i.ibb.co/6J5qZ9K/default-avatar.png';
@@ -2215,7 +2217,12 @@ async function doLogin(){
  const email=document.getElementById('loginEmail').value.trim(),pass=document.getElementById('loginPassword').value,err=document.getElementById('loginError');err.textContent='';
  if(!email||!pass){err.textContent='Preencha e-mail e senha.';return;}
  showLoading('Autenticando...');
- try{await auth.setPersistence(firebase.auth.Auth.Persistence.SESSION);await CimMfaAuth.signIn(auth,email,pass);document.getElementById('loginPassword').value='';}
+ try{
+   await adminAuthReady;
+   const result=await CimMfaAuth.signIn(auth,email,pass);
+   document.getElementById('loginPassword').value='';
+   await initializeAdminSession(result?.user||auth.currentUser);
+ }
  catch(error){err.textContent=error.code==='auth/mfa-cancelled'?'Confirmação cancelada. Entre novamente para continuar.':'Não foi possível entrar. Confira os dados e tente novamente.';}
  finally{hideLoading();}
 }
@@ -2289,13 +2296,11 @@ async function initializeAdminSession(user){
     }
   }else{ document.getElementById('loginScreen').style.display='flex'; }
 }
-// O ADM usa a sessão desta aba para não substituir a conta do catálogo,
-// que compartilha o mesmo projeto Firebase e pode estar aberta em outra aba.
-auth.setPersistence(firebase.auth.Auth.Persistence.SESSION).catch(()=>{});
-auth.onAuthStateChanged(user=>{
+// Só observa a autenticação depois que a persistência desta aba foi definida.
+adminAuthReady.then(()=>auth.onAuthStateChanged(user=>{
   if(!user)adminSessionGeneration++;
   initializeAdminSession(user);
-});
+}));
 
 /* ============================================================
    NAVEGAÇÃO
