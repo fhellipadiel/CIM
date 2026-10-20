@@ -1138,7 +1138,7 @@ body.fullscreen-panel-open{overflow:hidden!important}
 <style>body.shared-public> :not(#productModal):not(#fullscreenImageModal):not(#sessionGate):not(.toast){display:none!important}.shared-public #productModal .modal-close{display:none!important}.shared-product-controls{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:18px 0}.shared-product-controls[hidden]{display:none}.shared-product-controls input{width:90px;background:#181818;color:#fff;border:1px solid #333;border-radius:12px;padding:10px;font-size:16px}.product-share-button{background:#1a1a1a;color:#fff;border:1px solid #333;border-radius:24px;padding:11px 18px;cursor:pointer;font:inherit}.product-share-button i{color:#ff3601;margin-right:7px}.shared-unavailable{padding:32px;display:grid;place-content:center;gap:18px;height:100dvh;text-align:center;background:#0a0a0a;color:#eee}.shared-unavailable a{color:#ff3601}</style>
 <script src="assets/analytics-client.js"></script>
 </head>
-<body>
+<script id="catalogEmployeeReferral">(function(){const value=(new URLSearchParams(location.search).get('funcionario')||new URLSearchParams(location.search).get('seller')||'').trim().toLowerCase();if(/^[a-z0-9_-]{2,80}$/.test(value))sessionStorage.setItem('employeeRef',value)})();</script><body>
     <div id="sessionGate">
         <i class="fas fa-spinner"></i>
         <span>Verificando sua sessão...</span>
@@ -1615,6 +1615,7 @@ body.fullscreen-panel-open{overflow:hidden!important}
         const database = firebase.database();
         const auth = firebase.auth();
         const storage = firebase.storage();
+        auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL).catch(() => {});
 
         const DEFAULT_PLACEHOLDER_IMAGE = 'assets/logo.webp';
         const DEFAULT_CONTACT_IMAGE   = 'assets/logo.webp';
@@ -4657,7 +4658,13 @@ function toggleBottomMenu() {
                 }
             }
             if (!snap || !snap.exists()) {
-                window.location.replace(CimProductLink.login(location.search,true));
+                if (auth.currentUser && auth.currentUser.uid === uid) {
+                    if (sessionGate) {
+                        sessionGate.innerHTML = '<i class="fas fa-exclamation-triangle" style="animation:none;"></i><span>Seu acesso continua conectado, mas o cadastro não foi localizado. <a href="login.html?complete=true" style="color:#ff3601;">Concluir cadastro</a></span>';
+                    }
+                    return;
+                }
+                redirectToLogin();
                 return;
             }
             database.ref(`users/${uid}/lastAccess`).set(Date.now()).catch(() => {});
