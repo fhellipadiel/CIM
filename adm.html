@@ -1953,10 +1953,11 @@ const firebaseConfig = {
   messagingSenderId: "194933965008",
   appId: "1:194933965008:web:ae1dae6df66ea44259ded5"
 };
-firebase.initializeApp(firebaseConfig);
-const database = firebase.database();
-const auth = firebase.auth();
-const storage = firebase.storage();
+// Mantém o login administrativo separado da autenticação usada pela loja.
+const adminFirebaseApp = firebase.initializeApp(firebaseConfig, 'cim-admin');
+const database = adminFirebaseApp.database();
+const auth = adminFirebaseApp.auth();
+const storage = adminFirebaseApp.storage();
 // Aguarda a sessão isolada do ADM ficar pronta antes de observar ou trocar usuários.
 const adminAuthReady = auth.setPersistence(firebase.auth.Auth.Persistence.SESSION).catch(() => {});
 
@@ -2576,6 +2577,7 @@ function goToPanel(panel, opts = {}){
 function loadAllData(){
   database.ref('products').on('value',snap=>{
     products = snap.val()? Object.values(snap.val()) : [];
+    renderSessions();
     renderDashboard(); renderProducts(); renderCategories(); updateSelectPopulators(); renderNoPrice(); refreshPromoTargets();
     renderFeaturedPanelAdm(); renderGalleryPanelAdm();
     cleanupDuplicateProductsAdm();
@@ -4153,7 +4155,9 @@ function renderSessions(){
   if(arr.length===0){ list.innerHTML=`<div class="empty-state"><i class="fas fa-layer-group"></i><p>Nenhuma sessão cadastrada</p></div>`; return; }
   list.innerHTML=arr.map((s,idx)=>{
     const hide=[s.hidePF?'PF':'',s.hidePJ?'PJ':''].filter(Boolean).join(', ');
+    const productCount=products.reduce((total,p)=>total+(p&&p.sessionId===s.id?1:0),0);
     return `<div class="mini-item"><img src="${esc(safeAdminImage(s.image||DEFAULT_SESSION_IMG))}" onerror="this.src='${DEFAULT_SESSION_IMG}'">
+      <span class="chip chip-mut">${productCount} ${productCount===1?'produto':'produtos'}</span>
       <div class="mi-t">${esc(s.name)} ${hide?`<span class="chip chip-warn" style="margin-left:6px;">oculta ${hide}</span>`:''} <span style="color:var(--text-dim);font-weight:400;">· ${sessionClicks[s.id]||0} cliques</span></div>
       <div class="mi-actions">
         ${idx>0?`<button class="btn btn-icon btn-ghost" onclick="moveSessionAdm('${s.id}',-1)"><i class="fas fa-chevron-up"></i></button>`:''}
