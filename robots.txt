@@ -1,2 +1,15 @@
 User-agent: *
 Allow: /
+Disallow: /admin
+Disallow: /adm.html
+Disallow: /login
+Disallow: /login.html
+Disallow: /funcionario
+Disallow: /funcionario.html
+Disallow: /leads.html
+Disallow: /recuperar-acesso.html
+Disallow: /cim.html
+Disallow: /api/
+
+Sitemap: https://www.cimautoparts.com.br/sitemap.xml
+Sitemap: https://www.cimautoparts.com.br/sitemap-produtos.xml

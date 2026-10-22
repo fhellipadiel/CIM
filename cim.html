@@ -1137,6 +1137,7 @@ body.fullscreen-panel-open{overflow:hidden!important}
 <script src="assets/shared-product.js"></script>
 <style>body.shared-public> :not(#productModal):not(#fullscreenImageModal):not(#sessionGate):not(.toast){display:none!important}.shared-public #productModal .modal-close{display:none!important}.shared-product-controls{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:18px 0}.shared-product-controls[hidden]{display:none}.shared-product-controls input{width:90px;background:#181818;color:#fff;border:1px solid #333;border-radius:12px;padding:10px;font-size:16px}.product-share-button{background:#1a1a1a;color:#fff;border:1px solid #333;border-radius:24px;padding:11px 18px;cursor:pointer;font:inherit}.product-share-button i{color:#ff3601;margin-right:7px}.shared-unavailable{padding:32px;display:grid;place-content:center;gap:18px;height:100dvh;text-align:center;background:#0a0a0a;color:#eee}.shared-unavailable a{color:#ff3601}</style>
 <script src="assets/analytics-client.js"></script>
+    <script src="/assets/ga4.js" defer></script>
 </head>
 <script id="catalogEmployeeReferral">(function(){const value=(new URLSearchParams(location.search).get('funcionario')||new URLSearchParams(location.search).get('seller')||'').trim().toLowerCase();if(/^[a-z0-9_-]{2,80}$/.test(value))sessionStorage.setItem('employeeRef',value)})();</script><body>
     <div id="sessionGate">
@@ -2642,6 +2643,8 @@ body.fullscreen-panel-open{overflow:hidden!important}
         }
         function showVerifiedCheckoutSuccess(result) {
             if (result.status !== 'pago' && !(result.paymentStatus === 'accredited' && ['confirmado','preparando','enviado','entregue'].includes(result.status))) return false;
+            const purchaseValue=Number(result.total||result.amount||0);
+            globalThis.CimGA?.track('purchase', {transaction_id:checkoutReturnId,currency:'BRL',...(purchaseValue>0?{value:purchaseValue}:{})});
             sessionStorage.removeItem('cim_checkout_attempt');
             document.getElementById('cartMainView').style.display = 'none';
             document.getElementById('cartSuccessScreen').style.display = 'flex';

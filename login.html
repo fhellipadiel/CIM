@@ -229,6 +229,7 @@
 <script src="assets/shared-product.js"></script>
 <link rel="stylesheet" href="assets/admin-mfa.css">
 <script src="assets/mfa-auth.js"></script>
+    <script src="/assets/ga4.js" defer></script>
 </head>
 <script id="loginEmployeeReferral">(function(){const p=new URLSearchParams(location.search),value=(p.get('funcionario')||p.get('seller')||'').trim().toLowerCase();if(/^[a-z0-9_-]{2,80}$/.test(value))sessionStorage.setItem('employeeRef',value)})();</script><body class="h-full bg-darkbg text-white flex overflow-hidden font-sans relative">
 
@@ -1165,6 +1166,7 @@
                 await CimMfaAuth.signIn(auth,email,password);
                 registerSuccess(KEY);
                 await claimEmployeeReferral();
+                globalThis.CimGA?.track('login', { method: 'email' });
                     window.location.href = CimProductLink.destination(location.search);
             } catch (error) {
                 console.error('[Login] Falha na autenticação.');
@@ -1243,6 +1245,7 @@
                     registerSuccess('cpf');
                     registerSuccess('login');
                     await claimEmployeeReferral();
+                    globalThis.CimGA?.track('sign_up', { method: 'google' });
                     window.location.href = CimProductLink.destination(location.search);
                 } catch (err) {
                     console.error('[Registro Google] Não foi possível concluir o cadastro.');
@@ -1300,6 +1303,7 @@
                 registerSuccess('login');
 
                 await claimEmployeeReferral();
+                globalThis.CimGA?.track('sign_up', { method: 'email' });
                     window.location.href = CimProductLink.destination(location.search);
             } catch (error) {
                 console.error('[Cadastro] Não foi possível concluir a solicitação.');
@@ -1339,6 +1343,7 @@
                 if (snapshot.exists()) {
                     registerSuccess('login');
                     await claimEmployeeReferral();
+                    globalThis.CimGA?.track('login', { method: 'google' });
                     window.location.href = CimProductLink.destination(location.search);
                 } else {
                     // Novo usuário via Google → completa cadastro

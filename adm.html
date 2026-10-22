@@ -2070,18 +2070,39 @@ function getImportProductIds(history){
 }
 
 function parseCSVLine(line){
-  const result=[]; let current=''; let inQuotes=false;
+  let inQuotes=false,semicolon=0,comma=0,tab=0;
+  for(let i=0;i<line.length;i++){
+    const ch=line[i];
+    if(ch==='"'){
+      if(inQuotes&&line[i+1]==='"')i++;
+      else inQuotes=!inQuotes;
+    }else if(!inQuotes){ if(ch===';')semicolon++; else if(ch===',')comma++; else if(ch==='\t')tab++; }
+  }
+  const delimiter=semicolon>0?';':tab>0?'\t':',';
+  const result=[]; let current=''; inQuotes=false;
   for(let i=0;i<line.length;i++){
     const ch=line[i];
     if(ch==='"'){
       if(inQuotes && line[i+1]==='"'){ current+='"'; i++; }
       else inQuotes=!inQuotes;
-    } else if((ch===','||ch===';'||ch==='\t') && !inQuotes){
+    } else if(ch===delimiter && !inQuotes){
       result.push(current); current='';
     } else current+=ch;
   }
   result.push(current);
   return result.map(c=>c.trim());
+}
+
+function parseImportPriceAdm(value){
+  let text=String(value??'').trim().replace(/\s|R\$/gi,'');
+  if(!text)return 0;
+  const comma=text.lastIndexOf(','),dot=text.lastIndexOf('.');
+  if(comma>dot)text=text.replace(/\./g,'').replace(',','.');
+  else if(dot>comma&&comma>=0)text=text.replace(/,/g,'');
+  else if(comma>=0)text=text.replace(',','.');
+  text=text.replace(/[^0-9.-]/g,'');
+  const number=Number(text);
+  return Number.isFinite(number)&&number>=0?number:0;
 }
 
 function normalizeImageUrl(url){
@@ -4652,8 +4673,8 @@ document.getElementById('csvFileAdm').onchange=async(e)=>{
     const image = normalizeImageUrl(rawImage);
     items.push({
       name,
-      pricePF: cols[1] ? parseFloat(String(cols[1]).replace(',', '.')) || 0 : 0,
-      pricePJ: cols[2] ? parseFloat(String(cols[2]).replace(',', '.')) || 0 : 0,
+      pricePF: parseImportPriceAdm(cols[1]),
+      pricePJ: parseImportPriceAdm(cols[2]),
       category: cols[3] ? cols[3].trim() : '',
       codigo:   cols[4] ? cols[4].trim() : '',
       brand:    cols[5] ? cols[5].trim() : '',
@@ -4857,6 +4878,8 @@ async function importNamesAdm(){
     hideLoading();
     console.error('Erro na importação:', err);
     showToast('Erro na importação: ' + (err.code || err.message), 'err');
+    if(importButton) importButton.disabled=!document.getElementById('confirmImportAdm').checked;
+    return;
   }
 
   document.getElementById('importPreviewAdm').style.display = 'none';

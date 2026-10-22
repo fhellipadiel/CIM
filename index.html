@@ -1,23 +1,66 @@
 <!DOCTYPE html>
-<html lang="pt-PT" class="dark scroll-smooth">
+<html lang="pt-BR" class="dark scroll-smooth">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CIM Global Parts - Desempenho que você pode confiar</title>
+    <title>Peças Automotivas e Autopeças | CIM Global Parts</title>
+
+    <meta name="description" content="Peças automotivas de alta performance, componentes multimarcas e soluções para oficinas e parceiros em todo o Brasil. Conheça a CIM Global Parts.">
+    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
+    <meta name="theme-color" content="#0b0b0b">
+    <link rel="canonical" href="https://www.cimautoparts.com.br/">
+
+    <meta property="og:locale" content="pt_BR">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="CIM Global Parts">
+    <meta property="og:title" content="Peças Automotivas e Autopeças | CIM Global Parts">
+    <meta property="og:description" content="Peças automotivas de alta performance e componentes multimarcas para oficinas e parceiros em todo o Brasil.">
+    <meta property="og:url" content="https://www.cimautoparts.com.br/">
+    <meta property="og:image" content="https://www.cimautoparts.com.br/assets/logo.png">
+    <meta property="og:image:alt" content="CIM Global Parts">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Peças Automotivas e Autopeças | CIM Global Parts">
+    <meta name="twitter:description" content="Peças automotivas de alta performance e componentes multimarcas para todo o Brasil.">
+    <meta name="twitter:image" content="https://www.cimautoparts.com.br/assets/logo.png">
 
     <meta name="google-site-verification" content="jZg7ZErftfLU2bKrG8t6wEEpgoTVm8xgy07LQcz9FO8" />
 
     <link rel="icon" type="image/png" href="assets/logo.png">
     <link rel="shortcut icon" type="image/png" href="assets/logo.png">
     <link rel="apple-touch-icon" href="assets/logo.png">
+    <link rel="preload" href="assets/sessao1.webp" as="image" type="image/webp" fetchpriority="high">
+    <link rel="preload" href="assets/logo.webp" as="image" type="image/webp">
 
-    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"></noscript>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,300..900;1,300..900&display=swap" rel="stylesheet">
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,300..900;1,300..900&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,300..900;1,300..900&display=swap" rel="stylesheet"></noscript>
+
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@graph": [
+        {
+          "@type": "Organization",
+          "@id": "https://www.cimautoparts.com.br/#organization",
+          "name": "CIM Global Parts",
+          "url": "https://www.cimautoparts.com.br/",
+          "logo": "https://www.cimautoparts.com.br/assets/logo.png",
+          "description": "Peças automotivas de alta performance, componentes multimarcas e soluções para oficinas e parceiros em todo o Brasil."
+        },
+        {
+          "@type": "WebSite",
+          "@id": "https://www.cimautoparts.com.br/#website",
+          "url": "https://www.cimautoparts.com.br/",
+          "name": "CIM Global Parts",
+          "inLanguage": "pt-BR",
+          "publisher": { "@id": "https://www.cimautoparts.com.br/#organization" }
+        }
+      ]
+    }
+    </script>
 
     <style>
         /* ============================================================
@@ -257,6 +300,13 @@
             will-change: transform;
             backface-visibility: hidden;
         }
+        .cim-light-cta {
+            background: linear-gradient(to right, #ffffff, #f3f4f6, #d1d5db);
+            color: #0b0b0b;
+        }
+        .cim-light-cta:hover {
+            background: linear-gradient(to right, #f3f4f6, #e5e7eb, #9ca3af);
+        }
         .animate-bounce-pecas:hover {
             animation-play-state: paused;
             transform: translate3d(4px, 0, 0) scale(1.03);
@@ -431,6 +481,8 @@
     </style>
 <link rel="stylesheet" href="assets/support-chat.css">
 <script src="assets/analytics-client.js"></script>
+    <link rel="stylesheet" href="assets/index-tailwind.css">
+    <script src="/assets/ga4.js" defer></script>
 </head>
 <body class="bg-black text-white min-h-screen">
 
@@ -439,12 +491,12 @@
 
         <div class="relative flex items-center justify-between py-6 px-6 md:px-16">
             <div class="flex items-center">
-                <img src="assets/logo.webp" alt="CIM Global Parts" class="h-10 md:h-12 object-contain">
+                <img src="assets/logo.webp" alt="CIM Global Parts" width="170" height="48" fetchpriority="high" decoding="async" class="h-10 md:h-12 w-auto object-contain">
             </div>
 
             <nav id="main-nav" class="hidden md:flex items-center space-x-8 text-sm font-medium">
                 <a href="#inicio" data-section="inicio" class="nav-link active">Início</a>
-                <a href="#produtos" data-section="produtos" class="nav-link">Peças</a>
+                <a href="/catalogo" class="nav-link">Catálogo</a>
                 <a href="#mobility" data-section="mobility" class="nav-link">Mobility</a>
                 <a href="#quem-somos" data-section="quem-somos" class="nav-link">Quem Somos</a>
                 <a href="#contato" data-section="contato" class="nav-link">Contato</a>
@@ -455,7 +507,7 @@
                     <i class="fa-solid fa-magnifying-glass text-lg md:text-xl"></i>
                 </button>
                 <a href="login.html" class="text-white hover:text-[#d23021] text-sm font-semibold transition">Cadastrar</a>
-                <a href="login.html" class="bg-gradient-to-r from-white via-gray-100 to-gray-300 hover:from-gray-100 hover:via-gray-200 hover:to-gray-400 text-[#0b0b0b] px-5 md:px-7 py-2.5 rounded-full font-bold text-sm transition shadow-lg shadow-white/10 hover:shadow-white/20 flex items-center gap-2 hover:scale-105">
+                <a href="login.html" class="cim-light-cta px-5 md:px-7 py-2.5 rounded-full font-bold text-sm transition shadow-lg shadow-white/10 hover:shadow-white/20 flex items-center gap-2 hover:scale-105">
                     Entrar
                 </a>
             </div>
@@ -519,7 +571,7 @@
                 </p>
 
                 <div class="pt-4">
-                    <button id="hero-ver-pecas" class="animate-bounce-pecas inline-flex items-center gap-3 bg-gradient-to-r from-white via-gray-100 to-gray-300 hover:from-gray-100 hover:via-gray-200 hover:to-gray-400 text-[#0b0b0b] font-bold px-8 py-4 rounded-full shadow-xl shadow-white/10 cursor-pointer hover:shadow-2xl hover:shadow-white/25">
+                    <button id="hero-ver-pecas" class="cim-light-cta animate-bounce-pecas inline-flex items-center gap-3 font-bold px-8 py-4 rounded-full shadow-xl shadow-white/10 cursor-pointer hover:shadow-2xl hover:shadow-white/25">
                         Ver Peças
                         <i class="fa-solid fa-arrow-right"></i>
                     </button>
@@ -592,8 +644,8 @@
                 </p>
 
                 <div class="pt-4">
-                    <a href="login.html" class="inline-flex items-center gap-3 bg-gradient-to-r from-white via-gray-100 to-gray-300 hover:from-gray-100 hover:via-gray-200 hover:to-gray-400 text-[#0b0b0b] font-bold px-8 py-4 rounded-full transition-all shadow-2xl shadow-white/10 hover:scale-105 hover:shadow-white/25">
-                        Acessar já
+                    <a href="/catalogo" class="inline-flex items-center gap-3 bg-gradient-to-r from-white via-gray-100 to-gray-300 hover:from-gray-100 hover:via-gray-200 hover:to-gray-400 text-[#0b0b0b] font-bold px-8 py-4 rounded-full transition-all shadow-2xl shadow-white/10 hover:scale-105 hover:shadow-white/25">
+                        Ver catálogo
                         <i class="fa-solid fa-arrow-right"></i>
                     </a>
                 </div>
@@ -673,7 +725,7 @@
         <div class="container mx-auto px-6 md:px-16">
             <div class="grid grid-cols-1 md:grid-cols-12 gap-12 pb-16 border-b border-gray-900">
                 <div class="md:col-span-5 space-y-6">
-                    <img src="assets/logo.webp" alt="CIM Global Parts" class="h-10 object-contain">
+                    <img src="assets/logo.webp" alt="CIM Global Parts" width="142" height="40" loading="lazy" decoding="async" class="h-10 w-auto object-contain">
                     <p class="text-gray-400 text-sm leading-relaxed max-w-sm">
                         Desempenho que você pode confiar. Soluções completas em peças automotivas, alta performance e inovação em mobilidade.
                     </p>
@@ -683,7 +735,7 @@
                     <h3 class="text-white font-bold uppercase tracking-wider text-sm">Navegação</h3>
                     <ul class="space-y-2.5 text-sm text-gray-400">
                         <li><a href="#inicio" class="footer-nav-link hover:text-white transition">Início</a></li>
-                        <li><a href="#produtos" class="footer-nav-link hover:text-white transition">Peças</a></li>
+                        <li><a href="/catalogo" class="footer-nav-link hover:text-white transition">Catálogo de peças</a></li>
                         <li><a href="#mobility" class="footer-nav-link hover:text-white transition">Mobility</a></li>
                         <li><a href="#quem-somos" class="footer-nav-link hover:text-white transition">Quem Somos</a></li>
                         <li><a href="#contato" class="footer-nav-link hover:text-white transition">Contato</a></li>
@@ -785,8 +837,9 @@
 
             navLinks.forEach(link => {
                 link.addEventListener('click', (e) => {
-                    e.preventDefault();
                     const targetId = link.getAttribute('data-section');
+                    if (!targetId) return;
+                    e.preventDefault();
                     const target = document.getElementById(targetId);
                     if (!target) return;
                     setActiveLink(targetId);
@@ -882,21 +935,6 @@
 
     <script>
         /* ============================================================
-           FIREBASE
-           ============================================================ */
-        const firebaseConfig = {
-            apiKey: "AIzaSyBVtlnA85ugvll5hLAvOF8FuM4BGnKEovM",
-            authDomain: "redx-6b53f.firebaseapp.com",
-            databaseURL: "https://redx-6b53f-default-rtdb.firebaseio.com",
-            projectId: "redx-6b53f",
-            storageBucket: "redx-6b53f.firebasestorage.app",
-            messagingSenderId: "194933965008",
-            appId: "1:194933965008:web:ae1dae6df66ea44259ded5"
-        };
-        if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
-        const database = firebase.database();
-
-        /* ============================================================
            RASTREAMENTO DE CAMPANHA + CLIQUES (CORRELACIONADO)
            ============================================================ */
         window.campaignRef      = null;
@@ -929,9 +967,11 @@
             }
         })();
 
-        (function loadTrackingLinksMap() {
-            database.ref('trackingLinks').once('value').then(snap => {
-                const d = snap.val() || {};
+        (async function loadTrackingLinksMap() {
+            try {
+                const response = await fetch('https://redx-6b53f-default-rtdb.firebaseio.com/trackingLinks.json', { signal: AbortSignal.timeout(10000) });
+                if (!response.ok) return;
+                const d = await response.json() || {};
                 Object.values(d).forEach(link => {
                     if (link.slug) {
                         window.trackingLinksMap[link.slug] = {
@@ -943,7 +983,7 @@
                 if (window.campaignRef && window.trackingLinksMap[window.campaignRef]) {
                     window.campaignName = window.trackingLinksMap[window.campaignRef].name;
                 }
-            }).catch(() => {});
+            } catch {}
         })();
 
         (function trackCampaignEntry(){if(window.campaignRef)CimAnalytics.record({type:'campaign',campaignRef:window.campaignRef});})();
@@ -973,6 +1013,7 @@
         let produtosReais = [];
         let produtosCarregados = false;
         let featuredIds = [];
+        let featuredLoaded = false;
         let expandido = false;
 
         const searchModal       = document.getElementById('search-modal');
@@ -986,6 +1027,15 @@
 
         function normalizar(str) {
             return (str || '').toString().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+        }
+
+        function productSlug(str) {
+            return normalizar(str || 'peca').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 100) || 'peca';
+        }
+
+        function productUrl(part) {
+            const slug = productSlug([part.name, part.codigo].filter(Boolean).join('-'));
+            return `https://www.cimautoparts.com.br/peca/${slug}/${encodeURIComponent(part.id)}`;
         }
 
         function matchProduct(p, termo) {
@@ -1024,7 +1074,7 @@
 
             const buildCard = (part) => {
                 const a = document.createElement('a');
-                a.href = 'login.html';
+                a.href = productUrl(part);
                 a.className = 'destaque-card group relative w-56 md:w-64 h-72 md:h-80 rounded-2xl overflow-hidden border border-neutral-800/80 hover:border-[#d23021] transition-all duration-500 shrink-0 bg-neutral-900/60 shadow-xl';
 
                 a.addEventListener('click', () => {
@@ -1078,9 +1128,8 @@
             track.appendChild(set2);
         }
 
-        database.ref('products').on('value', (snapshot) => {
-            const data = snapshot.val();
-            produtosReais = data ? Object.values(data).filter(p => p && p.name) : [];
+        function applyProductsData(data) {
+            produtosReais = data ? Object.entries(data).map(([id, p]) => ({...p, id})).filter(p => p && p.name) : [];
             produtosReais.sort((a, b) => {
                 if (a.featured && !b.featured) return -1;
                 if (!a.featured && b.featured) return 1;
@@ -1089,16 +1138,46 @@
             produtosCarregados = true;
             renderFeaturedCarousel();
             if (!searchModal.classList.contains('hidden')) refreshSearch(searchInput.value);
-        });
+        }
 
-        database.ref('featured').on('value', (snap) => {
-            const v = snap.val();
+        async function loadProductsFallback() {
+            if (produtosCarregados) return;
+            try {
+                const response = await fetch('https://redx-6b53f-default-rtdb.firebaseio.com/products.json', {
+                    cache: 'no-store',
+                    signal: AbortSignal.timeout(10000)
+                });
+                if (!response.ok) throw new Error('Catálogo indisponível');
+                applyProductsData(await response.json());
+            } catch {
+                produtosCarregados = true;
+                if (!searchModal.classList.contains('hidden')) refreshSearch(searchInput.value);
+            }
+        }
+
+        loadProductsFallback();
+
+        function applyFeaturedData(v) {
             if (!v) featuredIds = [];
             else if (Array.isArray(v)) featuredIds = v.filter(Boolean);
             else featuredIds = Object.keys(v).sort((a, b) => Number(a) - Number(b)).map(k => v[k]).filter(Boolean);
+            featuredLoaded = true;
             renderFeaturedCarousel();
             if (!searchModal.classList.contains('hidden')) refreshSearch(searchInput.value);
-        });
+        }
+
+        async function loadFeaturedFallback() {
+            if (featuredLoaded) return;
+            try {
+                const response = await fetch('https://redx-6b53f-default-rtdb.firebaseio.com/featured.json', {
+                    cache: 'no-store',
+                    signal: AbortSignal.timeout(10000)
+                });
+                if (response.ok) applyFeaturedData(await response.json());
+            } catch {}
+        }
+
+        loadFeaturedFallback();
 
         function abrirBusca() {
             searchModal.classList.remove('hidden');
@@ -1172,16 +1251,12 @@
                 return;
             }
             matches.forEach((p, i) => {
-                const btn = document.createElement('button');
-                btn.type = 'button';
+                const btn = document.createElement('a');
+                btn.href = productUrl(p);
                 btn.className = 'w-full text-left flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-white/5 text-sm text-gray-300 hover:text-white transition group';
                 btn.style.animation = `cardFadeIn 0.3s ease-out ${i * 30}ms both`;
                 btn.innerHTML = `<i class="fa-solid fa-magnifying-glass text-xs text-gray-600 group-hover:text-[#d23021] transition"></i><span class="truncate font-medium">${p.name || ''}</span>`;
-                btn.addEventListener('click', () => {
-                    searchInput.value = p.name || '';
-                    refreshSearch(p.name || '');
-                    searchInput.focus();
-                });
+                btn.addEventListener('click', () => logVisitorClick('product', { source: 'search-suggestion', productId: p.id, productName: p.name }));
                 searchSuggestions.appendChild(btn);
             });
         }
@@ -1210,7 +1285,7 @@
             const frag = document.createDocumentFragment();
             lista.forEach((part, i) => {
                 const item = document.createElement('a');
-                item.href = 'login.html';
+                item.href = productUrl(part);
                 item.className = 'flex items-stretch bg-black/60 hover:bg-black/85 border border-neutral-800/80 hover:border-[#d23021] rounded-2xl overflow-hidden transition duration-300 group shadow-lg cursor-pointer min-h-[100px]';
                 item.style.animation = `cardFadeIn 0.3s ease-out ${Math.min(i * 18, 260)}ms both`;
                 item.addEventListener('click', () => {
@@ -1250,6 +1325,12 @@
         document.getElementById('hero-ver-pecas').addEventListener('click', abrirBusca);
         document.getElementById('close-search-modal').addEventListener('click', fecharBusca);
 
+        if (new URLSearchParams(window.location.search).get('buscar') === '1') {
+            abrirBusca();
+            const cleanUrl = window.location.pathname + (window.location.hash || '#produtos');
+            window.history.replaceState({}, '', cleanUrl);
+        }
+
         seeAllBtn.addEventListener('click', () => {
             if (!searchInput.value.trim()) return;
             setExpanded(true);
@@ -1279,7 +1360,7 @@
         searchInput.addEventListener('keydown', (e) => {
             if (e.key === 'Enter') {
                 e.preventDefault();
-                const first = searchSuggestions.querySelector('button');
+                const first = searchSuggestions.querySelector('a');
                 if (first) first.click();
             }
         });
@@ -1351,9 +1432,7 @@
                     item.className = 'brand-item transition-all duration-300 cursor-pointer';
                     // Clique na marca → abre busca expandida filtrada
                     item.addEventListener('click', () => {
-                        if (b.name && typeof window.openBrandSearch === 'function') {
-                            window.openBrandSearch(b.name);
-                        }
+                        if (b.name) window.location.assign(`/marca/${productSlug(b.name)}`);
                     });
                     const img = document.createElement('img');
                     img.src = b.image || DEFAULT_BRAND_IMG;
@@ -1412,7 +1491,19 @@
                 startAnimationWhenReady();
             }
 
-            database.ref('brands').on('value', snap => render(snap.val()));
+            let brandsLoaded = false;
+            const applyBrands = data => { brandsLoaded = true; render(data); };
+            const loadBrandsFallback = async () => {
+                if (brandsLoaded) return;
+                try {
+                    const response = await fetch('https://redx-6b53f-default-rtdb.firebaseio.com/brands.json', {
+                        cache: 'no-store',
+                        signal: AbortSignal.timeout(10000)
+                    });
+                    if (response.ok) applyBrands(await response.json());
+                } catch {}
+            };
+            loadBrandsFallback();
         })();
 
         (function loadAboutCarousel(){
@@ -1488,7 +1579,10 @@
                 startAnimationWhenReady();
             }
 
-            database.ref('aboutPhotos').on('value', snap => render(snap.val()));
+            fetch('https://redx-6b53f-default-rtdb.firebaseio.com/aboutPhotos.json', { signal: AbortSignal.timeout(10000) })
+                .then(response => response.ok ? response.json() : null)
+                .then(render)
+                .catch(() => {});
         })();
     </script>
 

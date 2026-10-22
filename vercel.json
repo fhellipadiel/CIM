@@ -1,6 +1,30 @@
 {
   "rewrites": [
     {
+      "source": "/peca/:slug/:id",
+      "destination": "/api/checkout?signupAction=product-page&slug=:slug&id=:id"
+    },
+    {
+      "source": "/catalogo",
+      "destination": "/api/checkout?signupAction=product-catalog"
+    },
+    {
+      "source": "/categoria/:slug",
+      "destination": "/api/checkout?signupAction=product-category&slug=:slug"
+    },
+    {
+      "source": "/marca/:slug",
+      "destination": "/api/checkout?signupAction=product-brand&slug=:slug"
+    },
+    {
+      "source": "/veiculo/:slug",
+      "destination": "/api/checkout?signupAction=product-vehicle&slug=:slug"
+    },
+    {
+      "source": "/sitemap-produtos.xml",
+      "destination": "/api/checkout?signupAction=product-sitemap"
+    },
+    {
       "source": "/api/admin-import-history",
       "destination": "/api/checkout?signupAction=admin-import-history"
     },
@@ -70,6 +94,33 @@
   },
   "headers": [
     {
+      "source": "/assets/(.*)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=86400, s-maxage=604800, stale-while-revalidate=86400"
+        }
+      ]
+    },
+    {
+      "source": "/(robots.txt|sitemap.xml)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=3600, s-maxage=86400, stale-while-revalidate=3600"
+        }
+      ]
+    },
+    {
+      "source": "/sitemap-produtos.xml",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=300, s-maxage=3600, stale-while-revalidate=86400"
+        }
+      ]
+    },
+    {
       "source": "/(.*)",
       "headers": [
         {
@@ -90,7 +141,7 @@
         },
         {
           "key": "Content-Security-Policy",
-          "value": "default-src 'self'; script-src 'self' 'unsafe-inline' https://www.gstatic.com https://cdn.jsdelivr.net https://cdn.tailwindcss.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com; font-src 'self' data: https://fonts.gstatic.com https://cdnjs.cloudflare.com; img-src 'self' data: blob: https:; connect-src 'self' https://*.googleapis.com https://*.firebaseio.com wss://*.firebaseio.com https://brasilapi.com.br https://viacep.com.br; frame-src https://www.mercadopago.com.br https://*.firebaseapp.com; worker-src 'self' blob:; media-src 'self' blob:; frame-ancestors 'none'; object-src 'none'; base-uri 'self'; form-action 'self' https://www.mercadopago.com.br; upgrade-insecure-requests"
+          "value": "default-src 'self'; script-src 'self' 'unsafe-inline' https://www.gstatic.com https://www.googletagmanager.com https://cdn.jsdelivr.net https://cdn.tailwindcss.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com; font-src 'self' data: https://fonts.gstatic.com https://cdnjs.cloudflare.com; img-src 'self' data: blob: https:; connect-src 'self' https://*.googleapis.com https://*.firebaseio.com wss://*.firebaseio.com https://www.googletagmanager.com https://www.google-analytics.com https://*.google-analytics.com https://analytics.google.com https://www.google.com https://pagead2.googlesyndication.com https://stats.g.doubleclick.net https://ad.doubleclick.net https://brasilapi.com.br https://viacep.com.br; frame-src https://www.mercadopago.com.br https://*.firebaseapp.com; worker-src 'self' blob:; media-src 'self' blob:; frame-ancestors 'none'; object-src 'none'; base-uri 'self'; form-action 'self' https://www.mercadopago.com.br; upgrade-insecure-requests"
         },
         {
           "key": "Access-Control-Allow-Origin",
@@ -112,6 +163,19 @@
         {
           "key": "Cache-Control",
           "value": "private, no-store, max-age=0"
+        }
+      ]
+    },
+    {
+      "source": "/(login|login.html|cim.html|leads.html)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "private, no-store, max-age=0"
+        },
+        {
+          "key": "X-Robots-Tag",
+          "value": "noindex, nofollow"
         }
       ]
     },
