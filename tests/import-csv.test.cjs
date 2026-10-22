@@ -7,8 +7,11 @@ const vm=require('node:vm');
 const admin=fs.readFileSync(path.join(__dirname,'../adm.html'),'utf8');
 const start=admin.indexOf('function parseCSVLine(');
 const end=admin.indexOf('function normalizeImageUrl(',start);
-const context=vm.createContext({});
+const context=vm.createContext({Blob});
 vm.runInContext(admin.slice(start,end),context);
+const splitStart=admin.indexOf('function splitImportUpdatesAdm(');
+const splitEnd=admin.indexOf('async function importNamesAdm(',splitStart);
+vm.runInContext(admin.slice(splitStart,splitEnd),context);
 
 test('importação lê CSV brasileiro sem quebrar a vírgula dos preços',()=>{
   const columns=Array.from(context.parseCSVLine('Coxim Honda;1.234,56;999,90;Coxim;ABC-123;CIM;https://example.com/foto.webp;A'));
@@ -35,6 +38,14 @@ test('falha no envio mantém a prévia disponível para tentar novamente',()=>{
   assert.match(failureBlock,/return;/);
 });
 
+test('123 peças grandes são divididas em lotes abaixo do limite do servidor',()=>{
+  const updates=Object.fromEntries(Array.from({length:123},(_,index)=>[`products/item_${index}`,{id:`item_${index}`,name:'Peça automotiva '.repeat(8)+index,image:'https://example.com/'+('foto'.repeat(25))+index,prices:{PF:123.45,PJ:110}}]));
+  const batches=Array.from(context.splitImportUpdatesAdm(updates));
+  assert.ok(batches.length>1);
+  assert.equal(batches.reduce((total,batch)=>total+Object.keys(batch).length,0),123);
+  for(const batch of batches)assert.ok(Buffer.byteLength(JSON.stringify(batch))<=40000);
+});
+
 test('servidor confirma uma importação de peça e grava produto e histórico juntos',async()=>{
   const data={};
   const read=key=>key.split('/').filter(Boolean).reduce((value,part)=>value?.[part],data)??null;
@@ -48,6 +59,10 @@ test('servidor confirma uma importação de peça e grava produto e histórico j
   const {handle}=require('../server/checkout.cjs');
   let status=200,response;
   const res={setHeader(){},status(code){status=code;return this;},json(value){response=value;return this;}};
+  await handle('admin-import-history',{method:'POST',url:'/api/admin-import-history',headers:{authorization:'Bearer admin','x-forwarded-for':'127.0.0.1'},body:{historyId:'historico_teste',finalBatch:false,updates:{'products/produto_parcial':{id:'produto_parcial',name:'Primeiro lote',prices:{PF:10}}}}},res,{services:()=>({auth:{verifyIdToken:async()=>({uid:'admin'})},db}),requireAdminWriteAccess:async()=>{}});
+  assert.equal(status,200);
+  assert.equal(response.batchSaved,true);
+  assert.equal(data.importHistory,undefined);
   const history={fileName:'teste.csv',timestamp:Date.now(),totalItems:1,newItems:1,productIds:['produto_teste']};
   const updates={'products/produto_teste':{id:'produto_teste',name:'Coxim teste',codigo:'TESTE-1',prices:{PF:123.45,PJ:110}}};
   await handle('admin-import-history',{method:'POST',url:'/api/admin-import-history',headers:{authorization:'Bearer admin','x-forwarded-for':'127.0.0.1'},body:{historyId:'historico_teste',history,updates}},res,{services:()=>({auth:{verifyIdToken:async()=>({uid:'admin'})},db}),requireAdminWriteAccess:async()=>{}});

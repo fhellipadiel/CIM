@@ -4701,6 +4701,18 @@ document.getElementById('csvFileAdm').onchange=async(e)=>{
   if(duplicateRows) showToast(`${duplicateRows} peça(s) repetida(s) removida(s) do arquivo`);
 };
 document.getElementById('confirmImportAdm').onchange=(e)=>{ document.getElementById('importBtnAdm').disabled=!e.target.checked; };
+function splitImportUpdatesAdm(updates,maxBytes=40000){
+  const batches=[];let current={};
+  for(const [path,value] of Object.entries(updates||{})){
+    const candidate={...current,[path]:value};
+    if(Object.keys(current).length&&new Blob([JSON.stringify(candidate)]).size>maxBytes){
+      batches.push(current);current={[path]:value};
+    }else current=candidate;
+    if(new Blob([JSON.stringify(current)]).size>maxBytes)throw new Error('Uma peça contém dados grandes demais para importar. Verifique principalmente o link da foto.');
+  }
+  if(Object.keys(current).length)batches.push(current);
+  return batches;
+}
 async function importNamesAdm(){
   if(importInProgressAdm){ showToast('A importação já está sendo salva. Aguarde.','err'); return; }
   const items = window.importItemsAdm;
@@ -4860,9 +4872,17 @@ async function importNamesAdm(){
     const persistedHistory={...completedHistory};
     delete persistedHistory.id;
     const token=await auth.currentUser.getIdToken();
-    const serverResponse=await fetch('/api/admin-import-history',{method:'POST',headers:{'Content-Type':'application/json',Authorization:'Bearer '+token},body:JSON.stringify({historyId:historyKey,history:persistedHistory,updates})});
-    const serverResult=await serverResponse.json().catch(()=>({}));
-    if(!serverResponse.ok||serverResult.saved!==true)throw new Error(serverResult.error||serverResult.message||'O servidor não confirmou o histórico.');
+    const updateBatches=splitImportUpdatesAdm(updates);
+    let serverResult={};
+    for(let batchIndex=0;batchIndex<updateBatches.length;batchIndex++){
+      const finalBatch=batchIndex===updateBatches.length-1;
+      if(updateBatches.length>1)showLoading(`Importando lote ${batchIndex+1} de ${updateBatches.length}...`);
+      const requestBody={historyId:historyKey,updates:updateBatches[batchIndex],finalBatch};
+      if(finalBatch)requestBody.history=persistedHistory;
+      const serverResponse=await fetch('/api/admin-import-history',{method:'POST',headers:{'Content-Type':'application/json',Authorization:'Bearer '+token},body:JSON.stringify(requestBody)});
+      serverResult=await serverResponse.json().catch(()=>({}));
+      if(!serverResponse.ok||serverResult.saved!==true)throw new Error(serverResult.error||serverResult.message||`O servidor não confirmou o lote ${batchIndex+1}.`);
+    }
     completedHistory.savedAt=Number(serverResult.savedAt)||finishedAt;
     completedHistory.savedByServer=true;
     const savedSnapshot=await database.ref(`importHistory/${historyKey}`).once('value');

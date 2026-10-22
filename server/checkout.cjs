@@ -158,8 +158,9 @@ async function handle(action,req,res,dependencies={}) {
     if(action==='admin-import-history'){
       if(caller.uid!==PRIMARY_ADMIN_UID)await (dependencies.requireAdminWriteAccess||dependencies.requireAdminAccess||requireAdminWriteAccess)(req,db);
       const historyId=String(body.historyId||'');
-      if(!key.test(historyId)||!body.history||typeof body.history!=='object'||Array.isArray(body.history))fail('Histórico de importação inválido.',400);
-      const source=body.history,ids=value=>Array.isArray(value)?[...new Set(value.map(String).filter(id=>key.test(id)))].slice(0,100000):[];
+      const finalBatch=body.finalBatch!==false;
+      if(!key.test(historyId)||(finalBatch&&(!body.history||typeof body.history!=='object'||Array.isArray(body.history))))fail('Histórico de importação inválido.',400);
+      const source=body.history||{},ids=value=>Array.isArray(value)?[...new Set(value.map(String).filter(id=>key.test(id)))].slice(0,100000):[];
       const history={
         fileName:String(source.fileName||'arquivo.csv').slice(0,300),originalFileName:String(source.originalFileName||source.fileName||'arquivo.csv').slice(0,300),
         timestamp:Number(source.timestamp)||Date.now(),date:String(source.date||'').slice(0,20),time:String(source.time||'').slice(0,20),
@@ -179,8 +180,9 @@ async function handle(action,req,res,dependencies={}) {
         if(!/^products\/[A-Za-z0-9_-]+(?:\/[A-Za-z0-9_-]+)*$/.test(path))fail('Caminho da importacao invalido.',400);
         updates[path]=value;
       }
-      updates['importHistory/'+historyId]=history;
+      if(finalBatch)updates['importHistory/'+historyId]=history;
       await db.ref().update(updates);
+      if(!finalBatch)return res.status(200).json({saved:true,historyId,batchSaved:true});
       const confirmed=(await db.ref('importHistory/'+historyId).get()).val();
       if(!confirmed)fail('O servidor não confirmou o histórico.',500);
       return res.status(200).json({saved:true,historyId,savedAt:confirmed.savedAt});
