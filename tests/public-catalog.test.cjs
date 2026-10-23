@@ -31,3 +31,24 @@ test('dados das sugestões não permitem encerrar a tag script',()=>{
   const html=catalogHtml([['safe-id',product]]);
   assert.doesNotMatch(html,/<script>alert\(1\)<\/script>/);
 });
+
+test('catálogo usa logos das marcas, remove textos antigos e ordena disponíveis primeiro',()=>{
+  const available={name:'Disponível',brand:'CIM',prices:{PF:100},_publicPricing:{base:100,promotional:null,discount:0}};
+  const unavailable={name:'Sem preço',brand:'CIM',soldOut:true,_publicPricing:null};
+  const html=catalogHtml([['out',unavailable],['in',available]],{cim:{name:'CIM',image:'https://example.com/cim.webp'}});
+  assert.doesNotMatch(html,/>Catálogo público</i);
+  assert.doesNotMatch(html,/Promoções indicadas são válidas no Pix/i);
+  assert.match(html,/https:\/\/example\.com\/cim\.webp/);
+  assert.ok(html.indexOf('Disponível')<html.indexOf('Sem preço'));
+  assert.ok(html.indexOf('Marcas')<html.indexOf('id="pesquisar"'));
+  assert.ok(html.indexOf('id="pesquisar"')<html.indexOf('class="catalog-categories"'));
+  assert.ok(html.indexOf('class="catalog-categories"')<html.indexOf('id="catalog-grid"'));
+  assert.doesNotMatch(html,/<h2>Categorias<\/h2>/);
+  assert.doesNotMatch(html,/<h2>Todos os produtos<\/h2>/);
+  assert.match(html,/Pesquisar a peça, código ou montadora/);
+  assert.match(html,/class="vehicle-filter-toggle"/);
+  assert.match(html,/id="floating-search"/);
+  assert.match(html,/class="accent-word">peça<\/span>/);
+  assert.match(html,/background:radial-gradient/);
+  assert.match(html,/header\{border-bottom:0\}/);
+});

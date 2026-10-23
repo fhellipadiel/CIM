@@ -7,7 +7,9 @@ function payload(priced,reference,returnUrl){
 
   const online={success_url:returnUrl,failure_url:returnUrl,pending_url:returnUrl};
   if(new URL(returnUrl).protocol==='https:')online.auto_return='approved';
-  return {type:'online',processing_mode:'manual',expiration_time:'PT1H',total_amount:priced.total.toFixed(2),external_reference:reference,items:priced.items.map(i=>({external_code:i.id,title:i.name,quantity:i.quantity,unit_price:i.unitPrice.toFixed(2)})),config:{online,payment_method}};
+  const items=priced.items.map(i=>({external_code:i.id,title:i.name,quantity:i.quantity,unit_price:i.unitPrice.toFixed(2)}));
+  if(Number(priced.shipping)>0)items.push({external_code:'frete',title:`Frete — ${priced.mode}`,quantity:1,unit_price:Number(priced.shipping).toFixed(2)});
+  return {type:'online',processing_mode:'manual',expiration_time:'PT1H',total_amount:priced.total.toFixed(2),external_reference:reference,items,config:{online,payment_method}};
 }
 function applyPayment(current,details,incoming){
   if(!current||!Number.isFinite(incoming))return;

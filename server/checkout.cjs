@@ -190,11 +190,16 @@ async function handle(action,req,res,dependencies={}) {
     if(action==='claim-referral')return res.status(200).json(await require('./registration.cjs').claimReferral(db,caller,body));
     if(action==='register-profile')return res.status(200).json(await require('./registration.cjs').registerProfile(db,caller,body));
     const user={...((await db.ref('users/'+caller.uid).get()).val()||{}),uid:caller.uid};
-    if(['admin-notifications','admin-tests','admin-archive-legacy-order','admin-order-status','admin-session'].includes(action)){
+    if(['admin-notifications','admin-tests','admin-archive-legacy-order','admin-order-status','admin-session','admin-navigation-analytics'].includes(action)){
       await ((['admin-order-status','admin-archive-legacy-order'].includes(action)||(action==='admin-notifications'&&body.action!=='list'))?(dependencies.requireAdminWriteAccess||dependencies.requireAdminAccess||requireAdminWriteAccess):(dependencies.requireAdminAccess||requireAdminAccess))(req,db);
       user.isAdmin=true;
     }
     if(action==='admin-session')return res.status(200).json(await require('./admin-sessions.cjs').recordAdminSession(db,caller,req.headers['user-agent']));
+    if(action==='admin-navigation-analytics'){
+      const [pages,searches]=await Promise.all([db.ref('pageViewLogs').get(),db.ref('searchNoResultLogs').get()]);
+      const latest=snapshot=>Object.values(snapshot.val()||{}).sort((a,b)=>(b.timestamp||0)-(a.timestamp||0)).slice(0,5000);
+      return res.status(200).json({pages:latest(pages),searches:latest(searches)});
+    }
     if(action==='admin-notifications')return res.status(200).json(await require('./notifications.cjs')(db,user,body));
     if (action==='admin-tests') {
       if (user.isAdmin!==true) fail('Acesso restrito ao administrador.',403);
@@ -215,7 +220,7 @@ async function handle(action,req,res,dependencies={}) {
       }
       const saved=(await cartRef.get()).val();
       if(!saved)return res.status(200).json({items:null});
-      const products=Object.values((await db.ref('products').get()).val()||{});
+      const products=Object.entries((await db.ref('products').get()).val()||{}).map(([id,product])=>({...product,id:product.id||id}));
       const items=(saved.items||[]).flatMap(item=>{const product=products.find(p=>p.id===item.id);return product?[{...product,quantity:item.quantity}]:[];});
       return res.status(200).json({items});
     }

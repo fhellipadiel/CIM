@@ -1308,6 +1308,8 @@ tbody tr:last-child td{border-bottom:none}
       <div class="panel-head"><div><h1>Cliques &amp; metas</h1><p>Histórico de interações e metas batidas</p></div></div>
       <div class="tabbar">
         <button class="active" data-cliktab="hist" onclick="switchClickTab('hist')">Histórico de cliques</button>
+        <button data-cliktab="pages" onclick="switchClickTab('pages')">Páginas acessadas</button>
+        <button data-cliktab="searches" onclick="switchClickTab('searches')">Buscas sem resultado</button>
         <button data-cliktab="metas" onclick="switchClickTab('metas')">Metas batidas</button>
         <button data-cliktab="contatos" onclick="switchClickTab('contatos')"><i class="fab fa-whatsapp"></i> Contatos</button>
       </div>
@@ -1339,6 +1341,12 @@ tbody tr:last-child td{border-bottom:none}
           </div>
         </div>
       </div>
+      <div id="clickTabPages" style="display:none;">
+        <div class="block"><div class="block-head"><h3>Páginas mais acessadas por URL</h3></div><div class="block-body tight"><table><thead><tr><th>URL</th><th>Acessos</th><th>Último acesso</th></tr></thead><tbody id="pageViewsBody"></tbody></table></div></div>
+      </div>
+      <div id="clickTabSearches" style="display:none;">
+        <div class="block"><div class="block-head"><div><h3>Buscas sem resultado</h3><p class="td-sub">Termos procurados que não encontraram nenhuma peça.</p></div></div><div class="block-body tight"><table><thead><tr><th>Termo pesquisado</th><th>Vezes</th><th>URL</th><th>Última busca</th></tr></thead><tbody id="missingSearchesBody"></tbody></table></div></div>
+      </div>
       <div id="clickTabMetas" style="display:none;">
         <div class="block">
           <div class="block-head"><h3>Metas batidas</h3><button class="btn btn-sm btn-ghost" onclick="clearMetaAchievementsAdm()"><i class="fas fa-trash"></i> Limpar</button></div>
@@ -1361,7 +1369,7 @@ tbody tr:last-child td{border-bottom:none}
           </div>
           <div class="block-body tight">
             <table>
-              <thead><tr><th>Tipo</th><th>Origem</th><th>Campanha</th><th>Data / Hora</th></tr></thead>
+              <thead><tr><th>Tipo</th><th>Origem</th><th>Página</th><th>Campanha</th><th>Data / Hora</th></tr></thead>
               <tbody id="contactClicksBody"></tbody>
             </table>
           </div>
@@ -1614,6 +1622,8 @@ tbody tr:last-child td{border-bottom:none}
       <div class="f-group"><label>Meta de cliques</label><input type="number" id="pMeta"></div>
       <div class="f-group"><label>Preço PF (R$)</label><input type="number" step="0.01" id="pPricePF"></div>
       <div class="f-group"><label>Preço PJ (R$)</label><input type="number" step="0.01" id="pPricePJ"></div>
+      <div class="f-group"><label>Perfil de frete</label><div class="select-wrap"><select id="pShippingProfile"><option value="auto">Automático pelo nome</option><option value="leve">Leve</option><option value="medio">Médio</option><option value="pesado">Pesado</option><option value="volumoso">Volumoso</option></select></div></div>
+      <div class="f-group"><label>Peso unitário (kg, opcional)</label><input type="number" min="0.01" step="0.01" id="pShippingWeight" placeholder="Estimado automaticamente"></div>
     </div>
     <div class="f-group"><label>Descrição</label><textarea id="pDesc" rows="3"></textarea></div>
     <div class="f-group" style="background:var(--panel-alt);padding:14px;border-radius:8px;border:1px solid var(--border);">
@@ -1980,7 +1990,7 @@ function fmtBRLAdm(v){
    ============================================================ */
 let products=[], sessions={}, brands={}, contacts={}, promocoes={}, cupons={}, categoryOrder=[];
 let categoryClicks={}, sessionClicks={}, brandClicks={};
-let clickHistory=[], metaAchievements=[], importHistoryCache=[], usersCache=[];
+let clickHistory=[], pageViewHistory=[], missingSearchHistory=[], metaAchievements=[], importHistoryCache=[], usersCache=[];
 let contactClicks=[];
 let pricesHidden=false, currentAdmin=null;
 let editingProductId=null, editingSessionId=null, editingBrandId=null, editingContactId=null, editingPromoId=null, editingCouponId=null;
@@ -2595,6 +2605,7 @@ function loadAllData(){
   database.ref('clickLogs').orderByChild('timestamp').on('value',snap=>{
     const d=snap.val(); clickHistory = d? Object.values(d).reverse() : []; renderClickHistory();
   });
+  loadNavigationAnalyticsAdm();
   database.ref('metaAchievements').orderByChild('timestamp').limitToLast(300).on('value',snap=>{
     const d=snap.val(); metaAchievements = d? Object.values(d).reverse() : []; renderMetaAchievements();
   });
@@ -3167,6 +3178,12 @@ function orderModeLabelAdm(mode){
 function orderShortIdAdm(o){
   return o.orderNumber ? '#' + String(o.orderNumber).padStart(3,'0') : '#' + String(o.id).slice(-6).toUpperCase();
 }
+function orderShippingAdm(o){ return Math.max(0,Number(o.shipping)||0); }
+function orderSubtotalAdm(o){
+  if(Number.isFinite(Number(o.subtotal))) return Number(o.subtotal);
+  const items=(o.items||[]).reduce((sum,item)=>sum+(Number(item.subtotal)||Number(item.unitPrice||0)*Number(item.quantity||1)),0);
+  return items>0?items:Math.max(0,(Number(o.total)||0)-orderShippingAdm(o));
+}
 
 function isInvoiceEligibleOrderAdm(order){
   return CimPaymentPolicy.isPaidOrder(order);
@@ -3271,7 +3288,7 @@ function renderOrders(){
       </td>
       <td><div class="td-name">${esc(u.name || 'Cliente')}</div><div class="td-sub">${esc(u.email || '')}</div></td>
       <td class="mono">${itemsCount}</td>
-      <td class="mono" style="color:#fff;font-weight:700;">${fmtBRLAdm(o.total)}</td>
+      <td class="mono"><div style="color:#fff;font-weight:700;">${fmtBRLAdm(o.total)}</div><div class="td-sub">Peças: ${fmtBRLAdm(orderSubtotalAdm(o))}</div><div class="td-sub">Frete: ${orderShippingAdm(o)>0?fmtBRLAdm(orderShippingAdm(o)):'Grátis'}</div></td>
       <td>${esc(orderModeLabelAdm(o.mode))}</td>
       <td><span class="order-status-chip ${s}">${orderStatusLabelAdm(s)}</span>${s==='pendente'?`<div class="td-sub" data-order-deadline="${o.id}" data-order-uid="${o.uid}">${paymentDeadlineAdm(o)}</div>`:''}</td>
       <td>${invoiceLabel}</td>
@@ -3355,9 +3372,10 @@ function openOrderDetailAdm(uid, orderId){
     ${o.couponCode ? `<div style="margin-top:12px;padding:10px 14px;background:var(--panel-alt);border:1px solid var(--border);border-radius:8px;font-size:.82rem;">
       <i class="fas fa-ticket" style="color:var(--accent);"></i> Cupom <strong style="color:var(--accent);">${esc(o.couponCode)}</strong> aplicado (${o.couponDiscount||0}% off)
     </div>` : ''}
-    <div style="margin-top:14px;padding:14px;background:var(--panel-alt);border:1px solid var(--border);border-radius:8px;display:flex;justify-content:space-between;align-items:center;">
-      <span style="font-weight:600;">Total</span>
-      <span class="mono" style="color:var(--accent);font-size:1.3rem;font-weight:700;">${fmtBRLAdm(o.total)}</span>
+    <div style="margin-top:14px;padding:14px;background:var(--panel-alt);border:1px solid var(--border);border-radius:8px;display:grid;gap:8px;">
+      <div style="display:flex;justify-content:space-between;"><span>Valor das peças</span><span class="mono">${fmtBRLAdm(orderSubtotalAdm(o))}</span></div>
+      <div style="display:flex;justify-content:space-between;"><span>Frete · ${esc(orderModeLabelAdm(o.mode))}</span><span class="mono">${orderShippingAdm(o)>0?fmtBRLAdm(orderShippingAdm(o)):'Grátis'}</span></div>
+      <div style="display:flex;justify-content:space-between;align-items:center;border-top:1px solid var(--border);padding-top:10px;"><strong>Total</strong><span class="mono" style="color:var(--accent);font-size:1.3rem;font-weight:700;">${fmtBRLAdm(o.total)}</span></div>
     </div>
     ${u.telefone ? `<a href="https://wa.me/55${u.telefone.replace(/\D/g,'')}?text=${encodeURIComponent('Olá ' + (u.name||'') + ', sobre seu pedido ' + orderShortIdAdm(o))}" target="_blank" class="btn btn-ok" style="width:100%;justify-content:center;margin-top:14px;"><i class="fab fa-whatsapp"></i> Contatar cliente</a>` : ''}
   `;
@@ -3449,7 +3467,7 @@ function cancelCurrentOrderAdm(){
 function exportOrdersCsvAdm(){
   const list = getFilteredOrdersAdm();
   if(list.length === 0){ showToast('Nenhum pedido para exportar','err'); return; }
-  const rows = [['Pedido','Cliente','Email','Telefone','Itens','Total','Pagamento','Modo','Status','Data']];
+  const rows = [['Pedido','Cliente','Email','Telefone','Itens','Valor das peças','Frete','Total','Pagamento','Modo','Status','Data']];
   list.forEach(o => {
     const u = usersCache.find(x => x.uid === o.uid) || {};
     rows.push([
@@ -3458,6 +3476,8 @@ function exportOrdersCsvAdm(){
       u.email || '',
       u.telefone || '',
       (o.items || []).reduce((s,i)=>s+(i.quantity||1),0),
+      orderSubtotalAdm(o).toFixed(2).replace('.', ','),
+      orderShippingAdm(o).toFixed(2).replace('.', ','),
       Number(o.total||0).toFixed(2).replace('.', ','),
       o.method === 'pix' ? 'PIX' : 'Cartão ' + (o.actualInstallments||o.installments||1) + 'x',
       orderModeLabelAdm(o.mode),
@@ -3822,6 +3842,7 @@ function openProductModal(){
   document.getElementById('modalProdutoTitle').textContent='Nova peça';
   ['pName','pCodigo','pDesc'].forEach(id=>document.getElementById(id).value='');
   document.getElementById('pPricePF').value=''; document.getElementById('pPricePJ').value=''; document.getElementById('pMeta').value=0;
+  document.getElementById('pShippingProfile').value='auto'; document.getElementById('pShippingWeight').value='';
   document.getElementById('pSoldOut').checked=false;
   document.getElementById('pHidePF').checked=false; document.getElementById('pHidePJ').checked=false;
   resetUpload('prodUploadBox','prodPreview'); updateSelectPopulators();
@@ -3835,6 +3856,7 @@ function editProductAdm(id){
   document.getElementById('pName').value=p.name||''; document.getElementById('pCodigo').value=p.codigo||'';
   document.getElementById('pDesc').value=p.description||''; document.getElementById('pPricePF').value=p.prices?.PF||'';
   document.getElementById('pPricePJ').value=p.prices?.PJ||''; document.getElementById('pMeta').value=p.metaClicks||0;
+  document.getElementById('pShippingProfile').value=p.shippingProfile||'auto'; document.getElementById('pShippingWeight').value=p.shippingWeightKg||'';
   document.getElementById('pSoldOut').checked=p.soldOut||false;
   document.getElementById('pHidePF').checked=p.hidePricePF||false;
   document.getElementById('pHidePJ').checked=p.hidePricePJ||false;
@@ -3863,7 +3885,9 @@ function saveProductAdm(){
     soldOut:document.getElementById('pSoldOut').checked, sessionId:document.getElementById('pSession').value||null,
     hidePricePF:document.getElementById('pHidePF').checked, hidePricePJ:document.getElementById('pHidePJ').checked,
     clicks:0, metaClicks:parseInt(document.getElementById('pMeta').value)||0,
-    prices:{PF:parseFloat(document.getElementById('pPricePF').value)||0, PJ:parseFloat(document.getElementById('pPricePJ').value)||0}
+    prices:{PF:parseFloat(document.getElementById('pPricePF').value)||0, PJ:parseFloat(document.getElementById('pPricePJ').value)||0},
+    shippingProfile:document.getElementById('pShippingProfile').value||'auto',
+    shippingWeightKg:parseFloat(document.getElementById('pShippingWeight').value)||null
   };
   if(editingProductId){
     const oldProduct = products.find(x => x.id === editingProductId);
@@ -5104,8 +5128,33 @@ async function confirmDeleteImportAdm(){
 function switchClickTab(tab){
   document.querySelectorAll('[data-cliktab]').forEach(b=>b.classList.toggle('active',b.dataset.cliktab===tab));
   document.getElementById('clickTabHist').style.display     = tab === 'hist'     ? 'block' : 'none';
+  document.getElementById('clickTabPages').style.display    = tab === 'pages'    ? 'block' : 'none';
+  document.getElementById('clickTabSearches').style.display = tab === 'searches' ? 'block' : 'none';
   document.getElementById('clickTabMetas').style.display    = tab === 'metas'    ? 'block' : 'none';
   document.getElementById('clickTabContatos').style.display = tab === 'contatos' ? 'block' : 'none';
+}
+
+function renderPageViewsAdm(){
+  const body=document.getElementById('pageViewsBody');if(!body)return;
+  const grouped={};pageViewHistory.forEach(log=>{const path=log.path||'/';const row=grouped[path]||={path,count:0,last:log};row.count++;if((log.timestamp||0)>(row.last.timestamp||0))row.last=log;grouped[path]=row;});
+  const rows=Object.values(grouped).sort((a,b)=>b.count-a.count||((b.last.timestamp||0)-(a.last.timestamp||0)));
+  body.innerHTML=rows.length?rows.map(row=>`<tr><td class="td-name"><span>${esc(row.last.pageTitle||row.path)}</span><span class="td-sub">${esc(row.path)}</span></td><td><span class="chip">${row.count.toLocaleString('pt-BR')}</span></td><td class="td-sub">${esc(row.last.date||'')} ${esc(row.last.time||'')}</td></tr>`).join(''):'<tr><td colspan="3"><div class="empty-state"><i class="fas fa-link"></i><p>Nenhuma página registrada</p></div></td></tr>';
+}
+
+async function loadNavigationAnalyticsAdm(){
+  try{
+    const token=await auth.currentUser.getIdToken();
+    const response=await fetch('/api/admin-navigation-analytics',{method:'POST',headers:{'Content-Type':'application/json',Authorization:'Bearer '+token},body:'{}',signal:AbortSignal.timeout(20000)});
+    if(!response.ok)throw Error('analytics');
+    const result=await response.json();pageViewHistory=(result.pages||[]).sort((a,b)=>(b.timestamp||0)-(a.timestamp||0));missingSearchHistory=(result.searches||[]).sort((a,b)=>(b.timestamp||0)-(a.timestamp||0));renderPageViewsAdm();renderMissingSearchesAdm();
+  }catch{renderPageViewsAdm();renderMissingSearchesAdm();}
+}
+
+function renderMissingSearchesAdm(){
+  const body=document.getElementById('missingSearchesBody');if(!body)return;
+  const grouped={};missingSearchHistory.forEach(log=>{const key=String(log.term||'').trim().toLocaleLowerCase('pt-BR');if(!key)return;const row=grouped[key]||={term:log.term,count:0,last:log};row.count++;if((log.timestamp||0)>(row.last.timestamp||0))row.last=log;grouped[key]=row;});
+  const rows=Object.values(grouped).sort((a,b)=>b.count-a.count||((b.last.timestamp||0)-(a.last.timestamp||0)));
+  body.innerHTML=rows.length?rows.map(row=>`<tr><td class="td-name">${esc(row.term)}</td><td><span class="chip" style="color:var(--accent)">${row.count.toLocaleString('pt-BR')}</span></td><td class="td-sub">${esc(row.last.path||'/')}</td><td class="td-sub">${esc(row.last.date||'')} ${esc(row.last.time||'')}</td></tr>`).join(''):'<tr><td colspan="4"><div class="empty-state"><i class="fas fa-search"></i><p>Nenhuma busca sem resultado</p></div></td></tr>';
 }
 
 let clickHistoryPeriod = 'today';
@@ -5122,6 +5171,7 @@ const SOURCE_LABELS = {
   'search-featured': '<i class="fas fa-search"></i> Destaques',
   'featured':        '<i class="fas fa-star"></i> Carrossel',
   'gallery':         '<i class="fas fa-images"></i> Galeria',
+  'public-budget':   '<i class="fab fa-whatsapp"></i> Orçamento do catálogo',
   'footer':          '<i class="fas fa-headset"></i> Rodapé',
   'float-support':   '<i class="fas fa-headset"></i> Botão flutuante',
   'header':          'Cabeçalho'
@@ -5219,7 +5269,7 @@ function renderContactClicks(){
   const body = document.getElementById('contactClicksBody');
   if(!body) return;
   if(contactClicks.length === 0){
-    body.innerHTML = `<tr><td colspan="4"><div class="empty-state"><i class="fas fa-headset"></i><p>Nenhum clique em contato</p></div></td></tr>`;
+    body.innerHTML = `<tr><td colspan="5"><div class="empty-state"><i class="fas fa-headset"></i><p>Nenhum clique em contato</p></div></td></tr>`;
     return;
   }
   body.innerHTML = contactClicks.slice(0, 200).map(c => {
@@ -5238,6 +5288,7 @@ function renderContactClicks(){
     return `<tr>
       <td>${chip}</td>
       <td>${sourceLabel}</td>
+      <td class="td-sub">${c.path?`<span>${esc(c.pageTitle||'Catálogo')}</span><br><span>${esc(c.path)}</span>`:'—'}</td>
       <td>${campaignHtml}</td>
       <td class="td-sub">${esc(c.date || '')} ${esc(c.time || '')}</td>
     </tr>`;

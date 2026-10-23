@@ -803,6 +803,8 @@
         .cart-mode-option:hover { background: #ff3601; color: #000; }
         .cart-mode-option.selected { color: #ff3601; font-weight: 600; }
         .cart-mode-option.selected:hover { color: #000; }
+        .cart-mode-option.disabled { color: #666; cursor: not-allowed; pointer-events:none; }
+        .cart-mode-option.disabled::after { content:'Indisponível para este CEP'; margin-left:8px; font-size:.65rem; color:#777; }
 
         .cart-coupon-section { margin-bottom: 5px; padding-bottom: 5px; border-bottom: 1px solid #222; }
         .cart-coupon-wrap { display: flex; gap: 6px; align-items: center; position: relative; }
@@ -1562,6 +1564,7 @@ body.fullscreen-panel-open{overflow:hidden!important}
                     <span>Total:</span>
                     <span class="cart-total-value" id="cartTotal">R$ 0,00</span>
                 </div>
+                <p style="margin:7px 0 0;color:#858585;font-size:.72rem;line-height:1.4;text-align:center;">Frete calculado pelo CEP. Motoboy disponível em São Paulo e grátis a partir de R$ 1.000; transportadora grátis a partir de R$ 2.500.</p>
 
                 <div class="cart-confirm-row" id="cartConfirmRow" onclick="toggleCartConfirm()">
                     <div class="cart-confirm-checkbox" id="cartConfirmCheckbox" role="checkbox" aria-checked="false" tabindex="0">
@@ -1999,7 +2002,50 @@ body.fullscreen-panel-open{overflow:hidden!important}
             return CimPaymentPolicy.total(cart, item => getPriceForItem(item));
         }
         function getCurrentTax() { return paymentMethod === 'card' ? CimPaymentPolicy.rate(installments) : 0; }
-        function getFinalTotal() { return paymentMethod === 'pix' ? getCartSubtotalPix() : CimPaymentPolicy.total(cart, item => CimPaymentPolicy.unitPrice(getBasePriceForItem(item), getCurrentTax())); }
+        function getProductTotal() { return paymentMethod === 'pix' ? getCartSubtotalPix() : CimPaymentPolicy.total(cart, item => CimPaymentPolicy.unitPrice(getBasePriceForItem(item), getCurrentTax())); }
+        function getShippingProfile(item) {
+            if (['leve','medio','pesado','volumoso'].includes(item.shippingProfile)) return item.shippingProfile;
+            const text = String([item.name,item.category].filter(Boolean).join(' ')).normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
+            if (/para-choque|parachoque|escapamento|radiador|tanque|capo|porta|paralama/.test(text)) return 'volumoso';
+            if (/amortecedor|disco|bandeja|caixa de direcao|semi eixo|virabrequim|cabecote/.test(text)) return 'pesado';
+            if (/pastilha|coxim|pivo|rolamento|bieleta|terminal|correia|polia/.test(text)) return 'medio';
+            if (/filtro|vela|sensor|lampada|fusivel|rele|interruptor|bucha/.test(text)) return 'leve';
+            return 'medio';
+        }
+        function getShippingWeight(item) {
+            const exact = Number(item.shippingWeightKg);
+            return Number.isFinite(exact) && exact > 0 ? exact : ({leve:.5,medio:3,pesado:8,volumoso:12}[getShippingProfile(item)] || 3);
+        }
+        function getShippingFee(subtotal = getProductTotal()) {
+            if (cartMode === 'Retirar') return 0;
+            const uf = String(currentUser?.uf || '').trim().toUpperCase();
+            const city = String(currentUser?.cidade || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').trim().toLowerCase();
+            const cep = Number(String(currentUser?.cep || '').replace(/\D/g, ''));
+            if (cartMode === 'Motoboy' && uf && uf !== 'SP') return null;
+            const freeFrom = cartMode === 'Motoboy' ? 1000 : 2500;
+            const subtotalBeforeDiscounts = getCartSubtotalBase();
+            if (subtotalBeforeDiscounts >= freeFrom) return 0;
+            const quantity = cart.reduce((sum, item) => sum + item.quantity, 0);
+            const weight = Math.max(.1, cart.reduce((sum, item) => sum + getShippingWeight(item) * item.quantity, 0)) * 1.1;
+            const voluminous = cart.some(item => getShippingProfile(item) === 'volumoso');
+            if (cartMode === 'Motoboy') {
+                const prefix3 = Math.floor(cep / 100000);
+                const prefix2 = Math.floor(cep / 1000000);
+                const base = prefix3 === 15 ? 18.90 : prefix2 === 1 ? 27.90 : (Number.isFinite(cep) && cep >= 1000000 && cep < 6000000 ? 39.90 : Number.isFinite(cep) && cep < 10000000 ? 49.90 : 60.90);
+                return Math.round((base + Math.max(0, weight - 3) * 2.2) * 100) / 100;
+            }
+            const southeast = new Set(['SP', 'RJ', 'MG', 'ES']);
+            const south = new Set(['PR', 'SC', 'RS']);
+            const nearby = southeast.has(uf) || south.has(uf);
+            const base = uf === 'SP' ? 39.90 : (nearby ? 59.90 : 79.90);
+            const rate = uf === 'SP' ? 3.2 : (nearby ? 4.5 : 6);
+            return Math.round((base + Math.max(0, weight - 1) * rate + (voluminous ? 18 : 0)) * 100) / 100;
+        }
+        function getFinalTotal() { return getProductTotal() + getShippingFee(); }
+        function getCheckoutTotal() {
+            const products = paymentMethod === 'pix' ? getCartSubtotalPix() : getCartSubtotalBase();
+            return products + getShippingFee(products);
+        }
 
         function toggleCartModeDropdown(e) {
             if (e) e.stopPropagation();
@@ -2009,9 +2055,21 @@ body.fullscreen-panel-open{overflow:hidden!important}
             dd.classList.toggle('open');
             bar.classList.toggle('open');
         }
+        function updateDeliveryModeAvailability() {
+            const motoboy = document.querySelector('.cart-mode-option[data-mode="Motoboy"]');
+            const blocked = !!currentUser?.uf && String(currentUser.uf).trim().toUpperCase() !== 'SP';
+            motoboy?.classList.toggle('disabled', blocked);
+            motoboy?.setAttribute('aria-disabled', String(blocked));
+            if (blocked && cartMode === 'Motoboy') cartMode = 'Transportadora';
+        }
         function setCartMode(mode) {
             const supportedModes = ['Transportadora', 'Motoboy', 'Retirar'];
             cartMode = mode === 'Enviar' ? 'Transportadora' : supportedModes.includes(mode) ? mode : 'Transportadora';
+            if (cartMode === 'Motoboy' && currentUser?.uf && String(currentUser.uf).toUpperCase() !== 'SP') {
+                cartMode = 'Transportadora';
+                showToast('Motoboy atende somente o estado de São Paulo. Selecionamos transportadora.', 'error');
+            }
+            updateDeliveryModeAvailability();
             localStorage.setItem('cim_cart_mode', cartMode);
             const label = document.getElementById('cartModeLabel');
             if (label) label.textContent = cartMode;
@@ -2020,6 +2078,7 @@ body.fullscreen-panel-open{overflow:hidden!important}
             const bar = document.getElementById('cartModeBar');
             if (dd) dd.classList.remove('open');
             if (bar) bar.classList.remove('open');
+            updateCart();
         }
 
         function getCartModeLabel(mode) {
@@ -2175,7 +2234,9 @@ body.fullscreen-panel-open{overflow:hidden!important}
 
             const baseTotal = getCartSubtotalBase();
             const pixTotal  = getCartSubtotalPix();
-            const finalTotal = getFinalTotal();
+            const productTotal = getProductTotal();
+            const shippingFee = getShippingFee(productTotal);
+            const finalTotal = productTotal + shippingFee;
             const detailEl = document.getElementById('cartTotalDetail');
 
             if (cart.length === 0) {
@@ -2191,11 +2252,12 @@ body.fullscreen-panel-open{overflow:hidden!important}
                         const discount = baseTotal - pixTotal;
                         let html = `<div class="detail-row"><span>Subtotal:</span><span class="val">${fmtBRL(baseTotal)}</span></div>`;
                         if (discount > 0) html += `<div class="detail-row discount"><span>Desconto:</span><span class="val">- ${fmtBRL(discount)}</span></div>`;
-                        html += `<div class="detail-row total"><span>Total no PIX:</span><span class="val">${fmtBRL(pixTotal)}</span></div>`;
+                        html += `<div class="detail-row"><span>Frete:</span><span class="val">${shippingFee > 0 ? fmtBRL(shippingFee) : (cartMode === 'Retirar' ? 'Retirada' : 'Grátis')}</span></div>`;
+                        html += `<div class="detail-row total"><span>Total no PIX:</span><span class="val">${fmtBRL(finalTotal)}</span></div>`;
                         detailEl.innerHTML = html;
                         detailEl.style.display = 'block';
                     } else {
-                        const html = `<div class="detail-row"><span>Valor dos produtos:</span><span class="val">${fmtBRL(baseTotal)}</span></div><div class="detail-row total"><span>Total estimado em ${installments}x:</span><span class="val">${fmtBRL(finalTotal)}</span></div><div class="detail-row note">Simulação de parcelamento. Confirme as condições finais ao pagar.</div>`;
+                        const html = `<div class="detail-row"><span>Valor dos produtos:</span><span class="val">${fmtBRL(productTotal)}</span></div><div class="detail-row"><span>Frete:</span><span class="val">${shippingFee > 0 ? fmtBRL(shippingFee) : (cartMode === 'Retirar' ? 'Retirada' : 'Grátis')}</span></div><div class="detail-row total"><span>Total estimado em ${installments}x:</span><span class="val">${fmtBRL(finalTotal)}</span></div><div class="detail-row note">Simulação de parcelamento. Confirme as condições finais ao pagar.</div>`;
                         detailEl.innerHTML = html;
                         detailEl.style.display = 'block';
                     }
@@ -2621,7 +2683,7 @@ body.fullscreen-panel-open{overflow:hidden!important}
             checkoutBusy = true;
             const button = document.querySelector('.cart-checkout-btn');
             if (button) { button.disabled = true; button.textContent = 'Abrindo Mercado Pago…'; }
-            const payload = {items:cart.map(item=>({id:item.id,quantity:item.quantity})),method:paymentMethod,installments,mode:cartMode,expectedTotal:(paymentMethod === 'pix' ? getCartSubtotalPix() : getCartSubtotalBase())};
+            const payload = {items:cart.map(item=>({id:item.id,quantity:item.quantity})),method:paymentMethod,installments,mode:cartMode,expectedTotal:getCheckoutTotal()};
             const signature = JSON.stringify(payload);
             let attempt;
             try { attempt = JSON.parse(sessionStorage.getItem('cim_checkout_attempt') || 'null'); } catch {}
@@ -3129,6 +3191,7 @@ function toggleBottomMenu() {
         }
 
         let searchTimer = null;
+        let lastNoResultSearch = '';
         function debouncedSearch(value) {
             clearTimeout(searchTimer);
             searchClearHeader.classList.toggle('visible', value.length > 0);
@@ -3167,6 +3230,11 @@ function toggleBottomMenu() {
                 } else {
                     suggestionsDropdown.innerHTML = `<div class="suggestion-item" style="cursor:default;color:#888;">Nenhuma peça encontrada</div>`;
                     suggestionsDropdown.classList.add('open');
+                    const normalizedMissing = searchTerm.toLocaleLowerCase('pt-BR');
+                    if (normalizedMissing.length >= 2 && normalizedMissing !== lastNoResultSearch) {
+                        lastNoResultSearch = normalizedMissing;
+                        CimAnalytics.noResults(searchTerm, 'catalog-search');
+                    }
                 }
             } else {
                 suggestionsDropdown.classList.remove('open');
@@ -4038,6 +4106,7 @@ function toggleBottomMenu() {
                     bairro: data.bairro || '', cidade: data.cidade || '', uf: data.uf || ''
                 };
                 updateProfileUIUser();
+                updateDeliveryModeAvailability();
                 updatePriceDisplay(); updateCart(); renderPromotionBadgesOnly();
 
                 // ✅ NOTIFICAÇÕES: inicia APÓS currentUser estar pronto
