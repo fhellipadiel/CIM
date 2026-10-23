@@ -19,6 +19,6 @@ form.onsubmit=async event=>{event.preventDefault();if(working)return;working=tru
  code.focus();
 }catch(error){feedback.textContent=error.code?.startsWith('auth/')?'Não foi possível confirmar sua identidade. Confira sua senha e tente novamente.':error.message||'Não foi possível configurar o autenticador.';}finally{working=false;start.disabled=false;d.close.disabled=false;}};
 if(!auth.currentUser.providerData.some(p=>p.providerId==='password')){label.hidden=true;password.required=false;message.textContent='Confirme sua identidade com o Google para configurar a proteção.';start.textContent='Confirmar com Google';}d.show();if(!label.hidden)password.focus();}
-function init(){host=document.getElementById('adminMfaCard');if(!host)return;auth=firebase.auth();auth.onAuthStateChanged(user=>{generation++;if(user)refresh();else{currentStatus=null;host.replaceChildren();}});}
+function init(){host=document.getElementById('adminMfaCard');if(!host)return;try{auth=firebase.app('cim-admin').auth();}catch{auth=firebase.auth();}auth.onAuthStateChanged(user=>{generation++;if(user)refresh();else{currentStatus=null;host.replaceChildren();}});}
 window.CimAdminMfa={refresh};if(document.readyState==='complete')init();else window.addEventListener('load',init,{once:true});
 })();
