@@ -121,7 +121,12 @@ function init(){
  app={open};close.addEventListener('click',shut);
  form.addEventListener('submit',async event=>{
   event.preventDefault();const text=input.value.trim();if(!text||!connected||busy)return;
-  if(!pending||pending.text!==text)pending={text,requestId:crypto.randomUUID()};
+  if(!pending||pending.text!==text){
+    const requestId=window.crypto&&typeof window.crypto.randomUUID==='function'
+      ? window.crypto.randomUUID()
+      : 'support-'+Date.now().toString(36)+'-'+Math.random().toString(36).slice(2);
+    pending={text,requestId};
+  }
   const outgoing={...pending},g=generation,id=roomId;busy=true;send.disabled=true;statusText('');
   try{const data=await api('send',outgoing,id);if(g!==generation)return;showMessages([data.message]);input.value='';pending=null;messages.scrollTop=messages.scrollHeight;input.focus();}
   catch(error){if(g===generation){if(error.status===410)ended();else statusText(error.message);}}

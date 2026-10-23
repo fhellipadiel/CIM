@@ -86,6 +86,8 @@
             font-family: 'Montserrat', sans-serif;
             background-color: #0b0b0b;
             color: #ffffff;
+            /* Compatibilidade com navegadores sem suporte a overflow: clip. */
+            overflow-x: hidden;
             overflow-x: clip;
             min-height: 100vh;
         }
@@ -790,15 +792,19 @@
         document.addEventListener("DOMContentLoaded", function () {
             /* REVEAL */
             const reveals = document.querySelectorAll(".reveal");
-            const revealObserver = new IntersectionObserver((entries) => {
-                entries.forEach(entry => {
-                    if (entry.isIntersecting) {
-                        entry.target.classList.add('active');
-                        revealObserver.unobserve(entry.target);
-                    }
-                });
-            }, { threshold: 0.15, rootMargin: '-40px 0px -60px 0px' });
-            reveals.forEach(el => revealObserver.observe(el));
+            if ('IntersectionObserver' in window) {
+                const revealObserver = new IntersectionObserver((entries) => {
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting) {
+                            entry.target.classList.add('active');
+                            revealObserver.unobserve(entry.target);
+                        }
+                    });
+                }, { threshold: 0.15, rootMargin: '-40px 0px -60px 0px' });
+                reveals.forEach(el => revealObserver.observe(el));
+            } else {
+                reveals.forEach(el => el.classList.add('active'));
+            }
 
             /* PAUSA CARROSSEIS FORA DA VIEWPORT */
             const carouselTracks = document.querySelectorAll(
@@ -851,7 +857,7 @@
 
             function onScrollUpdate() {
                 const scrollPos = window.scrollY + 140;
-                let currentId = sections[0]?.id || 'inicio';
+                let currentId = (sections[0] && sections[0].id) || 'inicio';
                 for (const section of sections) {
                     if (section.offsetTop <= scrollPos) currentId = section.id;
                 }
@@ -941,6 +947,22 @@
         window.campaignName     = null;
         window.trackingLinksMap = {};
 
+        /* A API nativa de timeout ainda não existe em alguns Safari e WebViews. */
+        window.cimFetchWithTimeout = function (url, options, timeout) {
+            const requestOptions = options ? Object.assign({}, options) : {};
+            if (typeof AbortController === 'undefined') return fetch(url, requestOptions);
+            const controller = new AbortController();
+            const timer = setTimeout(function () { controller.abort(); }, timeout || 10000);
+            requestOptions.signal = controller.signal;
+            return fetch(url, requestOptions).then(function (response) {
+                clearTimeout(timer);
+                return response;
+            }, function (error) {
+                clearTimeout(timer);
+                throw error;
+            });
+        };
+
         (function detectCampaignRef() {
             let ref = null;
             const params = new URLSearchParams(window.location.search);
@@ -969,7 +991,7 @@
 
         (async function loadTrackingLinksMap() {
             try {
-                const response = await fetch('https://redx-6b53f-default-rtdb.firebaseio.com/trackingLinks.json', { signal: AbortSignal.timeout(10000) });
+                const response = await window.cimFetchWithTimeout('https://redx-6b53f-default-rtdb.firebaseio.com/trackingLinks.json');
                 if (!response.ok) return;
                 const d = await response.json() || {};
                 Object.values(d).forEach(link => {
@@ -1147,10 +1169,10 @@
         async function loadProductsFallback() {
             if (produtosCarregados) return;
             try {
-                const response = await fetch('https://redx-6b53f-default-rtdb.firebaseio.com/products.json', {
-                    cache: 'no-store',
-                    signal: AbortSignal.timeout(10000)
-                });
+                const response = await window.cimFetchWithTimeout(
+                    'https://redx-6b53f-default-rtdb.firebaseio.com/products.json',
+                    { cache: 'no-store' }
+                );
                 if (!response.ok) throw new Error('Catálogo indisponível');
                 applyProductsData(await response.json());
             } catch {
@@ -1163,10 +1185,10 @@
 
         async function loadSessionsForSearch() {
             try {
-                const response = await fetch('https://redx-6b53f-default-rtdb.firebaseio.com/sessions.json', {
-                    cache: 'no-store',
-                    signal: AbortSignal.timeout(10000)
-                });
+                const response = await window.cimFetchWithTimeout(
+                    'https://redx-6b53f-default-rtdb.firebaseio.com/sessions.json',
+                    { cache: 'no-store' }
+                );
                 if (!response.ok) throw new Error('Sessões indisponíveis');
                 sessoesReais = await response.json() || {};
                 if (!searchModal.classList.contains('hidden')) refreshSearch(searchInput.value);
@@ -1189,10 +1211,10 @@
         async function loadFeaturedFallback() {
             if (featuredLoaded) return;
             try {
-                const response = await fetch('https://redx-6b53f-default-rtdb.firebaseio.com/featured.json', {
-                    cache: 'no-store',
-                    signal: AbortSignal.timeout(10000)
-                });
+                const response = await window.cimFetchWithTimeout(
+                    'https://redx-6b53f-default-rtdb.firebaseio.com/featured.json',
+                    { cache: 'no-store' }
+                );
                 if (response.ok) applyFeaturedData(await response.json());
             } catch {}
         }
@@ -1516,10 +1538,10 @@
             const loadBrandsFallback = async () => {
                 if (brandsLoaded) return;
                 try {
-                    const response = await fetch('https://redx-6b53f-default-rtdb.firebaseio.com/brands.json', {
-                        cache: 'no-store',
-                        signal: AbortSignal.timeout(10000)
-                    });
+                    const response = await window.cimFetchWithTimeout(
+                        'https://redx-6b53f-default-rtdb.firebaseio.com/brands.json',
+                        { cache: 'no-store' }
+                    );
                     if (response.ok) applyBrands(await response.json());
                 } catch {}
             };
@@ -1599,7 +1621,7 @@
                 startAnimationWhenReady();
             }
 
-            fetch('https://redx-6b53f-default-rtdb.firebaseio.com/aboutPhotos.json', { signal: AbortSignal.timeout(10000) })
+            window.cimFetchWithTimeout('https://redx-6b53f-default-rtdb.firebaseio.com/aboutPhotos.json')
                 .then(response => response.ok ? response.json() : null)
                 .then(render)
                 .catch(() => {});
