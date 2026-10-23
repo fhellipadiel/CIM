@@ -3,7 +3,7 @@ const assert=require('node:assert/strict');
 const {settings,activeMode,verifySeller}=require('../server/payment-config.cjs');
 const {verify,applyPayment}=require('../server/orders.cjs');
 const {handle}=require('../server/checkout.cjs');
-const production={MP_ENVIRONMENT:'production',MP_PRODUCTION_ACCESS_TOKEN:'production-secret',MP_PRODUCTION_SELLER_ID:'900',MP_PRODUCTION_WEBHOOK_SECRET:'webhook-secret',CHECKOUT_PRODUCTION_BASE_URL:'https://www.cimautoparts.com.br',MP_ACCESS_TOKEN:'test-secret',MP_SELLER_ID:'100',CHECKOUT_BASE_URL:'http://localhost:3000'};
+const production={MP_ENVIRONMENT:'production',MP_PRODUCTION_ACCESS_TOKEN:'production-secret',MP_PRODUCTION_SELLER_ID:'900',MP_PRODUCTION_WEBHOOK_SECRET:'webhook-secret',CHECKOUT_PRODUCTION_BASE_URL:'https://cimautoparts.com.br',MP_ACCESS_TOKEN:'test-secret',MP_SELLER_ID:'100',CHECKOUT_BASE_URL:'http://localhost:3000'};
 test('produção exige configuração própria e rejeita localhost e túnel temporário',()=>{
  assert.equal(activeMode({}),'test');assert.throws(()=>activeMode({MP_ENVIRONMENT:'prod'}));
  const cfg=settings('production',production);assert.equal(cfg.root,'orders');assert.equal(cfg.token,'production-secret');
@@ -62,7 +62,7 @@ test('checkout real recalcula preços e escreve somente em orders, nunca payment
  const mp=async(path,options)=>{
   if(path==='/users/me')return {id:900,tags:[]};
   assert.equal(path,'/v1/orders');creates++;
-  const payload=JSON.parse(options.body);assert.equal(payload.total_amount,'100.00');assert.equal(payload.expiration_time,'PT1H');assert.equal(payload.config.online.success_url,'https://www.cimautoparts.com.br/cim.html?checkout_order=attempt1');
+  const payload=JSON.parse(options.body);assert.equal(payload.total_amount,'100.00');assert.equal(payload.expiration_time,'PT1H');assert.equal(payload.config.online.success_url,'https://cimautoparts.com.br/cim.html?checkout_order=attempt1');
   return {id:'ORDREAL1',user_id:900,checkout_url:'https://www.mercadopago.com.br/checkout/one'};
  };
  const body={items:[{id:'piece',quantity:1}],method:'card',installments:6,mode:'Retirar',expectedTotal:100,requestId:'attempt1'};

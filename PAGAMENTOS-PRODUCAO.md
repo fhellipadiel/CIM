@@ -1,6 +1,6 @@
 # Preparação para pagamentos reais
 
-Estado: publicado em 15/10/2026 em https://www.cimautoparts.com.br. Produção ativa na Vercel; ambiente local permanece em teste. Credenciais reais e assinatura ficam nos segredos da hospedagem e no arquivo local privado.
+Estado: publicado em 15/10/2026 em https://cimautoparts.com.br. Produção ativa na Vercel; ambiente local permanece em teste. Credenciais reais e assinatura ficam nos segredos da hospedagem e no arquivo local privado.
 
 ## Configuração no servidor
 
@@ -9,7 +9,7 @@ Preserve as variáveis MP_ACCESS_TOKEN, MP_SELLER_ID e MP_ORDERS_WEBHOOK_SECRET 
 - MP_PRODUCTION_ACCESS_TOKEN: Access Token da aplicação da conta que receberá os pagamentos.
 - MP_PRODUCTION_SELLER_ID: identificador da mesma conta recebedora (validado via /users/me).
 - MP_PRODUCTION_WEBHOOK_SECRET: assinatura secreta do webhook da aplicação real.
-- CHECKOUT_PRODUCTION_BASE_URL: https://www.cimautoparts.com.br
+- CHECKOUT_PRODUCTION_BASE_URL: https://cimautoparts.com.br
 - FIREBASE_SERVICE_ACCOUNT_JSON: credencial Firebase Admin em JSON, somente no ambiente do servidor.
 - FIREBASE_DATABASE_URL: URL do banco do projeto existente.
 - MP_ENVIRONMENT: manter test até concluir a configuração; production ativa o fluxo real.
@@ -19,7 +19,7 @@ Não inserir Access Token, assinatura ou credencial Firebase no HTML, repositór
 ## Webhook e publicação
 
 1. Ativar as credenciais de produção no painel do Mercado Pago, na conta recebedora.
-2. Configurar a URL de produção https://www.cimautoparts.com.br/api/webhook?environment=production para eventos de Order (Mercado Pago).
+2. Configurar a URL de produção https://cimautoparts.com.br/api/webhook?environment=production para eventos de Order (Mercado Pago).
 3. Configurar a assinatura correspondente no ambiente do servidor.
 4. Revisar e publicar as regras do arquivo firebase: pedidos do provedor orders só podem ser criados/confirmados pelo backend; cliente pode confirmar recebimento após envio; dados de pagamento e índices são protegidos.
 5. Publicar a aplicação com os endpoints de api/ e módulos de server/. O caminho /admin foi corrigido para adm.html no vercel.json.

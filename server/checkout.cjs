@@ -196,9 +196,9 @@ async function handle(action,req,res,dependencies={}) {
     }
     if(action==='admin-session')return res.status(200).json(await require('./admin-sessions.cjs').recordAdminSession(db,caller,req.headers['user-agent']));
     if(action==='admin-navigation-analytics'){
-      const [pages,searches]=await Promise.all([db.ref('pageViewLogs').get(),db.ref('searchNoResultLogs').get()]);
+      const [pages,searches,leadVisits]=await Promise.all([db.ref('pageViewLogs').get(),db.ref('searchNoResultLogs').get(),db.ref('leadCampaignVisitLogs').get()]);
       const latest=snapshot=>Object.values(snapshot.val()||{}).sort((a,b)=>(b.timestamp||0)-(a.timestamp||0)).slice(0,5000);
-      return res.status(200).json({pages:latest(pages),searches:latest(searches)});
+      return res.status(200).json({pages:latest(pages),searches:latest(searches),leadVisits:latest(leadVisits)});
     }
     if(action==='admin-notifications')return res.status(200).json(await require('./notifications.cjs')(db,user,body));
     if (action==='admin-tests') {

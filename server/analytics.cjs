@@ -4,21 +4,26 @@ const text=(value,max=200)=>typeof value==='string'?value.trim().slice(0,max):''
 const hash=value=>crypto.createHash('sha256').update(value).digest('hex');
 async function transaction(ref,fn){const retain=()=>{};ref.on('value',retain);try{await ref.once('value');return await ref.transaction(fn);}finally{ref.off('value',retain);}}
 async function recordAnalytics({db,req,body,verifyCaller,now=Date.now()}){
- if(!body||typeof body!=='object'||Array.isArray(body)||!['product','whatsapp','phone','campaign','pageview','search_no_results'].includes(body.type))fail('Evento invalido.',400);
+ if(!body||typeof body!=='object'||Array.isArray(body)||!['product','whatsapp','phone','campaign','lead_campaign_visit','pageview','search_no_results'].includes(body.type))fail('Evento invalido.',400);
  let caller=null,user=null;if(req.headers.authorization){caller=await verifyCaller();user=(await db.ref('users/'+caller.uid).get()).val();if(!user)fail('Conclua seu cadastro.',403);}
  const ip=String(req.headers['x-vercel-forwarded-for']||req.headers['x-real-ip']||req.headers['x-forwarded-for']||req.socket?.remoteAddress||'unknown').split(',')[0].trim().slice(0,200);
  const actor=hash(caller?'account:'+caller.uid:'visitor:'+ip),window=Math.floor(now/60000);
  const limit=await transaction(db.ref('analyticsRateLimits/'+actor),old=>{const next=old?.window===window?old:{window,count:0};if(next.count>=120)return;return {...next,count:next.count+1};});
  if(!limit.committed)fail('Aguarde antes de tentar novamente.',429);
  const source=/^[a-zA-Z0-9_-]{1,60}$/.test(body.source||'')?body.source:'unknown';
- let product=null,campaign=null;
+ let product=null,campaign=null,leadCampaign=null;
  if(body.type==='product'){if(!validKey(body.productId))fail('Peca invalida.',400);product=(await db.ref('products/'+body.productId).get()).val();if(!product)fail('Peca indisponivel.',404);}
  if(body.campaignRef){if(!/^[a-zA-Z0-9_-]{2,40}$/.test(body.campaignRef))fail('Campanha invalida.',400);const raw=(await db.ref('trackingLinks').orderByChild('slug').equalTo(body.campaignRef).limitToFirst(1).get()).val();const entry=Object.entries(raw||{})[0];if(entry)campaign={...entry[1],id:entry[0]};}
  if(body.type==='campaign'&&!campaign)return {recorded:false};
+ if(body.type==='lead_campaign_visit'){
+  if(!validKey(body.campaignId))fail('Campanha invalida.',400);
+  leadCampaign=(await db.ref('leadCampaigns/'+body.campaignId).get()).val();
+  if(!leadCampaign||leadCampaign.active!==true)return {recorded:false};
+ }
  const pagePath=text(body.path,300),term=text(body.term,120);
  if(body.type==='pageview'&&!pagePath.startsWith('/'))fail('Pagina invalida.',400);
  if(body.type==='search_no_results'&&(term.length<2||!pagePath.startsWith('/')))fail('Busca invalida.',400);
- const dedupKey=hash(actor+':'+body.type+':'+(body.productId||'')+':'+(campaign?.id||'')+':'+source+':'+pagePath+':'+term.toLocaleLowerCase('pt-BR'));
+ const dedupKey=hash(actor+':'+body.type+':'+(body.productId||'')+':'+(campaign?.id||body.campaignId||'')+':'+source+':'+pagePath+':'+term.toLocaleLowerCase('pt-BR'));
  const accepted=await transaction(db.ref('analyticsDedup/'+dedupKey),old=>old&&now-old.at<10000?undefined:{at:now});
  if(!accepted.committed)return {recorded:false};
  const stamp=new Date(now),when={timestamp:now,date:stamp.toLocaleDateString('pt-BR',{timeZone:'America/Sao_Paulo'}),time:stamp.toLocaleTimeString('pt-BR',{timeZone:'America/Sao_Paulo'})};
@@ -27,6 +32,10 @@ async function recordAnalytics({db,req,body,verifyCaller,now=Date.now()}){
  if(body.type==='campaign'){
   await db.ref('trackingLinkLogs').push({linkId:campaign.id,slug:campaign.slug,name:text(campaign.name||campaign.slug),...when});
   await transaction(db.ref('trackingLinks/'+campaign.id+'/entries'),v=>(Number(v)||0)+1);return {recorded:true};
+ }
+ if(body.type==='lead_campaign_visit'){
+  await db.ref('leadCampaignVisitLogs').push({campaignId:body.campaignId,campaignName:text(leadCampaign.name||leadCampaign.displayName||'Campanha'),...when});
+  return {recorded:true};
  }
  if(body.type==='pageview'||body.type==='search_no_results'){
   const navigation={type:body.type,path:pagePath,url:text(body.url,500),pageTitle:text(body.pageTitle,160),referrer:text(body.referrer,500),source,...identity,...when};

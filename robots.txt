@@ -11,5 +11,5 @@ Disallow: /recuperar-acesso.html
 Disallow: /cim.html
 Disallow: /api/
 
-Sitemap: https://www.cimautoparts.com.br/sitemap.xml
-Sitemap: https://www.cimautoparts.com.br/sitemap-produtos.xml
+Sitemap: https://cimautoparts.com.br/sitemap.xml
+Sitemap: https://cimautoparts.com.br/sitemap-produtos.xml

@@ -169,6 +169,7 @@ async function initCapture(){
       const snapshot=await captureDatabase.ref('leadCampaigns/'+captureCampaignId).once('value');
       captureCampaign=snapshot.val();
       if(!captureCampaign||captureCampaign.active!==true){showUnavailablePage();return;}
+      fetch('/api/analytics',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({type:'lead_campaign_visit',campaignId:captureCampaignId,source:'lead-url'}),keepalive:true}).catch(()=>{});
     }
     captureElement('displayName').textContent=captureCampaign.displayName||'Coleta de contatos';
     if(String(captureCampaign.image||'').startsWith('https://')){const photo=captureElement('photo');photo.src=captureCampaign.image;photo.hidden=false;captureElement('captureMark').hidden=true;}

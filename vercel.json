@@ -149,7 +149,7 @@
         },
         {
           "key": "Access-Control-Allow-Origin",
-          "value": "https://www.cimautoparts.com.br"
+          "value": "https://cimautoparts.com.br"
         },
         {
           "key": "Cross-Origin-Opener-Policy",

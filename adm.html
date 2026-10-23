@@ -561,6 +561,8 @@ tbody tr:last-child td{border-bottom:none}
 .lead-campaign-person p{font-size:.78rem;color:var(--text-muted);margin-top:4px}
 .lead-campaign-url{font-size:.75rem;color:var(--text-muted);background:var(--panel-alt);border:1px solid var(--border);border-radius:8px;padding:12px;overflow-wrap:anywhere}
 .lead-campaign-actions{display:flex;gap:8px;flex-wrap:wrap}
+.lead-campaign-history{display:grid;gap:7px;padding-top:12px;border-top:1px solid var(--border-soft)}
+.lead-campaign-history-row{display:flex;justify-content:space-between;gap:12px;font-size:.75rem;color:var(--text-muted)}
 .lead-delete{color:var(--danger)}
 .lead-delete:hover{background:var(--danger-soft);border-color:var(--danger)}
 .lead-fab{display:none}
@@ -668,7 +670,7 @@ tbody tr:last-child td{border-bottom:none}
       <div class="sb-item" data-panel="precos"><i class="fas fa-tag"></i> Preços</div>
       <div class="sb-item" data-panel="promocoes"><i class="fas fa-percent"></i> Promoções</div>
       <div class="sb-item" data-panel="cupons"><i class="fas fa-ticket"></i> Cupons <span class="badge" id="navBadgeCupons">0</span></div>
-      <div class="sb-item" data-panel="leads"><i class="fas fa-address-book"></i> Leads</div>
+      <div class="sb-item" data-panel="leads"><i class="fas fa-address-book"></i> Leads <span class="badge" id="navBadgeLeads" style="display:none;">0</span></div>
 <div class="sb-item" data-panel="links"><i class="fas fa-link"></i> Links <span class="badge" id="navBadgeLinks" style="display:none;">0</span></div>
     </div>
     <div class="sb-group">
@@ -2327,6 +2329,13 @@ async function initializeAdminSession(user){
       }
     }catch(error){
       if(generation!==adminSessionGeneration)return;
+      const staleSession=error?.status===401||['auth/id-token-expired','auth/invalid-user-token','auth/user-token-expired','auth/user-disabled'].includes(error?.code);
+      if(staleSession){
+        document.getElementById('loginError').textContent='Sua sessão anterior expirou. Entre novamente; não é necessário limpar o histórico.';
+        try{await auth.signOut();}catch{}
+        document.getElementById('loginScreen').style.display='flex';
+        return;
+      }
       if(error?.status===403){
         try{
           const token=await user.getIdToken();
@@ -2387,7 +2396,7 @@ document.querySelectorAll('.sb-item[data-panel]').forEach(item=>{
   label.querySelectorAll('.badge,.online-badge').forEach(badge => badge.remove());
   item.title = label.textContent.trim();
   item.setAttribute('aria-label', item.title);
-  item.addEventListener('click',()=>switchPanel(item.dataset.panel));
+  item.addEventListener('click',()=>{switchPanel(item.dataset.panel);if(item.dataset.panel==='leads')markLeadsSeenAdm();});
 });
 
 function toggleSidebarCollapse(){
@@ -5191,7 +5200,7 @@ async function loadNavigationAnalyticsAdm(){
     const token=await auth.currentUser.getIdToken();
     const response=await fetch('/api/admin-navigation-analytics',{method:'POST',headers:{'Content-Type':'application/json',Authorization:'Bearer '+token},body:'{}',signal:AbortSignal.timeout(20000)});
     if(!response.ok)throw Error('analytics');
-    const result=await response.json();pageViewHistory=(result.pages||[]).sort((a,b)=>(b.timestamp||0)-(a.timestamp||0));missingSearchHistory=(result.searches||[]).sort((a,b)=>(b.timestamp||0)-(a.timestamp||0));renderPageViewsAdm();renderMissingSearchesAdm();
+    const result=await response.json();pageViewHistory=(result.pages||[]).sort((a,b)=>(b.timestamp||0)-(a.timestamp||0));missingSearchHistory=(result.searches||[]).sort((a,b)=>(b.timestamp||0)-(a.timestamp||0));leadCampaignVisits=(result.leadVisits||[]).sort((a,b)=>(b.timestamp||0)-(a.timestamp||0));renderPageViewsAdm();renderMissingSearchesAdm();renderLeadCampaigns();
   }catch{renderPageViewsAdm();renderMissingSearchesAdm();}
 }
 
@@ -6421,12 +6430,21 @@ Object.assign(window, {
 
 <!-- LEADS: leitura, filtros, campanhas e detalhes; sem scripts em assets -->
 <script id="leads-admin-script">
-let leadRecords = {}, leadCampaigns = {}, leadSubscriptions = [];
-let leadReadError = '', leadLoaded = false, leadEditingCampaign = null, leadPhotoObjectUrl = null;
+let leadRecords = {}, leadCampaigns = {}, leadSubscriptions = [], leadCampaignVisits = [];
+let leadReadError = '', leadLoaded = false, leadEditingCampaign = null, leadPhotoObjectUrl = null, leadLastSeenAt = 0, leadOpenCampaignHistory = '';
 function leadDigits(value){return String(value || '').replace(/\D/g,'');}
 function leadText(value){return esc(String(value == null ? '' : value)).replace(/"/g,'&quot;').replace(/'/g,'&#39;');}
 function leadDate(value){return Number(value) > 0 ? new Date(Number(value)).toLocaleString('pt-BR') : '—';}
 function leadCampaignUrl(id){const url=new URL('leads.html',location.href);url.searchParams.set('campaign',id);return url.href;}
+function updateLeadNavBadge(){
+  const count=leadList().filter(item=>Number(item.first.capturedAt)>Number(leadLastSeenAt)).length,badge=document.getElementById('navBadgeLeads');
+  badge.textContent=count.toLocaleString('pt-BR');badge.style.display=count?'inline-flex':'none';
+}
+async function markLeadsSeenAdm(){
+  if(!auth.currentUser||!leadLoaded)return;
+  leadLastSeenAt=Date.now();updateLeadNavBadge();
+  try{await database.ref('settings/lastSeenLeads').set(leadLastSeenAt);}catch{}
+}
 function switchLeadTab(tab){
   document.querySelectorAll('[data-lead-pane]').forEach(el=>{el.hidden=el.dataset.leadPane!==tab;});
   document.querySelectorAll('[data-lead-view]').forEach(el=>{const active=el.dataset.leadView===tab;el.classList.toggle('active',active);el.setAttribute('aria-selected',String(active));el.tabIndex=active?0:-1;});
@@ -6441,7 +6459,7 @@ document.querySelector('.lead-nav').addEventListener('keydown',event=>{
 function loadLeadsAdmin(){
   leadSubscriptions.forEach(({ref,callback})=>ref.off('value',callback));leadSubscriptions=[];
   leadReadError='';leadLoaded=false;
-  [['leads',value=>{leadRecords=value;leadLoaded=true;}],['leadCampaigns',value=>{leadCampaigns=value;renderLeadCampaigns();}]].forEach(([path,assign])=>{
+  [['leads',value=>{leadRecords=value;leadLoaded=true;}],['leadCampaigns',value=>{leadCampaigns=value;renderLeadCampaigns();}],['settings/lastSeenLeads',value=>{leadLastSeenAt=Number(value)||0;updateLeadNavBadge();}]].forEach(([path,assign])=>{
     const ref=database.ref(path);
     const callback=snapshot=>{assign(snapshot.val()||{});renderLeads();};
     ref.on('value',callback,()=>{if(path==='leads'){leadReadError='Não foi possível carregar os contatos. Confira sua permissão e conexão.';renderLeads();}else{document.getElementById('leadCampaignRows').textContent='Não foi possível carregar as campanhas. Confira sua permissão e conexão.';}});
@@ -6479,7 +6497,7 @@ function filteredLeadsForCsv(list=leadList()){
 }
 function renderLeads(){
   const rows=document.getElementById('leadRows');if(!rows)return;
-  const list=leadList();document.getElementById('leadTotal').textContent=list.length;renderLeadWeekChart();
+  const list=leadList();document.getElementById('leadTotal').textContent=list.length;updateLeadNavBadge();renderLeadWeekChart();
   const from=document.getElementById('leadFrom').value,to=document.getElementById('leadTo').value;
   const todayActive=from===leadDayKey()&&to===from;document.getElementById('leadToday').classList.toggle('active',todayActive);document.getElementById('leadToday').setAttribute('aria-pressed',String(todayActive));
   const filtered=filteredLeadsForCsv(list);
@@ -6509,12 +6527,15 @@ function renderLeadCampaigns(){
   const cards=document.getElementById('leadCampaignRows');
   cards.innerHTML=Object.entries(leadCampaigns).map(([id,c])=>{
     const image=String(c.image||'').startsWith('https://')?'<img src="'+leadText(c.image)+'" alt="" loading="lazy">':'';
-    return '<article class="lead-campaign-card"><div class="lead-campaign-person">'+image+'<div><h3>'+leadText(c.name)+'</h3><p>'+leadText(c.displayName)+'</p></div></div><span class="lead-status '+(c.active?'complete':'')+'">'+(c.active?'Ativa':'Pausada')+'</span><div class="lead-campaign-url">'+leadText(leadCampaignUrl(id))+'</div><div class="lead-campaign-actions"><button class="btn btn-ghost" data-lead-copy="'+leadText(id)+'">Copiar URL</button><button class="btn btn-ghost" data-lead-edit="'+leadText(id)+'">Editar</button><button class="btn btn-ghost" data-lead-toggle="'+leadText(id)+'">'+(c.active?'Pausar':'Ativar')+'</button><button class="btn btn-ghost lead-delete" data-lead-delete-campaign="'+leadText(id)+'"><i class="fas fa-trash"></i> Excluir funcionário</button></div></article>';
+    const visits=leadCampaignVisits.filter(log=>log.campaignId===id).sort((a,b)=>(Number(b.timestamp)||0)-(Number(a.timestamp)||0)),online=visits.some(log=>Date.now()-Number(log.timestamp)<300000),open=leadOpenCampaignHistory===id;
+    const history=open?'<div class="lead-campaign-history">'+(visits.length?visits.slice(0,30).map(log=>'<div class="lead-campaign-history-row"><span><i class="fas fa-circle" style="color:'+(Date.now()-Number(log.timestamp)<300000?'var(--ok)':'var(--text-dim)')+'"></i> Acesso à URL</span><time>'+leadDate(log.timestamp)+'</time></div>').join(''):'<p class="td-sub">Nenhum acesso registrado nesta URL.</p>')+'</div>':'';
+    return '<article class="lead-campaign-card"><div class="lead-campaign-person">'+image+'<div><h3>'+leadText(c.name)+'</h3><p>'+leadText(c.displayName)+'</p></div></div><div><span class="lead-status '+(c.active?'complete':'')+'">'+(c.active?'Ativa':'Pausada')+'</span> <span class="lead-status '+(online?'complete':'')+'">'+(online?'Online agora':'Sem acesso online')+'</span></div><div class="lead-campaign-url">'+leadText(leadCampaignUrl(id))+'</div><div class="lead-campaign-actions"><button class="btn btn-ghost" data-lead-history="'+leadText(id)+'"><i class="fas fa-clock-rotate-left"></i> '+(open?'Fechar histórico':'Histórico online')+(visits.length?' ('+visits.length+')':'')+'</button><button class="btn btn-ghost" data-lead-copy="'+leadText(id)+'">Copiar URL</button><button class="btn btn-ghost" data-lead-edit="'+leadText(id)+'">Editar</button><button class="btn btn-ghost" data-lead-toggle="'+leadText(id)+'">'+(c.active?'Pausar':'Ativar')+'</button><button class="btn btn-ghost lead-delete" data-lead-delete-campaign="'+leadText(id)+'"><i class="fas fa-trash"></i> Excluir funcionário</button></div>'+history+'</article>';
   }).join('')||'<div class="lead-box lead-empty">Nenhuma campanha criada. Clique em Nova campanha para começar.</div>';
 }
 document.getElementById('leadCampaignRows').addEventListener('click',async event=>{
   const button=event.target.closest('button');if(!button)return;
   try{
+    if(button.dataset.leadHistory){leadOpenCampaignHistory=leadOpenCampaignHistory===button.dataset.leadHistory?'':button.dataset.leadHistory;renderLeadCampaigns();return;}
     if(button.dataset.leadCopy){await navigator.clipboard.writeText(leadCampaignUrl(button.dataset.leadCopy));showToast('URL copiada');}
     if(button.dataset.leadEdit)openLeadCampaign(button.dataset.leadEdit);
     if(button.dataset.leadDeleteCampaign){await deleteLeadEmployeeCampaign(button.dataset.leadDeleteCampaign,button);return;}
