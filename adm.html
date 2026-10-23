@@ -308,6 +308,7 @@ tbody tr:last-child td{border-bottom:none}
 .select-wrap{position:relative}
 .select-wrap select{appearance:none;padding-right:30px}
 .select-wrap::after{content:'\f078';font-family:'Font Awesome 6 Free';font-weight:900;position:absolute;right:12px;top:50%;transform:translateY(-50%);color:var(--text-dim);font-size:.7rem;pointer-events:none}
+.promo-product-search{position:relative}.promo-product-search .notification-search{margin:0}.promo-product-results{position:absolute;top:calc(100% + 6px);left:0;right:0;z-index:1400;max-height:260px;overflow:auto;background:var(--panel);border:1px solid var(--border);border-radius:10px;box-shadow:0 16px 36px rgba(0,0,0,.7)}.promo-product-results:empty{display:none}.promo-product-result{display:block;width:100%;padding:11px 12px;border:0;border-bottom:1px solid var(--border-soft);background:transparent;color:var(--text);text-align:left;cursor:pointer}.promo-product-result:last-child{border-bottom:0}.promo-product-result:hover,.promo-product-result:focus-visible{background:var(--panel-hover);outline:none}.promo-product-result strong,.promo-product-result small{display:block}.promo-product-result small{margin-top:3px;color:var(--text-dim)}.promo-product-empty{padding:14px;color:var(--text-muted);font-size:.8rem}
 .upload-box{border:1.5px dashed var(--border);border-radius:var(--radius-sm);padding:20px;text-align:center;cursor:pointer;background:var(--panel-alt);margin-bottom:14px;transition:.15s}
 .upload-box:hover{border-color:var(--accent)}
 .upload-box i{font-size:1.5rem;color:var(--accent);margin-bottom:6px;display:block}
@@ -1684,7 +1685,7 @@ tbody tr:last-child td{border-bottom:none}
       <option value="todas_sessoes">Todas sessões</option>
       <option value="todas_categorias">Todas categorias</option>
     </select></div></div>
-    <div class="f-group"><label>Alvo <span class="req">*</span></label><div class="select-wrap"><select id="promoAlvoAdm"></select></div></div>
+    <div class="f-group"><label>Alvo <span class="req">*</span></label><div class="select-wrap" id="promoTargetSelectWrap"><select id="promoAlvoAdm"></select></div><div class="promo-product-search" id="promoProductSearchWrap" hidden><div class="notification-search"><i class="fas fa-search" aria-hidden="true"></i><input id="promoProductSearchAdm" type="search" placeholder="Pesquisar peça por nome ou código" autocomplete="off" oninput="renderPromoProductSearchAdm()" onfocus="renderPromoProductSearchAdm()"></div><div class="promo-product-results" id="promoProductResultsAdm"></div><small id="promoProductSelectedAdm">Selecione uma peça nos resultados.</small></div></div>
     <div class="f-group"><label>Público <span class="req">*</span></label><div class="select-wrap"><select id="promoClienteAdm"><option value="PF">PF</option><option value="PJ">PJ</option><option value="ambos">Ambos</option></select></div></div>
     <div class="form-grid">
       <div class="f-group"><label>Desconto (%) <span class="req">*</span></label><input type="number" id="promoDescAdm" min="0" max="100"></div>
@@ -4343,13 +4344,36 @@ function refreshPromoTargets(){ if(document.getElementById('modalPromo').classLi
 function carregarAlvosPromoAdm(editId=null){
   const tipo=document.getElementById('promoTipoAdm').value;
   const sel=document.getElementById('promoAlvoAdm');
+  const current=editId&&promocoes[editId]?promocoes[editId].alvoId:sel.value;
   let itens=[];
   if(tipo==='sessao') itens=Object.keys(sessions).map(id=>({id,nome:sessions[id].name})).sort((a,b)=>(a.nome||'').localeCompare(b.nome||''));
   else if(tipo==='categoria'){ const cats=[...new Set(products.map(p=>p.category).filter(c=>c&&c.trim()!==''))]; itens=cats.map(c=>({id:c,nome:c})).sort((a,b)=>a.nome.localeCompare(b.nome)); }
   else if(tipo==='produto') itens=products.map(p=>({id:p.id,nome:p.name})).sort((a,b)=>(a.nome||'').localeCompare(b.nome||''));
   else itens=[{id:'__all__',nome:'Aplicar a todos'}];
   sel.innerHTML=itens.map(i=>`<option value="${esc(i.id)}">${esc(i.nome)}</option>`).join('');
-  if(editId && promocoes[editId] && [...sel.options].some(o=>o.value===promocoes[editId].alvoId)) sel.value=promocoes[editId].alvoId;
+  const hasCurrent=current&&[...sel.options].some(o=>o.value===current);
+  if(hasCurrent)sel.value=current;else if(tipo==='produto')sel.value='';
+  const productMode=tipo==='produto',searchWrap=document.getElementById('promoProductSearchWrap'),selectWrap=document.getElementById('promoTargetSelectWrap');
+  searchWrap.hidden=!productMode;selectWrap.hidden=productMode;
+  if(productMode){
+    const selected=products.find(p=>p.id===sel.value),input=document.getElementById('promoProductSearchAdm');
+    if(selected){input.value=[selected.name,selected.codigo].filter(Boolean).join(' - ');document.getElementById('promoProductSelectedAdm').textContent='Peça selecionada: '+(selected.name||'Sem nome');}
+    else{sel.value='';input.value='';document.getElementById('promoProductSelectedAdm').textContent='Selecione uma peça nos resultados.';}
+    document.getElementById('promoProductResultsAdm').replaceChildren();
+  }
+}
+function renderPromoProductSearchAdm(){
+  const input=document.getElementById('promoProductSearchAdm'),results=document.getElementById('promoProductResultsAdm');
+  const query=normalizeLookupText(input.value),matches=products.filter(p=>!query||matchTokens(normalizeLookupText([p.name,p.codigo,p.brand,p.category].filter(Boolean).join(' ')),query)).slice(0,30);
+  if(!matches.length){results.innerHTML='<div class="promo-product-empty">Nenhuma peça encontrada.</div>';return;}
+  results.innerHTML=matches.map(p=>`<button type="button" class="promo-product-result" onclick="selecionarProdutoPromoAdm('${escJs(p.id)}')"><strong>${esc(p.name||'Peça sem nome')}</strong><small>${esc([p.codigo,p.brand,p.category].filter(Boolean).join(' | ')||'Sem código')}</small></button>`).join('');
+}
+function selecionarProdutoPromoAdm(productId){
+  const product=products.find(p=>p.id===productId);if(!product)return;
+  const select=document.getElementById('promoAlvoAdm');select.value=productId;
+  document.getElementById('promoProductSearchAdm').value=[product.name,product.codigo].filter(Boolean).join(' - ');
+  document.getElementById('promoProductSelectedAdm').textContent='Peça selecionada: '+(product.name||'Sem nome');
+  document.getElementById('promoProductResultsAdm').replaceChildren();
 }
 function openPromoModal(editId=null){
   editingPromoId=editId;
@@ -4376,7 +4400,7 @@ function salvarPromoAdm(){
   const tipoCliente=document.getElementById('promoClienteAdm').value;
   const desconto=parseFloat(document.getElementById('promoDescAdm').value);
   const expiracao=document.getElementById('promoExpAdm').value;
-  if(!alvoId){ showToast('Selecione um alvo','err'); return; }
+  if(!alvoId){ showToast(tipo==='produto'?'Pesquise e selecione uma peça':'Selecione um alvo','err'); return; }
   if(!desconto||desconto<0||desconto>100){ showToast('Desconto entre 0 e 100','err'); return; }
   if(!expiracao){ showToast('Defina expiração','err'); return; }
   const dataExpiracao=new Date(expiracao).getTime();
