@@ -6763,8 +6763,8 @@ async function exportContactsCsv(kind){
 
 <script src="assets/support-chat.js" data-support-role="admin" defer></script>
 <script src="assets/qrcode.min.js" defer></script>
-<script src="assets/admin-media.js"></script>
-<script src="assets/admin-mfa.js" defer></script>
+<script src="assets/admin-media.js?v=939b071"></script>
+<script src="assets/admin-mfa.js?v=939b071" defer></script>
 <script>let employeesAdm=[],availableEmployeeLinksAdm=[],uploadedEmployeePhoto='',editingEmployeeUidAdm='';
 async function employeeApi(action,extra={}){const token=await auth.currentUser.getIdToken();const r=await fetch('/api/employee',{method:'POST',headers:{'Content-Type':'application/json',Authorization:'Bearer '+token},body:JSON.stringify({action,...extra})}),j=await r.json();if(!r.ok)throw Error(j.error||j.message||'Falha na operação.');return j}
 async function loadEmployeesAdm(){try{const result=await employeeApi('admin-list');employeesAdm=result.employees||[];availableEmployeeLinksAdm=result.availableLinks||[];renderEmployeesAdm()}catch(e){employeesAdmList.innerHTML='<div class="block"><div class="block-body">'+esc(e.message)+'</div></div>'}}
