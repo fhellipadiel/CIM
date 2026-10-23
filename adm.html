@@ -1595,19 +1595,19 @@ tbody tr:last-child td{border-bottom:none}
 
 
 <div class="modal-overlay" id="modalAnnouncements"><div class="modal large notification-manager" role="dialog" aria-modal="true" aria-labelledby="notificationManagerTitle">
-<div class="modal-head"><div><h3 id="notificationManagerTitle">Notificações aos clientes</h3><p class="notification-muted">Envie uma mensagem e acompanhe as notificações criadas.</p></div><button type="button" class="modal-close" aria-label="Fechar notificações" onclick="closeModal('modalAnnouncements')">×</button></div>
+<div class="modal-head"><div><h3 id="notificationManagerTitle">Notificações aos clientes</h3><p class="notification-muted">Envie uma mensagem e acompanhe as notificações criadas.</p></div><button type="button" class="modal-close" aria-label="Fechar notificações" onclick="closeModal('modalAnnouncements')"><i class="fas fa-times" aria-hidden="true"></i></button></div>
 <div class="modal-body"><form id="announcementForm" onsubmit="event.preventDefault();saveAnnouncement()">
 <input type="hidden" id="announcementId"><input type="hidden" id="announcementTarget" value="all">
 <label class="notification-label">Quem vai receber?</label><div class="notification-target-options">
 <button type="button" id="notificationAll" class="recipient-mode selected" onclick="setAnnouncementMode('all')">Todos os clientes</button><button type="button" id="notificationOne" class="recipient-mode" onclick="setAnnouncementMode('one')">Um cliente específico</button></div>
-<div id="notificationUserPicker" hidden><div class="notification-search"><span aria-hidden="true">⌕</span><input id="notificationUserSearch" type="search" placeholder="Pesquisar nome, e-mail, CPF/CNPJ..." oninput="renderNotificationRecipients()" autocomplete="off"></div><div id="notificationRecipients" class="notification-recipients"></div><p id="notificationSelected" class="notification-muted"></p></div>
+<div id="notificationUserPicker" hidden><div class="notification-search"><i class="fas fa-search" aria-hidden="true"></i><input id="notificationUserSearch" type="search" placeholder="Pesquisar nome, e-mail, CPF/CNPJ..." oninput="renderNotificationRecipients()" autocomplete="off"></div><div id="notificationRecipients" class="notification-recipients"></div><p id="notificationSelected" class="notification-muted"></p></div>
 <div class="f-group"><label for="announcementTitle">Título</label><input id="announcementTitle" maxlength="150" placeholder="Ex.: Novidades para você" required></div>
 <div class="f-group"><label for="announcementMessage">Mensagem</label><textarea id="announcementMessage" maxlength="1000" rows="4" placeholder="Escreva a mensagem que aparecerá na loja" required></textarea></div>
 <div class="notification-form-actions"><button class="btn btn-accent" id="announcementSave" type="submit">Enviar notificação</button><button class="btn btn-ghost" type="button" onclick="resetAnnouncement()">Limpar / cancelar edição</button></div>
 <p id="announcementFeedback" role="status" aria-live="polite"></p></form>
 <div class="notification-history-head"><h3>Notificações criadas</h3><button class="btn btn-sm btn-ghost" type="button" onclick="loadAnnouncements()">Atualizar</button></div><div id="announcementList"></div>
 </div></div></div>
-<div class="modal-overlay" id="modalOrderCleanup"><div class="modal large" role="dialog" aria-modal="true" aria-labelledby="orderCleanupTitle"><div class="modal-head"><div><h3 id="orderCleanupTitle">Gerenciar exclusão de pedidos</h3><p class="notification-muted">A exclusão da lista mantém o cadastro do cliente.</p></div><button type="button" class="modal-close" aria-label="Fechar lista de pedidos" onclick="closeModal('modalOrderCleanup')">×</button></div><div class="modal-body"><div class="notification-search"><span aria-hidden="true">⌕</span><input id="cleanupOrderSearch" type="search" placeholder="Buscar pedido, cliente ou e-mail" oninput="renderLegacySettings()"></div><div id="cleanupOrderList"></div></div></div></div>
+<div class="modal-overlay" id="modalOrderCleanup"><div class="modal large" role="dialog" aria-modal="true" aria-labelledby="orderCleanupTitle"><div class="modal-head"><div><h3 id="orderCleanupTitle">Gerenciar exclusão de pedidos</h3><p class="notification-muted">A exclusão da lista mantém o cadastro do cliente.</p></div><button type="button" class="modal-close" aria-label="Fechar lista de pedidos" onclick="closeModal('modalOrderCleanup')"><i class="fas fa-times" aria-hidden="true"></i></button></div><div class="modal-body"><div class="notification-search"><i class="fas fa-search" aria-hidden="true"></i><input id="cleanupOrderSearch" type="search" placeholder="Buscar pedido, cliente ou e-mail" oninput="renderLegacySettings()"></div><div id="cleanupOrderList"></div></div></div></div>
 <div class="modal-overlay" id="modalProduto"><div class="modal large">
   <div class="modal-head"><h3 id="modalProdutoTitle">Nova peça</h3><button class="modal-close" onclick="closeModal('modalProduto')"><i class="fas fa-times"></i></button></div>
   <div class="modal-body">
@@ -1979,7 +1979,7 @@ const GALLERY_MAX = 20;
 /* ============================================================
    UTIL — MOEDA E HELPERS
    ============================================================ */
-// ✅ Formata em Real com separador de milhar e decimal pt-BR (ex: 3.456,96)
+// Formata em Real com separador de milhar e decimal pt-BR (ex: 3.456,96)
 function fmtBRLAdm(v){
   const n = Number(v) || 0;
   return 'R$ ' + n.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });

@@ -1212,7 +1212,7 @@ body.fullscreen-panel-open{overflow:hidden!important}
 
     <div class="bottom-overlay" id="bottomOverlay" onclick="closeBottomMenu()"></div>
     <div class="bottom-menu" id="bottomMenu" role="dialog" aria-label="Menu da loja" aria-modal="true">
-        <div class="menu-handle"></div><div class="fullscreen-menu-header"><strong>Menu</strong><button type="button" aria-label="Fechar menu" onclick="closeBottomMenu()"><span aria-hidden="true">×</span></button></div>
+        <div class="menu-handle"></div><div class="fullscreen-menu-header"><strong>Menu</strong><button type="button" aria-label="Fechar menu" onclick="closeBottomMenu()"><i class="fas fa-times" aria-hidden="true"></i></button></div>
 
         <div id="menuMainContent">
             <div class="profile-section">
@@ -1491,7 +1491,7 @@ body.fullscreen-panel-open{overflow:hidden!important}
                     <button class="cart-trash-btn" onclick="clearCart()" title="Limpar carrinho">
                         <i class="fas fa-trash"></i>
                     </button>
-                    <button class="cart-close" onclick="toggleCart()" title="Fechar"><span aria-hidden="true">×</span>
+                    <button class="cart-close" onclick="toggleCart()" title="Fechar"><i class="fas fa-times" aria-hidden="true"></i>
                     </button>
                 </div>
             </div>
@@ -3225,7 +3225,7 @@ function toggleBottomMenu() {
                                     </span>
                                 </div>`;
                     }).join('');
-                    suggestionsDropdown.insertAdjacentHTML('beforeend','<button type="button" class="search-results-link" onclick="dismissSearchSuggestions()">Ver peças encontradas ↓</button>');
+                    suggestionsDropdown.insertAdjacentHTML('beforeend','<button type="button" class="search-results-link" onclick="dismissSearchSuggestions()">Ver peças encontradas <i class="fas fa-arrow-down" aria-hidden="true"></i></button>');
                     suggestionsDropdown.classList.add('open');
                 } else {
                     suggestionsDropdown.innerHTML = `<div class="suggestion-item" style="cursor:default;color:#888;">Nenhuma peça encontrada</div>`;
@@ -4109,7 +4109,7 @@ function toggleBottomMenu() {
                 updateDeliveryModeAvailability();
                 updatePriceDisplay(); updateCart(); renderPromotionBadgesOnly();
 
-                // ✅ NOTIFICAÇÕES: inicia APÓS currentUser estar pronto
+                // Inicia as notificações após currentUser estar pronto.
                 listenNotifications();
 
                 database.ref(`users/${uid}/cupomAtivo`).on('value', (snapCupom) => {
@@ -4634,7 +4634,7 @@ function toggleBottomMenu() {
         const notificationPanel=document.getElementById('notifDropdown');
         document.body.appendChild(notificationPanel);
         notificationPanel.setAttribute('role','dialog');notificationPanel.setAttribute('aria-modal','true');notificationPanel.setAttribute('aria-label','Notificações');
-        notificationPanel.querySelector('.notif-header').insertAdjacentHTML('beforeend','<button type="button" class="notif-close" aria-label="Fechar notificações" onclick="closeNotifDropdown()">×</button>');
+        notificationPanel.querySelector('.notif-header').insertAdjacentHTML('beforeend','<button type="button" class="notif-close" aria-label="Fechar notificações" onclick="closeNotifDropdown()"><i class="fas fa-times" aria-hidden="true"></i></button>');
         function toggleNotifDropdown(){
             const dd=document.getElementById('notifDropdown');if(!dd)return;
             const opening=!dd.classList.contains('open');
