@@ -1343,7 +1343,11 @@ tbody tr:last-child td{border-bottom:none}
         </div>
       </div>
       <div id="clickTabPages" style="display:none;">
-        <div class="block"><div class="block-head"><h3>Páginas mais acessadas por URL</h3></div><div class="block-body tight"><table><thead><tr><th>URL</th><th>Acessos</th><th>Último acesso</th></tr></thead><tbody id="pageViewsBody"></tbody></table></div></div>
+        <div class="stats-grid" style="grid-template-columns:repeat(auto-fit,minmax(220px,1fr));">
+          <div class="stat-card"><div class="sc-top"><div class="sc-icon"><i class="fas fa-globe"></i></div></div><div class="sc-val" id="statPagesWww">0</div><div class="sc-label">www.cimautoparts.com.br</div></div>
+          <div class="stat-card"><div class="sc-top"><div class="sc-icon"><i class="fas fa-globe"></i></div></div><div class="sc-val" id="statPagesRoot">0</div><div class="sc-label">cimautoparts.com.br</div></div>
+        </div>
+        <div class="block"><div class="block-head"><div><h3>Páginas mais acessadas</h3><p class="td-sub">Título, domínio de entrada e caminho da página.</p></div></div><div class="block-body tight"><table><thead><tr><th>Página</th><th>Domínio</th><th>Acessos</th><th>Último acesso</th></tr></thead><tbody id="pageViewsBody"></tbody></table></div></div>
       </div>
       <div id="clickTabSearches" style="display:none;">
         <div class="block"><div class="block-head"><div><h3>Buscas sem resultado</h3><p class="td-sub">Termos procurados que não encontraram nenhuma peça.</p></div></div><div class="block-body tight"><table><thead><tr><th>Termo pesquisado</th><th>Vezes</th><th>URL</th><th>Última busca</th></tr></thead><tbody id="missingSearchesBody"></tbody></table></div></div>
@@ -2323,7 +2327,21 @@ async function initializeAdminSession(user){
       }
     }catch(error){
       if(generation!==adminSessionGeneration)return;
-      if(error?.status===403){try{await database.ref('adminSetupAccess').once('value');location.replace('/recuperar-acesso.html#configurar');return;}catch{}}
+      if(error?.status===403){
+        try{
+          const token=await user.getIdToken();
+          const response=await fetch('/api/admin-mfa',{method:'POST',headers:{'Content-Type':'application/json',Authorization:'Bearer '+token},body:JSON.stringify({op:'status'}),signal:AbortSignal.timeout(15000)});
+          const status=await response.json().catch(()=>({}));
+          if(response.ok&&status.recoveryPending===true){location.replace('/recuperar-acesso.html#configurar');return;}
+          if(response.ok&&status.enrolled===true){
+            document.getElementById('loginError').textContent='Entre novamente com sua senha e confirme o código do autenticador já cadastrado.';
+            await auth.signOut();
+            if(generation!==adminSessionGeneration)return;
+            document.getElementById('loginScreen').style.display='flex';
+            return;
+          }
+        }catch{}
+      }
       document.getElementById('loginError').textContent=error?.status===403?'Conta sem permissão de administrador.':'A conexão falhou ao validar o ADM. Sua sessão foi mantida; atualize a página para tentar novamente.';
       document.getElementById('loginScreen').style.display='flex';
     }
@@ -5160,9 +5178,12 @@ function switchClickTab(tab){
 
 function renderPageViewsAdm(){
   const body=document.getElementById('pageViewsBody');if(!body)return;
-  const grouped={};pageViewHistory.forEach(log=>{const path=log.path||'/';const row=grouped[path]||={path,count:0,last:log};row.count++;if((log.timestamp||0)>(row.last.timestamp||0))row.last=log;grouped[path]=row;});
+  const getHost=log=>{try{return new URL(log.url).hostname.toLocaleLowerCase('pt-BR');}catch{return 'domínio não registrado';}};
+  const hostTotals={'www.cimautoparts.com.br':0,'cimautoparts.com.br':0};
+  const grouped={};pageViewHistory.forEach(log=>{const path=log.path||'/';const host=getHost(log);if(hostTotals[host]!==undefined)hostTotals[host]++;const key=host+'|'+path;const row=grouped[key]||={path,host,count:0,last:log};row.count++;if((log.timestamp||0)>(row.last.timestamp||0))row.last=log;grouped[key]=row;});
+  const www=document.getElementById('statPagesWww'),root=document.getElementById('statPagesRoot');if(www)www.textContent=hostTotals['www.cimautoparts.com.br'].toLocaleString('pt-BR');if(root)root.textContent=hostTotals['cimautoparts.com.br'].toLocaleString('pt-BR');
   const rows=Object.values(grouped).sort((a,b)=>b.count-a.count||((b.last.timestamp||0)-(a.last.timestamp||0)));
-  body.innerHTML=rows.length?rows.map(row=>`<tr><td class="td-name"><span>${esc(row.last.pageTitle||row.path)}</span><span class="td-sub">${esc(row.path)}</span></td><td><span class="chip">${row.count.toLocaleString('pt-BR')}</span></td><td class="td-sub">${esc(row.last.date||'')} ${esc(row.last.time||'')}</td></tr>`).join(''):'<tr><td colspan="3"><div class="empty-state"><i class="fas fa-link"></i><p>Nenhuma página registrada</p></div></td></tr>';
+  body.innerHTML=rows.length?rows.map(row=>`<tr><td class="td-name"><span>${esc(row.last.pageTitle||row.path)}</span><span class="td-sub">${esc(row.path)}</span></td><td class="td-sub">${esc(row.host)}</td><td><span class="chip">${row.count.toLocaleString('pt-BR')}</span></td><td class="td-sub">${esc(row.last.date||'')} ${esc(row.last.time||'')}</td></tr>`).join(''):'<tr><td colspan="4"><div class="empty-state"><i class="fas fa-link"></i><p>Nenhuma página registrada</p></div></td></tr>';
 }
 
 async function loadNavigationAnalyticsAdm(){
