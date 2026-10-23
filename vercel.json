@@ -29,6 +29,10 @@
       "destination": "/api/checkout?signupAction=admin-import-history"
     },
     {
+      "source": "/api/admin-navigation-analytics",
+      "destination": "/api/checkout?signupAction=admin-navigation-analytics"
+    },
+    {
       "source": "/api/employee",
       "destination": "/api/checkout?signupAction=employee"
     },

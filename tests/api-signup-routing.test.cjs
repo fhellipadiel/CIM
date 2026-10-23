@@ -8,8 +8,10 @@ test('rotas de cadastro compartilham funcao sem permitir acoes arbitrarias',()=>
  module.exports({url:'/api/checkout?signupAction=support'},{});
  module.exports({url:'/api/checkout?signupAction=analytics'},{});
  module.exports({url:'/api/checkout?signupAction=admin-mfa'},{});
- assert.deepEqual(forwarded,['company-lookup','register-profile','checkout','checkout','support','analytics','admin-mfa']);
+ module.exports({url:'/api/checkout?signupAction=admin-navigation-analytics'},{});
+ assert.deepEqual(forwarded,['company-lookup','register-profile','checkout','checkout','support','analytics','admin-mfa','admin-navigation-analytics']);
  const config=JSON.parse(fs.readFileSync(path.join(__dirname,'../vercel.json'),'utf8'));
  for(const route of ['company-lookup','register-profile','support','analytics'])assert.ok(config.rewrites.some(r=>r.source==='/api/'+route&&r.destination==='/api/checkout?signupAction='+route));
+ assert.ok(config.rewrites.some(r=>r.source==='/api/admin-navigation-analytics'&&r.destination==='/api/checkout?signupAction=admin-navigation-analytics'));
  assert.ok(fs.readdirSync(path.join(__dirname,'../api')).filter(f=>f.endsWith('.js')).length<=12);
 });

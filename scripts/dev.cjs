@@ -3,7 +3,7 @@ const fs=require('node:fs/promises');
 const path=require('node:path');
 const {handle}=require('../server/checkout.cjs');
 const root=path.resolve(__dirname,'..');
-const routes=new Set(['admin-recovery','admin-access','admin-media','admin-mfa','admin-import-history','employee','analytics','support','register-profile','claim-referral','company-lookup','checkout','customer-orders','resume-payment','cart-save','cart-load','payment-status','admin-session','admin-notifications','admin-tests','admin-order-status','admin-archive-legacy-order','webhook']);
+const routes=new Set(['admin-recovery','admin-access','admin-media','admin-mfa','admin-import-history','admin-navigation-analytics','employee','analytics','support','register-profile','claim-referral','company-lookup','checkout','customer-orders','resume-payment','cart-save','cart-load','payment-status','admin-session','admin-notifications','admin-tests','admin-order-status','admin-archive-legacy-order','webhook']);
 http.createServer(async(req,res)=>{
   res.status=code=>{res.statusCode=code;return res;};
   res.json=value=>{res.setHeader('Content-Type','application/json');res.end(JSON.stringify(value));};
