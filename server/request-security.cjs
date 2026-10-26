@@ -5,7 +5,7 @@ function clientIp(req){return clean(req.headers?.['x-forwarded-for']).split(',')
 function originAllowed(req,action,env=process.env){
  if(action==='webhook')return true;
  const origin=clean(req.headers?.origin);if(!origin)return true;
- const allowed=new Set(['http://localhost:3000','http://127.0.0.1:3000','https://www.cimautoparts.com.br','https://cimautoparts.com.br']);
+ const allowed=new Set(['http://localhost:3000','http://127.0.0.1:3000','https://www.cimautoparts.com.br','https://cimautoparts.com.br','https://cimglobalparts.vercel.app']);
  for(const raw of [env.CHECKOUT_BASE_URL,env.CHECKOUT_PRODUCTION_BASE_URL,...clean(env.ALLOWED_ORIGINS).split(',')]){try{if(raw)allowed.add(new URL(raw).origin);}catch{}}
  try{const local=new URL(origin);if(env.NODE_ENV!=='production'&&local.protocol==='http:'&&['localhost','127.0.0.1'].includes(local.hostname))return true;}catch{}
  if(!allowed.has(origin))fail('Origem não autorizada.',403);
