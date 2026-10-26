@@ -532,8 +532,16 @@ tbody tr:last-child td{border-bottom:none}
 .lead-tab{border:1px solid var(--border);background:var(--panel-alt);color:var(--text-muted);padding:10px 16px;border-radius:var(--radius-sm);font-size:.82rem;font-weight:600}
 .lead-tab:hover,.lead-tab.active{background:var(--accent-soft);border-color:var(--accent);color:var(--accent)}
 .lead-nav .lead-tab i{margin-right:8px}
-.lead-overview{display:flex;align-items:center;gap:16px;background:var(--panel);border:1px solid var(--border);border-radius:var(--radius);padding:22px;margin:20px 0}
-.lead-overview-icon{display:grid;place-items:center;width:48px;height:48px;border-radius:12px;background:var(--accent-soft);color:var(--accent);font-size:1.3rem}
+.lead-summary-grid{display:grid;gap:14px;margin:20px 0}
+.lead-overview{position:relative;display:flex;align-items:center;justify-content:center;min-height:150px;background:linear-gradient(145deg,#111,#090909);border:1px solid var(--border);border-radius:var(--radius);padding:24px 84px;text-align:center}
+.lead-overview-icon{position:absolute;left:26px;top:50%;display:grid;place-items:center;color:#ff3601;font-size:2.4rem;transform:translateY(-50%)}
+.lead-overview .sc-val{font-size:2.7rem;line-height:1;font-weight:800}.lead-overview .sc-label{margin-top:8px;font-size:1rem}
+#leadEmployeeCards{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px}
+.lead-employee-card{display:grid;grid-template-columns:54px minmax(0,1fr);align-items:center;gap:13px;min-height:104px;padding:16px;background:linear-gradient(145deg,#111,#090909);border:1px solid var(--border);border-radius:var(--radius)}
+.lead-employee-card img{width:54px;height:54px;border-radius:50%;object-fit:cover;background:#171717;border:2px solid #252525}
+.lead-employee-card h3{font-size:.9rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lead-employee-counts{display:flex;gap:14px;margin-top:8px;color:var(--text-muted);font-size:.7rem}
+.lead-employee-counts strong{display:block;color:var(--text);font-size:.9rem}.lead-employee-counts .sent strong{color:#ff3601}
 .lead-box{background:var(--panel);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden}
 .lead-box-head{display:flex;align-items:center;justify-content:space-between;gap:20px;padding:22px;border-bottom:1px solid var(--border)}
 .lead-box h2,.lead-section-head h2,.lead-dialog h2{font-size:1.1rem;margin-bottom:6px}
@@ -584,7 +592,7 @@ tbody tr:last-child td{border-bottom:none}
 .lead-detail-item{display:grid;gap:6px;border-bottom:1px solid var(--border);padding-bottom:14px;overflow-wrap:anywhere}
 .lead-detail-item small{color:var(--text-muted)}
 @media(max-width:1100px){.lead-filters{grid-template-columns:repeat(2,minmax(0,1fr))}.lead-filters>.btn{justify-self:start}.lead-box-head{align-items:start;flex-direction:column}}
-@media(max-width:600px){.lead-filters{grid-template-columns:1fr;padding:16px}.lead-box-head{padding:16px}.lead-overview{padding:16px}.lead-campaign-grid{grid-template-columns:1fr}.lead-dialog-body,.lead-dialog-head{padding:18px}.lead-photo-upload{align-items:start;flex-wrap:wrap}#panel-leads .panel-head{flex-wrap:wrap;gap:16px}}
+@media(max-width:600px){.lead-filters{grid-template-columns:1fr;padding:16px}.lead-box-head{padding:16px}.lead-summary-grid{grid-template-columns:1fr}.lead-overview{padding:16px 64px}.lead-overview-icon{left:20px;font-size:2rem}.lead-campaign-grid{grid-template-columns:1fr}.lead-dialog-body,.lead-dialog-head{padding:18px}.lead-photo-upload{align-items:start;flex-wrap:wrap}#panel-leads .panel-head{flex-wrap:wrap;gap:16px}}
 .lead-week{margin-bottom:20px}.lead-week-controls,.lead-date-actions{display:flex;gap:8px;flex-wrap:wrap;align-items:end}.lead-week-controls label{min-width:160px}.lead-week-chart{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:10px;padding:22px}.lead-week-day{text-align:center;min-width:0}.lead-week-track{height:160px;display:flex;align-items:end;justify-content:center;border-bottom:1px solid var(--border)}.lead-week-bar{width:65%;max-width:44px;background:var(--accent);border-radius:6px 6px 0 0;min-height:2px}.lead-week-value{display:block;margin-bottom:8px;font-size:.85rem}.lead-week-label{display:block;margin-top:10px;font-size:.75rem;color:var(--text-muted)}.lead-week-label small{display:block;margin-top:4px}.lead-week-total{padding:16px 22px 0;color:var(--text-muted);font-size:.82rem}#leadToday.active{background:var(--accent-soft);color:var(--accent);border-color:var(--accent)}@media(max-width:600px){.lead-week-chart{padding:18px 10px;gap:5px}.lead-week-track{height:120px}.lead-week-controls{width:100%}.lead-week-controls label{flex:1}}
 
 /* Central de suporte integrada ao visual dos demais painéis do ADM. */
@@ -1206,9 +1214,9 @@ tbody tr:last-child td{border-bottom:none}
     <div><h1>Leads</h1><p>Dos primeiros contatos ao cadastro completo.</p></div>
     <div class="panel-actions"><button type="button" class="btn btn-ghost" aria-haspopup="dialog" onclick="openContactsCsvModal('leads')"><i class="fas fa-file-csv"></i> Exportar CSV <i class="fas fa-chevron-down" style="margin-left:12px;font-size:.7rem" aria-hidden="true"></i></button><button type="button" class="btn btn-ghost" onclick="openContactsCsvHistory('leads')"><i class="fas fa-clock-rotate-left"></i> Hist&oacute;rico CSV</button></div>
   </div>
-  <div class="lead-nav" role="tablist" aria-label="Área de Leads"><button id="leadContactsTab" class="lead-tab active" role="tab" aria-controls="leadContactsPane" aria-selected="true" data-lead-view="contacts" onclick="switchLeadTab('contacts')"><i class="fas fa-address-book"></i>Contatos</button><button id="leadCampaignsTab" class="lead-tab" role="tab" aria-controls="leadCampaignsPane" aria-selected="false" tabindex="-1" data-lead-view="campaigns" onclick="switchLeadTab('campaigns')"><i class="fas fa-bullhorn"></i>Campanhas e URLs</button></div><div id="leadContactsPane" role="tabpanel" aria-labelledby="leadContactsTab" data-lead-pane="contacts"><div class="lead-overview">
-    <div class="lead-overview-icon"><i class="fas fa-address-book"></i></div>
-    <div><div class="sc-val" id="leadTotal">0</div><div class="sc-label">Total de Leads Capturados</div></div>
+  <div class="lead-nav" role="tablist" aria-label="Área de Leads"><button id="leadContactsTab" class="lead-tab active" role="tab" aria-controls="leadContactsPane" aria-selected="true" data-lead-view="contacts" onclick="switchLeadTab('contacts')"><i class="fas fa-address-book"></i>Contatos</button><button id="leadCampaignsTab" class="lead-tab" role="tab" aria-controls="leadCampaignsPane" aria-selected="false" tabindex="-1" data-lead-view="campaigns" onclick="switchLeadTab('campaigns')"><i class="fas fa-bullhorn"></i>Campanhas e URLs</button></div><div id="leadContactsPane" role="tabpanel" aria-labelledby="leadContactsTab" data-lead-pane="contacts"><div id="leadSummaryGrid" class="lead-summary-grid">
+    <div class="lead-overview"><div class="lead-overview-icon"><i class="fas fa-address-book"></i></div><div><div class="sc-val" id="leadTotal">0</div><div class="sc-label">Total de Leads Capturados</div></div></div>
+    <div id="leadEmployeeCards"></div>
   </div>
   <div class="lead-box lead-week"><div class="lead-box-head"><div><h2>Leads capturados na semana</h2><p id="leadWeekRange"></p></div><div class="lead-week-controls"><label class="lead-field" for="leadWeekDate">Semana de<input id="leadWeekDate" type="date" onchange="renderLeadWeekChart()"></label><label class="lead-field" for="leadWeekCampaign">Campanha<select id="leadWeekCampaign" onchange="renderLeadWeekChart()"><option value="">Todas as campanhas</option></select></label><button class="btn btn-ghost" onclick="shiftLeadWeek(-1)" aria-label="Semana anterior">&larr;</button><button class="btn btn-ghost" onclick="shiftLeadWeek(1)" aria-label="Pr&#243;xima semana">&rarr;</button></div></div><p id="leadWeekTotal" class="lead-week-total" role="status"></p><div id="leadWeekChart" class="lead-week-chart" role="list" aria-label="Leads por dia da semana"></div></div>
   <div class="lead-box">
@@ -1229,7 +1237,7 @@ tbody tr:last-child td{border-bottom:none}
       <div class="lead-date-actions"><button id="leadToday" class="btn btn-ghost" onclick="filterLeadsToday()" aria-pressed="false"><i class="fas fa-calendar-day"></i> Hoje</button><button class="btn btn-ghost" onclick="resetLeadFilters()" title="Limpar filtros"><i class="fas fa-filter-circle-xmark"></i> Limpar</button></div>
     </div>
     <p class="lead-result-count" id="leadResultCount" aria-live="polite">Carregando contatos…</p>
-    <div class="lead-table-wrap"><table><thead><tr><th>Nome</th><th>CPF / CNPJ</th><th>Telefone</th><th>Campanha de origem</th><th>Captura inicial</th><th>Situação</th><th></th></tr></thead><tbody id="leadRows"></tbody></table></div>
+    <div class="lead-table-wrap"><table><thead><tr><th>Nome</th><th>CPF / CNPJ</th><th>Telefone</th><th>Campanha de origem</th><th>Funcionário</th><th>Captura inicial</th><th>Situação</th><th></th></tr></thead><tbody id="leadRows"></tbody></table></div>
   </div>
   </div><div id="leadCampaignsPane" role="tabpanel" aria-labelledby="leadCampaignsTab" data-lead-pane="campaigns" hidden><div class="lead-section-head"><div><h2>Campanhas e URLs</h2><p>Compartilhe cada URL com o funcionário responsável pela coleta.</p></div></div>
   <div class="lead-campaign-grid" id="leadCampaignRows"></div></div>
@@ -6430,7 +6438,7 @@ Object.assign(window, {
 
 <!-- LEADS: leitura, filtros, campanhas e detalhes; sem scripts em assets -->
 <script id="leads-admin-script">
-let leadRecords = {}, leadCampaigns = {}, leadSubscriptions = [], leadCampaignVisits = [];
+let leadRecords = {}, leadCampaigns = {}, leadEmployees = {}, leadSubscriptions = [], leadCampaignVisits = [];
 let leadReadError = '', leadLoaded = false, leadEditingCampaign = null, leadPhotoObjectUrl = null, leadLastSeenAt = 0, leadOpenCampaignHistory = '';
 function leadDigits(value){return String(value || '').replace(/\D/g,'');}
 function leadText(value){return esc(String(value == null ? '' : value)).replace(/"/g,'&quot;').replace(/'/g,'&#39;');}
@@ -6459,12 +6467,13 @@ document.querySelector('.lead-nav').addEventListener('keydown',event=>{
 function loadLeadsAdmin(){
   leadSubscriptions.forEach(({ref,callback})=>ref.off('value',callback));leadSubscriptions=[];
   leadReadError='';leadLoaded=false;
-  [['leads',value=>{leadRecords=value;leadLoaded=true;}],['leadCampaigns',value=>{leadCampaigns=value;renderLeadCampaigns();}],['settings/lastSeenLeads',value=>{leadLastSeenAt=Number(value)||0;updateLeadNavBadge();}]].forEach(([path,assign])=>{
+  [['leads',value=>{leadRecords=value;leadLoaded=true;}],['employees',value=>{leadEmployees=value;}],['leadCampaigns',value=>{leadCampaigns=value;renderLeadCampaigns();}],['settings/lastSeenLeads',value=>{leadLastSeenAt=Number(value)||0;updateLeadNavBadge();}]].forEach(([path,assign])=>{
     const ref=database.ref(path);
     const callback=snapshot=>{assign(snapshot.val()||{});renderLeads();};
     ref.on('value',callback,()=>{if(path==='leads'){leadReadError='Não foi possível carregar os contatos. Confira sua permissão e conexão.';renderLeads();}else{document.getElementById('leadCampaignRows').textContent='Não foi possível carregar as campanhas. Confira sua permissão e conexão.';}});
     leadSubscriptions.push({ref,callback});
   });
+  setTimeout(()=>employeeApi('admin-list').then(result=>{leadEmployees=Object.fromEntries((result.employees||[]).map(employee=>[employee.uid,employee]));renderLeads();}).catch(()=>{}),0);
 }
 auth.onAuthStateChanged(user=>{if(!user){leadSubscriptions.forEach(({ref,callback})=>ref.off('value',callback));leadSubscriptions=[];leadRecords={};leadCampaigns={};leadLoaded=false;leadReadError='';renderLeads();renderLeadCampaigns();}});
 function leadList(){
@@ -6473,7 +6482,8 @@ function leadList(){
     const captures=Object.values(record.captures||{}).sort((a,b)=>(Number(a.capturedAt)||0)-(Number(b.capturedAt)||0));
     if(!captures.length)return null;
     const first=captures[0],last=captures[captures.length-1],documentType=last.documentType||(last.cpf?'cpf':'cnpj'),document=leadDigits(last[documentType]||(/^\d{11,14}$/.test(cnpj)?cnpj:'')),name=[...captures].reverse().find(c=>c.name)?.name||'',user=document?userIndex.get(document):null;
-    return {cnpj,document,documentType,name,captures,first,last,user,status:user&&user.companyData?'complete':'pending'};
+    const employee=leadEmployees[record.assignedEmployeeId]||null;
+    return {cnpj,document,documentType,name,captures,first,last,user,employee,employeeId:record.assignedEmployeeId||'',contacted:record.contacted===true,status:user&&user.companyData?'complete':'pending'};
   }).filter(Boolean).sort((a,b)=>(Number(b.first.capturedAt)||0)-(Number(a.first.capturedAt)||0));
 }
 function setLeadStatus(status){
@@ -6495,14 +6505,22 @@ function filteredLeadsForCsv(list=leadList()){
   const filtered=list.filter(item=>(!query||item.captures.some(c=>String(c.name||'').toLocaleLowerCase('pt-BR').includes(query))||(digits&&(item.document.includes(digits)||item.captures.some(c=>leadDigits(c.phone).includes(digits)))))&&(!status||item.status===status)&&item.captures.some(c=>{if(campaign&&c.campaignId!==campaign)return false;if(!from&&!to)return true;if(!(Number(c.capturedAt)>0))return false;const day=leadDayKey(c.capturedAt);return (!from||day>=from)&&(!to||day<=to);}));
   return filtered;
 }
+function renderLeadEmployeeCards(list){
+  const container=document.getElementById('leadEmployeeCards');if(!container)return;
+  const cards=Object.entries(leadEmployees).filter(([,employee])=>employee&&employee.enabled===true).sort(([,a],[,b])=>String(a.name||'').localeCompare(String(b.name||''),'pt-BR')).map(([uid,employee])=>{
+    const assigned=list.filter(item=>item.employeeId===uid),sent=assigned.filter(item=>item.contacted).length;
+    return '<article class="lead-employee-card"><img src="'+leadText(employee.photoURL||'assets/logo.webp')+'" alt="Foto de '+leadText(employee.name||'Funcionário')+'"><div><h3>'+leadText(employee.name||'Funcionário')+'</h3><div class="lead-employee-counts"><span><strong>'+assigned.length+'</strong>Divididos</span><span class="sent"><strong>'+sent+'</strong>Mensagens enviadas</span></div></div></article>';
+  });
+  container.innerHTML=cards.join('');
+}
 function renderLeads(){
   const rows=document.getElementById('leadRows');if(!rows)return;
-  const list=leadList();document.getElementById('leadTotal').textContent=list.length;updateLeadNavBadge();renderLeadWeekChart();
+  const list=leadList();document.getElementById('leadTotal').textContent=list.length;renderLeadEmployeeCards(list);updateLeadNavBadge();renderLeadWeekChart();
   const from=document.getElementById('leadFrom').value,to=document.getElementById('leadTo').value;
   const todayActive=from===leadDayKey()&&to===from;document.getElementById('leadToday').classList.toggle('active',todayActive);document.getElementById('leadToday').setAttribute('aria-pressed',String(todayActive));
   const filtered=filteredLeadsForCsv(list);
   document.getElementById('leadResultCount').textContent=leadReadError||(!leadLoaded?'Carregando contatos…':filtered.length+' contato(s) encontrado(s)');
-  rows.innerHTML=filtered.length?filtered.map(item=>'<tr><td>'+leadText(item.name||'\u2014')+'</td><td class="mono">'+leadText(item.document?item.documentType.toUpperCase()+' \u00b7 '+item.document:'\u2014')+'</td><td>'+(leadDigits(item.last.phone)?'<a href="https://wa.me/55'+leadDigits(item.last.phone)+'" target="_blank" rel="noopener noreferrer" style="color:var(--ok)" aria-label="Abrir WhatsApp de '+leadText(item.last.phone)+'"><i class="fab fa-whatsapp" aria-hidden="true"></i> '+leadText(item.last.phone)+'</a>':'\u2014')+'</td><td>'+leadText(item.first.campaignName||'—')+'</td><td>'+leadDate(item.first.capturedAt)+'</td><td><span class="lead-status '+item.status+'">'+(item.status==='complete'?'Completo':'Capturado')+'</span></td><td><button class="btn btn-ghost" data-lead-detail="'+leadText(item.cnpj)+'">Ver detalhes</button> <button class="btn btn-ghost lead-delete" data-lead-remove="'+leadText(item.cnpj)+'" aria-label="Excluir contato '+leadText(item.cnpj)+'"><i class="fas fa-trash"></i> Excluir</button></td></tr>').join(''):'<tr><td colspan="7" class="lead-empty">'+leadText(leadReadError||(!leadLoaded?'Aguardando contatos…':'Nenhum contato encontrado para estes filtros.'))+'</td></tr>';
+  rows.innerHTML=filtered.length?filtered.map(item=>'<tr><td>'+leadText(item.name||'\u2014')+'</td><td class="mono">'+leadText(item.document?item.documentType.toUpperCase()+' \u00b7 '+item.document:'\u2014')+'</td><td>'+(leadDigits(item.last.phone)?'<a href="https://wa.me/55'+leadDigits(item.last.phone)+'" target="_blank" rel="noopener noreferrer" style="color:var(--ok)" aria-label="Abrir WhatsApp de '+leadText(item.last.phone)+'"><i class="fab fa-whatsapp" aria-hidden="true"></i> '+leadText(item.last.phone)+'</a>':'\u2014')+'</td><td>'+leadText(item.first.campaignName||'—')+'</td><td><strong style="color:'+(item.contacted?'#ff3601':'inherit')+'">'+leadText(item.employee?.name||'Não atribuído')+'</strong></td><td>'+leadDate(item.first.capturedAt)+'</td><td><span class="lead-status '+item.status+'">'+(item.status==='complete'?'Completo':'Capturado')+'</span></td><td><button class="btn btn-ghost" data-lead-detail="'+leadText(item.cnpj)+'">Ver detalhes</button> <button class="btn btn-ghost lead-delete" data-lead-remove="'+leadText(item.cnpj)+'" aria-label="Excluir contato '+leadText(item.cnpj)+'"><i class="fas fa-trash"></i> Excluir</button></td></tr>').join(''):'<tr><td colspan="8" class="lead-empty">'+leadText(leadReadError||(!leadLoaded?'Aguardando contatos…':'Nenhum contato encontrado para estes filtros.'))+'</td></tr>';
 }
 document.getElementById('leadRows').addEventListener('click',async event=>{
   const button=event.target.closest('button');if(!button)return;
