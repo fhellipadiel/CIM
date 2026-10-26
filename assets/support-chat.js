@@ -39,7 +39,13 @@ function init(){
  const retry=element('button','cs-new','Tentar novamente');retry.type='button';retry.hidden=true;
  chatPane.append(top,intro,messages,form,status,retry);shell.append(chatPane);if(admin)form.hidden=true;
  let generation=0,roomId=null,visitorToken=null,connected=false,opened=false,busy=false,pending=null,lastFocus=null,all=new Map(),nodes=new Map(),messagesRef=null,timer=null,syncBusy=false,lastRead=0,inboxRef=null,chats=[],activeUser=null,auth=null,db=null;
- if(role!=='visitor'){try{auth=firebase.auth();db=firebase.database();}catch{}}
+ if(role!=='visitor'){
+  try{
+   const firebaseApp=admin?firebase.app('cim-admin'):firebase.app();
+   auth=firebaseApp.auth();
+   db=firebaseApp.database();
+  }catch(error){console.error('Não foi possível iniciar o suporte:',error);}
+ }
  function statusText(value){status.textContent=value||'';}
  function isVisible(){return !document.hidden&&(admin?document.getElementById('panel-suporte')?.classList.contains('active'):opened);}
  function clearMessages(){all.clear();nodes.clear();messages.replaceChildren(older,empty);older.hidden=true;empty.hidden=false;lastRead=0;}
