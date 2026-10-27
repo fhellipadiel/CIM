@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+va<!DOCTYPE html>
 <html lang="pt-br">
 <head>
 <meta charset="UTF-8">
@@ -95,6 +95,13 @@ body.admin-authorized .sidebar,body.admin-authorized .main{visibility:visible}
 .sb-item.active .badge{background:var(--accent);color:#160b05}
 .sb-item .online-badge{margin-left:auto;background:var(--ok-soft);color:var(--ok);font-size:.65rem;padding:1px 7px;border-radius:20px;font-family:var(--font-mono);display:flex;align-items:center;gap:4px}
 .sb-item .online-badge i{font-size:.5rem;width:auto;color:var(--ok)}
+.sb-item .admin-online-badge{margin-left:6px;background:rgba(255,54,1,.16);color:#ff3601;font-size:.65rem;padding:2px 7px;border-radius:20px;font-family:var(--font-mono);display:inline-flex;align-items:center;gap:4px;box-shadow:0 0 0 1px rgba(255,54,1,.28)}
+.sb-item .admin-online-badge i{font-size:.48rem;width:auto;color:#ff3601;animation:adminPresencePulse 1.8s ease-in-out infinite}
+@keyframes adminPresencePulse{50%{opacity:.35;transform:scale(.78)}}
+.admin-panel-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:8px;max-height:230px;overflow:auto;padding:4px}
+.admin-panel-choice{display:flex;align-items:center;gap:8px;padding:9px 10px;background:var(--panel-alt);border-radius:9px;font-size:.78rem;color:var(--text-muted);cursor:pointer}
+.admin-panel-choice input{accent-color:#ff3601}
+body.admin-readonly .create-fab-wrap,body.admin-readonly .btn-danger,body.admin-readonly .btn-accent,body.admin-readonly button[onclick^="save"],body.admin-readonly button[onclick^="openCreate"]{display:none!important}
 .sb-foot{flex:0 0 auto;padding:12px 20px;background:var(--panel)}
 .sb-foot .sidebar-collapse-btn{background:none;border:none;color:var(--text-dim);font-size:.85rem;padding:8px 10px;display:flex;align-items:center;gap:8px;width:100%;border-radius:var(--radius-sm);transition:.15s;margin-bottom:4px}
 .sb-foot .sidebar-collapse-btn:hover{background:var(--panel-hover);color:var(--accent)}
@@ -557,6 +564,7 @@ tbody tr:last-child td{border-bottom:none}
 .lead-table-wrap th{background:var(--panel-alt);color:var(--text-muted);font-weight:500;font-size:.72rem}
 .lead-table-wrap tr:last-child td{border-bottom:0}
 .lead-table-wrap tbody tr:hover{background:var(--panel-hover)}
+.lead-assignee{display:flex;align-items:center;gap:9px;min-width:130px}.lead-assignee img{width:32px;height:32px;flex:0 0 32px;border-radius:50%;object-fit:cover;background:#171717}.lead-assignee strong{line-height:1.2}.lead-status.contacted{background:rgba(62,207,142,.14);color:#3ecf8e}
 .lead-status{display:inline-block;padding:5px 10px;border-radius:20px;background:var(--warn-soft);color:var(--warn);font-size:.7rem;white-space:nowrap}
 .lead-status.complete{background:var(--ok-soft);color:var(--ok)}
 .lead-empty{text-align:center!important;padding:40px!important;color:var(--text-muted)}
@@ -690,7 +698,7 @@ tbody tr:last-child td{border-bottom:none}
       <div class="sb-group-label">Pessoas</div>
       <div class="sb-item" data-panel="suporte"><i class="fas fa-headset"></i> Suporte <span id="supportUnreadBadge" class="cs-nav-count" hidden>0</span></div>
       <div class="sb-item" data-panel="funcionarios"><i class="fas fa-id-badge"></i> Funcionários</div>
-      <div class="sb-item" data-panel="usuarios"><i class="fas fa-users"></i> Usuários <span class="online-badge" id="onlineUsersBadge" style="display:none;"><i class="fas fa-circle"></i> <span id="onlineUsersCount">0</span></span></div>
+      <div class="sb-item" data-panel="usuarios"><i class="fas fa-users"></i> Usuários <span class="online-badge" id="onlineUsersBadge" style="display:none;"><i class="fas fa-circle"></i> <span id="onlineUsersCount">0</span></span><span class="admin-online-badge" id="onlineAdminsBadge" hidden title="Outro administrador ativo"><i class="fas fa-circle"></i><span id="onlineAdminsCount">0</span></span></div>
     </div>
     <div class="sb-group">
       <div class="sb-group-label">Conteúdo</div>
@@ -1422,9 +1430,20 @@ tbody tr:last-child td{border-bottom:none}
 .employee-link-choice:has(input:checked) strong{color:var(--accent)}
 .employee-link-choice:has(input:checked) img{border-color:var(--accent);transform:scale(1.03)}
 .employee-link-choice:has(input:focus-visible){outline:2px solid var(--accent);outline-offset:-2px}
-@media(max-width:850px){#panel-funcionarios .employee-layout,#panel-funcionarios .employee-form{grid-template-columns:1fr}.employee-form-actions{align-items:stretch!important;flex-direction:column}}
+.employee-clients-section{margin-top:30px;padding-top:26px;border-top:1px solid var(--border-soft)}
+.employee-summary{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin:0 0 24px}.employee-summary-card{min-height:112px;padding:20px;border:1px solid var(--border);border-radius:15px;background:linear-gradient(145deg,#111,#0a0a0a)}.employee-summary-card span{display:block;color:var(--text-muted);font-size:.76rem}.employee-summary-card strong{display:block;margin-top:13px;color:var(--accent);font-size:2rem;line-height:1}.employee-summary-card small{display:block;margin-top:9px;color:var(--text-dim);font-size:.68rem}
+.employee-clients-head{display:flex;align-items:center;justify-content:space-between;gap:16px;margin:0 0 12px}.employee-clients-head h1{margin:0}
+#employeeClientsFilter{min-width:230px;height:42px;padding:0 40px 0 14px;border:1px solid var(--border);border-radius:11px;background-color:#101010;color:var(--text);font:500 .78rem Inter,Arial,sans-serif;outline:none;cursor:pointer;color-scheme:dark}
+#employeeClientsFilter:hover,#employeeClientsFilter:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(255,54,1,.1)}
+#employeeClientsFilter option{background:#111;color:#fff}
+.employee-avatar-stack{display:flex;align-items:center;margin-top:12px;padding-left:7px}.employee-avatar-button{position:relative;width:34px;height:34px;margin-left:-7px;padding:0;border:2px solid #111;border-radius:50%;background:#1b1b1b;overflow:hidden;cursor:pointer;transition:transform .16s ease,z-index .16s ease}.employee-avatar-button:first-child{margin-left:0}.employee-avatar-button:hover,.employee-avatar-button:focus-visible{z-index:3;transform:translateY(-3px) scale(1.08);outline:2px solid var(--accent)}.employee-avatar-button img{display:block;width:100%;height:100%;object-fit:cover}.employee-avatar-more{display:grid;place-items:center;color:#fff;font-size:.65rem;font-weight:700}.employee-summary-card.employee-team-shortcut{cursor:pointer;transition:transform .18s ease,background .18s ease}.employee-summary-card.employee-team-shortcut:hover,.employee-summary-card.employee-team-shortcut:focus-visible{transform:translateY(-3px);background:#171717;outline:2px solid rgba(255,54,1,.35)}
+.employee-summary-card[role=button]{transition:transform .18s ease,background .18s ease}.employee-summary-card[role=button]:hover,.employee-summary-card[role=button]:focus-visible{transform:translateY(-3px);background:#171717;outline:2px solid rgba(255,54,1,.35)}#panel-funcionarios .chart-card{border:0}
+#employeesAdmList{display:flex;gap:14px;overflow-x:auto;padding:2px 2px 12px;scroll-snap-type:x proximity;scrollbar-width:thin;scrollbar-color:var(--accent) transparent}#employeesAdmList>.block{flex:0 0 min(560px,88vw);margin:0;scroll-snap-align:start}#employeesAdmList .block-body{height:100%}
+#panel-funcionarios [hidden]{display:none!important}
+.employee-summary-card,#panel-funcionarios .block{border:0}.employee-week{margin:0 0 18px;padding:22px;border-radius:18px;background:#0d0d0d}.employee-week-head{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-bottom:18px}.employee-week-head h2{margin:0;font-size:1rem}.employee-week-nav{display:flex;align-items:center;gap:8px}.employee-week-nav button{border:0;border-radius:9px;background:#1c1c1c;color:#fff;padding:9px 12px;cursor:pointer}.employee-week-nav button:disabled{opacity:.35}.employee-week-chart{display:grid;grid-template-columns:repeat(7,1fr);gap:10px;min-height:180px}.employee-week-day{display:grid;grid-template-rows:24px 120px 26px;gap:5px;text-align:center;color:var(--text-muted);font-size:.68rem}.employee-week-bars{display:flex;align-items:flex-end;justify-content:center;gap:4px;background:#111;border-radius:9px;padding:8px}.employee-week-bar{width:12px;min-height:3px;border-radius:5px 5px 2px 2px}.employee-week-bar.leads{background:var(--accent)}.employee-week-bar.clients{background:#3ecf8e}.employee-week-legend{display:flex;gap:14px;color:var(--text-muted);font-size:.7rem}.employee-week-legend i{display:inline-block;width:8px;height:8px;border-radius:2px;margin-right:5px}.employee-profile-card{text-align:center}.employee-profile-card img{width:78px;height:78px;border-radius:50%;object-fit:cover;margin-bottom:10px}.employee-profile-card h3{margin:0 0 6px}.employee-profile-more{margin-top:15px}.employee-profile-more summary{list-style:none;cursor:pointer}.employee-profile-more summary::-webkit-details-marker{display:none}.employee-profile-details{margin-top:16px;padding-top:16px;border-top:0;text-align:left}.employee-profile-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+@media(max-width:850px){#panel-funcionarios .employee-layout,#panel-funcionarios .employee-form{grid-template-columns:1fr}.employee-form-actions{align-items:stretch!important;flex-direction:column}.employee-clients-head{align-items:stretch;flex-direction:column}#employeeClientsFilter{width:100%}.employee-summary{grid-template-columns:1fr}}
 </style>
-<div style="display:flex;align-items:center;justify-content:space-between;margin:0 0 12px"><h1 style="margin:0">Equipe cadastrada</h1></div><div id="employeesAdmList"></div>
+<section class="chart-card wide" style="margin-bottom:18px"><div class="employee-week-head"><div><h3><i class="fas fa-chart-column"></i> Registros da semana</h3><div id="employeeWeekRange" class="chart-sub"></div></div><div class="employee-week-nav"><button type="button" onclick="shiftEmployeeWeek(-1)">Anterior</button><button id="employeeWeekNext" type="button" onclick="shiftEmployeeWeek(1)">Próxima</button></div></div><div class="chart-wrap"><canvas id="chartEmployeeWeek"></canvas></div></section><div class="employee-summary"><article class="employee-summary-card"><span>Funcionários cadastrados</span><strong id="employeeTotalCount">0</strong><small>Novos nesta semana</small></article><article class="employee-summary-card"><span>Total de leads</span><strong id="employeeLeadTotalCount">0</strong><small>Recebidos nesta semana</small></article><article class="employee-summary-card" role="button" tabindex="0" onclick="goToEmployeeClients()" onkeydown="if(event.key==='Enter'||event.key===' ')goToEmployeeClients()" style="cursor:pointer"><span>Contatos registrados</span><strong id="employeeClientTotalCount">0</strong><small>Com observação nesta semana · ver lista</small></article></div><div style="display:flex;align-items:center;justify-content:space-between;margin:0 0 12px"><h1 style="margin:0">Equipe cadastrada</h1></div><div id="employeesAdmList"></div><section id="employeeClientsSection" class="employee-clients-section"><div class="employee-clients-head"><h1>Clientes registrados pelos funcionários</h1><select id="employeeClientsFilter" onchange="renderEmployeeClientsAdm()"><option value="">Todos os funcionários</option></select></div><div id="employeeClientsAdmList" class="block"></div></section>
 <div class="create-fab-wrap"><div class="create-fab-menu" role="menu"><button class="create-fab-option" type="button" role="menuitem" onclick="closeCreateMenus();openCreateEmployeeModal()"><i class="fas fa-user-plus"></i> Adicionar funcionário</button><button class="create-fab-option" type="button" role="menuitem" onclick="closeCreateMenus();window.open('/funcionario.html?preview=1','_blank')"><i class="fas fa-eye"></i> Visualizar tela do funcionário</button></div><button class="create-fab" type="button" aria-label="Abrir opções de funcionários" aria-haspopup="menu" aria-expanded="false" title="Opções" onclick="toggleCreateMenu(this)"><i class="fas fa-plus"></i></button></div>
 </section>
     <section class="panel" id="panel-usuarios">
@@ -1449,6 +1468,7 @@ tbody tr:last-child td{border-bottom:none}
       <div class="create-fab-wrap">
         <div class="create-fab-menu" id="usersCreateMenu" role="menu">
           <button class="create-fab-option" type="button" role="menuitem" onclick="closeCreateMenus();openCreateClientModal()"><i class="fas fa-user-plus"></i> Criar cliente</button>
+          <button class="create-fab-option" id="usersCreateAdminOption" type="button" role="menuitem" hidden onclick="closeCreateMenus();openCreateAdminModal()"><i class="fas fa-user-shield"></i> Criar administrador</button>
           <button class="create-fab-option" type="button" role="menuitem" onclick="closeCreateMenus();openAnnouncements()"><i class="fas fa-bell"></i> Enviar notificação</button>
         </div>
         <button class="create-fab" type="button" aria-label="Abrir opções para adicionar" aria-haspopup="menu" aria-expanded="false" title="Adicionar" onclick="toggleCreateMenu(this)"><i class="fas fa-plus"></i></button>
@@ -1524,6 +1544,7 @@ tbody tr:last-child td{border-bottom:none}
          ============================================================ -->
     <section class="panel" id="panel-config">
 <div class="block"><div class="block-head"><h3>Segurança da conta</h3></div><div class="block-body"><div class="mfa-card" id="adminMfaCard" aria-live="polite">Carregando proteção da conta...</div></div></div>
+<div class="block" id="adminManagementCard" hidden><div class="block-head"><h3><i class="fas fa-user-shield" style="color:var(--accent)"></i> Administradores</h3></div><div class="block-body" style="display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap"><div><strong>Criar um novo administrador</strong><p class="notification-muted">O novo acesso aparecerá em Usuários → Administradores e poderá ser excluído pelo administrador principal.</p></div><button type="button" class="btn btn-accent" onclick="openCreateAdminModal()"><i class="fas fa-user-plus"></i> Novo administrador</button></div></div>
 <div class="block"><div class="block-head"><h3>Gerenciar pedidos</h3></div><div class="block-body cleanup-launch"><span class="cleanup-launch-icon" aria-hidden="true"><svg width="25" height="25" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 7h16M9 7V4h6v3M7 7l1 13h8l1-13M10 10v7M14 10v7"/></svg></span><div style="flex:1"><strong>Excluir pedidos da lista</strong><p class="notification-muted">Abra a lista para pesquisar e remover pedidos antigos de teste.</p></div><button type="button" class="btn btn-ghost" onclick="openOrderCleanup()">Gerenciar exclusões</button></div></div>
 <div class="panel-head"><div><h1>Configurações</h1><p>Ações administrativas gerais</p></div></div>
 
@@ -1763,6 +1784,8 @@ tbody tr:last-child td{border-bottom:none}
 <div class="form-grid"><div class="f-group"><label>Nome completo <span class="req">*</span></label><input id="employeeName" required></div><div class="f-group"><label>E-mail de acesso <span class="req">*</span></label><input id="employeeEmail" type="email" required></div></div>
 <div class="f-group"><label id="employeePasswordLabel">Senha temporária <span class="req">*</span></label><input id="employeePassword" type="password" minlength="12" pattern="(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{12,}" title="Use 12 caracteres com maiúscula, minúscula, número e símbolo" autocomplete="new-password" required></div>
 <div class="form-grid"><div class="f-group"><label>Dia de início do ciclo</label><input id="employeeCycleStartDay" type="number" min="1" max="31" value="10"></div><div class="f-group"><label>Dia de término do ciclo</label><input id="employeeCycleEndDay" type="number" min="1" max="31" value="24"></div></div><div class="f-group"><label>Comissão (%)</label><input id="employeeRate" type="number" min="0" max="100" step=".1" value="3"></div>
+<div class="f-group"><label>Recebimento de leads</label><select id="employeeLeadAccessMode"><option value="assigned">Dividir leads com a equipe</option><option value="all">Receber todos os leads da aba Leads</option></select><p class="td-sub">Escolha se o funcionário verá somente os leads atribuídos ou todos os leads.</p></div>
+<div class="f-group"><label>Visibilidade da aba Leads</label><select id="employeeHideLeadContacts"><option value="false">Exibir aba de Leads</option><option value="true">Ocultar aba de Leads</option></select><p class="td-sub">Quando estiver ocultada, o funcionário não receberá nem verá contatos de leads.</p></div>
 <div class="f-group"><label>Foto do funcionário</label><input id="employeePhoto" type="hidden"><div class="upload-box" id="employeePhotoUploadBox" onclick="employeePhotoInput.click()"><i class="fas fa-image"></i><p>Escolher foto da galeria</p><input id="employeePhotoInput" type="file" accept="image/*" style="display:none"></div><div class="upload-preview" id="employeePhotoPreview" style="display:none"><img id="employeePhotoPreviewImg"><div class="chg" onclick="employeePhotoInput.click()">Trocar foto</div></div></div>
 <div class="f-group"><label>Campanhas da aba Leads</label><p class="td-sub" style="margin-bottom:9px">Selecione as campanhas que serão atribuídas a este funcionário.</p><div id="employeeLinksPicker"><button id="employeeLinksFilterButton" type="button" class="btn btn-ghost" style="width:100%;justify-content:flex-start" aria-expanded="false" onclick="toggleEmployeeLinksFilter()"><i class="fas fa-filter"></i><span id="employeeLinksFilterLabel">Selecionar campanhas</span><i class="fas fa-chevron-down" style="margin-left:auto;font-size:.68rem"></i></button><div id="employeeCreateLinks" hidden style="display:grid;gap:5px"></div></div></div>
 <p class="td-sub"><i class="fas fa-shield-halved"></i> A senha deverá ser trocada no primeiro acesso.</p>
@@ -2007,7 +2030,8 @@ let products=[], sessions={}, brands={}, contacts={}, promocoes={}, cupons={}, c
 let categoryClicks={}, sessionClicks={}, brandClicks={};
 let clickHistory=[], pageViewHistory=[], missingSearchHistory=[], metaAchievements=[], importHistoryCache=[], usersCache=[];
 let contactClicks=[];
-let pricesHidden=false, currentAdmin=null;
+let pricesHidden=false, currentAdmin=null, currentAdminIsPrimary=false,currentAdminCanWrite=true,currentAdminAllowedPanels=null;
+let adminPresenceTimer=null,adminPresenceLastPing=0,adminLastInteraction=Date.now(),adminPresenceListenersReady=false;
 let editingProductId=null, editingSessionId=null, editingBrandId=null, editingContactId=null, editingPromoId=null, editingCouponId=null;
 let uploadedProdImg=null, uploadedSesImg=null, uploadedBrImg=null, uploadedCtImg=null, uploadedProfileImg=null;
 let usersTab='PF', importTab='novo';
@@ -2266,9 +2290,10 @@ async function doLogin(){
  showLoading('Autenticando...');
  try{
    await adminAuthReady;
-   const result=await CimMfaAuth.signIn(auth,email,pass);
+   await CimMfaAuth.signIn(auth,email,pass);
    document.getElementById('loginPassword').value='';
-   await initializeAdminSession(result?.user||auth.currentUser);
+   // onAuthStateChanged é o único responsável por iniciar o painel.
+   // Chamar initializeAdminSession aqui também criava duas validações concorrentes.
  }
  catch(error){err.textContent=error.code==='auth/mfa-cancelled'?'Confirmação cancelada. Entre novamente para continuar.':'Não foi possível entrar. Confira os dados e tente novamente.';}
  finally{hideLoading();}
@@ -2288,12 +2313,50 @@ async function verifyAdminAuthorization(user){
     error.status=response.status;
     throw error;
   }
-  return true;
+  applyAdminAccess(result);
+  return result;
+}
+function adminCanAccessPanel(name){return currentAdminIsPrimary||currentAdminAllowedPanels===null||currentAdminAllowedPanels.has(name)}
+function updateOnlineAdminsBadge(admins=[]){
+  const others=(Array.isArray(admins)?admins:[]).filter(admin=>admin.uid!==auth.currentUser?.uid);
+  const badge=document.getElementById('onlineAdminsBadge'),count=document.getElementById('onlineAdminsCount');
+  if(!badge||!count)return;
+  count.textContent=others.length;badge.hidden=!others.length;
+  badge.title=others.length?others.map(admin=>admin.name||admin.email||'Administrador').join(', ')+' online':'Nenhum outro administrador online';
+}
+function applyAdminAccess(result={}){
+  currentAdminIsPrimary=result.isPrimary===true;
+  currentAdminCanWrite=currentAdminIsPrimary||result.canWrite!==false;
+  currentAdminAllowedPanels=currentAdminIsPrimary||!Array.isArray(result.allowedPanels)?null:new Set(result.allowedPanels);
+  document.body.classList.toggle('admin-readonly',!currentAdminCanWrite);
+  document.querySelectorAll('.sb-item[data-panel]').forEach(item=>item.hidden=!adminCanAccessPanel(item.dataset.panel));
+  const managementCard=document.getElementById('adminManagementCard');if(managementCard)managementCard.hidden=!currentAdminIsPrimary;
+  updateOnlineAdminsBadge(result.onlineAdmins);
+  const active=document.querySelector('.panel.active')?.id?.replace('panel-','');
+  if(active&&!adminCanAccessPanel(active)){const first=document.querySelector('.sb-item[data-panel]:not([hidden])');if(first)switchPanel(first.dataset.panel)}
+}
+async function refreshAdminAccessState(){
+  if(!auth.currentUser)return;
+  try{const token=await auth.currentUser.getIdToken();const response=await fetch('/api/admin-access',{method:'POST',headers:{'Content-Type':'application/json',Authorization:'Bearer '+token},body:'{}'});const result=await response.json();if(response.ok&&result.authorized)applyAdminAccess(result)}catch{}
+}
+async function sendAdminPresence(force=false){
+  if(!auth.currentUser||(!force&&Date.now()-adminPresenceLastPing<15000))return;
+  adminPresenceLastPing=Date.now();
+  try{await adminManagementApi('presence');await refreshAdminAccessState()}catch{}
+}
+function startAdminPresence(){
+  adminLastInteraction=Date.now();sendAdminPresence(true);
+  if(!adminPresenceListenersReady){adminPresenceListenersReady=true;['pointerdown','keydown','scroll'].forEach(type=>document.addEventListener(type,()=>{adminLastInteraction=Date.now();sendAdminPresence()}, {passive:true}));}
+  clearInterval(adminPresenceTimer);adminPresenceTimer=setInterval(()=>{if(Date.now()-adminLastInteraction<60000)sendAdminPresence();refreshAdminAccessState()},30000);
 }
 function lockAdminInterface(){
   document.body.classList.remove('admin-authorized');
   closeCreateMenus?.();
   currentAdmin=null;
+  currentAdminIsPrimary=false;
+  currentAdminCanWrite=true;currentAdminAllowedPanels=null;document.body.classList.remove('admin-readonly');clearInterval(adminPresenceTimer);adminPresenceTimer=null;updateOnlineAdminsBadge([]);
+  document.querySelectorAll('.sb-item[data-panel]').forEach(item=>item.hidden=false);
+  const managementCard=document.getElementById('adminManagementCard');if(managementCard)managementCard.hidden=true;
   products=[];sessions={};brands={};contacts={};promocoes={};cupons={};categoryOrder=[];
   categoryClicks={};sessionClicks={};brandClicks={};clickHistory=[];metaAchievements=[];importHistoryCache=[];usersCache=[];contactClicks=[];
   trackingLinks={};profileData={};ordersCache=[];allOrdersCache=[];featuredDraft=[];galleryDraft=[];
@@ -2320,6 +2383,7 @@ async function initializeAdminSession(user){
   hideLoading();
   lockAdminInterface();
   if(user){
+    document.getElementById('loginError').textContent='Validando acesso administrativo...';
     try{
       await verifyAdminAuthorization(user);
       const snap=await database.ref(`users/${user.uid}`).once('value');
@@ -2332,6 +2396,8 @@ async function initializeAdminSession(user){
         document.getElementById('cfgAdminName').textContent=data.name||'Admin';
         document.getElementById('cfgAdminEmail').textContent=data.email||user.email;
         unlockAdminInterface();
+        startAdminPresence();
+        document.getElementById('loginError').textContent='';
         document.getElementById('loginScreen').style.display='none';
         loadAllData(); loadLeadsAdmin(); recordAdminEntryAdm();
       }
@@ -2467,6 +2533,7 @@ document.addEventListener('keydown', event => {
 });
 
 function switchPanel(name){
+  if(!adminCanAccessPanel(name)){showToast('Este administrador não tem acesso a esta aba.','err');return;}
   closeCreateMenus();
   document.querySelectorAll('.sb-item[data-panel]').forEach(i=>i.classList.toggle('active',i.dataset.panel===name));
   document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
@@ -2664,7 +2731,7 @@ function loadAllData(){
     } else updateBrandLogo(null);
   });
   database.ref('users').on('value',async snap=>{
-    const d=snap.val()||{};try{const response=await fetch('/api/admin-access',{method:'POST',headers:{'Content-Type':'application/json',Authorization:'Bearer '+await auth.currentUser.getIdToken()},body:'{}'});if(!response.ok)throw Error('Acesso negado');const directory=await response.json(),ids=new Set(directory.admins.map(a=>a.uid));usersCache=Object.keys(d).map(uid=>({...d[uid],uid,isAdmin:ids.has(uid)}));}catch{usersCache=[];showToast('Não foi possível conferir as permissões dos administradores.','err');return;}
+    const d=snap.val()||{};try{const response=await fetch('/api/admin-access',{method:'POST',headers:{'Content-Type':'application/json',Authorization:'Bearer '+await auth.currentUser.getIdToken()},body:'{}'});if(!response.ok)throw Error('Acesso negado');const directory=await response.json(),adminMap=new Map(directory.admins.map(admin=>[admin.uid,admin]));applyAdminAccess(directory);usersCache=Object.keys(d).map(uid=>({...d[uid],...(adminMap.get(uid)||{}),uid,isAdmin:adminMap.has(uid)}));}catch{usersCache=[];showToast('Não foi possível conferir as permissões dos administradores.','err');return;}
     renderLeads(); renderUsers(); renderDashboard(); updateOnlineUsersBadge(); renderOrders(); renderOrderInvoicesAdm();
   });
 
@@ -5408,6 +5475,7 @@ function sendEmailToUser(uid){
 function switchUsersTabAdm(tab){
   usersTab=tab;
   document.querySelectorAll('[data-usertab]').forEach(b=>b.classList.toggle('active',b.dataset.usertab===tab));
+  const createAdminOption=document.getElementById('usersCreateAdminOption');if(createAdminOption)createAdminOption.hidden=!(tab==='admins'&&currentAdminIsPrimary);
   if(tab === 'novos') database.ref('settings/lastSeenNewUsers').set(Date.now());
   renderUsers();
 }
@@ -5549,7 +5617,7 @@ function renderUsers(){
           <button class="btn btn-icon btn-ghost" title="Alterar tipo" onclick="changeUserTypeAdm('${u.uid}')"><i class="fas fa-right-left"></i></button>
           <button class="btn btn-icon btn-ghost" title="Promoção" onclick="applyPromoUserAdm('${u.uid}')"><i class="fas fa-percent"></i></button>
           <button class="btn btn-icon btn-danger" title="Excluir" onclick="deleteUserAdm('${u.uid}')"><i class="fas fa-trash"></i></button>
-        `:`<button type="button" class="btn btn-icon btn-ghost" title="Editar nome e foto" aria-label="Editar nome e foto do administrador" data-uid="${esc(u.uid)}" onclick="openAdminProfileEditor(this.dataset.uid)"><i class="fas fa-user-pen"></i></button>`}
+        `:`<button type="button" class="btn btn-icon btn-ghost" title="Editar nome e foto" aria-label="Editar nome e foto do administrador" data-uid="${esc(u.uid)}" onclick="openAdminProfileEditor(this.dataset.uid)"><i class="fas fa-user-pen"></i></button>${typeof currentAdminIsPrimary!=='undefined'&&currentAdminIsPrimary&&u.uid!==currentAdmin?.uid?`<button type="button" class="btn btn-icon btn-ghost" title="Definir permissões" aria-label="Definir permissões do administrador" data-uid="${esc(u.uid)}" onclick="openAdminPermissionsModal(this.dataset.uid)"><i class="fas fa-user-lock"></i></button><button type="button" class="btn btn-icon btn-danger" title="Excluir administrador" aria-label="Excluir administrador" data-uid="${esc(u.uid)}" data-name="${esc(u.name||'administrador')}" onclick="deleteAdministratorAdm(this.dataset.uid,this.dataset.name)"><i class="fas fa-trash"></i></button>`:''}`}
       </div></td>
     </tr>
     <tr id="detail-row-${u.uid}" class="user-detail-row" style="display:none;"><td colspan="8"><div class="detail-content">
@@ -6424,7 +6492,7 @@ Object.assign(window, {
         </div>
       </div>
       <label class="lead-field" for="leadCampaignUrl">URL da campanha<input id="leadCampaignUrl" name="url" readonly placeholder="Gerada automaticamente ao salvar"><small>Compartilhe esta URL com o funcionário responsável.</small></label>
-      <div class="lead-dialog-note"><i class="fas fa-circle-info"></i> O funcionário abre o link e registra o CNPJ e o telefone de cada potencial cliente. Todos os contatos chegam a este painel.</div>
+      <div class="lead-dialog-note"><i class="fas fa-circle-info"></i> O funcionário abre o link e registra o CNPJ, o telefone e uma observação sobre cada potencial cliente. Todos os contatos chegam a este painel.</div>
       <p id="leadCampaignError" class="lead-form-error" role="alert" hidden></p>
     </div>
     <div class="lead-dialog-footer"><button type="button" class="btn btn-ghost" onclick="document.getElementById('leadCampaignModal').close()">Cancelar</button><button type="submit" class="btn btn-accent"><i class="fas fa-check"></i> Salvar campanha</button></div>
@@ -6482,8 +6550,8 @@ function leadList(){
     const captures=Object.values(record.captures||{}).sort((a,b)=>(Number(a.capturedAt)||0)-(Number(b.capturedAt)||0));
     if(!captures.length)return null;
     const first=captures[0],last=captures[captures.length-1],documentType=last.documentType||(last.cpf?'cpf':'cnpj'),document=leadDigits(last[documentType]||(/^\d{11,14}$/.test(cnpj)?cnpj:'')),name=[...captures].reverse().find(c=>c.name)?.name||'',user=document?userIndex.get(document):null;
-    const employee=leadEmployees[record.assignedEmployeeId]||null;
-    return {cnpj,document,documentType,name,captures,first,last,user,employee,employeeId:record.assignedEmployeeId||'',contacted:record.contacted===true,status:user&&user.companyData?'complete':'pending'};
+    const employeeIds=(Array.isArray(record.assignedEmployeeIds)?record.assignedEmployeeIds:[record.assignedEmployeeId]).filter(uid=>{const employee=leadEmployees[uid];return employee&&employee.hideLeadContacts!==true&&employee.leadAccessMode!=='all'}),employees=employeeIds.map(uid=>leadEmployees[uid]),allAccessEmployee=Object.values(leadEmployees).find(employee=>employee&&employee.enabled===true&&employee.leadAccessMode==='all'&&employee.hideLeadContacts!==true),accessAllFallback=!employees.length&&Boolean(allAccessEmployee),employee=employees[0]||(allAccessEmployee?{...allAccessEmployee,name:(allAccessEmployee.name||'Funcionário')+' · Acesso a todos'}:null);
+    return {cnpj,document,documentType,name,captures,first,last,user,employee,employees,employeeIds,employeeId:employeeIds[0]||'',accessAllFallback,contacted:record.contacted===true,contactedAt:Number(record.contactedAt)||0,contactedBy:record.contactedBy||'',status:user&&user.companyData?'complete':'pending'};
   }).filter(Boolean).sort((a,b)=>(Number(b.first.capturedAt)||0)-(Number(a.first.capturedAt)||0));
 }
 function setLeadStatus(status){
@@ -6502,25 +6570,27 @@ function filterLeadsToday(){const today=leadDayKey();document.getElementById('le
 function filteredLeadsForCsv(list=leadList()){
   const query=document.getElementById('leadSearch').value.trim().toLocaleLowerCase('pt-BR'),digits=leadDigits(query),campaign=document.getElementById('leadCampaignFilter').value,status=document.getElementById('leadStatus').value;
   const from=document.getElementById('leadFrom').value,to=document.getElementById('leadTo').value;
-  const filtered=list.filter(item=>(!query||item.captures.some(c=>String(c.name||'').toLocaleLowerCase('pt-BR').includes(query))||(digits&&(item.document.includes(digits)||item.captures.some(c=>leadDigits(c.phone).includes(digits)))))&&(!status||item.status===status)&&item.captures.some(c=>{if(campaign&&c.campaignId!==campaign)return false;if(!from&&!to)return true;if(!(Number(c.capturedAt)>0))return false;const day=leadDayKey(c.capturedAt);return (!from||day>=from)&&(!to||day<=to);}));
+  const filtered=list.filter(item=>(!query||item.captures.some(c=>String(c.name||'').toLocaleLowerCase('pt-BR').includes(query)||String(c.observation||'').toLocaleLowerCase('pt-BR').includes(query))||(digits&&(item.document.includes(digits)||item.captures.some(c=>leadDigits(c.phone).includes(digits)))))&&(!status||item.status===status)&&item.captures.some(c=>{if(campaign&&c.campaignId!==campaign)return false;if(!from&&!to)return true;if(!(Number(c.capturedAt)>0))return false;const day=leadDayKey(c.capturedAt);return (!from||day>=from)&&(!to||day<=to);}));
   return filtered;
 }
 function renderLeadEmployeeCards(list){
   const container=document.getElementById('leadEmployeeCards');if(!container)return;
-  const cards=Object.entries(leadEmployees).filter(([,employee])=>employee&&employee.enabled===true).sort(([,a],[,b])=>String(a.name||'').localeCompare(String(b.name||''),'pt-BR')).map(([uid,employee])=>{
-    const assigned=list.filter(item=>item.employeeId===uid),sent=assigned.filter(item=>item.contacted).length;
-    return '<article class="lead-employee-card"><img src="'+leadText(employee.photoURL||'assets/logo.webp')+'" alt="Foto de '+leadText(employee.name||'Funcionário')+'"><div><h3>'+leadText(employee.name||'Funcionário')+'</h3><div class="lead-employee-counts"><span><strong>'+assigned.length+'</strong>Divididos</span><span class="sent"><strong>'+sent+'</strong>Mensagens enviadas</span></div></div></article>';
+  const cards=Object.entries(leadEmployees).filter(([,employee])=>employee&&employee.enabled===true&&employee.hideLeadContacts!==true).sort(([,a],[,b])=>String(a.name||'').localeCompare(String(b.name||''),'pt-BR')).map(([uid,employee])=>{
+    const accessAll=employee.leadAccessMode==='all',visible=accessAll?list:list.filter(item=>item.employeeIds.includes(uid)),sent=visible.filter(item=>item.contacted).length;
+    return '<article class="lead-employee-card"><img src="'+leadText(employee.photoURL||'assets/logo.webp')+'" alt="Foto de '+leadText(employee.name||'Funcionário')+'"><div><h3>'+leadText(employee.name||'Funcionário')+'</h3><div class="td-sub" style="margin-top:3px;color:'+(accessAll?'var(--ok)':'var(--text-muted)')+'">'+(accessAll?'Acesso a todos':'Divisão de leads')+'</div><div class="lead-employee-counts"><span><strong>'+visible.length+'</strong>'+(accessAll?'Visíveis':'Divididos')+'</span><span class="sent"><strong>'+sent+'</strong>Mensagens enviadas</span></div></div></article>';
   });
   container.innerHTML=cards.join('');
 }
 function renderLeads(){
+  renderEmployeeSummaryAdm();
+  renderLeadCampaignAvatarStack();
   const rows=document.getElementById('leadRows');if(!rows)return;
   const list=leadList();document.getElementById('leadTotal').textContent=list.length;renderLeadEmployeeCards(list);updateLeadNavBadge();renderLeadWeekChart();
   const from=document.getElementById('leadFrom').value,to=document.getElementById('leadTo').value;
   const todayActive=from===leadDayKey()&&to===from;document.getElementById('leadToday').classList.toggle('active',todayActive);document.getElementById('leadToday').setAttribute('aria-pressed',String(todayActive));
   const filtered=filteredLeadsForCsv(list);
   document.getElementById('leadResultCount').textContent=leadReadError||(!leadLoaded?'Carregando contatos…':filtered.length+' contato(s) encontrado(s)');
-  rows.innerHTML=filtered.length?filtered.map(item=>'<tr><td>'+leadText(item.name||'\u2014')+'</td><td class="mono">'+leadText(item.document?item.documentType.toUpperCase()+' \u00b7 '+item.document:'\u2014')+'</td><td>'+(leadDigits(item.last.phone)?'<a href="https://wa.me/55'+leadDigits(item.last.phone)+'" target="_blank" rel="noopener noreferrer" style="color:var(--ok)" aria-label="Abrir WhatsApp de '+leadText(item.last.phone)+'"><i class="fab fa-whatsapp" aria-hidden="true"></i> '+leadText(item.last.phone)+'</a>':'\u2014')+'</td><td>'+leadText(item.first.campaignName||'—')+'</td><td><strong style="color:'+(item.contacted?'#ff3601':'inherit')+'">'+leadText(item.employee?.name||'Não atribuído')+'</strong></td><td>'+leadDate(item.first.capturedAt)+'</td><td><span class="lead-status '+item.status+'">'+(item.status==='complete'?'Completo':'Capturado')+'</span></td><td><button class="btn btn-ghost" data-lead-detail="'+leadText(item.cnpj)+'">Ver detalhes</button> <button class="btn btn-ghost lead-delete" data-lead-remove="'+leadText(item.cnpj)+'" aria-label="Excluir contato '+leadText(item.cnpj)+'"><i class="fas fa-trash"></i> Excluir</button></td></tr>').join(''):'<tr><td colspan="8" class="lead-empty">'+leadText(leadReadError||(!leadLoaded?'Aguardando contatos…':'Nenhum contato encontrado para estes filtros.'))+'</td></tr>';
+  rows.innerHTML=filtered.length?filtered.map(item=>{const employeeName=item.employee?.name||'Não atribuído',employeePhoto=item.employee?.photoURL||'assets/logo.webp',contactEmployee=leadEmployees[item.contactedBy]||item.employee,statusText=item.contacted?'Mensagem enviada':item.status==='complete'?'Completo':'Capturado',statusClass=item.contacted?'contacted':item.status,contactTitle=item.contacted?'Confirmado por '+(contactEmployee?.name||employeeName)+(item.contactedAt?' em '+leadDate(item.contactedAt):''):'';return '<tr><td>'+leadText(item.name||'\u2014')+'</td><td class="mono">'+leadText(item.document?item.documentType.toUpperCase()+' \u00b7 '+item.document:'\u2014')+'</td><td>'+(leadDigits(item.last.phone)?'<a href="https://wa.me/55'+leadDigits(item.last.phone)+'" target="_blank" rel="noopener noreferrer" style="color:var(--ok)" aria-label="Abrir WhatsApp de '+leadText(item.last.phone)+'"><i class="fab fa-whatsapp" aria-hidden="true"></i> '+leadText(item.last.phone)+'</a>':'\u2014')+'</td><td>'+leadText(item.first.campaignName||'—')+'</td><td><div class="lead-assignee"><img src="'+leadText(employeePhoto)+'" alt="Foto de '+leadText(employeeName)+'" onerror="this.onerror=null;this.src=\'assets/logo.webp\'"><strong>'+leadText(employeeName)+'</strong></div></td><td>'+leadDate(item.first.capturedAt)+'</td><td><span class="lead-status '+statusClass+'" title="'+leadText(contactTitle)+'">'+statusText+'</span></td><td><button class="btn btn-ghost" data-lead-detail="'+leadText(item.cnpj)+'">Ver detalhes</button> <button class="btn btn-ghost lead-delete" data-lead-remove="'+leadText(item.cnpj)+'" aria-label="Excluir contato '+leadText(item.cnpj)+'"><i class="fas fa-trash"></i> Excluir</button></td></tr>'}).join(''):'<tr><td colspan="8" class="lead-empty">'+leadText(leadReadError||(!leadLoaded?'Aguardando contatos…':'Nenhum contato encontrado para estes filtros.'))+'</td></tr>';
 }
 document.getElementById('leadRows').addEventListener('click',async event=>{
   const button=event.target.closest('button');if(!button)return;
@@ -6664,7 +6734,7 @@ document.getElementById('leadCampaignForm').addEventListener('submit',async even
 function openLeadDetail(cnpj){
   const item=leadList().find(value=>value.cnpj===cnpj);if(!item)return;
   const field=(label,value)=>'<div class="lead-detail-item"><small>'+leadText(label)+'</small><span>'+leadText(value||'—')+'</span></div>';
-  document.getElementById('leadDetailBody').innerHTML=field('Nome',item.name)+field(item.documentType.toUpperCase(),item.document)+field('Telefone',item.last.phone)+field('Cadastro',item.status==='complete'?'Completo':'Capturado')+(item.user?field('Nome no cadastro',item.user.name)+field('E-mail',item.user.email):'')+'<h3>Histórico de capturas</h3>'+item.captures.map(c=>field(c.campaignName,leadDate(c.capturedAt)+' · '+(c.phone||'—'))).join('');
+  document.getElementById('leadDetailBody').innerHTML=field('Nome',item.name)+field(item.documentType.toUpperCase(),item.document)+field('Telefone',item.last.phone)+field('Observação',item.last.observation)+field('Cadastro',item.status==='complete'?'Completo':'Capturado')+(item.user?field('Nome no cadastro',item.user.name)+field('E-mail',item.user.email):'')+'<h3>Histórico de capturas</h3>'+item.captures.map(c=>field(c.campaignName,leadDate(c.capturedAt)+' · '+(c.phone||'—')+(c.observation?' · '+c.observation:''))).join('');
   document.getElementById('leadDetail').showModal();
 }
 renderLeadCampaigns();
@@ -6677,7 +6747,7 @@ renderLeadCampaigns();
 <form onsubmit="event.preventDefault();submitContactsCsv()">
 <div class="lead-dialog-head"><div><h2 id="contactsCsvTitle">Exportar CSV</h2><p>Escolha os campos e os contatos que deseja exportar.</p></div><button type="button" class="lead-close" aria-label="Fechar" onclick="document.getElementById('contactsCsvModal').close()"><i class="fas fa-xmark"></i></button></div>
 <div class="lead-dialog-body">
-<fieldset class="csv-fields"><legend>Campos do arquivo</legend><label><input type="checkbox" data-csv-field value="name" checked>Nome</label><label><input type="checkbox" data-csv-field value="phone" checked>Telefone</label><label><input type="checkbox" data-csv-field value="cpf" checked>CPF</label><label><input type="checkbox" data-csv-field value="cnpj" checked>CNPJ</label></fieldset>
+<fieldset class="csv-fields"><legend>Campos do arquivo</legend><label><input type="checkbox" data-csv-field value="name" checked>Nome</label><label><input type="checkbox" data-csv-field value="phone" checked>Telefone</label><label><input type="checkbox" data-csv-field value="cpf" checked>CPF</label><label><input type="checkbox" data-csv-field value="cnpj" checked>CNPJ</label><label id="csvObservationField"><input type="checkbox" data-csv-field value="observation" checked>Observação</label></fieldset>
 <label class="lead-field">Hist&oacute;rico de exporta&ccedil;&atilde;o<select id="csvExportStatus"><option value="all">Todos os contatos</option><option value="new">Somente os ainda n&atilde;o exportados</option><option value="exported">Somente os j&aacute; exportados</option></select></label>
 <button type="button" class="btn btn-ghost" onclick="openContactsCsvHistory(contactsCsvKind)"><i class="fas fa-clock-rotate-left"></i> Ver &uacute;ltimos arquivos exportados</button>
 <small style="color:var(--text-muted)">Hist&oacute;rico salvo no banco de dados para esta conta. A marca&ccedil;&atilde;o considera o contato inteiro, independentemente dos campos ou da campanha.</small>
@@ -6703,6 +6773,8 @@ function openContactsCsvModal(kind){
   document.getElementById('contactsCsvTitle').textContent=kind==='users'?'Exportar usuários':'Exportar leads';
   document.getElementById('csvUsersGroup').hidden=kind!=='users';
   document.getElementById('csvLeadsGroup').style.display=kind==='leads'?'grid':'none';
+  document.getElementById('csvObservationField').hidden=kind!=='leads';
+  document.querySelector('#csvObservationField input').checked=kind==='leads';
   document.getElementById('csvSearch').value=document.getElementById(kind==='users'?'userFilterText':'leadSearch').value;
   document.getElementById('csvUsersTab').value=usersTab;
   document.getElementById('csvCampaign').innerHTML=document.getElementById('leadCampaignFilter').innerHTML;
@@ -6803,7 +6875,7 @@ async function exportContactsCsv(kind){
       });
       const last=captures[captures.length-1],type=last.documentType||(last.cpf?'cpf':'cnpj');
       const doc=leadDigits(last[type]||item.document);
-      return {exportId:'lead:'+item.cnpj,name:[...captures].reverse().find(c=>c.name)?.name||item.user?.name||'',phone:last.phone||'',cpf:type==='cpf'?doc:'',cnpj:type==='cnpj'?doc:''};
+      return {exportId:'lead:'+item.cnpj,name:[...captures].reverse().find(c=>c.name)?.name||item.user?.name||'',phone:last.phone||'',cpf:type==='cpf'?doc:'',cnpj:type==='cnpj'?doc:'',observation:last.observation||''};
     });
   }
 
@@ -6814,7 +6886,7 @@ async function exportContactsCsv(kind){
 
   contacts=contacts.filter(c=>mode==='all'||(mode==='exported'?!!state.exported[c.exportId]:!state.exported[c.exportId]));
   if(!contacts.length){showToast('Nenhum contato encontrado para estes filtros de exporta\u00e7\u00e3o.','err');return;}
-  const labels={name:'Nome',phone:'Telefone',cpf:'CPF',cnpj:'CNPJ'};
+  const labels={name:'Nome',phone:'Telefone',cpf:'CPF',cnpj:'CNPJ',observation:'Observação'};
   const csv='\uFEFF'+[fields.map(f=>contactsCsvCell(labels[f])).join(';'),...contacts.map(c=>fields.map(f=>contactsCsvCell(f==='cpf'||f==='cnpj'?formatContactsCsvDocument(c[f],f):c[f])).join(';'))].join('\r\n');
   const now=Date.now(),filename=(kind==='users'?'usuarios':'leads')+'-'+leadDayKey(now)+'-'+now+'.csv';
   const entry={id:String(now)+'-'+Math.random().toString(36).slice(2,8),kind,filename,createdAt:now,count:contacts.length,fields:fields.map(f=>labels[f]),csv,filters:filterSnapshot};
@@ -6845,26 +6917,74 @@ async function exportContactsCsv(kind){
  </div>
 </div>
 
+<div class="modal-overlay" id="modalCreateAdmin" role="dialog" aria-modal="true" aria-labelledby="createAdminTitle">
+ <div class="modal" style="max-width:500px">
+  <div class="modal-head"><h3 id="createAdminTitle">Novo administrador</h3><button type="button" class="modal-close" aria-label="Fechar" onclick="closeModal('modalCreateAdmin')"><i class="fas fa-times"></i></button></div>
+  <form id="createAdminForm"><div class="modal-body">
+   <div class="f-group"><label for="newAdminName">Nome completo <span class="req">*</span></label><input id="newAdminName" maxlength="200" autocomplete="name" required></div>
+   <div class="f-group"><label for="newAdminEmail">E-mail de acesso <span class="req">*</span></label><input id="newAdminEmail" type="email" maxlength="254" autocomplete="username" required></div>
+   <div class="f-group"><label for="newAdminPassword">Senha temporária <span class="req">*</span></label><input id="newAdminPassword" type="password" minlength="12" pattern="(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{12,}" autocomplete="new-password" required><p class="td-sub">Mínimo de 12 caracteres com maiúscula, minúscula, número e símbolo.</p></div>
+   <div class="f-group"><label for="newAdminAccessMode">Permissão</label><select id="newAdminAccessMode"><option value="edit">Pode visualizar e editar</option><option value="view">Somente visualização</option></select></div>
+   <div class="f-group"><label>Abas disponíveis</label><div id="newAdminPanels" class="admin-panel-grid"></div><p class="td-sub">As abas desmarcadas ficarão ocultas para este administrador.</p></div>
+   <div id="newAdminError" class="login-error" role="alert"></div>
+  </div><div class="modal-foot"><button type="button" class="btn btn-ghost" onclick="closeModal('modalCreateAdmin')">Cancelar</button><button type="submit" class="btn btn-accent"><i class="fas fa-user-plus"></i> Criar administrador</button></div></form>
+ </div>
+</div>
+
+<div class="modal-overlay" id="modalAdminPermissions" role="dialog" aria-modal="true" aria-labelledby="adminPermissionsTitle">
+ <div class="modal" style="max-width:620px">
+  <div class="modal-head"><h3 id="adminPermissionsTitle">Permissões do administrador</h3><button type="button" class="modal-close" aria-label="Fechar" onclick="closeModal('modalAdminPermissions')"><i class="fas fa-times"></i></button></div>
+  <form id="adminPermissionsForm"><div class="modal-body">
+   <input type="hidden" id="permissionsAdminUid">
+   <div class="f-group"><label for="permissionsAdminAccessMode">Permissão</label><select id="permissionsAdminAccessMode"><option value="edit">Pode visualizar e editar</option><option value="view">Somente visualização</option></select></div>
+   <div class="f-group"><label>Abas disponíveis</label><div id="permissionsAdminPanels" class="admin-panel-grid"></div></div>
+   <div id="adminPermissionsError" class="login-error" role="alert"></div>
+  </div><div class="modal-foot"><button type="button" class="btn btn-ghost" onclick="closeModal('modalAdminPermissions')">Cancelar</button><button type="submit" class="btn btn-accent"><i class="fas fa-save"></i> Salvar permissões</button></div></form>
+ </div>
+</div>
+
 <script src="assets/support-chat.js?v=20261026-2" data-support-role="admin" defer></script>
 <script src="assets/qrcode.min.js" defer></script>
 <script src="assets/admin-media.js?v=939b071"></script>
 <script src="assets/admin-mfa.js?v=939b071" defer></script>
-<script>let employeesAdm=[],availableEmployeeLinksAdm=[],uploadedEmployeePhoto='',editingEmployeeUidAdm='';
+<script>let employeesAdm=[],employeeClientsAdm=[],availableEmployeeLinksAdm=[],uploadedEmployeePhoto='',editingEmployeeUidAdm='',employeeWeekOffset=0,chartEmployeeWeekInstance=null,employeeTeamRevealed=false;
 async function employeeApi(action,extra={}){const token=await auth.currentUser.getIdToken();const r=await fetch('/api/employee',{method:'POST',headers:{'Content-Type':'application/json',Authorization:'Bearer '+token},body:JSON.stringify({action,...extra})}),j=await r.json();if(!r.ok)throw Error(j.error||j.message||'Falha na operação.');return j}
-async function loadEmployeesAdm(){try{const result=await employeeApi('admin-list');employeesAdm=result.employees||[];availableEmployeeLinksAdm=result.availableLinks||[];renderEmployeesAdm()}catch(e){employeesAdmList.innerHTML='<div class="block"><div class="block-body">'+esc(e.message)+'</div></div>'}}
+async function loadEmployeesAdm(){try{const result=await employeeApi('admin-list');employeesAdm=result.employees||[];employeeClientsAdm=result.employeeClients||[];availableEmployeeLinksAdm=result.availableLinks||[];ensureEmployeePerformanceFilter();renderEmployeesAdm();renderEmployeeClientsAdm();renderEmployeeSummaryAdm();renderEmployeeAvatarStack();renderLeadCampaignAvatarStack()}catch(e){employeesAdmList.innerHTML='<div class="block"><div class="block-body">'+esc(e.message)+'</div></div>'}}
+function ensureEmployeePerformanceFilter(){const nav=document.querySelector('#panel-funcionarios .employee-week-nav');if(!nav)return;let select=document.getElementById('employeePerformanceFilter');const selected=select?.value||document.getElementById('employeeClientsFilter')?.value||'';if(!select){select=document.createElement('select');select.id='employeePerformanceFilter';select.style.cssText='height:38px;min-width:190px;padding:0 12px;border:0;border-radius:9px;background:#1c1c1c;color:#fff';nav.prepend(select);select.addEventListener('change',()=>{employeeClientsFilter.value=select.value;renderEmployeeClientsAdm();renderEmployeeSummaryAdm()});const legend=document.createElement('div');legend.className='employee-week-legend';legend.innerHTML='<span><i style="background:#ff3601"></i>Leads</span><span><i style="background:#3ecf8e"></i>Contatos registrados</span>';document.getElementById('chartEmployeeWeek').parentElement.before(legend)}select.innerHTML='<option value="">Todos os funcionários</option>'+employeesAdm.map(employee=>'<option value="'+esc(employee.uid)+'">'+esc(employee.name)+'</option>').join('');select.value=employeesAdm.some(employee=>employee.uid===selected)?selected:'';const listFilter=document.getElementById('employeeClientsFilter');if(listFilter&&!listFilter.dataset.synced){listFilter.dataset.synced='1';listFilter.addEventListener('change',()=>{select.value=listFilter.value;renderEmployeeSummaryAdm()})}}
+function employeeWeekPeriod(){const now=new Date(),day=(now.getDay()+6)%7,start=new Date(now);start.setHours(0,0,0,0);start.setDate(start.getDate()-day+employeeWeekOffset*7);const end=new Date(start);end.setDate(end.getDate()+7);return{start,end}}
+function shiftEmployeeWeek(direction){employeeWeekOffset=Math.min(0,employeeWeekOffset+direction);renderEmployeeSummaryAdm()}
+function goToEmployeeClients(){const section=document.getElementById('employeeClientsSection');section?.scrollIntoView({behavior:'smooth',block:'start'});section?.animate([{backgroundColor:'rgba(255,54,1,.18)'},{backgroundColor:'transparent'}],{duration:900})}
+function goToEmployeeTeam(){const team=document.getElementById('employeesAdmList'),heading=team?.previousElementSibling,card=document.getElementById('employeeTotalCount')?.closest('.employee-summary-card');employeeTeamRevealed=!employeeTeamRevealed;if(team)team.hidden=!employeeTeamRevealed;if(heading)heading.hidden=!employeeTeamRevealed;card?.setAttribute('aria-expanded',String(employeeTeamRevealed));if(employeeTeamRevealed)requestAnimationFrame(()=>{team?.scrollIntoView({behavior:'smooth',block:'center'});team?.animate([{backgroundColor:'rgba(255,54,1,.16)'},{backgroundColor:'transparent'}],{duration:900})})}
+function renderEmployeeAvatarStack(){const total=document.getElementById('employeeTotalCount'),card=total?.closest('.employee-summary-card'),team=document.getElementById('employeesAdmList'),heading=team?.previousElementSibling;if(!card)return;if(!employeeTeamRevealed){if(team)team.hidden=true;if(heading)heading.hidden=true}card.classList.add('employee-team-shortcut');card.setAttribute('role','button');card.setAttribute('aria-expanded',String(employeeTeamRevealed));card.tabIndex=0;if(!card.dataset.teamShortcut){card.dataset.teamShortcut='1';card.addEventListener('click',goToEmployeeTeam);card.addEventListener('keydown',event=>{if(event.key==='Enter'||event.key===' '){event.preventDefault();goToEmployeeTeam()}})}let stack=card.querySelector('.employee-avatar-stack');if(!stack){stack=document.createElement('div');stack.className='employee-avatar-stack';total.after(stack)}const shown=employeesAdm.slice(0,6);stack.innerHTML=shown.map(employee=>'<button type="button" class="employee-avatar-button" title="Ver '+esc(employee.name)+'" aria-label="Ver perfil de '+esc(employee.name)+'"><img src="'+esc(employee.photoURL||'assets/logo.webp')+'" alt=""></button>').join('')+(employeesAdm.length>shown.length?'<button type="button" class="employee-avatar-button employee-avatar-more" title="Ver toda a equipe">+'+(employeesAdm.length-shown.length)+'</button>':'');stack.querySelectorAll('button').forEach(button=>button.addEventListener('click',event=>{event.stopPropagation();goToEmployeeTeam()}))}
+function renderLeadCampaignAvatarStack(){const total=document.getElementById('employeeLeadTotalCount'),card=total?.closest('.employee-summary-card');if(!card)return;let stack=card.querySelector('.employee-avatar-stack');if(!stack){stack=document.createElement('div');stack.className='employee-avatar-stack';total.after(stack)}const campaigns=Object.values(leadCampaigns||{}).filter(campaign=>campaign&&campaign.active!==false),shown=campaigns.slice(0,6);stack.innerHTML=shown.map(campaign=>'<button type="button" class="employee-avatar-button" title="Abrir leads de '+esc(campaign.displayName||campaign.name||'funcionário')+'" aria-label="Abrir leads de '+esc(campaign.displayName||campaign.name||'funcionário')+'"><img src="'+esc(String(campaign.image||'').startsWith('https://')?campaign.image:'assets/logo.webp')+'" alt=""></button>').join('')+(campaigns.length>shown.length?'<button type="button" class="employee-avatar-button employee-avatar-more" title="Ver todas as URLs de leads">+'+(campaigns.length-shown.length)+'</button>':'');stack.querySelectorAll('button').forEach(button=>button.addEventListener('click',()=>{switchPanel('leads');setTimeout(()=>switchLeadTab('campaigns'),0)}))}
+function renderEmployeeSummaryAdm(){const employeeTotal=document.getElementById('employeeTotalCount');if(!employeeTotal)return;const employeeId=document.getElementById('employeePerformanceFilter')?.value||'',{start,end}=employeeWeekPeriod(),between=value=>Number(value)>=start.getTime()&&Number(value)<end.getTime(),leadCaptures=Object.values(leadRecords||{}).map(record=>{const capture=Object.values(record?.captures||{}).sort((a,b)=>(Number(a.capturedAt)||0)-(Number(b.capturedAt)||0))[0];return capture?{...capture,employeeId:record.assignedEmployeeId||''}:null}).filter(c=>c&&between(c.capturedAt)&&(!employeeId||c.employeeId===employeeId)),clients=employeeClientsAdm.filter(client=>between(client.createdAt)&&String(client.observation||'').trim()&&(!employeeId||client.employeeId===employeeId)),employees=employeesAdm.filter(employee=>between(employee.createdAt)&&(!employeeId||employee.uid===employeeId));employeeTotal.textContent=employees.length;document.getElementById('employeeLeadTotalCount').textContent=leadCaptures.length;document.getElementById('employeeClientTotalCount').textContent=clients.length;const fmt=date=>date.toLocaleDateString('pt-BR',{day:'2-digit',month:'short'}).replace('.','');employeeWeekRange.textContent=fmt(start)+' até '+fmt(new Date(end.getTime()-1));employeeWeekNext.disabled=employeeWeekOffset===0;const days=Array.from({length:7},(_,index)=>{const a=new Date(start);a.setDate(a.getDate()+index);const b=new Date(a);b.setDate(b.getDate()+1);return{date:a,leads:leadCaptures.filter(c=>Number(c.capturedAt)>=a&&Number(c.capturedAt)<b).length,clients:clients.filter(c=>Number(c.createdAt)>=a&&Number(c.createdAt)<b).length}}),canvas=document.getElementById('chartEmployeeWeek');if(!canvas||typeof Chart==='undefined')return;destroyChart(chartEmployeeWeekInstance);chartEmployeeWeekInstance=new Chart(canvas.getContext('2d'),{type:'bar',data:{labels:days.map(day=>day.date.toLocaleDateString('pt-BR',{weekday:'short'}).replace('.','')),datasets:[{label:'Leads',data:days.map(day=>day.leads),backgroundColor:'rgba(255,54,1,.78)',borderColor:'#ff3601',borderWidth:1.5,borderRadius:7},{label:'Contatos registrados',data:days.map(day=>day.clients),backgroundColor:'rgba(62,207,142,.78)',borderColor:'#3ecf8e',borderWidth:1.5,borderRadius:7}]},options:baseOptions()})}
+function renderEmployeeClientsAdm(){const filter=document.getElementById('employeeClientsFilter'),selected=filter.value;filter.innerHTML='<option value="">Todos os funcionários</option>'+employeesAdm.map(employee=>'<option value="'+esc(employee.uid)+'">'+esc(employee.name)+'</option>').join('');filter.value=employeesAdm.some(employee=>employee.uid===selected)?selected:'';let rows=employeeClientsAdm.filter(client=>!filter.value||client.employeeId===filter.value);if(!employeeClientsAdm.length&&!filter.value)rows=[{demo:true,clientName:'CIM Global Parts',employeeId:employeesAdm[0]?.uid||'',personType:'PJ',phone:'(11) 99999-0000',observation:'Exemplo de cliente atendido registrado pelo funcionário.',createdAt:Date.now()}];const employeeName=uid=>employeesAdm.find(employee=>employee.uid===uid)?.name||'Equipe CIM';document.getElementById('employeeClientsAdmList').innerHTML='<div class="block-body">'+(rows.length?'<div class="lead-table-wrap"><table><thead><tr><th>Cliente</th><th>Funcionário</th><th>Tipo</th><th>Telefone</th><th>Observação</th><th>Registrado em</th></tr></thead><tbody>'+rows.map(client=>'<tr><td><strong>'+esc(client.clientName||'—')+'</strong>'+(client.demo?' <span class="lead-status">Demonstração</span>':'')+'</td><td>'+esc(employeeName(client.employeeId))+'</td><td>'+esc(client.personType)+'</td><td>'+esc(client.phone)+'</td><td>'+esc(client.observation)+'</td><td>'+leadDate(client.createdAt)+'</td></tr>').join('')+'</tbody></table></div>':'<div class="td-sub">Nenhum cliente registrado por este funcionário.</div>')+'</div>'}
 function employeeLinkChoices(selected=[],withSearch=false){if(!availableEmployeeLinksAdm.length)return'<p class="td-sub" style="padding:8px">Nenhuma campanha criada. Crie primeiro na aba Leads.</p>';const cards=availableEmployeeLinksAdm.map(l=>`<label class="employee-link-choice" data-link-search="${esc((l.name+' /'+l.slug).toLowerCase())}"><input type="checkbox" value="${esc(l.id)}" ${selected.includes(l.id)?'checked':''} onchange="updateEmployeeLinksFilterLabel()"><img src="${esc(l.image||'assets/logo.webp')}" alt=""><strong>${esc(l.name)}</strong><span class="employee-campaign-check">${selected.includes(l.id)?'Selecionada':'Selecionar'}</span></label>`).join('');return(withSearch?'<input class="employee-link-search" type="search" placeholder="Buscar campanha..." oninput="filterEmployeeCreateLinks(this.value)">':'')+'<div class="employee-link-carousel" title="Arraste para os lados">'+cards+'</div>'}
 function filterEmployeeCreateLinks(value){const q=String(value||'').trim().toLowerCase();employeeCreateLinks.querySelectorAll('[data-link-search]').forEach(item=>item.hidden=Boolean(q&&!item.dataset.linkSearch.includes(q)))}
 function toggleEmployeeLinksFilter(){const open=employeeCreateLinks.hidden;employeeCreateLinks.hidden=!open;employeeLinksFilterButton.setAttribute('aria-expanded',String(open));const icon=employeeLinksFilterButton.querySelector('.fa-chevron-down,.fa-chevron-up');if(icon){icon.classList.toggle('fa-chevron-down',!open);icon.classList.toggle('fa-chevron-up',open)}}
 function updateEmployeeLinksFilterLabel(){const total=employeeCreateLinks.querySelectorAll('input:checked').length;employeeLinksFilterLabel.textContent=total?total+' campanha'+(total===1?' selecionada':'s selecionadas'):'Selecionar campanhas';employeeCreateLinks.querySelectorAll('.employee-link-choice').forEach(card=>{const status=card.querySelector('.employee-campaign-check'),input=card.querySelector('input');if(status)status.textContent=input.checked?'Selecionada':'Selecionar'})}
 document.addEventListener('click',event=>{if(!event.target.closest('#employeeLinksPicker')&&!employeeCreateLinks.hidden){employeeCreateLinks.hidden=true;employeeLinksFilterButton.setAttribute('aria-expanded','false');const icon=employeeLinksFilterButton.querySelector('.fa-chevron-up');if(icon){icon.classList.remove('fa-chevron-up');icon.classList.add('fa-chevron-down')}}});
 
-function renderEmployeesAdm(){employeesAdmList.innerHTML=employeesAdm.length?employeesAdm.map(e=>{const selected=Array.isArray(e.linkIds)?e.linkIds:[];return `<div class="block"><div class="block-body"><div style="display:flex;justify-content:space-between;gap:18px;align-items:center;flex-wrap:wrap"><div style="display:flex;gap:12px;align-items:center"><img src="${esc(e.photoURL||'assets/logo.webp')}" style="width:52px;height:52px;border-radius:50%;object-fit:cover"><div><strong>${esc(e.name)}</strong><div class="td-sub">${esc(e.email)}</div><div class="td-sub">${location.origin}/?funcionario=${encodeURIComponent(e.slug)} · reinicia dia ${e.cycleDay||10}</div></div></div><div style="display:flex;gap:18px;align-items:center"><div><strong>${fmtBRLAdm(e.paidTotal||0)}</strong><div class="td-sub">Vendas pagas</div></div><div><strong>${fmtBRLAdm(e.commission||0)}</strong><div class="td-sub">Comissão (${e.commissionRate||3}%)</div></div><button class="btn btn-sm btn-ghost" onclick="openEditEmployeeModal('${e.uid}')"><i class="fas fa-pen"></i> Editar</button><button class="btn btn-sm ${e.enabled?'btn-danger':'btn-primary'}" onclick="toggleEmployeeAdm('${e.uid}',${!e.enabled})">${e.enabled?'Bloquear':'Ativar'}</button><button class="btn btn-sm btn-danger" onclick="deleteEmployeeAdm('${e.uid}','${esc(e.name)}')"><i class="fas fa-trash"></i> Excluir</button></div></div><details style="margin-top:16px"><summary style="cursor:pointer;color:var(--accent);font-size:.8rem;font-weight:600">Gerenciar campanhas de leads (${selected.length})</summary><div data-employee-links="${esc(e.uid)}" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:7px;margin-top:12px">${employeeLinkChoices(selected)}</div><div style="display:flex;justify-content:flex-end;margin-top:10px"><button class="btn btn-sm btn-primary" onclick="saveEmployeeLinksAdm('${e.uid}')">Salvar campanhas</button></div></details></div></div>`}).join(''):'<div class="block"><div class="block-body td-sub">Nenhum funcionário criado.</div></div>'}
+function renderEmployeesAdm(){employeesAdmList.innerHTML=employeesAdm.length?employeesAdm.map(e=>{const selected=Array.isArray(e.linkIds)?e.linkIds:[],mode=e.leadAccessMode==='all'?'Todos os leads':'Leads divididos';return `<article class="block employee-profile-card"><div class="block-body"><img src="${esc(e.photoURL||'assets/logo.webp')}" alt="Foto de ${esc(e.name)}"><h3>${esc(e.name)}</h3><div class="td-sub">${esc(e.email)}</div><details class="employee-profile-more"><summary class="btn btn-sm btn-ghost">Ver mais</summary><div class="employee-profile-details"><div class="td-sub">${esc(mode)} · ${e.enabled?'Ativo':'Bloqueado'}</div><div class="td-sub" style="margin-top:7px">${location.origin}/?funcionario=${encodeURIComponent(e.slug)}</div><div style="display:flex;gap:24px;margin-top:15px"><div><strong>${fmtBRLAdm(e.paidTotal||0)}</strong><div class="td-sub">Vendas pagas</div></div><div><strong>${fmtBRLAdm(e.commission||0)}</strong><div class="td-sub">Comissão (${e.commissionRate||3}%)</div></div></div><div class="employee-profile-actions"><button class="btn btn-sm btn-ghost" onclick="openEditEmployeeModal('${e.uid}')"><i class="fas fa-pen"></i> Editar</button><button class="btn btn-sm ${e.enabled?'btn-danger':'btn-primary'}" onclick="toggleEmployeeAdm('${e.uid}',${!e.enabled})">${e.enabled?'Bloquear':'Ativar'}</button><button class="btn btn-sm btn-danger" onclick="deleteEmployeeAdm('${e.uid}','${esc(e.name)}')"><i class="fas fa-trash"></i> Excluir</button></div><details style="margin-top:16px"><summary style="cursor:pointer;color:var(--accent);font-size:.8rem;font-weight:600">Gerenciar campanhas (${selected.length})</summary><div data-employee-links="${esc(e.uid)}" style="margin-top:12px">${employeeLinkChoices(selected)}</div><div style="display:flex;justify-content:flex-end;margin-top:10px"><button class="btn btn-sm btn-primary" onclick="saveEmployeeLinksAdm('${e.uid}')">Salvar campanhas</button></div></details></div></details></div></article>`}).join(''):'<div class="block"><div class="block-body td-sub">Nenhum funcionário criado.</div></div>'}
 async function deleteEmployeeAdm(uid,name){if(!confirm('Excluir definitivamente o funcionário '+name+'? O acesso será removido e os leads serão redistribuídos.'))return;try{await employeeApi('admin-delete',{uid});showToast('Funcionário excluído.');await loadEmployeesAdm()}catch(e){showToast(e.message,'err')}}
 async function toggleEmployeeAdm(uid,enabled){try{await employeeApi('admin-update',{uid,enabled});showToast(enabled?'Funcionário ativado.':'Funcionário bloqueado.');loadEmployeesAdm()}catch(e){showToast(e.message,'err')}}
 async function saveEmployeeLinksAdm(uid){const box=document.querySelector('[data-employee-links="'+uid+'"]'),campaignIds=[...box.querySelectorAll('input:checked')].map(input=>input.value);try{await employeeApi('admin-update',{uid,campaignIds});showToast('Campanhas do funcionário atualizadas.');await loadEmployeesAdm()}catch(e){showToast(e.message,'err')}}
 async function openCreateEmployeeModal(){editingEmployeeUidAdm='';uploadedEmployeePhoto='';employeeCreateForm.reset();employeeModalTitle.textContent='Novo funcionário';employeePasswordLabel.innerHTML='Senha temporária <span class="req">*</span>';employeePassword.required=true;employeeSubmitButton.innerHTML='<i class="fas fa-plus"></i> Criar funcionário';employeeCycleStartDay.value=10;employeeCycleEndDay.value=24;employeeRate.value=3;employeePhoto.value='';resetUpload('employeePhotoUploadBox','employeePhotoPreview');employeeCreateLinks.hidden=true;employeeLinksFilterButton.setAttribute('aria-expanded','false');const filterIcon=employeeLinksFilterButton.querySelector('.fa-chevron-up');if(filterIcon){filterIcon.classList.remove('fa-chevron-up');filterIcon.classList.add('fa-chevron-down')}employeeCreateLinks.innerHTML='<p class="td-sub">Carregando campanhas...</p>';openModal('modalEmployee');await loadEmployeesAdm();employeeCreateLinks.innerHTML=employeeLinkChoices([],true);updateEmployeeLinksFilterLabel();setupUpload('employeePhotoInput','employeePhotoUploadBox','employeePhotoPreview','employeePhotoPreviewImg',url=>{uploadedEmployeePhoto=url;employeePhoto.value=url},'employees')}
 async function openEditEmployeeModal(uid){const employee=employeesAdm.find(item=>item.uid===uid);if(!employee)return;editingEmployeeUidAdm=uid;uploadedEmployeePhoto=employee.photoURL||'';employeeCreateForm.reset();employeeModalTitle.textContent='Editar funcionário';employeeName.value=employee.name||'';employeeEmail.value=employee.email||'';employeePassword.value='';employeePassword.required=false;employeePasswordLabel.textContent='Nova senha (opcional)';employeeCycleStartDay.value=employee.cycleStartDay||10;employeeCycleEndDay.value=employee.cycleEndDay||24;employeeRate.value=employee.commissionRate??3;employeePhoto.value=employee.photoURL||'';if(employee.photoURL){employeePhotoPreviewImg.src=employee.photoURL;employeePhotoPreview.style.display='block';employeePhotoUploadBox.style.display='none'}else resetUpload('employeePhotoUploadBox','employeePhotoPreview');employeeSubmitButton.innerHTML='<i class="fas fa-save"></i> Salvar alterações';employeeCreateLinks.hidden=true;employeeCreateLinks.innerHTML=employeeLinkChoices(employee.linkIds||[],true);openModal('modalEmployee');updateEmployeeLinksFilterLabel();setupUpload('employeePhotoInput','employeePhotoUploadBox','employeePhotoPreview','employeePhotoPreviewImg',url=>{uploadedEmployeePhoto=url;employeePhoto.value=url},'employees')}
-employeeCreateForm.addEventListener('submit',async event=>{event.preventDefault();const b=event.submitter,campaignIds=[...employeeCreateLinks.querySelectorAll('input:checked')].map(input=>input.value),payload={name:employeeName.value,email:employeeEmail.value,photoURL:uploadedEmployeePhoto,cycleStartDay:+employeeCycleStartDay.value,cycleEndDay:+employeeCycleEndDay.value,commissionRate:+employeeRate.value,campaignIds};if(employeePassword.value)payload.password=employeePassword.value;b.disabled=true;try{if(editingEmployeeUidAdm){await employeeApi('admin-edit',{uid:editingEmployeeUidAdm,...payload});showToast('Funcionário atualizado.')}else{payload.password=employeePassword.value;await employeeApi('admin-create',payload);showToast('Funcionário criado. Envie a senha temporária.')}closeModal('modalEmployee');await loadEmployeesAdm()}catch(e){showToast(e.message,'err')}finally{b.disabled=false}});
+employeeCreateForm.addEventListener('submit',async event=>{event.preventDefault();const b=event.submitter,campaignIds=[...employeeCreateLinks.querySelectorAll('input:checked')].map(input=>input.value),payload={name:employeeName.value,email:employeeEmail.value,photoURL:uploadedEmployeePhoto,cycleStartDay:+employeeCycleStartDay.value,cycleEndDay:+employeeCycleEndDay.value,commissionRate:+employeeRate.value,leadAccessMode:employeeLeadAccessMode.value,hideLeadContacts:employeeHideLeadContacts.value==='true',campaignIds};if(employeePassword.value)payload.password=employeePassword.value;b.disabled=true;try{if(editingEmployeeUidAdm){const result=await employeeApi('admin-edit',{uid:editingEmployeeUidAdm,...payload});if(result.employee?.hideLeadContacts!==payload.hideLeadContacts)throw Error('O servidor não confirmou a visibilidade da aba Leads.');showToast(payload.hideLeadContacts?'A aba Leads foi ocultada para este funcionário.':'A aba Leads foi liberada para este funcionário.')}else{payload.password=employeePassword.value;const result=await employeeApi('admin-create',payload);if(result.employee?.hideLeadContacts!==payload.hideLeadContacts)throw Error('O servidor não confirmou a visibilidade da aba Leads.');showToast('Funcionário criado. Envie a senha temporária.')}closeModal('modalEmployee');await loadEmployeesAdm()}catch(e){showToast(e.message,'err')}finally{b.disabled=false}});
+const openCreateEmployeeModalBase=openCreateEmployeeModal;openCreateEmployeeModal=async()=>{employeeLeadAccessMode.value='assigned';employeeHideLeadContacts.value='false';return openCreateEmployeeModalBase()};
+const openEditEmployeeModalBase=openEditEmployeeModal;openEditEmployeeModal=async uid=>{const result=await openEditEmployeeModalBase(uid),employee=employeesAdm.find(item=>item.uid===uid);employeeLeadAccessMode.value=employee?.leadAccessMode==='all'?'all':'assigned';employeeHideLeadContacts.value=employee?.hideLeadContacts===true?'true':'false';return result};
+</script>
+<script>
+async function adminManagementApi(op,extra={}){const token=await auth.currentUser.getIdToken();const response=await fetch('/api/admin-management',{method:'POST',headers:{'Content-Type':'application/json',Authorization:'Bearer '+token},body:JSON.stringify({op,...extra})}),result=await response.json().catch(()=>({}));if(!response.ok)throw Error(result.error||'Não foi possível gerenciar os administradores.');return result}
+const ADMIN_PERMISSION_PANELS=['dashboard','pedidos','analises','analises-links','produtos','destaques','categorias','marcas','sessoes','precos','promocoes','cupons','leads','links','importacao','cliques','suporte','funcionarios','usuarios','quem-somos','perfil','contatos','config'];
+function renderAdminPanelChoices(containerId,selected=ADMIN_PERMISSION_PANELS){const selectedSet=new Set(selected);document.getElementById(containerId).innerHTML=ADMIN_PERMISSION_PANELS.map(id=>`<label class="admin-panel-choice"><input type="checkbox" value="${id}" ${selectedSet.has(id)?'checked':''}><span>${esc(PANEL_TITLES[id]?.[0]||id)}</span></label>`).join('')}
+function selectedAdminPanels(containerId){return [...document.querySelectorAll('#'+containerId+' input:checked')].map(input=>input.value)}
+function openCreateAdminModal(){if(!currentAdminIsPrimary){showToast('Somente o administrador principal pode criar administradores.','err');return}createAdminForm.reset();newAdminAccessMode.value='edit';renderAdminPanelChoices('newAdminPanels');newAdminError.textContent='';openModal('modalCreateAdmin');setTimeout(()=>newAdminName.focus(),0)}
+createAdminForm.addEventListener('submit',async event=>{event.preventDefault();const button=event.submitter,allowedPanels=selectedAdminPanels('newAdminPanels');newAdminError.textContent='';if(!allowedPanels.length){newAdminError.textContent='Selecione pelo menos uma aba.';return}button.disabled=true;try{await adminManagementApi('create',{name:newAdminName.value.trim(),email:newAdminEmail.value.trim(),password:newAdminPassword.value,accessMode:newAdminAccessMode.value,allowedPanels});closeModal('modalCreateAdmin');showToast('Novo administrador criado.');switchPanel('usuarios');switchUsersTabAdm('admins');await loadAllData()}catch(error){newAdminError.textContent=error.message}finally{button.disabled=false}});
+function openAdminPermissionsModal(uid){if(!currentAdminIsPrimary)return;const admin=usersCache.find(user=>user.uid===uid);if(!admin)return;permissionsAdminUid.value=uid;permissionsAdminAccessMode.value=admin.canWrite===false?'view':'edit';renderAdminPanelChoices('permissionsAdminPanels',Array.isArray(admin.allowedPanels)?admin.allowedPanels:ADMIN_PERMISSION_PANELS);adminPermissionsTitle.textContent='Permissões de '+(admin.name||admin.email||'administrador');adminPermissionsError.textContent='';openModal('modalAdminPermissions')}
+adminPermissionsForm.addEventListener('submit',async event=>{event.preventDefault();const button=event.submitter,allowedPanels=selectedAdminPanels('permissionsAdminPanels');adminPermissionsError.textContent='';if(!allowedPanels.length){adminPermissionsError.textContent='Selecione pelo menos uma aba.';return}button.disabled=true;try{await adminManagementApi('permissions',{uid:permissionsAdminUid.value,accessMode:permissionsAdminAccessMode.value,allowedPanels});closeModal('modalAdminPermissions');showToast('Permissões atualizadas. O administrador deverá entrar novamente.');await loadAllData();switchUsersTabAdm('admins')}catch(error){adminPermissionsError.textContent=error.message}finally{button.disabled=false}});
+async function deleteAdministratorAdm(uid,name){if(!currentAdminIsPrimary){showToast('Somente o administrador principal pode excluir administradores.','err');return}if(uid===currentAdmin?.uid){showToast('O administrador principal não pode ser excluído.','err');return}if(!confirm('Excluir o administrador '+name+'? O acesso ao ADM será removido imediatamente.'))return;try{await adminManagementApi('delete',{uid});showToast('Administrador excluído.');await loadAllData();switchUsersTabAdm('admins')}catch(error){showToast(error.message,'err')}}
 </script>
 </body>
 </html>

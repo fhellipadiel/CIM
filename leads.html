@@ -22,9 +22,10 @@ h1,h2{font-family:'Space Grotesk',Arial,sans-serif;letter-spacing:-.6px;margin:0
 h1{font-size:26px;line-height:1.2}
 .capture-field{margin:0 0 20px}
 .capture-field label{display:block;font-size:12px;font-weight:600;margin-bottom:9px}
-.capture-field input{width:100%;padding:15px 16px;border:1px solid var(--line);border-radius:11px;background:#000;color:var(--text);font:14px Inter,Arial,sans-serif;transition:border-color .2s,box-shadow .2s}
-.capture-field input::placeholder{color:#626875}
-.capture-field input:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px #ff360112}
+.capture-field input,.capture-field textarea{width:100%;padding:15px 16px;border:1px solid var(--line);border-radius:11px;background:#000;color:var(--text);font:14px Inter,Arial,sans-serif;transition:border-color .2s,box-shadow .2s}
+.capture-field textarea{min-height:108px;resize:vertical;line-height:1.5}
+.capture-field input::placeholder,.capture-field textarea::placeholder{color:#626875}
+.capture-field input:focus,.capture-field textarea:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px #ff360112}
 .capture-field input[aria-invalid=true]{border-color:#f57676}
 .document-input{position:relative}.document-input input{padding-right:100px}.document-input select{position:absolute;right:10px;top:50%;transform:translateY(-50%);border:0;border-left:1px solid var(--line);padding:8px;background:#000;color:var(--text);font:12px Inter,Arial,sans-serif;cursor:pointer}
 .field-error{display:block;font-size:11px;line-height:1.5;color:#f88;margin-top:6px}
@@ -94,6 +95,11 @@ main{animation:pageEntrance .7s cubic-bezier(.2,.8,.2,1) both}
         <input id="phone" type="tel" inputmode="numeric" maxlength="15" placeholder="(11) 99999-9999" autocomplete="off" aria-describedby="phoneError">
         <span id="phoneError" class="field-error" aria-live="polite"></span>
       </div>
+      <div class="capture-field">
+        <label for="observation">Observação</label>
+        <textarea id="observation" maxlength="500" placeholder="Informações adicionais sobre o contato" aria-describedby="observationError"></textarea>
+        <span id="observationError" class="field-error" aria-live="polite"></span>
+      </div>
       <div class="capture-permission">
         <label for="consent"><input id="consent" type="checkbox" aria-describedby="consentError"><span>Confirmo que o cliente autorizou o uso destes dados pela CIM para contato comercial, inclusive pelo WhatsApp, e vínculo com seu cadastro.</span></label>
         <span id="consentError" class="field-error" aria-live="polite"></span>
@@ -138,7 +144,7 @@ function updateCaptureDocument(){const cpf=captureElement('documentType').value=
 function captureValidPhone(value){return /^[1-9][0-9]([2-5][0-9]{7}|9[0-9]{8})$/.test(captureDigits(value));}
 function captureCnpjMask(value){return captureDigits(value).slice(0,14).replace(/^(\d{2})(\d)/,'$1.$2').replace(/^(\d{2})\.(\d{3})(\d)/,'$1.$2.$3').replace(/\.(\d{3})(\d)/,'.$1/$2').replace(/(\d{4})(\d)/,'$1-$2');}
 function capturePhoneMask(value){const digits=captureDigits(value).slice(0,11);return digits.replace(/^(\d{2})(\d)/,'($1) $2').replace(/(\d{4,5})(\d{4})$/,'$1-$2');}
-let captureDatabase=null,captureCampaign=null,captureCampaignId='',capturePreview=false,captureBusy=false;
+let captureDatabase=null,captureCampaign=null,captureCampaignId='',capturePreview=false,captureBusy=false,captureInitializing=false,captureInitialized=false;
 function captureMessage(text,error=false){captureElement('message').textContent=text;captureElement('message').classList.toggle('error',error);}
 function showUnavailablePage(title='Página não encontrada',message='404 · A página que você procura não existe ou não está mais disponível.'){
   document.body.classList.add('unavailable-page');
@@ -154,6 +160,8 @@ function showUnavailablePage(title='Página não encontrada',message='404 · A p
   captureMessage(message);
 }
 async function initCapture(){
+  if(captureInitializing||captureInitialized)return;
+  captureInitializing=true;
   const params=new URLSearchParams(location.search);
   capturePreview=params.get('preview')==='1';
   captureCampaignId=params.get('campaign')||params.get('campaignId')||params.get('c')||'';
@@ -163,11 +171,14 @@ async function initCapture(){
       const notice=document.createElement('p');notice.className='preview-notice';notice.textContent='Prévia do layout · nenhum contato será salvo';captureElement('capture').before(notice);
     }else{
       if(!/^[a-zA-Z0-9_-]{2,64}$/.test(captureCampaignId)){showUnavailablePage();return;}
-      if(typeof firebase==='undefined')throw new Error('Não foi possível conectar. Verifique sua internet e recarregue a página.');
-      if(!firebase.apps.length)firebase.initializeApp(firebaseConfig);
-      captureDatabase=firebase.database();
-      const snapshot=await captureDatabase.ref('leadCampaigns/'+captureCampaignId).once('value');
-      captureCampaign=snapshot.val();
+      const controller=new AbortController();
+      const timeout=setTimeout(()=>controller.abort(),10000);
+      try{
+        const campaignUrl=firebaseConfig.databaseURL+'/leadCampaigns/'+encodeURIComponent(captureCampaignId)+'.json';
+        const response=await fetch(campaignUrl,{cache:'no-store',signal:controller.signal});
+        if(!response.ok)throw new Error('campaign unavailable');
+        captureCampaign=await response.json();
+      }finally{clearTimeout(timeout);}
       if(!captureCampaign||captureCampaign.active!==true){showUnavailablePage();return;}
       fetch('/api/analytics',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({type:'lead_campaign_visit',campaignId:captureCampaignId,source:'lead-url'}),keepalive:true}).catch(()=>{});
     }
@@ -176,8 +187,16 @@ async function initCapture(){
     captureElement('officialSite').hidden=!captureSafeOfficialUrl(captureCampaign.officialUrl);
     captureElement('capture').hidden=false;
     document.body.classList.add('capture-ready');
+    captureInitialized=true;
   }catch(error){showUnavailablePage('Página indisponível','Não foi possível abrir esta página. Tente novamente mais tarde.');}
-  finally{captureElement('loading').hidden=true;}
+  finally{captureInitializing=false;captureElement('loading').hidden=true;}
+}
+function captureConnectDatabase(){
+  if(captureDatabase)return captureDatabase;
+  if(typeof firebase==='undefined')throw new Error('firebase unavailable');
+  if(!firebase.apps.length)firebase.initializeApp(firebaseConfig);
+  captureDatabase=firebase.database();
+  return captureDatabase;
 }
 function captureSafeOfficialUrl(value){
   try{const url=new URL(value);return url.protocol==='https:'&&!url.username&&!url.password?url.href:'';}catch(error){return '';}
@@ -201,27 +220,30 @@ document.addEventListener('DOMContentLoaded',()=>{
   captureElement('documentType').addEventListener('change',updateCaptureDocument);
   captureElement('cnpj').addEventListener('input',event=>{event.target.value=captureDocumentMask(event.target.value);captureElement('cnpjError').textContent='';event.target.removeAttribute('aria-invalid');});
   captureElement('phone').addEventListener('input',event=>{event.target.value=capturePhoneMask(event.target.value);captureElement('phoneError').textContent='';event.target.removeAttribute('aria-invalid');});
+  captureElement('observation').addEventListener('input',event=>{captureElement('observationError').textContent='';event.target.removeAttribute('aria-invalid');});
   captureElement('consent').addEventListener('change',()=>{captureElement('consentError').textContent='';});
   captureElement('photo').addEventListener('error',()=>{captureElement('photo').hidden=true;captureElement('captureMark').hidden=false;});
   captureElement('another').addEventListener('click',()=>{captureElement('capture').reset();updateCaptureDocument();captureElement('success').hidden=true;captureElement('capture').hidden=false;captureMessage('');captureElement('name').focus();});
   captureElement('capture').addEventListener('submit',async event=>{
     event.preventDefault();if(captureBusy)return;captureMessage('');
-    const name=captureElement('name').value.trim(),documentType=captureElement('documentType').value,cnpj=captureDigits(captureElement('cnpj').value),phone=captureDigits(captureElement('phone').value),consent=captureElement('consent').checked;
-    const errors={cnpj:!cnpj||(documentType==='cpf'?captureValidCpf(cnpj):captureValidCnpj(cnpj))?'':'Informe um '+documentType.toUpperCase()+' v\u00e1lido.',phone:captureValidPhone(phone)?'':'Informe um telefone válido com DDD.',consent:consent?'':'Confirme a autorização do cliente.'};
+    const name=captureElement('name').value.trim(),documentType=captureElement('documentType').value,cnpj=captureDigits(captureElement('cnpj').value),phone=captureDigits(captureElement('phone').value),observation=captureElement('observation').value.trim(),consent=captureElement('consent').checked;
+    const errors={cnpj:!cnpj||(documentType==='cpf'?captureValidCpf(cnpj):captureValidCnpj(cnpj))?'':'Informe um '+documentType.toUpperCase()+' v\u00e1lido.',phone:captureValidPhone(phone)?'':'Informe um telefone válido com DDD.',observation:observation?'':'Informe uma observação sobre o contato.',consent:consent?'':'Confirme a autorização do cliente.'};
     Object.entries(errors).forEach(([field,text])=>{captureElement(field+'Error').textContent=text;captureElement(field).setAttribute('aria-invalid',String(!!text));});
     const invalid=Object.keys(errors).find(key=>errors[key]);if(invalid){captureElement(invalid).focus();return;}
     if(capturePreview){captureMessage('Esta é uma prévia. Use o link de uma campanha para salvar contatos.');return;}
-    if(!captureDatabase||!captureCampaign?.active){captureMessage('A campanha não está disponível. Recarregue a página.',true);return;}
+    if(!captureCampaign?.active){captureMessage('A campanha não está disponível. Recarregue a página.',true);return;}
     captureBusy=true;captureElement('send').disabled=true;
     try{
+      captureConnectDatabase();
       const leadId=cnpj||'phone_'+phone;
-      await captureDatabase.ref('leads/'+leadId+'/captures').push().set({name,documentType,[documentType]:cnpj,phone,campaignId:captureCampaignId,campaignName:captureCampaign.name,capturedAt:firebase.database.ServerValue.TIMESTAMP,consent:true,consentVersion:'commercial-v1'});
+      await captureDatabase.ref('leads/'+leadId+'/captures').push().set({name,documentType,[documentType]:cnpj,phone,observation,campaignId:captureCampaignId,campaignName:captureCampaign.name,capturedAt:firebase.database.ServerValue.TIMESTAMP,consent:true,consentVersion:'commercial-v1'});
       captureElement('capture').hidden=true;captureElement('success').hidden=false;
     }catch(error){captureMessage('Não foi possível salvar. Verifique a conexão e se a campanha continua ativa.',true);}
     finally{captureBusy=false;captureElement('send').disabled=false;}
   });
   initCapture();
 });
+window.addEventListener('pageshow',event=>{if(event.persisted&&!captureInitialized)initCapture();});
 </script>
 </body>
 </html>

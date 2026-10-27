@@ -49,6 +49,10 @@
       "destination": "/api/checkout?signupAction=admin-access"
     },
     {
+      "source": "/api/admin-management",
+      "destination": "/api/checkout?signupAction=admin-management"
+    },
+    {
       "source": "/api/admin-recovery",
       "destination": "/api/checkout?signupAction=admin-recovery"
     },

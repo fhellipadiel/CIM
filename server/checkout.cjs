@@ -150,8 +150,10 @@ async function handle(action,req,res,dependencies={}) {
         if(dependencies.requireAdminAccess)await dependencies.requireAdminAccess(req,db);
         else await registry.requireRegistryAdmin(db,caller);
       }
-      return res.status(200).json({authorized:true,admins:await registry.adminDirectory(db)});
+      const admins=await registry.adminDirectory(db),isPrimary=caller.uid===PRIMARY_ADMIN_UID,entry=isPrimary?null:await registry.adminEntry(db,caller.uid),presence=(await db.ref('adminPresence').get()).val()||{},now=Date.now();
+      return res.status(200).json({authorized:true,isPrimary,canWrite:isPrimary||entry.canWrite===true,allowedPanels:isPrimary?null:(Array.isArray(entry.allowedPanels)?entry.allowedPanels:null),onlineAdmins:admins.filter(admin=>admin.uid!==caller.uid&&now-Number(presence[admin.uid]?.lastActiveAt||0)<90000).map(admin=>admin.uid),admins});
     }
+    if(action==='admin-management')return res.status(200).json(await require('./admin-management.cjs').handleAdminManagement({auth,db,caller,body,primaryUid:PRIMARY_ADMIN_UID}));
     if(action==='admin-media')return res.status(200).json(await require('./admin-media.cjs').handleMedia({auth,caller,body,requireRead:()=> (dependencies.requireAdminAccess||requireAdminAccess)(req,db),requireWrite:()=> (dependencies.requireAdminWriteAccess||dependencies.requireAdminAccess||requireAdminWriteAccess)(req,db)}));
     if(action==='admin-mfa')return res.status(200).json(await require('./admin-mfa.cjs').handleAdminMfa({auth,db,caller,body,requireSetup:()=> (dependencies.requireAdminSetupAccess||requireAdminSetupAccess)(req,db),requireAdmin:()=> (dependencies.requireAdminAccess||requireAdminAccess)(req,db)}));
     if(action==='employee')return res.status(200).json(await require('./employees.cjs').handleEmployees({auth,db,caller,body,requireAdmin:()=> (dependencies.requireAdminWriteAccess||dependencies.requireAdminAccess||requireAdminWriteAccess)(req,db)}));
