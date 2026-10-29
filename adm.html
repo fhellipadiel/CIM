@@ -112,13 +112,63 @@ body.admin-readonly .create-fab-wrap,body.admin-readonly .btn-danger,body.admin-
 .sb-nav .logout-btn i{width:16px;text-align:center;font-size:.85rem;flex-shrink:0}
 .sb-nav .logout-btn:hover{background:var(--panel-hover);color:var(--danger)}
 
+/* Sidebar inspirada no visual Apple, preservando a identidade CIM */
+.sidebar{background:rgba(8,8,8,.94);border-right:1px solid rgba(255,255,255,.055);box-shadow:18px 0 55px rgba(0,0,0,.22);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px)}
+.sb-brand{margin:10px 10px 2px;padding:12px;border-radius:18px;transition:.2s ease}
+.sb-brand:hover{background:rgba(255,255,255,.045)}
+.sb-brand .mark{width:40px;height:40px;border-radius:13px;background:#171717;box-shadow:inset 0 0 0 1px rgba(255,255,255,.07)}
+.sb-nav{padding:12px 10px 18px;margin-top:4px}
+.sb-group{margin-bottom:20px}
+.sb-group-label{padding:0 12px 7px;font-size:.62rem;font-weight:700;letter-spacing:.09em;text-transform:uppercase}
+.sb-item{min-height:43px;gap:10px;padding:7px 10px;border-radius:13px;margin-bottom:3px;color:#98989f;transition:background .2s ease,color .2s ease,transform .2s ease}
+.sb-item>i{display:grid;place-items:center;width:29px;height:29px;border-radius:9px;background:transparent;color:#a7a7ad;font-size:.78rem;box-shadow:none}
+.sb-item:hover{background:rgba(255,255,255,.055);color:#fff;transform:translateX(2px)}
+.sb-item.active{background:transparent;color:#ff3601;box-shadow:none}
+.sb-item.active>i{color:#ff3601;background:transparent;box-shadow:none}
+.sb-foot{padding:10px;background:rgba(8,8,8,.96)}
+.sb-foot .sidebar-collapse-btn{min-height:42px;padding:9px 12px;border-radius:13px;background:#111}
+
+/* Central de desempenho */
+#panel-cliques{--perf-card:#111113;--perf-card-strong:#171719}
+#panel-cliques .performance-head{align-items:center;margin-bottom:18px}
+#panel-cliques .performance-eyebrow{display:block;color:var(--accent);font-size:.68rem;font-weight:800;letter-spacing:.12em;text-transform:uppercase;margin-bottom:7px}
+#panel-cliques .performance-head h1{font-size:2rem;letter-spacing:-.04em}
+#panel-cliques .performance-head p{display:block;color:var(--text-muted);margin-top:6px;font-size:.85rem}
+.performance-periods,.performance-tabs,.performance-subtabs{display:flex;align-items:center;gap:4px;padding:4px;background:#111;border-radius:14px;width:max-content;max-width:100%;overflow-x:auto}
+.performance-periods button,.performance-tabs button,.performance-subtabs button{white-space:nowrap;border:0;background:transparent;color:#8e8e93;border-radius:10px;padding:9px 14px;font:inherit;font-size:.78rem;font-weight:700;cursor:pointer;transition:.2s}
+.performance-periods button.active,.performance-tabs button.active,.performance-subtabs button.active{background:#29292c;color:#fff;box-shadow:0 2px 10px rgba(0,0,0,.35)}
+.performance-tabs{margin-bottom:18px;padding:5px;border-radius:16px}
+.performance-tabs button{padding:11px 18px}
+.performance-tabs button.active{background:var(--accent);color:#190800;box-shadow:0 7px 20px rgba(255,54,1,.22)}
+.performance-summary{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-bottom:18px}
+.performance-summary-card{position:relative;overflow:hidden;min-height:132px;padding:20px;background:linear-gradient(145deg,var(--perf-card-strong),var(--perf-card));border:0;border-radius:20px;box-shadow:none}
+.performance-summary-card i{display:grid;place-items:center;width:34px;height:34px;border-radius:0;background:transparent;color:var(--accent);margin-bottom:18px}
+.performance-summary-card strong{display:block;font-size:1.75rem;letter-spacing:-.04em;line-height:1}
+.performance-summary-card span{display:block;color:#8e8e93;font-size:.75rem;margin-top:8px}
+.performance-grid{display:grid;grid-template-columns:minmax(0,1.45fr) minmax(280px,.75fr);gap:14px}
+.performance-card{background:var(--perf-card);border:0;border-radius:20px;padding:20px;box-shadow:none}
+.performance-card h3{font-size:.95rem;margin-bottom:4px}.performance-card .td-sub{margin-bottom:16px}
+.performance-ranking{display:grid;gap:8px}.performance-rank{position:relative;display:grid;width:100%;grid-template-columns:52px minmax(0,1fr) auto;align-items:center;gap:12px;padding:7px;border:0;border-radius:13px;background:transparent;color:inherit;text-align:left;cursor:pointer;transition:background .2s ease,transform .2s ease}.performance-rank:hover{background:#19191b;transform:translateX(3px)}.performance-rank-photo{width:52px;height:52px;border:0;border-radius:12px;background:#0b0b0c;object-fit:contain}.performance-rank-index{position:absolute;left:2px;top:2px;display:grid;place-items:center;width:19px;height:19px;border-radius:7px;background:var(--accent);color:#190800;font-size:.58rem;font-weight:900}.performance-rank strong{display:block;font-size:.78rem}.performance-rank small{color:#777}.performance-rank-value{color:var(--accent);font:700 .78rem var(--font-mono)}
+.performance-product-highlight{animation:performance-product-flash 1.5s ease}@keyframes performance-product-flash{0%,100%{background:transparent}25%,70%{background:rgba(255,54,1,.14)}}
+.performance-alert{display:flex;align-items:flex-start;gap:12px;padding:13px 0;border-bottom:1px solid rgba(255,255,255,.055)}.performance-alert:last-child{border-bottom:0}.performance-alert i{color:var(--accent);margin-top:2px}.performance-alert strong{display:block;font-size:.78rem}.performance-alert span{color:#777;font-size:.7rem}
+.performance-goal-list{display:grid;gap:10px}.performance-goal{padding:16px;background:#151517;border-radius:16px}.performance-goal-head{display:flex;justify-content:space-between;gap:14px;align-items:flex-start}.performance-goal-head strong{font-size:.8rem}.performance-goal-head span{font:700 .74rem var(--font-mono);color:var(--accent)}.performance-goal-meta{color:#777;font-size:.7rem;margin-top:4px}.performance-goal-track{height:7px;background:#252527;border-radius:10px;overflow:hidden;margin-top:12px}.performance-goal-fill{height:100%;border-radius:inherit;background:linear-gradient(90deg,#ff3601,#ff714d)}
+.performance-taxonomy{margin:18px 0}.performance-taxonomy-section{margin-top:16px}.performance-taxonomy-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:9px}.performance-taxonomy-head h3{font-size:.88rem}.performance-carousel-controls{display:flex;gap:5px}.performance-carousel-controls button{display:grid;place-items:center;width:30px;height:30px;border:0;border-radius:50%;background:#1a1a1c;color:#999;cursor:pointer}.performance-carousel-controls button:hover{color:var(--accent)}.performance-carousel{display:flex;gap:10px;overflow-x:auto;padding:3px 1px 10px;scroll-behavior:smooth;scroll-snap-type:x proximity;scrollbar-width:none}.performance-carousel::-webkit-scrollbar{display:none}.performance-taxonomy-item{flex:0 0 185px;min-height:94px;padding:15px;background:#111113;border:0;border-radius:17px;scroll-snap-align:start}.performance-taxonomy-item img{display:block;width:42px;height:30px;margin-bottom:12px;object-fit:contain;object-position:left center}.performance-taxonomy-item strong{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:.78rem}.performance-taxonomy-item span{display:block;margin-top:7px;color:var(--accent);font:700 .72rem var(--font-mono)}
+.performance-taxonomy-summary{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}.performance-taxonomy-summary-card{min-width:0;padding:18px;border:0;border-radius:19px;background:#111113;color:var(--text);text-align:left;cursor:pointer;transition:background .2s ease,transform .2s ease}.performance-taxonomy-summary-card:hover,.performance-taxonomy-summary-card.active{background:#19191b;transform:translateY(-2px)}.performance-taxonomy-summary-card small{display:block;color:#8e8e93;font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em}.performance-taxonomy-summary-card strong{display:block;margin-top:10px;color:var(--accent);font-size:1.55rem;letter-spacing:-.04em}.performance-taxonomy-preview{display:flex;align-items:center;gap:5px;min-height:34px;margin-top:12px;overflow:hidden}.performance-taxonomy-preview>span{max-width:33%;padding:5px 8px;border-radius:9px;background:#1d1d1f;color:#aaa;font-size:.62rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.performance-preview-brand{display:grid!important;place-items:center;width:54px;max-width:none!important;height:32px;padding:3px!important;background:transparent!important}.performance-preview-brand img{display:block;max-width:48px;max-height:26px;object-fit:contain}.performance-preview-brand em{font-style:normal;color:#888;font-size:.58rem}.performance-taxonomy-preview.is-sessions{padding-left:7px;overflow:visible}.performance-preview-session{position:relative;width:38px;max-width:none!important;height:38px;margin-left:-8px;padding:0!important;border:0;border-radius:50%!important;overflow:hidden;background:#1b1b1d!important;box-shadow:none}.performance-preview-session:first-child{margin-left:0}.performance-preview-session img{display:block;width:100%;height:100%;object-fit:cover}.performance-preview-session em{display:grid;place-items:center;width:100%;height:100%;padding:3px;color:#999;font-style:normal;font-size:.52rem;text-align:center}.performance-taxonomy-details{margin-top:12px;padding:16px;background:#0d0d0f;border-radius:19px}.performance-taxonomy-details[hidden],.performance-taxonomy-section[hidden]{display:none}.performance-taxonomy-close{border:0!important;background:transparent!important;color:#888!important;cursor:pointer}.performance-taxonomy-close:hover{color:#fff!important}@media(max-width:700px){.performance-taxonomy-summary{grid-template-columns:1fr}.performance-taxonomy-summary-card{padding:15px}}
+#panel-cliques .block{border:0;border-radius:20px;background:var(--perf-card);box-shadow:none}
+#panel-cliques .block-head{border-bottom-color:rgba(255,255,255,.055)}
+#panel-cliques table{min-width:720px}
+#panel-cliques .performance-table-scroll{overflow-x:auto}
+.performance-danger-menu{margin-left:auto}.performance-danger-menu summary{list-style:none;display:grid;place-items:center;width:36px;height:36px;border:0;border-radius:50%;background:#1c1c1e;color:#999;cursor:pointer}.performance-danger-menu summary::-webkit-details-marker{display:none}.performance-danger-menu[open] summary{color:#fff}.performance-danger-actions{position:absolute;right:0;z-index:20;width:210px;margin-top:7px;padding:6px;background:#202022;border-radius:13px;box-shadow:0 15px 40px #000b}.performance-danger-menu{position:relative}.performance-danger-actions button{display:block;width:100%;border:0;background:transparent;color:#ff6961;text-align:left;padding:10px;border-radius:9px;font:inherit;font-size:.75rem;cursor:pointer}.performance-danger-actions button:hover{background:#ffffff0b}
+@media(max-width:1050px){.performance-summary{grid-template-columns:repeat(2,minmax(0,1fr))}.performance-grid{grid-template-columns:1fr}}
+@media(max-width:600px){#panel-cliques .performance-head h1{font-size:1.65rem}.performance-summary{grid-template-columns:1fr 1fr;gap:8px}.performance-summary-card{min-height:116px;padding:15px}.performance-summary-card strong{font-size:1.4rem}.performance-tabs{width:100%}.performance-tabs button{flex:1;padding:10px 9px}.performance-periods{width:100%}.performance-periods button{flex:1}.performance-card{padding:16px}}
+
 /* ============================================================
    4. LAYOUT PRINCIPAL
    ============================================================ */
 .main{flex:1;min-width:0;display:flex;flex-direction:column;margin-left:250px}
 .sidebar,.main{transition:width .2s ease,margin-left .2s ease}
 @media(min-width:901px){
-  .sidebar.collapsed{width:70px}
+  .sidebar.collapsed{width:70px;left:12px;top:12px;height:calc(100vh - 24px);border:0;border-radius:20px;box-shadow:0 20px 55px rgba(0,0,0,.55)}
   .sidebar.collapsed .sb-brand{justify-content:center;padding-left:8px;padding-right:8px}
   .sidebar.collapsed .sb-brand .txt,.sidebar.collapsed .sb-group-label{display:none}
   .sidebar.collapsed .sb-nav{padding-left:8px;padding-right:8px}
@@ -131,21 +181,37 @@ body.admin-readonly .create-fab-wrap,body.admin-readonly .btn-danger,body.admin-
   .sidebar.collapsed .sb-foot{padding:12px 8px}
   .sidebar.collapsed .sb-foot button{justify-content:center;font-size:0;padding-left:8px;padding-right:8px}
   .sidebar.collapsed .sb-foot button i{font-size:.9rem;width:16px;text-align:center}
-  body.sidebar-collapsed .main{margin-left:70px}
-  .sidebar.collapsed.hover-expanded{width:250px}
-  .sidebar.collapsed.hover-expanded .sb-brand{justify-content:flex-start;padding-left:20px;padding-right:20px}
-  .sidebar.collapsed.hover-expanded .sb-brand .txt,.sidebar.collapsed.hover-expanded .sb-group-label{display:block}
-  .sidebar.collapsed.hover-expanded .sb-nav{padding-left:12px;padding-right:12px}
-  .sidebar.collapsed.hover-expanded .sb-group{margin-bottom:18px}
-  .sidebar.collapsed.hover-expanded .sb-item{justify-content:flex-start;padding-left:10px;padding-right:10px;font-size:.86rem}
-  .sidebar.collapsed.hover-expanded .sb-item .badge,.sidebar.collapsed.hover-expanded .sb-item .online-badge,.sidebar.collapsed.hover-expanded .sb-item .admin-online-badge:not([hidden]){display:flex}
-  .sidebar.collapsed.hover-expanded .sb-nav .logout-btn{justify-content:flex-start;padding-left:10px;padding-right:10px;font-size:.85rem}
-  .sidebar.collapsed.hover-expanded .sb-nav .logout-btn i{font-size:.85rem}
-  .sidebar.collapsed.hover-expanded .sb-foot{padding:12px 20px}
-  .sidebar.collapsed.hover-expanded .sb-foot button{justify-content:flex-start;font-size:.85rem;padding-left:10px;padding-right:10px}
-  .sidebar.collapsed.hover-expanded .sb-foot button i{font-size:.9rem}
-  body.sidebar-collapsed.sidebar-hover-expanded .main{margin-left:250px}
+  body.sidebar-collapsed .main{margin-left:94px}
 }
+
+/* Visão geral organizada e sem contornos */
+#panel-dashboard .panel-head{align-items:center;margin-bottom:20px}
+#panel-dashboard .panel-head h1{font-size:2rem;letter-spacing:-.04em}
+#panel-dashboard .panel-head p{display:block;margin-top:6px;color:var(--text-muted);font-size:.84rem}
+.dashboard-section-title{display:flex;align-items:end;justify-content:space-between;gap:12px;margin:25px 0 12px}
+.dashboard-section-title h2{font-size:.95rem;letter-spacing:-.01em}.dashboard-section-title span{color:var(--text-dim);font-size:.7rem}
+#panel-dashboard .stats-grid{grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-bottom:12px}
+#panel-dashboard .stat-card{min-height:142px;padding:20px;background:#111113;border:0;border-radius:20px;box-shadow:none;transition:transform .2s ease,background .2s ease}
+#panel-dashboard .stat-card:hover{border:0;background:#171719;transform:translateY(-3px)}
+#panel-dashboard .stat-card .sc-icon{width:34px;height:34px;border:0;background:transparent!important;border-radius:0}
+#panel-dashboard .stat-card .sc-val{font-size:1.85rem;letter-spacing:-.04em}
+#panel-dashboard .grid-2col{grid-template-columns:minmax(0,1.45fr) minmax(290px,.55fr);gap:14px}
+#panel-dashboard .block{overflow:hidden;background:#111113;border:0;border-radius:20px;box-shadow:none}
+#panel-dashboard .block-head{border-bottom:0;padding-bottom:8px}
+#panel-dashboard .block-body{padding-top:10px}
+#panel-dashboard .block .btn-ghost{border:0;background:#1a1a1c;border-radius:12px}
+#panel-dashboard .block .btn-ghost:hover{background:#222225;color:var(--accent)}
+@media(max-width:1180px){#panel-dashboard .stats-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(max-width:780px){#panel-dashboard .stats-grid{grid-template-columns:repeat(2,minmax(0,1fr))}#panel-dashboard .grid-2col{grid-template-columns:1fr}}
+@media(max-width:480px){#panel-dashboard .stat-card{min-height:122px;padding:15px}#panel-dashboard .stat-card .sc-val{font-size:1.55rem}.dashboard-section-title{align-items:flex-start;flex-direction:column;gap:4px}}
+
+/* Produtos sem contornos */
+#panel-produtos .block{border:0;box-shadow:none;background:#111113;border-radius:20px}
+#panel-produtos th,#panel-produtos td{border-bottom:0}
+#panel-produtos tbody tr{background:transparent}
+#panel-produtos tbody tr:hover{background:#171719}
+#panel-produtos .td-img{border:0;box-shadow:none;background:#0c0c0d}
+#panel-produtos .td-img:hover{border:0}
 .topbar{height:64px;display:flex;align-items:center;gap:16px;padding:0 26px;position:sticky;top:0;background:rgba(0,0,0,.85);backdrop-filter:blur(10px);z-index:100}
 .topbar h2{font-size:1.05rem;font-weight:600}
 .topbar .crumb{font-size:.75rem;color:var(--text-dim)}
@@ -543,9 +609,52 @@ tbody tr:last-child td{border-bottom:none}
 
 
 @media(min-width:901px){
- .sidebar.collapsed:not(.hover-expanded) .sb-item .online-badge,.sidebar.collapsed:not(.hover-expanded) .sb-item .admin-online-badge{display:none!important}
- .sidebar.collapsed:not(.hover-expanded) .sb-item.has-online-users>i{color:var(--ok)!important}
+ .sidebar.collapsed .sb-item .online-badge,.sidebar.collapsed .sb-item .admin-online-badge{display:none!important}
+ .sidebar.collapsed .sb-item.has-online-users>i{color:var(--ok)!important}
 }
+
+/* Acabamento sem contornos nos cartoes e nas abas do painel */
+.stat-card,.block,.chart-card,.lead-box,.lead-overview,.employee-summary-card,
+.analytics-filters,.filter-bar,.mini-item,.admin-profile-photo-card,
+.performance-taxonomy-card,.performance-ranking-card{border:0!important;box-shadow:none!important}
+.tabbar,.tabbar button,.lead-nav,.lead-tab,.lead-tabs,.performance-tabs,
+.performance-subtabs,.link-category-tabs,.link-category-tab{border:0!important}
+.link-category-tabs{display:flex;gap:8px;flex-wrap:wrap;overflow:visible;margin:0 0 16px;padding:2px 0 6px}
+.link-category-item{position:relative;display:inline-flex;align-items:center;border-radius:999px;background:#171717}
+.link-category-tab{flex:0 0 auto;padding:10px 15px;border-radius:999px;background:#171717;color:var(--text-muted);font:600 .78rem Inter,Arial,sans-serif;cursor:pointer}
+.link-category-item .link-category-tab{padding-right:8px}
+.link-category-tab:hover,.link-category-tab.active{background:#252525;color:var(--accent)}
+.link-category-more{display:grid;place-items:center;width:34px;height:34px;margin-right:3px;padding:0;border:0;border-radius:50%;background:transparent;color:var(--text-muted);cursor:pointer}
+.link-category-more:hover{background:#2b2b2b;color:#fff}
+.link-category-menu{display:none;position:absolute;z-index:40;top:calc(100% + 7px);right:0;min-width:145px;padding:6px;border:0;border-radius:12px;background:#222;box-shadow:0 12px 28px rgba(0,0,0,.45)}
+.link-category-menu.open{display:grid;gap:3px}
+.link-category-menu button{display:flex;align-items:center;gap:9px;width:100%;padding:10px 12px;border:0;border-radius:8px;background:transparent;color:#eee;text-align:left;font:600 .75rem Inter,Arial,sans-serif;cursor:pointer}
+.link-category-menu button:hover{background:#303030}.link-category-menu .danger{color:#ff6a48}
+.mini-list{overflow:visible}.mini-list .mini-item{position:relative;overflow:visible}
+#panel-categorias .block,#panel-marcas .block,#panel-sessoes .block,#panel-links .block{overflow:visible}
+.block:has(.admin-action-menu){overflow:visible}.block-body:has(.admin-action-menu){overflow:visible}
+tr:has(.admin-action-popover.open),.invoice-order-card:has(.admin-action-popover.open){position:relative;z-index:45}
+.mini-item:has(.admin-action-popover.open){z-index:35}
+.mi-actions.admin-action-menu,.row-actions.admin-action-menu,.invoice-order-actions.admin-action-menu,.lead-campaign-actions.admin-action-menu{position:relative;display:block;overflow:visible}
+.admin-action-trigger{display:grid!important;place-items:center;width:36px!important;height:36px!important;padding:0!important;border:0!important;border-radius:50%!important;background:#1b1b1d!important;color:#ddd!important;cursor:pointer}
+.admin-action-trigger:hover{background:#29292c!important;color:var(--accent)!important}
+.admin-action-popover{display:none;position:absolute;z-index:50;right:0;top:calc(100% + 7px);min-width:175px;padding:6px;border:0;border-radius:12px;background:#222;box-shadow:0 14px 30px rgba(0,0,0,.5)}
+.admin-action-popover.open{display:grid;gap:3px}
+.admin-action-popover .btn{display:flex;width:100%!important;height:auto!important;justify-content:flex-start!important;gap:10px;padding:10px 12px!important;border:0!important;border-radius:8px!important;background:transparent!important;color:#eee!important;text-align:left}
+.admin-action-popover .btn:hover{background:#303033!important;color:#fff!important}
+.admin-action-popover .btn-danger{color:#ff6a48!important}.admin-action-popover .btn i{width:16px;text-align:center}
+.admin-action-label{display:inline;font-size:.76rem;font-weight:600}
+.featured-admin-tabs{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;margin-bottom:22px}.featured-admin-tabs button{display:grid;grid-template-columns:44px minmax(0,1fr);align-items:center;column-gap:13px;min-height:82px;padding:15px 17px;border:0;border-radius:18px;background:#111113;color:var(--text-muted);text-align:left;cursor:pointer;transition:transform .18s ease,background .18s ease}.featured-admin-tabs button:hover{transform:translateY(-2px);background:#18181b}.featured-admin-tabs button.active{background:#1a1513;color:#fff;box-shadow:inset 3px 0 var(--accent)}.featured-admin-tabs button>span{grid-row:1/3;display:grid;place-items:center;width:44px;height:44px;border-radius:13px;background:#202023;color:var(--accent);font-size:1rem}.featured-admin-tabs strong{align-self:end;font-size:.86rem}.featured-admin-tabs small{align-self:start;color:var(--text-dim);font-size:.67rem;line-height:1.35}.featured-admin-pane{display:none}.featured-admin-pane.active{display:block}.featured-admin-grid{display:grid;grid-template-columns:minmax(0,.78fr) minmax(0,1.22fr);gap:26px;align-items:start}.featured-admin-grid>*{min-width:0}
+#panel-destaques .block{border:0;border-radius:20px;background:#111113;box-shadow:none;overflow:visible}#panel-destaques .block-head{min-height:66px;border:0;padding:18px 20px}#panel-destaques .block-body{padding:0 18px 18px}.featured-head-actions{display:flex;align-items:center;gap:7px}.featured-selected-card{position:sticky;top:82px}.featured-search-field{display:flex;align-items:center;gap:10px;margin-bottom:12px;padding:0 14px;border-radius:13px;background:#09090a}.featured-search-field i{color:var(--text-dim)}.featured-search-field input{width:100%;padding:13px 0;border:0;background:transparent;color:var(--text);font-size:.82rem;outline:0}
+#panel-destaques .mini-list{display:grid;min-width:0;gap:8px}#panel-destaques .mini-item{box-sizing:border-box;width:100%;min-width:0;min-height:64px;padding:10px 12px;border:0;border-radius:14px;background:#18181b}#panel-destaques .mini-item .mi-t{min-width:0}#panel-destaques .featured-selected-card .mini-item{background:#0c0c0e}#panel-destaques .featured-selected-card .admin-action-menu{flex:0 0 36px;margin-left:4px}#panel-destaques .mini-item img{width:46px!important;height:46px!important;border:0!important;border-radius:11px!important}.featured-slot-num,.gallery-slot-num{width:30px;height:30px;border:0;background:transparent;color:var(--accent);font-size:.76rem}.gallery-slot-num{color:var(--ok)}#featuredPickerAdm,#galleryPickerAdm{padding-right:4px;scrollbar-width:thin;scrollbar-color:var(--accent) transparent}#panel-destaques .empty-state{min-height:150px;border-radius:14px;background:#0c0c0e}
+@media(max-width:980px){.featured-admin-grid{grid-template-columns:1fr}.featured-selected-card{position:static}}@media(max-width:560px){.featured-admin-tabs{grid-template-columns:1fr}.featured-admin-tabs button{min-height:70px}.featured-admin-tabs small{display:none}.featured-admin-tabs button>span{grid-row:auto}.featured-head-actions .btn{font-size:0;padding:9px}.featured-head-actions .btn i{font-size:.8rem}}
+.featured-admin-tabs button.active{background:#111113!important;color:var(--accent)!important}
+
+/* Skeleton inicial do painel */
+.admin-entry-skeleton{position:fixed;z-index:5100;inset:0;display:grid;grid-template-columns:250px minmax(0,1fr);background:#050505;opacity:1;visibility:visible;transition:opacity .22s ease,visibility .22s ease}.admin-entry-skeleton.is-hidden{opacity:0;visibility:hidden;pointer-events:none}.admin-skeleton-side{padding:24px 18px;background:#09090a}.admin-skeleton-main{padding:24px 28px}.admin-skeleton-line,.admin-skeleton-card,.admin-skeleton-circle{position:relative;overflow:hidden;background:#151517}.admin-skeleton-line:after,.admin-skeleton-card:after,.admin-skeleton-circle:after{content:"";position:absolute;inset:0;transform:translateX(-100%);background:linear-gradient(90deg,transparent,rgba(255,255,255,.07),transparent);animation:adminSkeleton 1.25s infinite}.admin-skeleton-line{height:13px;margin-bottom:17px;border-radius:7px}.admin-skeleton-line.short{width:54%}.admin-skeleton-line.medium{width:76%}.admin-skeleton-brand{display:flex;align-items:center;gap:12px;margin-bottom:40px}.admin-skeleton-circle{width:48px;height:48px;flex:0 0 48px;border-radius:15px}.admin-skeleton-brand-copy{width:130px}.admin-skeleton-top{display:flex;justify-content:space-between;gap:20px;margin-bottom:40px}.admin-skeleton-title{width:min(300px,45%)}.admin-skeleton-search{width:230px}.admin-skeleton-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;margin-bottom:20px}.admin-skeleton-card{height:145px;border-radius:20px}.admin-skeleton-wide{display:grid;grid-template-columns:1.5fr 1fr;gap:14px}.admin-skeleton-wide .admin-skeleton-card{height:300px}@keyframes adminSkeleton{100%{transform:translateX(100%)}}@media(max-width:780px){.admin-entry-skeleton{grid-template-columns:74px 1fr}.admin-skeleton-side{padding:20px 13px}.admin-skeleton-brand-copy,.admin-skeleton-side .admin-skeleton-line{display:none}.admin-skeleton-main{padding:20px 16px}.admin-skeleton-grid{grid-template-columns:repeat(2,1fr)}.admin-skeleton-wide{grid-template-columns:1fr}.admin-skeleton-search{display:none}}
+.link-category-create{display:none;grid-template-columns:minmax(0,1fr) auto;gap:8px;margin-top:10px}
+.link-category-create.open{display:grid}
+@media(max-width:560px){.link-category-create{grid-template-columns:1fr}.panel-actions{width:100%}}
 
 </style><script src="assets/payment-policy.js"></script>
 <!-- LEADS: estilos locais do painel e dos diálogos -->
@@ -619,6 +728,42 @@ tbody tr:last-child td{border-bottom:none}
 @media(max-width:600px){.lead-filters{grid-template-columns:1fr;padding:16px}.lead-box-head{padding:16px}.lead-summary-grid{grid-template-columns:1fr}.lead-overview{padding:16px 64px}.lead-overview-icon{left:20px;font-size:2rem}.lead-campaign-grid{grid-template-columns:1fr}.lead-dialog-body,.lead-dialog-head{padding:18px}.lead-photo-upload{align-items:start;flex-wrap:wrap}#panel-leads .panel-head{flex-wrap:wrap;gap:16px}}
 .lead-week{margin-bottom:20px}.lead-week-controls,.lead-date-actions{display:flex;gap:8px;flex-wrap:wrap;align-items:end}.lead-week-controls label{min-width:160px}.lead-week-chart{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:10px;padding:22px}.lead-week-day{text-align:center;min-width:0}.lead-week-track{height:160px;display:flex;align-items:end;justify-content:center;border-bottom:1px solid var(--border)}.lead-week-bar{width:65%;max-width:44px;background:var(--accent);border-radius:6px 6px 0 0;min-height:2px}.lead-week-value{display:block;margin-bottom:8px;font-size:.85rem}.lead-week-label{display:block;margin-top:10px;font-size:.75rem;color:var(--text-muted)}.lead-week-label small{display:block;margin-top:4px}.lead-week-total{padding:16px 22px 0;color:var(--text-muted);font-size:.82rem}#leadToday.active{background:var(--accent-soft);color:var(--accent);border-color:var(--accent)}@media(max-width:600px){.lead-week-chart{padding:18px 10px;gap:5px}.lead-week-track{height:120px}.lead-week-controls{width:100%}.lead-week-controls label{flex:1}}
 
+/* Leads organizado em cartões, preservando a tabela de contatos recebidos */
+#panel-leads>.panel-head{margin-bottom:18px}
+#panel-leads>.lead-nav{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin:0 0 20px;padding:0;border:0}
+#panel-leads>.lead-nav .lead-tab{display:grid;grid-template-columns:46px minmax(0,1fr);align-items:center;gap:13px;min-height:82px;padding:16px 18px;border:0;border-radius:18px;background:#111113;color:var(--text-muted);text-align:left;transition:transform .18s ease,background .18s ease}
+#panel-leads>.lead-nav .lead-tab:hover{transform:translateY(-2px);background:#18181b}
+#panel-leads>.lead-nav .lead-tab.active{background:#111113;color:var(--accent);box-shadow:inset 3px 0 0 var(--accent)}
+.lead-nav-icon{display:grid;place-items:center;width:46px;height:46px;border-radius:14px;background:#1d1d20;color:var(--accent);font-size:1.05rem}.lead-nav-copy{display:grid;gap:4px}.lead-nav-copy strong{font-size:.9rem}.lead-nav-copy small{color:var(--text-dim);font-size:.68rem;font-weight:500;line-height:1.35}.lead-nav .active .lead-nav-copy small{color:#aaa}
+#panel-leads .lead-summary-grid{grid-template-columns:minmax(230px,.55fr) minmax(0,1.45fr);align-items:stretch;margin:0 0 16px}
+#panel-leads .lead-overview,#panel-leads .lead-employee-card,#panel-leads .lead-box,#panel-leads .lead-campaign-card{border:0;box-shadow:none;background:#111113}
+#panel-leads .lead-overview{min-height:128px;justify-content:flex-start;padding:22px 22px 22px 82px;text-align:left;border-radius:18px}
+#panel-leads .lead-overview-icon{left:24px;font-size:1.75rem}.lead-overview .sc-val{font-size:2.35rem}.lead-overview .sc-label{font-size:.78rem;color:var(--text-muted)}
+#panel-leads #leadEmployeeCards{display:flex;gap:12px;overflow-x:auto;padding:0 0 5px;scrollbar-width:thin;scrollbar-color:var(--accent) transparent}
+#panel-leads .lead-employee-card{flex:1 0 230px;min-height:128px;border-radius:18px;padding:18px}
+#panel-leads .lead-box{border-radius:20px;margin-bottom:16px;overflow:hidden}
+#panel-leads .lead-box-head{padding:20px 22px;border:0}
+#panel-leads .lead-week{background:#0f0f11}
+#panel-leads .lead-tabs{padding:4px;border-radius:999px;background:#09090a;gap:3px}
+#panel-leads .lead-tabs .lead-tab{border:0;border-radius:999px;background:transparent;padding:9px 14px}
+#panel-leads .lead-tabs .lead-tab.active{background:#28282c;color:var(--accent)}
+#panel-leads .lead-filters{margin:0 18px 14px;padding:16px;border-radius:16px;background:#0b0b0c}
+#panel-leads .lead-filters input,#panel-leads .lead-filters select{border:0;border-radius:11px;background:#19191c}
+#panel-leads .lead-result-count{color:var(--text-muted)}
+#panel-leads .lead-table-wrap{border-radius:0 0 20px 20px;background:#111113}
+#panel-leads .lead-table-wrap th{border:0;background:#0d0d0f}
+#panel-leads .lead-table-wrap td{border-bottom:0}
+#panel-leads .lead-table-wrap tbody tr+tr{box-shadow:inset 0 1px rgba(255,255,255,.035)}
+#leadCampaignsPane{padding:20px;border-radius:20px;background:#0c0c0e}
+#leadCampaignsPane .lead-section-head{margin-bottom:18px}.lead-campaign-grid{grid-template-columns:repeat(auto-fill,minmax(300px,360px));gap:16px;align-items:start}.lead-campaign-card{position:relative;isolation:isolate;min-height:270px;padding:0 20px 20px;border-radius:22px;overflow:visible;background:#111113!important}.lead-campaign-card:before{content:"";position:absolute;z-index:-1;left:0;right:0;top:0;height:82px;border-radius:22px 22px 0 0;background:linear-gradient(120deg,rgba(255,54,1,.2),rgba(255,54,1,.035) 55%,transparent)}
+.lead-campaign-person{align-items:flex-end;gap:14px;min-height:112px;padding:24px 44px 14px 0}.lead-campaign-avatar-wrap{position:relative;width:72px;height:72px;flex:0 0 72px}.lead-campaign-person img,.lead-campaign-avatar-fallback{width:72px;height:72px;border-radius:20px;border:3px solid #111113;background:#202023;box-shadow:0 8px 20px rgba(0,0,0,.35)}.lead-campaign-avatar-fallback{display:grid;place-items:center;color:var(--accent);font-size:1.35rem}.lead-campaign-active-dot{position:absolute;right:-3px;bottom:6px;width:14px;height:14px;border:3px solid #111113;border-radius:50%;background:#64646b}.lead-campaign-active-dot.is-active{background:var(--ok);box-shadow:0 0 0 3px rgba(62,207,142,.12)}.lead-campaign-person h3{font-size:1.05rem;line-height:1.25}.lead-campaign-person p{margin-top:5px;color:#aaa}
+.lead-campaign-statuses{display:flex;gap:7px;flex-wrap:wrap}.lead-campaign-online-status{display:inline-flex;align-items:center;min-height:28px;padding:6px 10px;border-radius:999px;background:#1d1d20;color:#fff;font-size:.7rem}.lead-campaign-online-status.is-online{background:rgba(62,207,142,.12);color:var(--ok)}
+.lead-campaign-metrics{display:grid;grid-template-columns:82px minmax(0,1fr);gap:10px;padding:15px 0}.lead-campaign-metric{display:grid;gap:4px}.lead-campaign-metric strong{color:#fff;font-size:1rem}.lead-campaign-metric span{color:var(--text-dim);font-size:.65rem}.lead-campaign-metric:last-child{padding-left:12px;border-left:1px solid rgba(255,255,255,.07)}
+.lead-campaign-url{display:grid;gap:6px;padding:13px 14px;border:0;border-radius:13px;background:#09090a;color:#c7c7ca}.lead-campaign-url small{color:var(--text-dim);font-size:.62rem;text-transform:uppercase;letter-spacing:.08em}.lead-campaign-url span{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-family:monospace;font-size:.72rem}
+.lead-campaign-actions.admin-action-menu{position:absolute;z-index:12;top:16px;right:16px}.lead-campaign-card .admin-action-trigger{background:rgba(8,8,9,.72)!important;backdrop-filter:blur(8px)}.lead-campaign-history{margin-top:4px;padding-top:14px;border:0}.lead-campaign-history-row{padding:7px 0;border-bottom:1px solid rgba(255,255,255,.04)}
+@media(max-width:850px){#panel-leads .lead-summary-grid{grid-template-columns:1fr}#panel-leads>.lead-nav{grid-template-columns:1fr 1fr}}
+@media(max-width:560px){#panel-leads>.lead-nav{grid-template-columns:1fr}#panel-leads>.lead-nav .lead-tab{min-height:72px}.lead-nav-copy small{display:none}#panel-leads .lead-overview{min-height:110px}#leadCampaignsPane{padding:14px}.lead-campaign-grid{grid-template-columns:1fr}.lead-campaign-card{min-height:0}}
+
 /* Central de suporte integrada ao visual dos demais painéis do ADM. */
 #panel-suporte>.panel-head{display:flex!important}
 #panel-suporte .cs-center{background:var(--panel);border-color:var(--border);box-shadow:0 14px 38px rgba(0,0,0,.22)}
@@ -648,6 +793,11 @@ tbody tr:last-child td{border-bottom:none}
 <script src="assets/mfa-auth.js"></script>
 </head>
 <body>
+
+<div class="admin-entry-skeleton" id="adminEntrySkeleton" aria-label="Carregando painel" aria-live="polite">
+  <div class="admin-skeleton-side"><div class="admin-skeleton-brand"><div class="admin-skeleton-circle"></div><div class="admin-skeleton-brand-copy"><div class="admin-skeleton-line"></div><div class="admin-skeleton-line short"></div></div></div><div class="admin-skeleton-line medium"></div><div class="admin-skeleton-line"></div><div class="admin-skeleton-line medium"></div><div class="admin-skeleton-line"></div><div class="admin-skeleton-line short"></div><div class="admin-skeleton-line medium"></div><div class="admin-skeleton-line"></div></div>
+  <div class="admin-skeleton-main"><div class="admin-skeleton-top"><div class="admin-skeleton-title"><div class="admin-skeleton-line"></div><div class="admin-skeleton-line short"></div></div><div class="admin-skeleton-search admin-skeleton-line"></div></div><div class="admin-skeleton-grid"><div class="admin-skeleton-card"></div><div class="admin-skeleton-card"></div><div class="admin-skeleton-card"></div><div class="admin-skeleton-card"></div></div><div class="admin-skeleton-wide"><div class="admin-skeleton-card"></div><div class="admin-skeleton-card"></div></div></div>
+</div>
 
 <!-- ============================================================
      TELA DE LOGIN
@@ -708,7 +858,7 @@ tbody tr:last-child td{border-bottom:none}
     <div class="sb-group">
       <div class="sb-group-label">Operações</div>
       <div class="sb-item" data-panel="importacao"><i class="fas fa-file-import"></i> Importação</div>
-      <div class="sb-item" data-panel="cliques"><i class="fas fa-chart-line"></i> Cliques &amp; Metas</div>
+      <div class="sb-item" data-panel="cliques"><i class="fas fa-chart-line"></i> Desempenho</div>
     </div>
     <div class="sb-group">
       <div class="sb-group-label">Pessoas</div>
@@ -757,6 +907,7 @@ tbody tr:last-child td{border-bottom:none}
          ============================================================ -->
     <section class="panel active" id="panel-dashboard">
       <div class="panel-head"><div><h1>Visão geral</h1><p>Resumo do desempenho e status da loja</p></div></div>
+      <div class="dashboard-section-title"><h2>Indicadores principais</h2><span>O que merece atenção agora</span></div>
       <div class="stats-grid">
         <div class="stat-card" onclick="goToPanel('produtos')">
           <div class="sc-top"><div class="sc-icon"><i class="fas fa-box"></i></div><i class="fas fa-arrow-up-right-from-square" style="color:var(--text-dim);font-size:.7rem;"></i></div>
@@ -774,6 +925,9 @@ tbody tr:last-child td{border-bottom:none}
           <div class="sc-top"><div class="sc-icon"><i class="fas fa-percent"></i></div><i class="fas fa-arrow-up-right-from-square" style="color:var(--text-dim);font-size:.7rem;"></i></div>
           <div class="sc-val" id="statPromosAtivas">0</div><div class="sc-label">Promoções ativas</div>
         </div>
+      </div>
+      <div class="dashboard-section-title"><h2>Operação e relacionamento</h2><span>Vendas, clientes e canais de contato</span></div>
+      <div class="stats-grid">
         <div class="stat-card" onclick="goToPanel('cupons')">
           <div class="sc-top"><div class="sc-icon"><i class="fas fa-ticket"></i></div><i class="fas fa-arrow-up-right-from-square" style="color:var(--text-dim);font-size:.7rem;"></i></div>
           <div class="sc-val" id="statCupons">0</div><div class="sc-label">Cupons ativos</div>
@@ -803,11 +957,13 @@ tbody tr:last-child td{border-bottom:none}
           <div class="sc-val" id="statOrdersToday">0</div><div class="sc-label">Pedidos de hoje</div>
         </div>
       </div>
+      <div class="dashboard-section-title"><h2>Clientes ativos</h2><span>Recorrência de acesso à plataforma</span></div>
       <div class="stats-grid" style="margin-top:4px;">
         <div class="stat-card" onclick="showActiveUsersModal(7)"><div class="sc-top"><div class="sc-icon"><i class="fas fa-user-clock"></i></div></div><div class="sc-val" id="statActive7d">0</div><div class="sc-label">Ativos (7 dias)</div></div>
         <div class="stat-card" onclick="showActiveUsersModal(30)"><div class="sc-top"><div class="sc-icon"><i class="fas fa-user-clock"></i></div></div><div class="sc-val" id="statActive30d">0</div><div class="sc-label">Ativos (30 dias)</div></div>
         <div class="stat-card" onclick="showActiveUsersModal(90)"><div class="sc-top"><div class="sc-icon"><i class="fas fa-user-clock"></i></div></div><div class="sc-val" id="statActive90d">0</div><div class="sc-label">Ativos (90 dias)</div></div>
       </div>
+      <div class="dashboard-section-title"><h2>Produtos e atalhos</h2><span>Acompanhe o interesse e acesse ações frequentes</span></div>
       <div class="grid-2col">
         <div class="block">
           <div class="block-head"><h3><i class="fas fa-ranking-star" style="color:var(--accent)"></i> Peças mais clicadas</h3></div>
@@ -1081,23 +1237,23 @@ tbody tr:last-child td{border-bottom:none}
     <section class="panel" id="panel-destaques">
       <div class="panel-head">
         <div><h1>Destaques da Busca</h1><p>Escolha até 5 peças que aparecerão primeiro quando o cliente abrir a busca na loja</p></div>
-        <div class="panel-actions"><button class="btn btn-ghost" onclick="clearAllFeaturedAdm()"><i class="fas fa-eraser"></i> Limpar tudo</button></div>
       </div>
-      <div class="block">
+      <div class="featured-admin-tabs" role="tablist" aria-label="Áreas de destaque"><button type="button" class="active" data-featured-tab="search" onclick="switchFeaturedAdminTab('search')"><span><i class="fas fa-magnifying-glass"></i></span><strong>Destaques da busca</strong><small>Primeiras peças exibidas ao pesquisar</small></button><button type="button" data-featured-tab="login" onclick="switchFeaturedAdminTab('login')"><span><i class="fas fa-images"></i></span><strong>Galeria do login</strong><small>Peças da animação da entrada</small></button></div>
+      <div class="featured-admin-pane active" data-featured-pane="search"><div class="featured-admin-grid"><div class="block featured-selected-card">
         <div class="block-head">
           <h3><i class="fas fa-star" style="color:var(--accent)"></i> Peças em destaque (<span id="featuredCountAdm">0</span>/5)</h3>
-          <span class="chip chip-ok" id="featuredSavedChip" style="display:none;"><i class="fas fa-check"></i> Salvo</span>
+          <div class="featured-head-actions"><span class="chip chip-ok" id="featuredSavedChip" style="display:none;"><i class="fas fa-check"></i> Salvo</span><button class="btn btn-sm btn-ghost" onclick="clearAllFeaturedAdm()"><i class="fas fa-eraser"></i> Limpar</button></div>
         </div>
         <div class="block-body"><div class="mini-list" id="featuredSlotsAdm"></div></div>
       </div>
       <div class="block" id="featuredAddBlock">
         <div class="block-head"><h3><i class="fas fa-plus-circle" style="color:var(--accent)"></i> Adicionar peça aos destaques</h3></div>
         <div class="block-body">
-          <input type="text" id="featuredSearchInput" placeholder="Buscar..." oninput="renderFeaturedPickerAdm()" style="width:100%;padding:11px 14px;background:var(--panel-alt);border:1px solid var(--border);border-radius:8px;color:var(--text);margin-bottom:12px;font-size:.85rem;">
+          <div class="featured-search-field"><i class="fas fa-magnifying-glass"></i><input type="text" id="featuredSearchInput" placeholder="Buscar por peça, código, marca ou categoria" oninput="renderFeaturedPickerAdm()"></div>
           <div class="mini-list" id="featuredPickerAdm" style="max-height:480px;overflow-y:auto;"></div>
         </div>
-      </div>
-      <div class="block">
+      </div></div></div>
+      <div class="featured-admin-pane" data-featured-pane="login"><div class="featured-admin-grid"><div class="block featured-selected-card">
         <div class="block-head">
           <h3><i class="fas fa-images" style="color:var(--ok)"></i> Galeria do Login (<span id="galleryCountAdm">0</span>/20)</h3>
           <div style="display:flex;gap:8px;align-items:center;">
@@ -1113,14 +1269,14 @@ tbody tr:last-child td{border-bottom:none}
       <div class="block" id="galleryAddBlock">
         <div class="block-head"><h3><i class="fas fa-plus-circle" style="color:var(--ok)"></i> Adicionar peça à galeria do login</h3></div>
         <div class="block-body">
-          <input type="text" id="gallerySearchInput" placeholder="Buscar..." oninput="renderGalleryPickerAdm()" style="width:100%;padding:11px 14px;background:var(--panel-alt);border:1px solid var(--border);border-radius:8px;color:var(--text);margin-bottom:12px;font-size:.85rem;">
+          <div class="featured-search-field"><i class="fas fa-magnifying-glass"></i><input type="text" id="gallerySearchInput" placeholder="Buscar por peça, código, marca ou categoria" oninput="renderGalleryPickerAdm()"></div>
           <div class="mini-list" id="galleryPickerAdm" style="max-height:480px;overflow-y:auto;"></div>
         </div>
-      </div>
+      </div></div></div>
       <div class="create-fab-wrap">
         <div class="create-fab-menu" role="menu">
-          <button class="create-fab-option" type="button" role="menuitem" onclick="focusCreateSection('featuredAddBlock','featuredSearchInput')"><i class="fas fa-star"></i> Peça em destaque</button>
-          <button class="create-fab-option" type="button" role="menuitem" onclick="focusCreateSection('galleryAddBlock','gallerySearchInput')"><i class="fas fa-images"></i> Peça na galeria do login</button>
+          <button class="create-fab-option" type="button" role="menuitem" onclick="switchFeaturedAdminTab('search');focusCreateSection('featuredAddBlock','featuredSearchInput')"><i class="fas fa-star"></i> Peça em destaque</button>
+          <button class="create-fab-option" type="button" role="menuitem" onclick="switchFeaturedAdminTab('login');focusCreateSection('galleryAddBlock','gallerySearchInput')"><i class="fas fa-images"></i> Peça na galeria do login</button>
         </div>
         <button class="create-fab" type="button" aria-label="Abrir opções para adicionar" aria-haspopup="menu" aria-expanded="false" title="Adicionar" onclick="toggleCreateMenu(this)"><i class="fas fa-plus"></i></button>
       </div>
@@ -1132,9 +1288,10 @@ tbody tr:last-child td{border-bottom:none}
     <section class="panel" id="panel-categorias">
       <div class="panel-head">
         <div><h1>Categorias</h1><p>Organize e reordene as categorias de peças</p></div>
-        <div class="panel-actions"><button class="btn btn-danger" onclick="openDeleteNoCategoryModalAdm()"><i class="fas fa-broom"></i> Limpar peças "Sem categoria"</button></div>
+        <div class="panel-actions"><button class="btn btn-ghost" onclick="resetTaxonomyClicksAdm('categories')"><i class="fas fa-rotate-left"></i> Zerar cliques</button><button class="btn btn-danger" onclick="openDeleteNoCategoryModalAdm()"><i class="fas fa-broom"></i> Limpar peças "Sem categoria"</button></div>
       </div>
       <div class="block"><div class="block-body"><div class="mini-list" id="categoriesList"></div></div></div>
+      <div class="create-fab-wrap"><button class="create-fab" type="button" aria-label="Adicionar categoria" title="Nova categoria" onclick="openCreateCategoryModal()"><i class="fas fa-plus"></i></button></div>
     </section>
 
     <!-- ============================================================
@@ -1143,6 +1300,7 @@ tbody tr:last-child td{border-bottom:none}
     <section class="panel" id="panel-marcas">
       <div class="panel-head">
         <div><h1>Marcas</h1><p>Logos e ordem de exibição das marcas</p></div>
+        <div class="panel-actions"><button class="btn btn-ghost" onclick="resetTaxonomyClicksAdm('brands')"><i class="fas fa-rotate-left"></i> Zerar cliques</button></div>
       </div>
       <div class="block"><div class="block-body"><div class="mini-list" id="brandsList"></div></div></div>
       <div class="create-fab-wrap"><button class="create-fab" type="button" aria-label="Adicionar marca" title="Adicionar marca" onclick="openBrandModal()"><i class="fas fa-plus"></i></button></div>
@@ -1154,6 +1312,7 @@ tbody tr:last-child td{border-bottom:none}
     <section class="panel" id="panel-sessoes">
       <div class="panel-head">
         <div><h1>Sessões</h1><p>Agrupamentos de peças exibidos na loja</p></div>
+        <div class="panel-actions"><button class="btn btn-ghost" onclick="resetTaxonomyClicksAdm('sessions')"><i class="fas fa-rotate-left"></i> Zerar cliques</button></div>
       </div>
       <div class="block"><div class="block-body"><div class="mini-list" id="sessionsList"></div></div></div>
       <div class="create-fab-wrap"><button class="create-fab" type="button" aria-label="Adicionar sessão" title="Adicionar sessão" onclick="openSessionModal()"><i class="fas fa-plus"></i></button></div>
@@ -1238,7 +1397,7 @@ tbody tr:last-child td{border-bottom:none}
     <div><h1>Leads</h1><p>Dos primeiros contatos ao cadastro completo.</p></div>
     <div class="panel-actions"><button type="button" class="btn btn-ghost" aria-haspopup="dialog" onclick="openContactsCsvModal('leads')"><i class="fas fa-file-csv"></i> Exportar CSV <i class="fas fa-chevron-down" style="margin-left:12px;font-size:.7rem" aria-hidden="true"></i></button><button type="button" class="btn btn-ghost" onclick="openContactsCsvHistory('leads')"><i class="fas fa-clock-rotate-left"></i> Hist&oacute;rico CSV</button></div>
   </div>
-  <div class="lead-nav" role="tablist" aria-label="Área de Leads"><button id="leadContactsTab" class="lead-tab active" role="tab" aria-controls="leadContactsPane" aria-selected="true" data-lead-view="contacts" onclick="switchLeadTab('contacts')"><i class="fas fa-address-book"></i>Contatos</button><button id="leadCampaignsTab" class="lead-tab" role="tab" aria-controls="leadCampaignsPane" aria-selected="false" tabindex="-1" data-lead-view="campaigns" onclick="switchLeadTab('campaigns')"><i class="fas fa-bullhorn"></i>Campanhas e URLs</button></div><div id="leadContactsPane" role="tabpanel" aria-labelledby="leadContactsTab" data-lead-pane="contacts"><div id="leadSummaryGrid" class="lead-summary-grid">
+  <div class="lead-nav" role="tablist" aria-label="Área de Leads"><button id="leadContactsTab" class="lead-tab active" role="tab" aria-controls="leadContactsPane" aria-selected="true" data-lead-view="contacts" onclick="switchLeadTab('contacts')"><span class="lead-nav-icon"><i class="fas fa-address-book"></i></span><span class="lead-nav-copy"><strong>Contatos</strong><small>Acompanhe cadastros, responsáveis e situação</small></span></button><button id="leadCampaignsTab" class="lead-tab" role="tab" aria-controls="leadCampaignsPane" aria-selected="false" tabindex="-1" data-lead-view="campaigns" onclick="switchLeadTab('campaigns')"><span class="lead-nav-icon"><i class="fas fa-bullhorn"></i></span><span class="lead-nav-copy"><strong>Campanhas e URLs</strong><small>Organize links e acompanhe seus acessos</small></span></button></div><div id="leadContactsPane" role="tabpanel" aria-labelledby="leadContactsTab" data-lead-pane="contacts"><div id="leadSummaryGrid" class="lead-summary-grid">
     <div class="lead-overview"><div class="lead-overview-icon"><i class="fas fa-address-book"></i></div><div><div class="sc-val" id="leadTotal">0</div><div class="sc-label">Total de Leads Capturados</div></div></div>
     <div id="leadEmployeeCards"></div>
   </div>
@@ -1281,7 +1440,7 @@ tbody tr:last-child td{border-bottom:none}
       <div class="create-fab-wrap"><button class="create-fab" type="button" aria-label="Adicionar link de campanha" title="Adicionar link" onclick="openLinkModal()"><i class="fas fa-plus"></i></button></div>
       <div class="block">
         <div class="block-head"><h3><i class="fas fa-link" style="color:var(--accent)"></i> Links ativos</h3></div>
-        <div class="block-body"><div class="mini-list" id="linksListAdm"></div></div>
+        <div class="block-body"><div class="link-category-tabs" id="linkCategoryTabsAdm" role="tablist" aria-label="Categorias de links"></div><div class="mini-list" id="linksListAdm"></div></div>
       </div>
     </section>
 
@@ -1340,22 +1499,46 @@ tbody tr:last-child td{border-bottom:none}
          PAINEL: CLIQUES & METAS
          ============================================================ -->
     <section class="panel" id="panel-cliques">
-      <div class="panel-head"><div><h1>Cliques &amp; metas</h1><p>Histórico de interações e metas batidas</p></div></div>
-      <div class="tabbar">
-        <button class="active" data-cliktab="hist" onclick="switchClickTab('hist')">Histórico de cliques</button>
-        <button data-cliktab="pages" onclick="switchClickTab('pages')">Páginas acessadas</button>
-        <button data-cliktab="searches" onclick="switchClickTab('searches')">Buscas sem resultado</button>
-        <button data-cliktab="metas" onclick="switchClickTab('metas')">Metas batidas</button>
-        <button data-cliktab="contatos" onclick="switchClickTab('contatos')"><i class="fab fa-whatsapp"></i> Contatos</button>
+      <div class="panel-head performance-head"><div><h1>Desempenho</h1><p>Acompanhe o interesse dos clientes e a evolução das metas em um só lugar.</p></div><div class="performance-periods" aria-label="Período do desempenho"><button class="active" data-performance-period="today" onclick="setPerformancePeriod('today')">Hoje</button><button data-performance-period="7d" onclick="setPerformancePeriod('7d')">7 dias</button><button data-performance-period="30d" onclick="setPerformancePeriod('30d')">30 dias</button><button data-performance-period="all" onclick="setPerformancePeriod('all')">Tudo</button></div></div>
+      <div class="performance-tabs" role="tablist" aria-label="Áreas de desempenho"><button class="active" data-cliktab="overview" onclick="switchClickTab('overview')"><i class="fas fa-sparkles"></i> Visão geral</button><button data-cliktab="goals" onclick="switchClickTab('goals')"><i class="fas fa-bullseye"></i> Produtos e metas</button><button data-cliktab="history" onclick="switchClickTab('history')"><i class="fas fa-clock-rotate-left"></i> Histórico</button></div>
+      <div id="clickTabOverview">
+        <div class="performance-summary">
+          <div class="performance-summary-card"><i class="fas fa-arrow-pointer"></i><strong id="performanceClicks">0</strong><span>Cliques em produtos</span></div>
+          <div class="performance-summary-card"><i class="fas fa-window-maximize"></i><strong id="performancePages">0</strong><span>Páginas acessadas</span></div>
+          <div class="performance-summary-card"><i class="fas fa-comments"></i><strong id="performanceContacts">0</strong><span>Contatos recebidos</span></div>
+          <div class="performance-summary-card"><i class="fas fa-trophy"></i><strong id="performanceGoals">0</strong><span>Metas atingidas</span></div>
+        </div>
+        <div class="performance-taxonomy">
+          <div class="performance-taxonomy-summary">
+            <button class="performance-taxonomy-summary-card" type="button" data-taxonomy-summary="categories" onclick="openPerformanceTaxonomy('categories')"><small>Categorias</small><strong id="performanceCategoriesTotal">0</strong><div class="performance-taxonomy-preview" id="performanceCategoriesPreview"></div></button>
+            <button class="performance-taxonomy-summary-card" type="button" data-taxonomy-summary="brands" onclick="openPerformanceTaxonomy('brands')"><small>Marcas</small><strong id="performanceBrandsTotal">0</strong><div class="performance-taxonomy-preview" id="performanceBrandsPreview"></div></button>
+            <button class="performance-taxonomy-summary-card" type="button" data-taxonomy-summary="sessions" onclick="openPerformanceTaxonomy('sessions')"><small>Sessões</small><strong id="performanceSessionsTotal">0</strong><div class="performance-taxonomy-preview" id="performanceSessionsPreview"></div></button>
+          </div>
+          <div class="performance-taxonomy-details" id="performanceTaxonomyDetails" hidden>
+            <section class="performance-taxonomy-section" data-taxonomy-detail="categories" hidden><div class="performance-taxonomy-head"><h3>Categorias</h3><div class="performance-carousel-controls"><button type="button" onclick="scrollPerformanceCarousel('performanceCategories',-1)" aria-label="Categorias anteriores"><i class="fas fa-chevron-left"></i></button><button type="button" onclick="scrollPerformanceCarousel('performanceCategories',1)" aria-label="Próximas categorias"><i class="fas fa-chevron-right"></i></button><button class="performance-taxonomy-close" type="button" onclick="closePerformanceTaxonomy()" aria-label="Fechar"><i class="fas fa-xmark"></i></button></div></div><div class="performance-carousel" id="performanceCategories"></div></section>
+            <section class="performance-taxonomy-section" data-taxonomy-detail="brands" hidden><div class="performance-taxonomy-head"><h3>Marcas</h3><div class="performance-carousel-controls"><button type="button" onclick="scrollPerformanceCarousel('performanceBrands',-1)" aria-label="Marcas anteriores"><i class="fas fa-chevron-left"></i></button><button type="button" onclick="scrollPerformanceCarousel('performanceBrands',1)" aria-label="Próximas marcas"><i class="fas fa-chevron-right"></i></button><button class="performance-taxonomy-close" type="button" onclick="closePerformanceTaxonomy()" aria-label="Fechar"><i class="fas fa-xmark"></i></button></div></div><div class="performance-carousel" id="performanceBrands"></div></section>
+            <section class="performance-taxonomy-section" data-taxonomy-detail="sessions" hidden><div class="performance-taxonomy-head"><h3>Sessões</h3><div class="performance-carousel-controls"><button type="button" onclick="scrollPerformanceCarousel('performanceSessions',-1)" aria-label="Sessões anteriores"><i class="fas fa-chevron-left"></i></button><button type="button" onclick="scrollPerformanceCarousel('performanceSessions',1)" aria-label="Próximas sessões"><i class="fas fa-chevron-right"></i></button><button class="performance-taxonomy-close" type="button" onclick="closePerformanceTaxonomy()" aria-label="Fechar"><i class="fas fa-xmark"></i></button></div></div><div class="performance-carousel" id="performanceSessions"></div></section>
+          </div>
+        </div>
+        <div class="performance-grid">
+          <article class="performance-card"><h3>Produtos mais procurados</h3><p class="td-sub">Ranking baseado no período selecionado.</p><div id="performanceRanking" class="performance-ranking"></div></article>
+          <article class="performance-card"><h3>Pontos de atenção</h3><p class="td-sub">Oportunidades identificadas nos dados.</p><div id="performanceAlerts"></div></article>
+        </div>
       </div>
+      <div id="clickTabGoals" style="display:none;">
+        <div class="performance-grid">
+          <article class="performance-card"><h3>Progresso das metas</h3><p class="td-sub">Produtos com uma meta de cliques configurada.</p><div id="performanceGoalList" class="performance-goal-list"></div></article>
+          <article class="performance-card"><h3>Metas atingidas recentemente</h3><p class="td-sub">Últimos produtos que alcançaram o objetivo.</p><div id="performanceGoalAchievements"></div></article>
+        </div>
+      </div>
+      <div id="clickTabHistory" style="display:none;">
+        <div class="performance-subtabs" role="tablist" aria-label="Tipo de histórico" style="margin-bottom:14px;"><button class="active" data-performance-detail="hist" onclick="switchPerformanceDetail('hist')">Cliques</button><button data-performance-detail="pages" onclick="switchPerformanceDetail('pages')">Páginas</button><button data-performance-detail="contatos" onclick="switchPerformanceDetail('contatos')">Contatos</button><button data-performance-detail="searches" onclick="switchPerformanceDetail('searches')">Buscas sem resultado</button></div>
       <div id="clickTabHist">
         <div class="block">
           <div class="block-head">
             <h3>Últimos cliques</h3>
             <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
-              <button type="button" class="click-period-pill active" data-click-period="today" onclick="setClickHistoryPeriod('today')">Hoje</button>
-              <button type="button" class="click-period-pill" data-click-period="all" onclick="setClickHistoryPeriod('all')">Ver tudo</button>
-              <button class="btn btn-sm btn-ghost" onclick="clearClickHistoryAdm()"><i class="fas fa-trash"></i> Limpar</button>
+              <details class="performance-danger-menu"><summary aria-label="Mais opções"><i class="fas fa-ellipsis"></i></summary><div class="performance-danger-actions"><button onclick="clearClickHistoryAdm()"><i class="fas fa-trash"></i> Limpar histórico de cliques</button></div></details>
             </div>
           </div>
           <div class="block-body">
@@ -1367,7 +1550,7 @@ tbody tr:last-child td{border-bottom:none}
               <button class="btn btn-sm btn-ghost" onclick="document.getElementById('clickCampaignFilter').value='';renderClickHistory();"><i class="fas fa-eraser"></i> Limpar filtro</button>
               <span id="clickFilteredCount" class="chip chip-mut" style="margin-left:auto;"></span>
             </div>
-            <div class="block-body tight" style="padding:0;">
+            <div class="block-body tight performance-table-scroll" style="padding:0;">
               <table>
                 <thead><tr><th>Peça</th><th>Usuário</th><th>Origem</th><th>Campanha</th><th>Data</th></tr></thead>
                 <tbody id="clickHistoryBody"></tbody>
@@ -1386,12 +1569,7 @@ tbody tr:last-child td{border-bottom:none}
       <div id="clickTabSearches" style="display:none;">
         <div class="block"><div class="block-head"><div><h3>Buscas sem resultado</h3><p class="td-sub">Termos procurados que não encontraram nenhuma peça.</p></div></div><div class="block-body tight"><table><thead><tr><th>Termo pesquisado</th><th>Vezes</th><th>URL</th><th>Última busca</th></tr></thead><tbody id="missingSearchesBody"></tbody></table></div></div>
       </div>
-      <div id="clickTabMetas" style="display:none;">
-        <div class="block">
-          <div class="block-head"><h3>Metas batidas</h3><button class="btn btn-sm btn-ghost" onclick="clearMetaAchievementsAdm()"><i class="fas fa-trash"></i> Limpar</button></div>
-          <div class="block-body tight"><table><thead><tr><th>Peça</th><th>Data</th></tr></thead><tbody id="metaAchBody"></tbody></table></div>
-        </div>
-      </div>
+      <div id="clickTabMetas" style="display:none;"><table><tbody id="metaAchBody"></tbody></table></div>
       <div id="clickTabContatos" style="display:none;">
         <div class="stats-grid" style="grid-template-columns:repeat(auto-fit,minmax(180px,1fr));">
           <div class="stat-card"><div class="sc-top"><div class="sc-icon"><i class="fab fa-whatsapp"></i></div></div><div class="sc-val" id="statContactWa">0</div><div class="sc-label">Cliques WhatsApp</div></div>
@@ -1401,9 +1579,7 @@ tbody tr:last-child td{border-bottom:none}
           <div class="block-head">
             <h3>Histórico de cliques em contato</h3>
             <div style="display:flex;gap:8px;flex-wrap:wrap;">
-              <button class="btn btn-sm btn-ghost" onclick="clearContactClicksAdm('whatsapp')"><i class="fas fa-trash"></i> Limpar WhatsApp</button>
-              <button class="btn btn-sm btn-ghost" onclick="clearContactClicksAdm('phone')"><i class="fas fa-trash"></i> Limpar Telefone</button>
-              <button class="btn btn-sm btn-danger" onclick="clearContactClicksAdm('all')"><i class="fas fa-trash"></i> Limpar tudo</button>
+              <details class="performance-danger-menu"><summary aria-label="Mais opções"><i class="fas fa-ellipsis"></i></summary><div class="performance-danger-actions"><button onclick="clearContactClicksAdm('whatsapp')">Limpar WhatsApp</button><button onclick="clearContactClicksAdm('phone')">Limpar telefone</button><button onclick="clearContactClicksAdm('all')">Limpar todos os contatos</button></div></details>
             </div>
           </div>
           <div class="block-body tight">
@@ -1413,6 +1589,7 @@ tbody tr:last-child td{border-bottom:none}
             </table>
           </div>
         </div>
+      </div>
       </div>
     </section>
 
@@ -1608,10 +1785,10 @@ tbody tr:last-child td{border-bottom:none}
       </div>
 
       <div class="block">
-        <div class="block-head"><h3>Gerenciamento de cliques</h3></div>
+        <div class="block-head"><h3>Produtos mais procurados</h3></div>
         <div class="block-body">
-          <p style="color:var(--text-muted);font-size:.82rem;margin-bottom:12px;">Zera os contadores de cliques das peças.</p>
-          <button class="btn btn-danger" id="resetProductClicksBtn" onclick="resetProductClicksAdm()"><i class="fas fa-undo-alt"></i> Resetar cliques das peças</button>
+          <p style="color:var(--text-muted);font-size:.82rem;margin-bottom:12px;">Reinicia o ranking e os contadores usados para identificar as peças mais procuradas. Metas, contatos e outros dados permanecem.</p>
+          <button class="btn btn-danger" id="resetProductClicksBtn" onclick="resetMostSearchedProductsAdm()"><i class="fas fa-rotate-left"></i> Reiniciar produtos mais procurados</button>
         </div>
       </div>
 
@@ -1664,6 +1841,12 @@ tbody tr:last-child td{border-bottom:none}
 <div class="notification-history-head"><h3>Notificações criadas</h3><button class="btn btn-sm btn-ghost" type="button" onclick="loadAnnouncements()">Atualizar</button></div><div id="announcementList"></div>
 </div></div></div>
 <div class="modal-overlay" id="modalOrderCleanup"><div class="modal large" role="dialog" aria-modal="true" aria-labelledby="orderCleanupTitle"><div class="modal-head"><div><h3 id="orderCleanupTitle">Gerenciar exclusão de pedidos</h3><p class="notification-muted">A exclusão da lista mantém o cadastro do cliente.</p></div><button type="button" class="modal-close" aria-label="Fechar lista de pedidos" onclick="closeModal('modalOrderCleanup')"><i class="fas fa-times" aria-hidden="true"></i></button></div><div class="modal-body"><div class="notification-search"><i class="fas fa-search" aria-hidden="true"></i><input id="cleanupOrderSearch" type="search" placeholder="Buscar pedido, cliente ou e-mail" oninput="renderLegacySettings()"></div><div id="cleanupOrderList"></div></div></div></div>
+<div class="modal-overlay" id="modalNovaCategoria"><div class="modal" role="dialog" aria-modal="true" aria-labelledby="modalNovaCategoriaTitle">
+  <div class="modal-head"><h3 id="modalNovaCategoriaTitle"><i class="fas fa-folder-plus" style="color:var(--accent);margin-right:8px"></i>Nova categoria</h3><button class="modal-close" type="button" aria-label="Fechar" onclick="closeModal('modalNovaCategoria')"><i class="fas fa-times"></i></button></div>
+  <div class="modal-body"><div class="f-group"><label for="newCategoryNameAdm">Nome da categoria</label><input id="newCategoryNameAdm" type="text" maxlength="80" placeholder="Ex.: Suspensão" autocomplete="off" onkeydown="if(event.key==='Enter'){event.preventDefault();saveCategoryAdm()}"><small>A categoria ficará disponível para selecionar nas peças.</small></div><div class="login-error" id="newCategoryErrorAdm" role="alert"></div></div>
+  <div class="modal-foot"><button class="btn btn-ghost" type="button" onclick="closeModal('modalNovaCategoria')">Cancelar</button><button class="btn btn-accent" id="saveCategoryBtnAdm" type="button" onclick="saveCategoryAdm()"><i class="fas fa-check"></i> Salvar categoria</button></div>
+</div></div>
+
 <div class="modal-overlay" id="modalProduto"><div class="modal large">
   <div class="modal-head"><h3 id="modalProdutoTitle">Nova peça</h3><button class="modal-close" onclick="closeModal('modalProduto')"><i class="fas fa-times"></i></button></div>
   <div class="modal-body">
@@ -1774,6 +1957,10 @@ tbody tr:last-child td{border-bottom:none}
     <div class="upload-box" id="lnkUploadBox" onclick="document.getElementById('lnkImgInput').click()"><i class="fas fa-cloud-upload-alt"></i><p>Ícone do link</p><input type="file" id="lnkImgInput" accept="image/*" style="display:none;"></div>
     <div class="upload-preview" id="lnkPreview" style="display:none;"><img id="lnkPreviewImg"><div class="chg" onclick="document.getElementById('lnkImgInput').click()">Trocar</div></div>
     <div class="f-group"><label>Nome da campanha <span class="req">*</span></label><input type="text" id="lnkName" placeholder="Ex: Instagram Bio"></div>
+    <div class="f-group"><label>Categoria do link</label>
+      <div style="display:flex;gap:8px;align-items:center;"><div class="select-wrap" style="flex:1"><select id="lnkCategory"><option value="">Sem categoria</option></select></div><button type="button" class="btn btn-ghost" onclick="toggleNewLinkCategoryAdm()"><i class="fas fa-plus"></i> Nova categoria</button></div>
+      <div class="link-category-create" id="linkCategoryCreateAdm"><input type="text" id="newLinkCategoryNameAdm" placeholder="Ex: Rede social" maxlength="40" onkeydown="if(event.key==='Enter'){event.preventDefault();saveLinkCategoryAdm()}"><button type="button" class="btn btn-accent" onclick="saveLinkCategoryAdm()">Adicionar</button></div>
+    </div>
     <div class="f-group"><label>Identificador na URL <span class="req">*</span></label><input type="text" id="lnkSlug" placeholder="Ex: instagram" maxlength="40"></div>
     <div class="f-group"><label>Link pronto</label>
       <div style="display:flex;gap:8px;">
@@ -2059,7 +2246,7 @@ let profileData = {};
 let quickHideProductId = null;
 let featuredDraft=[], featuredLoaded=false, featuredDirty=false, featuredSaveTimer=null;
 let galleryDraft=[], galleryLoaded=false, galleryDirty=false, gallerySaveTimer=null;
-let trackingLinks={}, editingLinkId=null, uploadedLinkImg=null;
+let trackingLinks={}, linkCategories=[], activeLinkCategory='all', editingLinkId=null, uploadedLinkImg=null;
 let aboutPhotosDraft=[], aboutPhotosLoaded=false, aboutPhotosDirty=false, aboutPhotosSaveTimer=null;
 let ordersCache=[], allOrdersCache=[];
 let orderPeriodFilter='all', orderStatusFilter='all';
@@ -2401,11 +2588,14 @@ async function doLogout(){
 }
 
 let adminSessionGeneration=0;
+function showAdminEntrySkeleton(){document.getElementById('adminEntrySkeleton')?.classList.remove('is-hidden');}
+function hideAdminEntrySkeleton(){document.getElementById('adminEntrySkeleton')?.classList.add('is-hidden');}
 async function initializeAdminSession(user){
   const generation=++adminSessionGeneration;
   hideLoading();
   lockAdminInterface();
   if(user){
+    showAdminEntrySkeleton();
     document.getElementById('loginError').textContent='Validando acesso administrativo...';
     try{
       await verifyAdminAuthorization(user);
@@ -2423,8 +2613,10 @@ async function initializeAdminSession(user){
         document.getElementById('loginError').textContent='';
         document.getElementById('loginScreen').style.display='none';
         loadAllData(); loadLeadsAdmin(); recordAdminEntryAdm();
+        window.setTimeout(hideAdminEntrySkeleton,650);
       }
     }catch(error){
+      hideAdminEntrySkeleton();
       if(generation!==adminSessionGeneration)return;
       const staleSession=error?.status===401||['auth/id-token-expired','auth/invalid-user-token','auth/user-token-expired','auth/user-disabled'].includes(error?.code);
       if(staleSession){
@@ -2451,7 +2643,7 @@ async function initializeAdminSession(user){
       document.getElementById('loginError').textContent=error?.status===403?'Conta sem permissão de administrador.':'A conexão falhou ao validar o ADM. Sua sessão foi mantida; atualize a página para tentar novamente.';
       document.getElementById('loginScreen').style.display='flex';
     }
-  }else{ document.getElementById('loginScreen').style.display='flex'; }
+  }else{ document.getElementById('loginScreen').style.display='flex'; hideAdminEntrySkeleton(); }
 }
 // Só observa a autenticação depois que a persistência desta aba foi definida.
 adminAuthReady.then(()=>auth.onAuthStateChanged(user=>{
@@ -2479,7 +2671,7 @@ leads:['Leads','Captura e acompanhamento comercial'],
   cupons:['Cupons','Códigos de desconto'],
   links:['Links de Campanha','Rastreamento de origem'],
   importacao:['Importação','Importação em lote via CSV'],
-  cliques:['Cliques & metas','Engajamento dos produtos'],
+  cliques:['Desempenho','Cliques, metas e interesse dos clientes'],
   funcionarios:['Funcionários','Equipe comercial e comissões'],
   usuarios:['Usuários','Clientes cadastrados'],
   'quem-somos':['Quem Somos','Fotos institucionais'],
@@ -2513,18 +2705,6 @@ function toggleSidebarCollapse(){
   button.innerHTML = `<i class="fas ${collapsed ? 'fa-angles-right' : 'fa-angles-left'}"></i> ${collapsed ? 'Expandir menu' : 'Recolher menu'}`;
 }
 
-const adminSidebar = document.getElementById('sidebar');
-adminSidebar.addEventListener('mouseenter', () => {
-  if(window.innerWidth > 900 && adminSidebar.classList.contains('collapsed')){
-    adminSidebar.classList.add('hover-expanded');
-    document.body.classList.add('sidebar-hover-expanded');
-  }
-});
-adminSidebar.addEventListener('mouseleave', () => {
-  adminSidebar.classList.remove('hover-expanded');
-  document.body.classList.remove('sidebar-hover-expanded');
-});
-
 function closeCreateMenus(){
   document.querySelectorAll('.create-fab-wrap.open').forEach(wrap => {
     wrap.classList.remove('open');
@@ -2548,12 +2728,67 @@ function focusCreateSection(sectionId,inputId){
   if(section) section.scrollIntoView({behavior:'smooth',block:'center'});
   window.setTimeout(() => document.getElementById(inputId)?.focus(), 350);
 }
+function actionLabelAdm(button){
+  const icon=button.querySelector('i')?.className||'';
+  if(button.title) return button.title;
+  if(/trash|times/.test(icon)) return 'Excluir';
+  if(/pencil|pen/.test(icon)) return 'Editar';
+  if(/star/.test(icon)) return 'Alterar destaque';
+  if(/ban/.test(icon)) return 'Alterar disponibilidade';
+  if(/eye-slash/.test(icon)) return 'Ocultar preços';
+  if(/toggle-on|toggle-off/.test(icon)) return 'Ativar ou desativar';
+  if(/forward/.test(icon)) return 'Avançar status';
+  if(/envelope/.test(icon)) return 'Enviar e-mail';
+  if(/right-left/.test(icon)) return 'Alterar tipo';
+  if(/percent/.test(icon)) return 'Aplicar promoção';
+  if(/user-lock/.test(icon)) return 'Definir permissões';
+  if(/chevron-up|arrow-up/.test(icon)) return 'Mover para cima';
+  if(/chevron-down|arrow-down/.test(icon)) return 'Mover para baixo';
+  if(/undo|rotate-left/.test(icon)) return 'Zerar contador';
+  if(/copy/.test(icon)) return 'Copiar';
+  if(/eye/.test(icon)) return 'Visualizar';
+  if(/download/.test(icon)) return 'Baixar';
+  if(/check/.test(icon)) return 'Confirmar';
+  return 'Ação';
+}
+function closeAdminActionMenusAdm(){ document.querySelectorAll('.admin-action-popover.open').forEach(menu=>menu.classList.remove('open')); }
+function toggleAdminActionMenuAdm(button){
+  const menu=button?.nextElementSibling,willOpen=menu&&!menu.classList.contains('open');
+  closeAdminActionMenusAdm(); closeLinkCategoryMenusAdm();
+  if(willOpen) menu.classList.add('open');
+}
+function enhanceAdminActionMenusAdm(root=document){
+  const groups=[];
+  if(root.matches?.('.mi-actions:not(.admin-action-menu),.row-actions:not(.admin-action-menu),.invoice-order-actions:not(.admin-action-menu),.lead-campaign-actions:not(.admin-action-menu)')) groups.push(root);
+  root.querySelectorAll?.('.mi-actions:not(.admin-action-menu),.row-actions:not(.admin-action-menu),.invoice-order-actions:not(.admin-action-menu),.lead-campaign-actions:not(.admin-action-menu)').forEach(group=>groups.push(group));
+  groups.forEach(group=>{
+    const buttons=[...group.children].filter(node=>node.matches?.('button,a.btn'));
+    if(buttons.length<2) return;
+    group.classList.add('admin-action-menu');
+    const trigger=document.createElement('button');
+    trigger.type='button';trigger.className='admin-action-trigger';trigger.setAttribute('aria-label','Abrir opções');trigger.setAttribute('aria-haspopup','menu');
+    trigger.innerHTML='<i class="fas fa-ellipsis-vertical"></i>';
+    trigger.addEventListener('click',event=>{event.stopPropagation();toggleAdminActionMenuAdm(trigger);});
+    const popover=document.createElement('div');popover.className='admin-action-popover';popover.setAttribute('role','menu');
+    buttons.forEach(button=>{
+      const label=actionLabelAdm(button);button.title=label;
+      const text=document.createElement('span');text.className='admin-action-label';text.textContent=label;button.appendChild(text);
+      button.addEventListener('click',()=>closeAdminActionMenusAdm());popover.appendChild(button);
+    });
+    group.append(trigger,popover);
+  });
+}
 document.addEventListener('click', event => {
   if(!event.target.closest('.create-fab-wrap')) closeCreateMenus();
+  if(!event.target.closest('.link-category-item')) closeLinkCategoryMenusAdm();
+  if(!event.target.closest('.admin-action-menu')) closeAdminActionMenusAdm();
 });
 document.addEventListener('keydown', event => {
-  if(event.key === 'Escape') closeCreateMenus();
+  if(event.key === 'Escape'){ closeCreateMenus(); closeLinkCategoryMenusAdm(); closeAdminActionMenusAdm(); }
 });
+const adminActionMenuObserver=new MutationObserver(records=>records.forEach(record=>record.addedNodes.forEach(node=>{if(node.nodeType===1)enhanceAdminActionMenusAdm(node)})));
+adminActionMenuObserver.observe(document.body,{childList:true,subtree:true});
+enhanceAdminActionMenusAdm(document);
 
 function switchPanel(name){
   if(!adminCanAccessPanel(name)){showToast('Este administrador não tem acesso a esta aba.','err');return;}
@@ -2714,19 +2949,19 @@ function loadAllData(){
   database.ref('products').on('value',snap=>{
     products = snap.val()? Object.values(snap.val()) : [];
     renderSessions();
-    renderDashboard(); renderProducts(); renderCategories(); updateSelectPopulators(); renderNoPrice(); refreshPromoTargets();
+    renderDashboard(); renderProducts(); renderCategories(); renderPerformanceTaxonomy(); updateSelectPopulators(); renderNoPrice(); refreshPromoTargets();
     renderFeaturedPanelAdm(); renderGalleryPanelAdm();
     cleanupDuplicateProductsAdm();
   });
-  database.ref('sessions').on('value',snap=>{ sessions=snap.val()||{}; renderSessions(); updateSelectPopulators(); });
-  database.ref('brands').on('value',snap=>{ brands=snap.val()||{}; renderBrands(); updateSelectPopulators(); });
+  database.ref('sessions').on('value',snap=>{ sessions=snap.val()||{}; renderSessions(); renderPerformanceTaxonomy(); updateSelectPopulators(); });
+  database.ref('brands').on('value',snap=>{ brands=snap.val()||{}; renderBrands(); renderPerformanceTaxonomy(); updateSelectPopulators(); });
   database.ref('contacts').on('value',snap=>{ contacts=snap.val()||{}; renderContacts(); });
   database.ref('promocoes').on('value',snap=>{ promocoes=snap.val()||{}; renderPromos(); renderDashboard(); });
   database.ref('cupons').on('value',snap=>{ cupons=snap.val()||{}; renderCoupons(); renderDashboard(); });
-  database.ref('categoryClicks').on('value',snap=>{ categoryClicks=snap.val()||{}; });
-  database.ref('sessionClicks').on('value',snap=>{ sessionClicks=snap.val()||{}; });
-  database.ref('brandClicks').on('value',snap=>{ brandClicks=snap.val()||{}; });
-  database.ref('settings/categoryOrder').on('value',snap=>{ categoryOrder=snap.val()||[]; renderCategories(); });
+  database.ref('categoryClicks').on('value',snap=>{ categoryClicks=snap.val()||{}; renderPerformanceTaxonomy(); });
+  database.ref('sessionClicks').on('value',snap=>{ sessionClicks=snap.val()||{}; renderPerformanceTaxonomy(); });
+  database.ref('brandClicks').on('value',snap=>{ brandClicks=snap.val()||{}; renderPerformanceTaxonomy(); });
+  database.ref('settings/categoryOrder').on('value',snap=>{ categoryOrder=snap.val()||[]; renderCategories(); renderPerformanceTaxonomy(); updateSelectPopulators(); });
   database.ref('settings/pricesHidden').on('value',snap=>{ pricesHidden=snap.val()||false; updatePricesToggleBtn(); });
   database.ref('clickLogs').orderByChild('timestamp').on('value',snap=>{
     const d=snap.val(); clickHistory = d? Object.values(d).reverse() : []; renderClickHistory();
@@ -2776,6 +3011,13 @@ function loadAllData(){
     updateLinksDashboard();
     updateLinkSlugFilter();
     if (document.getElementById('panel-cliques').classList.contains('active')) renderClickHistory();
+  });
+  database.ref('settings/linkCategories').on('value', snap => {
+    const value=snap.val();
+    linkCategories=Array.isArray(value)?value.filter(Boolean):Object.values(value||{}).filter(Boolean);
+    if(activeLinkCategory!=='all'&&activeLinkCategory!==''&&!linkCategories.includes(activeLinkCategory)) activeLinkCategory='all';
+    populateLinkCategorySelect();
+    renderLinks();
   });
 
   database.ref('.info/connected').on('value', snap => {
@@ -3444,7 +3686,7 @@ function renderOrders(){
       ? (isOrderInvoiceSentAdm(o) ? '<span class="invoice-status-sent">Enviado pelo e-mail</span>' : '<span class="invoice-status-pending">Pendente</span>')
       : '<span class="td-sub">—</span>';
 
-    return `<tr>
+    return `<tr data-product-id="${esc(p.id)}">
       <td>
         <div class="td-name" style="color:var(--accent);">${orderShortIdAdm(o)}</div>
         <span class="order-method-chip ${methodClass}">${methodLabel}</span>
@@ -3737,10 +3979,11 @@ async function confirmResetBuyers(){
 /* ============================================================
    PRODUTOS
    ============================================================ */
+function getAdminCategories(){return [...new Set([...categoryOrder,...products.map(product=>String(product.category||'').trim()).filter(Boolean)])];}
 function updateSelectPopulators(){
   ['pCategory'].forEach(id=>{
     const sel=document.getElementById(id); if(!sel) return; const cur=sel.value;
-    const cats=[...new Set(products.map(p=>p.category).filter(c=>c&&c.trim()!==''))].sort();
+    const cats=getAdminCategories().sort((a,b)=>a.localeCompare(b,'pt-BR'));
     sel.innerHTML='<option value="">Selecione...</option>'+cats.map(c=>`<option value="${esc(c)}">${esc(c)}</option>`).join('')+'<option value="__NEW__">+ Nova categoria...</option>';
     if(cats.includes(cur)) sel.value=cur;
   });
@@ -3759,7 +4002,7 @@ function updateSelectPopulators(){
   const filterCat=document.getElementById('prodFilterCategory');
   if(filterCat){
     const cur=filterCat.value;
-    const cats=[...new Set(products.map(p=>p.category).filter(c=>c&&c.trim()!==''))].sort();
+    const cats=getAdminCategories().sort((a,b)=>a.localeCompare(b,'pt-BR'));
     filterCat.innerHTML='<option value="">Todas categorias</option>'+cats.map(c=>`<option value="${esc(c)}">${esc(c)}</option>`).join('');
     if(cats.includes(cur)) filterCat.value=cur;
   }
@@ -3771,7 +4014,7 @@ function updateSelectPopulators(){
   });
   ['impCategoryAdm'].forEach(id=>{
     const sel=document.getElementById(id); if(!sel) return; const cur=sel.value;
-    const cats=[...new Set(products.map(p=>p.category).filter(c=>c&&c.trim()!==''))].sort();
+    const cats=getAdminCategories().sort((a,b)=>a.localeCompare(b,'pt-BR'));
     sel.innerHTML='<option value="">— Nenhuma —</option>'+cats.map(c=>`<option value="${esc(c)}">${esc(c)}</option>`).join('');
     if(cats.includes(cur)) sel.value=cur;
   });
@@ -4098,8 +4341,17 @@ function saveQuickHidePrice(){
 function isProductNoCategory(p){ if(!p) return false; const c=(p.category||'').trim().toLowerCase(); return c==='' || c==='sem categoria'; }
 function getNoCategoryProducts(){ return products.filter(isProductNoCategory); }
 
+function openCreateCategoryModal(){const input=document.getElementById('newCategoryNameAdm'),error=document.getElementById('newCategoryErrorAdm');if(input)input.value='';if(error)error.textContent='';openModal('modalNovaCategoria');setTimeout(()=>input?.focus(),80);}
+function saveCategoryAdm(){
+  const input=document.getElementById('newCategoryNameAdm'),error=document.getElementById('newCategoryErrorAdm'),button=document.getElementById('saveCategoryBtnAdm'),name=String(input?.value||'').trim().replace(/\s+/g,' ').slice(0,80);
+  if(!name){if(error)error.textContent='Informe o nome da categoria.';input?.focus();return;}
+  const categories=getAdminCategories();if(categories.some(category=>category.toLocaleLowerCase('pt-BR')===name.toLocaleLowerCase('pt-BR'))){if(error)error.textContent='Esta categoria já existe.';input?.focus();return;}
+  if(error)error.textContent='';if(button)button.disabled=true;
+  database.ref('settings/categoryOrder').set([...categories,name]).then(()=>{closeModal('modalNovaCategoria');showToast('Categoria adicionada');}).catch(failure=>{if(error)error.textContent='Não foi possível salvar: '+failure.message;}).finally(()=>{if(button)button.disabled=false;});
+}
+
 function renderCategories(){
-  const cats=[...new Set(products.map(p=>p.category).filter(c=>c&&c.trim()!==''))];
+  const cats=getAdminCategories();
   let ordered=[...cats];
   if(categoryOrder.length){
     ordered=categoryOrder.filter(c=>cats.includes(c));
@@ -4121,7 +4373,7 @@ function renderCategories(){
   }).join('');
 }
 function moveCategoryAdm(categoryName,dir){
-  const cats=[...new Set(products.map(p=>p.category).filter(c=>c&&c.trim()!==''))];
+  const cats=getAdminCategories();
   let ordered=[...cats];
   if(categoryOrder.length){
     ordered=categoryOrder.filter(c=>cats.includes(c));
@@ -4698,19 +4950,82 @@ function updateLinksDashboard(){
   const l1 = document.getElementById('statLinksTotal'); if(l1) l1.textContent = keys.length;
   const l2 = document.getElementById('statLinksEntries'); if(l2) l2.textContent = total;
 }
+function populateLinkCategorySelect(selected){
+  const select=document.getElementById('lnkCategory'); if(!select) return;
+  const current=selected!==undefined?selected:select.value;
+  select.innerHTML='<option value="">Sem categoria</option>'+linkCategories.map(name=>`<option value="${esc(name)}">${esc(name)}</option>`).join('');
+  select.value=linkCategories.includes(current)?current:'';
+}
+function renderLinkCategoryTabs(){
+  const tabs=document.getElementById('linkCategoryTabsAdm'); if(!tabs) return;
+  const choices=[{value:'all',label:'Todos'},...linkCategories.map(value=>({value,label:value}))];
+  tabs.innerHTML=choices.map(item=>{
+    const manageable=item.value!=='all'&&item.value!=='';
+    if(!manageable) return `<button type="button" role="tab" class="link-category-tab${activeLinkCategory===item.value?' active':''}" aria-selected="${activeLinkCategory===item.value}" onclick="setLinkCategoryAdm('${escJs(item.value)}')">${esc(item.label)}</button>`;
+    return `<div class="link-category-item"><button type="button" role="tab" class="link-category-tab${activeLinkCategory===item.value?' active':''}" aria-selected="${activeLinkCategory===item.value}" onclick="setLinkCategoryAdm('${escJs(item.value)}')">${esc(item.label)}</button><button type="button" class="link-category-more" aria-label="Opções da categoria ${esc(item.label)}" aria-haspopup="menu" onclick="event.stopPropagation();toggleLinkCategoryMenuAdm(this)"><i class="fas fa-ellipsis-vertical"></i></button><div class="link-category-menu" role="menu"><button type="button" onclick="editLinkCategoryAdm('${escJs(item.value)}')"><i class="fas fa-pencil"></i> Editar</button><button type="button" class="danger" onclick="deleteLinkCategoryAdm('${escJs(item.value)}')"><i class="fas fa-trash"></i> Excluir</button></div></div>`;
+  }).join('');
+}
+function setLinkCategoryAdm(category){ activeLinkCategory=category; renderLinks(); }
+function closeLinkCategoryMenusAdm(){ document.querySelectorAll('.link-category-menu.open').forEach(menu=>menu.classList.remove('open')); }
+function toggleLinkCategoryMenuAdm(button){
+  const menu=button?.nextElementSibling,willOpen=menu&&!menu.classList.contains('open');
+  closeLinkCategoryMenusAdm();
+  if(willOpen) menu.classList.add('open');
+}
+async function editLinkCategoryAdm(oldName){
+  closeLinkCategoryMenusAdm();
+  const typed=prompt('Novo nome da categoria:',oldName); if(typed===null) return;
+  const newName=typed.trim().replace(/\s+/g,' ');
+  if(!newName){ showToast('Informe o nome da categoria','err'); return; }
+  if(newName===oldName) return;
+  if(linkCategories.some(name=>name.toLocaleLowerCase('pt-BR')===newName.toLocaleLowerCase('pt-BR'))){ showToast('Essa categoria já existe','err'); return; }
+  const updates={'settings/linkCategories':linkCategories.map(name=>name===oldName?newName:name)};
+  Object.entries(trackingLinks).forEach(([id,link])=>{ if(link.category===oldName) updates[`trackingLinks/${id}/category`]=newName; });
+  try{ await database.ref().update(updates); if(activeLinkCategory===oldName) activeLinkCategory=newName; renderLinks(); showToast('Categoria atualizada'); }
+  catch(err){ showToast('Não foi possível editar a categoria','err'); }
+}
+async function deleteLinkCategoryAdm(name){
+  closeLinkCategoryMenusAdm();
+  if(!confirm(`Excluir a categoria "${name}"?\n\nOs links dela serão movidos para "Sem categoria".`)) return;
+  const updates={'settings/linkCategories':linkCategories.filter(item=>item!==name)};
+  Object.entries(trackingLinks).forEach(([id,link])=>{ if(link.category===name) updates[`trackingLinks/${id}/category`]=''; });
+  try{ await database.ref().update(updates); if(activeLinkCategory===name) activeLinkCategory='all'; renderLinks(); showToast('Categoria excluída; links movidos para Sem categoria'); }
+  catch(err){ showToast('Não foi possível excluir a categoria','err'); }
+}
+function toggleNewLinkCategoryAdm(){
+  const box=document.getElementById('linkCategoryCreateAdm'); if(!box) return;
+  box.classList.toggle('open');
+  if(box.classList.contains('open')) setTimeout(()=>document.getElementById('newLinkCategoryNameAdm')?.focus(),0);
+}
+async function saveLinkCategoryAdm(){
+  const input=document.getElementById('newLinkCategoryNameAdm');
+  const name=(input?.value||'').trim().replace(/\s+/g,' ');
+  if(!name){ showToast('Informe o nome da categoria','err'); return; }
+  if(linkCategories.some(item=>item.toLocaleLowerCase('pt-BR')===name.toLocaleLowerCase('pt-BR'))){ showToast('Essa categoria já existe','err'); return; }
+  const next=[...linkCategories,name];
+  try{
+    await database.ref('settings/linkCategories').set(next);
+    if(input) input.value='';
+    document.getElementById('linkCategoryCreateAdm')?.classList.remove('open');
+    populateLinkCategorySelect(name);
+    showToast('Categoria de links criada');
+  }catch(err){ showToast('Não foi possível criar a categoria','err'); }
+}
 function renderLinks(){
   populateLeadOfficialLinks();
   const list = document.getElementById('linksListAdm');
   if(!list) return;
-  const items = Object.keys(trackingLinks).map(id=>({id,...trackingLinks[id]})).sort((a,b)=>(b.createdAt||0)-(a.createdAt||0));
-  if(items.length === 0){ list.innerHTML = `<div class="empty-state"><i class="fas fa-link"></i><p>Nenhum link criado ainda.</p></div>`; return; }
+  renderLinkCategoryTabs();
+  const allItems = Object.keys(trackingLinks).map(id=>({id,...trackingLinks[id]})).sort((a,b)=>(b.createdAt||0)-(a.createdAt||0));
+  const items=activeLinkCategory==='all'?allItems:allItems.filter(link=>(link.category||'')===activeLinkCategory);
+  if(items.length === 0){ list.innerHTML = `<div class="empty-state"><i class="fas fa-link"></i><p>${allItems.length?'Nenhum link nesta categoria.':'Nenhum link criado ainda.'}</p></div>`; return; }
   list.innerHTML = items.map(l=>{
     const shortUrl = `/${esc(l.slug)}`;
     return `<div class="mini-item" style="padding:14px 16px;gap:14px;">
       <img src="${esc(safeAdminImage(l.image || DEFAULT_AVATAR))}" style="width:52px;height:52px;border-radius:12px;object-fit:cover;background:#111;border:1px solid var(--border);" onerror="this.src='${DEFAULT_AVATAR}'" onclick="openImageViewer(this.src,'${escJs(l.name)}')">
       <div class="mi-t" style="display:flex;flex-direction:column;align-items:flex-start;gap:3px;overflow:visible;white-space:normal;">
         <strong style="font-size:.95rem;">${esc(l.name)}</strong>
-        <span class="link-slug-chip">${shortUrl}</span>
+        <span class="link-slug-chip">${shortUrl}</span><span class="td-sub">${esc(l.category||'Sem categoria')}</span>
       </div>
       <div style="display:flex;align-items:center;gap:16px;flex-shrink:0;">
         <div class="link-entries-badge"><div class="num">${l.entries||0}</div><div class="lbl">Entradas</div></div>
@@ -4730,6 +5045,9 @@ function openLinkModal(){
   document.getElementById('lnkName').value = '';
   document.getElementById('lnkSlug').value = '';
   document.getElementById('lnkFullUrl').value = '';
+  populateLinkCategorySelect('');
+  document.getElementById('newLinkCategoryNameAdm').value='';
+  document.getElementById('linkCategoryCreateAdm').classList.remove('open');
   resetUpload('lnkUploadBox','lnkPreview');
   setupUpload('lnkImgInput','lnkUploadBox','lnkPreview','lnkPreviewImg', url => uploadedLinkImg = url, 'links');
   openModal('modalLink');
@@ -4741,6 +5059,9 @@ function editLinkAdm(id){
   document.getElementById('lnkName').value = l.name || '';
   document.getElementById('lnkSlug').value = l.slug || '';
   document.getElementById('lnkFullUrl').value = buildTrackingUrl(l.slug || '');
+  populateLinkCategorySelect(l.category||'');
+  document.getElementById('newLinkCategoryNameAdm').value='';
+  document.getElementById('linkCategoryCreateAdm').classList.remove('open');
   if(l.image){
     document.getElementById('lnkPreviewImg').src = l.image;
     document.getElementById('lnkPreview').style.display = 'block';
@@ -4752,12 +5073,13 @@ function editLinkAdm(id){
 async function saveLinkAdm(){
   const name = document.getElementById('lnkName').value.trim();
   const slug = sanitizeSlug(document.getElementById('lnkSlug').value);
+  const category = document.getElementById('lnkCategory').value;
   if(!name){ showToast('Nome é obrigatório','err'); return; }
   if(!slug){ showToast('Identificador é obrigatório','err'); return; }
   if(slug.length < 2){ showToast('Mínimo 2 caracteres','err'); return; }
   const dup = Object.keys(trackingLinks).find(id => id !== editingLinkId && trackingLinks[id].slug === slug);
   if(dup){ showToast('Identificador já em uso','err'); return; }
-  const data = { name, slug, image: uploadedLinkImg || '', updatedAt: Date.now() };
+  const data = { name, slug, category, image: uploadedLinkImg || '', updatedAt: Date.now() };
   if(editingLinkId){
     const old = trackingLinks[editingLinkId];
     if(old && old.image && old.image !== uploadedLinkImg) deleteImageByUrl(old.image).catch(()=>{});
@@ -4805,6 +5127,22 @@ function resetAllLinkCounts(){
   if(!confirm(`Zerar todos os ${keys.length} links?`)) return;
   const updates = {}; keys.forEach(id => updates[`trackingLinks/${id}/entries`] = 0);
   database.ref().update(updates).then(()=>showToast('Contadores zerados'));
+}
+function resetTaxonomyClicksAdm(type){
+  const config={
+    categories:{path:'categoryClicks',label:'categorias'},
+    brands:{path:'brandClicks',label:'marcas'},
+    sessions:{path:'sessionClicks',label:'sessões'}
+  }[type];
+  if(!config) return;
+  if(!confirm(`Zerar todos os cliques registrados em ${config.label}?`)) return;
+  database.ref(config.path).remove().then(()=>{
+    if(type==='categories') categoryClicks={};
+    if(type==='brands') brandClicks={};
+    if(type==='sessions') sessionClicks={};
+    renderPerformanceTaxonomy();
+    showToast(`Cliques de ${config.label} zerados`);
+  }).catch(()=>showToast('Não foi possível zerar os cliques','err'));
 }
 function copyLinkUrl(){
   const v = document.getElementById('lnkFullUrl').value;
@@ -5312,12 +5650,91 @@ async function confirmDeleteImportAdm(){
    CLIQUES & METAS
    ============================================================ */
 function switchClickTab(tab){
+  const legacy={hist:'hist',pages:'pages',searches:'searches',contatos:'contatos'};
+  if(legacy[tab]){switchPerformanceDetail(legacy[tab]);tab='history';}
+  if(tab==='metas')tab='goals';
+  if(!['overview','goals','history'].includes(tab))tab='overview';
   document.querySelectorAll('[data-cliktab]').forEach(b=>b.classList.toggle('active',b.dataset.cliktab===tab));
-  document.getElementById('clickTabHist').style.display     = tab === 'hist'     ? 'block' : 'none';
-  document.getElementById('clickTabPages').style.display    = tab === 'pages'    ? 'block' : 'none';
-  document.getElementById('clickTabSearches').style.display = tab === 'searches' ? 'block' : 'none';
-  document.getElementById('clickTabMetas').style.display    = tab === 'metas'    ? 'block' : 'none';
-  document.getElementById('clickTabContatos').style.display = tab === 'contatos' ? 'block' : 'none';
+  document.getElementById('clickTabOverview').style.display=tab==='overview'?'block':'none';
+  document.getElementById('clickTabGoals').style.display=tab==='goals'?'block':'none';
+  document.getElementById('clickTabHistory').style.display=tab==='history'?'block':'none';
+  renderPerformanceDashboard();
+}
+
+let performancePeriod='today',performanceDetail='hist';
+function switchPerformanceDetail(detail){
+  if(!['hist','pages','searches','contatos'].includes(detail))detail='hist';
+  performanceDetail=detail;
+  document.querySelectorAll('[data-performance-detail]').forEach(button=>button.classList.toggle('active',button.dataset.performanceDetail===detail));
+  ['Hist','Pages','Searches','Contatos'].forEach(name=>{const node=document.getElementById('clickTab'+name);if(node)node.style.display=name.toLowerCase()===detail?'block':'none';});
+}
+function setPerformancePeriod(period){
+  performancePeriod=['today','7d','30d','all'].includes(period)?period:'today';
+  document.querySelectorAll('[data-performance-period]').forEach(button=>button.classList.toggle('active',button.dataset.performancePeriod===performancePeriod));
+  clickHistoryPeriod=performancePeriod==='today'?'today':'all';
+  renderClickHistory();renderPerformanceDashboard();
+}
+function performanceCutoff(){
+  const now=new Date(),today=new Date(now.getFullYear(),now.getMonth(),now.getDate()).getTime();
+  if(performancePeriod==='today')return today;
+  if(performancePeriod==='7d')return Date.now()-7*86400000;
+  if(performancePeriod==='30d')return Date.now()-30*86400000;
+  return 0;
+}
+function performanceFiltered(list){const cutoff=performanceCutoff();return cutoff?list.filter(item=>(Number(item.timestamp)||0)>=cutoff):list.slice();}
+function scrollPerformanceCarousel(id,direction){const track=document.getElementById(id);if(track)track.scrollBy({left:direction*Math.max(260,track.clientWidth*.75),behavior:'smooth'});}
+function openPerformanceTaxonomy(type){
+  const details=document.getElementById('performanceTaxonomyDetails');if(!details)return;
+  details.hidden=false;
+  document.querySelectorAll('[data-taxonomy-detail]').forEach(section=>section.hidden=section.dataset.taxonomyDetail!==type);
+  document.querySelectorAll('[data-taxonomy-summary]').forEach(card=>card.classList.toggle('active',card.dataset.taxonomySummary===type));
+  details.scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+function closePerformanceTaxonomy(){
+  const details=document.getElementById('performanceTaxonomyDetails');if(details)details.hidden=true;
+  document.querySelectorAll('[data-taxonomy-summary]').forEach(card=>card.classList.remove('active'));
+}
+function renderPerformanceTaxonomy(){
+  const categoryNode=document.getElementById('performanceCategories'),brandNode=document.getElementById('performanceBrands'),sessionNode=document.getElementById('performanceSessions');
+  if(!categoryNode||!brandNode||!sessionNode)return;
+  const categories=getAdminCategories();
+  const orderedCategories=[...categoryOrder.filter(category=>categories.includes(category)),...categories.filter(category=>!categoryOrder.includes(category))];
+  const clickedCategories=orderedCategories.filter(category=>Number(categoryClicks[category]||0)>0);
+  categoryNode.innerHTML=clickedCategories.length?clickedCategories.map(category=>`<article class="performance-taxonomy-item"><strong>${esc(category)}</strong><span>${Number(categoryClicks[category]||0).toLocaleString('pt-BR')} cliques</span></article>`).join(''):'<p class="td-sub">Nenhum clique registrado em categorias.</p>';
+  const brandItems=Object.keys(brands).map(id=>({id,...brands[id]})).filter(brand=>brand.name).sort((a,b)=>(a.order||0)-(b.order||0));
+  const clickedBrands=brandItems.filter(brand=>Number(brandClicks[brand.name]||0)>0);
+  brandNode.innerHTML=clickedBrands.length?clickedBrands.map(brand=>`<article class="performance-taxonomy-item">${brand.image?`<img src="${esc(safeAdminImage(brand.image))}" alt="">`:''}<strong>${esc(brand.name)}</strong><span>${Number(brandClicks[brand.name]||0).toLocaleString('pt-BR')} cliques</span></article>`).join(''):'<p class="td-sub">Nenhum clique registrado em marcas.</p>';
+  const sessionItems=Object.keys(sessions).map(id=>({id,...sessions[id]})).filter(session=>session.name).sort((a,b)=>(a.order||0)-(b.order||0));
+  const clickedSessions=sessionItems.filter(session=>Number(sessionClicks[session.id]||0)>0);
+  sessionNode.innerHTML=clickedSessions.length?clickedSessions.map(session=>`<article class="performance-taxonomy-item">${session.image?`<img src="${esc(safeAdminImage(session.image))}" alt="">`:''}<strong>${esc(session.name)}</strong><span>${Number(sessionClicks[session.id]||0).toLocaleString('pt-BR')} cliques</span></article>`).join(''):'<p class="td-sub">Nenhum clique registrado em sessões.</p>';
+  const summaries=[
+    {type:'categories',total:'performanceCategoriesTotal',preview:'performanceCategoriesPreview',items:orderedCategories.map(name=>({name,count:Number(categoryClicks[name]||0)}))},
+    {type:'brands',total:'performanceBrandsTotal',preview:'performanceBrandsPreview',items:brandItems.map(item=>({name:item.name,image:item.image||'',count:Number(brandClicks[item.name]||0)}))},
+    {type:'sessions',total:'performanceSessionsTotal',preview:'performanceSessionsPreview',items:sessionItems.map(item=>({name:item.name,image:item.image||'',count:Number(sessionClicks[item.id]||0)}))}
+  ];
+  summaries.forEach(summary=>{const allItems=summary.items.sort((a,b)=>b.count-a.count||a.name.localeCompare(b.name,'pt-BR')),total=allItems.reduce((sum,item)=>sum+item.count,0),items=allItems.filter(item=>item.count>0),totalNode=document.getElementById(summary.total),previewNode=document.getElementById(summary.preview),top=items.slice(0,3);if(totalNode)totalNode.textContent=total.toLocaleString('pt-BR')+' cliques';if(!previewNode)return;previewNode.classList.toggle('is-sessions',summary.type==='sessions');if(summary.type==='brands')previewNode.innerHTML=top.map(item=>`<span class="performance-preview-brand" title="${esc(item.name)}">${item.image?`<img src="${esc(safeAdminImage(item.image))}" alt="${esc(item.name)}">`:`<em>${esc(item.name)}</em>`}</span>`).join('');else if(summary.type==='sessions')previewNode.innerHTML=top.map(item=>`<span class="performance-preview-session" title="${esc(item.name)}">${item.image?`<img src="${esc(safeAdminImage(item.image))}" alt="${esc(item.name)}">`:`<em>${esc(item.name)}</em>`}</span>`).join('');else previewNode.innerHTML=top.map(item=>`<span title="${esc(item.name)}">${esc(item.name)}</span>`).join('');if(!top.length)previewNode.innerHTML='<span>Nenhum clique registrado</span>';});
+}
+function goToPerformanceProduct(productId,name){
+  switchPanel('produtos');
+  const search=document.getElementById('prodFilterText'),category=document.getElementById('prodFilterCategory'),status=document.getElementById('prodFilterStatus');
+  if(search)search.value=name||'';if(category)category.value='';if(status)status.value='';renderProducts();
+  setTimeout(()=>{const row=[...document.querySelectorAll('#productsTableBody tr[data-product-id]')].find(item=>item.dataset.productId===productId);if(row){row.classList.add('performance-product-highlight');row.scrollIntoView({behavior:'smooth',block:'center'});}},120);
+}
+function renderPerformanceDashboard(){
+  const root=document.getElementById('panel-cliques');if(!root)return;
+  renderPerformanceTaxonomy();
+  const clicks=performanceFiltered(clickHistory),pages=performanceFiltered(pageViewHistory),contacts=performanceFiltered(contactClicks),goals=performanceFiltered(metaAchievements);
+  const set=(id,value)=>{const node=document.getElementById(id);if(node)node.textContent=Number(value||0).toLocaleString('pt-BR');};
+  set('performanceClicks',clicks.length);set('performancePages',pages.length);set('performanceContacts',contacts.length);set('performanceGoals',goals.length);
+  const grouped={};clicks.filter(item=>item.productId||item.productName).forEach(item=>{const name=item.productName||'Produto',product=products.find(entry=>entry.id===item.productId)||products.find(entry=>entry.name===name),key=item.productId||product?.id||name,row=grouped[key]||={id:product?.id||item.productId||'',name,image:product?.image||'',count:0};row.count++;grouped[key]=row;});
+  const ranking=Object.values(grouped).sort((a,b)=>b.count-a.count).slice(0,6),rankingNode=document.getElementById('performanceRanking');
+  if(rankingNode)rankingNode.innerHTML=ranking.length?ranking.map((item,index)=>`<button type="button" class="performance-rank" onclick="goToPerformanceProduct('${escJs(item.id)}','${escJs(item.name)}')"><span class="performance-rank-index">${index+1}</span><img class="performance-rank-photo" src="${esc(safeAdminImage(item.image||PLACEHOLDER_IMG))}" alt=""><div><strong>${esc(item.name)}</strong><small>Ver na lista de produtos</small></div><span class="performance-rank-value">${item.count} clique${item.count===1?'':'s'}</span></button>`).join(''):`<div class="empty-state"><i class="fas fa-chart-line"></i><p>Nenhum clique neste período</p></div>`;
+  const missingGrouped={};performanceFiltered(missingSearchHistory).forEach(item=>{const term=String(item.term||'').trim();if(term)missingGrouped[term]=(missingGrouped[term]||0)+1;});
+  const missing=Object.entries(missingGrouped).sort((a,b)=>b[1]-a[1]).slice(0,3),alerts=document.getElementById('performanceAlerts');
+  if(alerts){const noGoal=products.filter(product=>!product.metaClicks).length;alerts.innerHTML=[...missing.map(([term,count])=>`<div class="performance-alert"><i class="fas fa-magnifying-glass"></i><div><strong>${esc(term)}</strong><span>${count} busca${count===1?'':'s'} sem resultado</span></div></div>`),...(noGoal?[`<div class="performance-alert"><i class="fas fa-bullseye"></i><div><strong>${noGoal} produtos sem meta</strong><span>Configure objetivos para acompanhar a evolução.</span></div></div>`]:[])].join('')||'<div class="empty-state"><i class="fas fa-circle-check"></i><p>Nenhum ponto de atenção</p></div>';}
+  const goalProducts=products.filter(product=>Number(product.metaClicks)>0).sort((a,b)=>Math.min((b.clicks||0)/b.metaClicks,1)-Math.min((a.clicks||0)/a.metaClicks,1)),goalList=document.getElementById('performanceGoalList');
+  if(goalList)goalList.innerHTML=goalProducts.length?goalProducts.map(product=>{const current=Number(product.clicks)||0,target=Number(product.metaClicks)||0,percent=Math.min(100,Math.round(current/target*100));return `<div class="performance-goal"><div class="performance-goal-head"><strong>${esc(product.name||'Peça')}</strong><span>${percent}%</span></div><div class="performance-goal-meta">${current.toLocaleString('pt-BR')} de ${target.toLocaleString('pt-BR')} cliques</div><div class="performance-goal-track"><div class="performance-goal-fill" style="width:${percent}%"></div></div></div>`;}).join(''):'<div class="empty-state"><i class="fas fa-bullseye"></i><p>Nenhuma meta configurada</p></div>';
+  const achieved=document.getElementById('performanceGoalAchievements');if(achieved)achieved.innerHTML=goals.length?goals.slice(0,8).map(item=>`<div class="performance-alert"><i class="fas fa-trophy"></i><div><strong>${esc(item.productName||'Peça')}</strong><span>${esc(item.date||'')} ${esc(item.time||'')}</span></div></div>`).join(''):'<div class="empty-state"><i class="fas fa-trophy"></i><p>Nenhuma meta atingida no período</p></div>';
 }
 
 function renderPageViewsAdm(){
@@ -5328,6 +5745,7 @@ function renderPageViewsAdm(){
   const www=document.getElementById('statPagesWww'),root=document.getElementById('statPagesRoot');if(www)www.textContent=hostTotals['www.cimautoparts.com.br'].toLocaleString('pt-BR');if(root)root.textContent=hostTotals['cimautoparts.com.br'].toLocaleString('pt-BR');
   const rows=Object.values(grouped).sort((a,b)=>b.count-a.count||((b.last.timestamp||0)-(a.last.timestamp||0)));
   body.innerHTML=rows.length?rows.map(row=>`<tr><td class="td-name"><span>${esc(row.last.pageTitle||row.path)}</span><span class="td-sub">${esc(row.path)}</span></td><td class="td-sub">${esc(row.host)}</td><td><span class="chip">${row.count.toLocaleString('pt-BR')}</span></td><td class="td-sub">${esc(row.last.date||'')} ${esc(row.last.time||'')}</td></tr>`).join(''):'<tr><td colspan="4"><div class="empty-state"><i class="fas fa-link"></i><p>Nenhuma página registrada</p></div></td></tr>';
+  renderPerformanceDashboard();
 }
 
 async function loadNavigationAnalyticsAdm(){
@@ -5344,6 +5762,7 @@ function renderMissingSearchesAdm(){
   const grouped={};missingSearchHistory.forEach(log=>{const key=String(log.term||'').trim().toLocaleLowerCase('pt-BR');if(!key)return;const row=grouped[key]||={term:log.term,count:0,last:log};row.count++;if((log.timestamp||0)>(row.last.timestamp||0))row.last=log;grouped[key]=row;});
   const rows=Object.values(grouped).sort((a,b)=>b.count-a.count||((b.last.timestamp||0)-(a.last.timestamp||0)));
   body.innerHTML=rows.length?rows.map(row=>`<tr><td class="td-name">${esc(row.term)}</td><td><span class="chip" style="color:var(--accent)">${row.count.toLocaleString('pt-BR')}</span></td><td class="td-sub">${esc(row.last.path||'/')}</td><td class="td-sub">${esc(row.last.date||'')} ${esc(row.last.time||'')}</td></tr>`).join(''):'<tr><td colspan="4"><div class="empty-state"><i class="fas fa-search"></i><p>Nenhuma busca sem resultado</p></div></td></tr>';
+  renderPerformanceDashboard();
 }
 
 let clickHistoryPeriod = 'today';
@@ -5369,6 +5788,7 @@ const SOURCE_LABELS = {
 function renderClickHistory(){
   const body = document.getElementById('clickHistoryBody');
   if(!body) return;
+  renderPerformanceDashboard();
 
   const sel = document.getElementById('clickCampaignFilter');
   if (sel) {
@@ -5449,6 +5869,7 @@ function clearClickHistoryAdm(){ if(confirm('Limpar histórico de cliques?')) da
 function renderMetaAchievements(){
   const body=document.getElementById('metaAchBody');
   if(!body) return;
+  renderPerformanceDashboard();
   if(metaAchievements.length===0){ body.innerHTML=`<tr><td colspan="2"><div class="empty-state"><i class="fas fa-trophy"></i><p>Nenhuma meta batida</p></div></td></tr>`; return; }
   body.innerHTML=metaAchievements.map(a=>`<tr><td class="td-name">${esc(a.productName)}</td><td class="td-sub">${esc(a.date||'')} ${esc(a.time||'')}</td></tr>`).join('');
 }
@@ -5457,6 +5878,7 @@ function clearMetaAchievementsAdm(){ if(confirm('Limpar metas?')) database.ref('
 function renderContactClicks(){
   const body = document.getElementById('contactClicksBody');
   if(!body) return;
+  renderPerformanceDashboard();
   if(contactClicks.length === 0){
     body.innerHTML = `<tr><td colspan="5"><div class="empty-state"><i class="fas fa-headset"></i><p>Nenhum clique em contato</p></div></td></tr>`;
     return;
@@ -5502,6 +5924,14 @@ function resetProductClicksAdm(){
     database.ref().update(updates).then(()=>{ hideLoading(); showToast('Cliques resetados'); renderDashboard(); renderProducts(); }).catch(err=>{ hideLoading(); showToast('Erro: '+err.message, 'err'); });
   } catch(e){ hideLoading(); showToast('Erro: '+e.message, 'err'); }
 }
+function resetMostSearchedProductsAdm(){
+  if(products.length===0){showToast('Nenhum produto','err');return;}
+  if(!confirm('Reiniciar o ranking de produtos mais procurados? Os cliques dos produtos serão zerados.'))return;
+  showLoading('Reiniciando ranking...');
+  const updates={clickLogs:null};
+  products.forEach(product=>{updates[`products/${product.id}/clicks`]=0;});
+  database.ref().update(updates).then(()=>{hideLoading();clickHistory=[];showToast('Produtos mais procurados reiniciados');renderDashboard();renderProducts();renderClickHistory();renderPerformanceDashboard();}).catch(error=>{hideLoading();showToast('Erro: '+error.message,'err');});
+}
 function resetAllClicksAdm(){
   if(!confirm('Resetar TODOS os cliques?')) return;
   showLoading('Resetando tudo...');
@@ -5510,7 +5940,7 @@ function resetAllClicksAdm(){
     products.forEach(p=>{ updates[`products/${p.id}/clicks`]=0; updates[`products/${p.id}/featured`]=false; });
     updates['categoryClicks']=null; updates['sessionClicks']=null; updates['brandClicks']=null;
     updates['clickLogs']=null; updates['metaAchievements']=null; updates['contactClicks']=null;
-    database.ref().update(updates).then(()=>{ hideLoading(); showToast('Tudo resetado'); renderDashboard(); renderProducts(); }).catch(err=>{ hideLoading(); showToast('Erro: '+err.message, 'err'); });
+    database.ref().update(updates).then(()=>{ categoryClicks={};sessionClicks={};brandClicks={};clickHistory=[];metaAchievements=[];contactClicks=[];hideLoading();showToast('Tudo resetado');renderDashboard();renderProducts();renderPerformanceDashboard(); }).catch(err=>{ hideLoading(); showToast('Erro: '+err.message, 'err'); });
   } catch(e){ hideLoading(); showToast('Erro: '+e.message, 'err'); }
 }
 
@@ -5905,6 +6335,11 @@ async function cleanOrphanImagesAdm(){
 /* ============================================================
    DESTAQUES DA BUSCA
    ============================================================ */
+function switchFeaturedAdminTab(tab){
+  const selected=tab==='login'?'login':'search';
+  document.querySelectorAll('[data-featured-tab]').forEach(button=>{const active=button.dataset.featuredTab===selected;button.classList.toggle('active',active);button.setAttribute('aria-selected',String(active));});
+  document.querySelectorAll('[data-featured-pane]').forEach(pane=>pane.classList.toggle('active',pane.dataset.featuredPane===selected));
+}
 function parseFeatured(val){
   if(!val) return [];
   if(Array.isArray(val)) return val.filter(Boolean);
@@ -5959,7 +6394,7 @@ function renderFeaturedPickerAdm(){
     <div class="mini-item">
       <img src="${esc(safeAdminImage(p.image || PLACEHOLDER_IMG))}" onerror="this.src='${PLACEHOLDER_IMG}'" style="width:36px;height:36px;border-radius:8px;object-fit:cover;">
       <div class="mi-t">${esc(p.name)}<div style="color:var(--text-dim);font-size:.75rem;font-weight:400;">${esc(p.brand||'sem marca')}</div></div>
-      <div class="mi-actions"><button class="btn btn-sm btn-accent" onclick="addFeaturedAdm('${p.id}')" ${full ? 'disabled style="opacity:.4;cursor:not-allowed;"' : ''}><i class="fas fa-plus"></i> Adicionar</button></div>
+      <div class="mi-actions"><button class="btn btn-icon btn-accent" title="Adicionar aos destaques" aria-label="Adicionar ${esc(p.name)} aos destaques" onclick="addFeaturedAdm('${p.id}')" ${full ? 'disabled style="opacity:.4;cursor:not-allowed;"' : ''}><i class="fas fa-plus"></i></button></div>
     </div>`).join('');
 }
 function addFeaturedAdm(id){
@@ -6043,7 +6478,7 @@ function renderGalleryPickerAdm(){
     <div class="mini-item">
       <img src="${esc(safeAdminImage(p.image || PLACEHOLDER_IMG))}" onerror="this.src='${PLACEHOLDER_IMG}'" style="width:36px;height:36px;border-radius:8px;object-fit:cover;">
       <div class="mi-t">${esc(p.name)}<div style="color:var(--text-dim);font-size:.75rem;font-weight:400;">${esc(p.brand||'sem marca')}</div></div>
-      <div class="mi-actions"><button class="btn btn-sm btn-accent" onclick="addGalleryAdm('${p.id}')" ${full ? 'disabled style="opacity:.4;cursor:not-allowed;"' : ''}><i class="fas fa-plus"></i> Adicionar</button></div>
+      <div class="mi-actions"><button class="btn btn-icon btn-accent" title="Adicionar à galeria" aria-label="Adicionar ${esc(p.name)} à galeria do login" onclick="addGalleryAdm('${p.id}')" ${full ? 'disabled style="opacity:.4;cursor:not-allowed;"' : ''}><i class="fas fa-plus"></i></button></div>
     </div>`).join('');
 }
 function addGalleryAdm(id){
@@ -6102,7 +6537,7 @@ function renderAboutPhotosPanelAdm(){
   grid.innerHTML = aboutPhotosDraft.map((url, idx) => `
     <div style="position:relative;border-radius:12px;overflow:hidden;border:1px solid var(--border);background:var(--panel-alt);aspect-ratio:4/3;">
       <img src="${esc(safeAdminImage(esc(url)))}" alt="Foto ${idx+1}" style="width:100%;height:100%;object-fit:cover;cursor:zoom-in;" onclick="openImageViewer(this.src,'Foto #' + ${idx+1})" onerror="this.src='${PLACEHOLDER_IMG}'">
-      <div style="position:absolute;top:6px;right:6px;display:flex;gap:4px;">
+      <div class="row-actions" style="position:absolute;top:6px;right:6px;display:flex;gap:4px;">
         ${idx > 0 ? `<button class="btn btn-icon btn-ghost" style="background:rgba(0,0,0,.75);" onclick="moveAboutPhotoAdm(${idx},-1)"><i class="fas fa-chevron-up"></i></button>` : ''}
         ${idx < aboutPhotosDraft.length-1 ? `<button class="btn btn-icon btn-ghost" style="background:rgba(0,0,0,.75);" onclick="moveAboutPhotoAdm(${idx},1)"><i class="fas fa-chevron-down"></i></button>` : ''}
         <button class="btn btn-icon btn-danger" style="background:rgba(0,0,0,.75);" onclick="removeAboutPhotoAdm(${idx})"><i class="fas fa-trash"></i></button>
@@ -6499,7 +6934,7 @@ Object.assign(window, {
   closeModal, openModal, showActiveUsersModal,
   openProductModal, editProductAdm, saveProductAdm, toggleFeatureAdm, toggleSoldOutAdm, deleteProductAdm,
   openQuickHidePrice, saveQuickHidePrice,
-  renderProducts, renameCategoryAdm, deleteCategoryAdm, moveCategoryAdm,
+  renderProducts, openCreateCategoryModal, saveCategoryAdm, renameCategoryAdm, deleteCategoryAdm, moveCategoryAdm,
   openDeleteNoCategoryModalAdm, deleteNoCategoryProductsAdm,
   openBrandModal, editBrandAdm, saveBrandAdm, deleteBrandAdm, updateBrandDeleteModeAdm, confirmDeleteBrandAdm, moveBrandAdm,
   openSessionModal, editSessionAdm, saveSessionAdm, deleteSessionAdm, moveSessionAdm,
@@ -6507,18 +6942,20 @@ Object.assign(window, {
   openPromoModal, salvarPromoAdm, togglePromoAdm, deletePromoAdm, carregarAlvosPromoAdm,
   openCouponModal, saveCouponAdm, toggleCouponAdm, deleteCouponAdm,
   openLinkModal, editLinkAdm, saveLinkAdm, deleteLinkAdm, resetLinkCount, resetAllLinkCounts,
+  setLinkCategoryAdm, toggleNewLinkCategoryAdm, saveLinkCategoryAdm, toggleLinkCategoryMenuAdm, editLinkCategoryAdm, deleteLinkCategoryAdm, resetTaxonomyClicksAdm,
   copyLinkUrl, copyLinkFromRow,
   switchImportTab, renderImportPreviewAdm, importNamesAdm, renameImportAdm, downloadImportCsvAdm, fixImportAdm, unfixImportAdm, deleteImportAdm, confirmDeleteImportAdm,
   openLocateApplyAdm, openLocateExportAdm, setLocateToolModeAdm, previewLocateExportAdm, exportLocatedProductsCsvAdm,
   updateLocateApplyTargetsAdm, previewLocateApplyAdm, applyLocateApplyAdm,
-  switchClickTab, setClickHistoryPeriod, clearClickHistoryAdm, clearMetaAchievementsAdm, clearContactClicksAdm,
-  resetProductClicksAdm, resetAllClicksAdm,
+  switchClickTab, switchPerformanceDetail, setPerformancePeriod, scrollPerformanceCarousel, openPerformanceTaxonomy, closePerformanceTaxonomy, goToPerformanceProduct, setClickHistoryPeriod, clearClickHistoryAdm, clearMetaAchievementsAdm, clearContactClicksAdm,
+  resetProductClicksAdm, resetMostSearchedProductsAdm, resetAllClicksAdm,
   switchUsersTabAdm, toggleUserDetails, deleteUserAdm, changeUserTypeAdm, applyPromoUserAdm,
   sendEmailToUser, openCreateClientModal, createClientAdm, toggleClienteDoc,
   saveProfileAdm, openContactModal, editContactAdm, saveContactAdm, deleteContactAdm,
   scanOrphanImagesAdm, cleanOrphanImagesAdm,
   openDeleteAllModalAdm, deleteAllDataAdm,
   addFeaturedAdm, removeFeaturedAdm, moveFeaturedAdm, clearAllFeaturedAdm,
+  switchFeaturedAdminTab,
   addGalleryAdm, removeGalleryAdm, moveGalleryAdm, clearAllGalleryAdm,
   removeAboutPhotoAdm, moveAboutPhotoAdm, clearAllAboutPhotosAdm,
   setOrderPeriod, setOrderStatusFilter, renderOrders, renderOrdersDashboard,
@@ -6674,10 +7111,11 @@ function renderLeadCampaigns(){
   const weekSelect=document.getElementById('leadWeekCampaign'),weekSelected=weekSelect.value;weekSelect.innerHTML=select.innerHTML;weekSelect.value=Object.prototype.hasOwnProperty.call(leadCampaigns,weekSelected)?weekSelected:'';renderLeadWeekChart();
   const cards=document.getElementById('leadCampaignRows');
   cards.innerHTML=Object.entries(leadCampaigns).map(([id,c])=>{
-    const image=String(c.image||'').startsWith('https://')?'<img src="'+leadText(c.image)+'" alt="" loading="lazy">':'';
+    const image=String(c.image||'').startsWith('https://')?'<img src="'+leadText(c.image)+'" alt="Foto de '+leadText(c.displayName||c.name)+'" loading="lazy">':'<div class="lead-campaign-avatar-fallback"><i class="fas fa-user"></i></div>';
     const visits=leadCampaignVisits.filter(log=>log.campaignId===id).sort((a,b)=>(Number(b.timestamp)||0)-(Number(a.timestamp)||0)),online=visits.some(log=>Date.now()-Number(log.timestamp)<300000),open=leadOpenCampaignHistory===id;
     const history=open?'<div class="lead-campaign-history">'+(visits.length?visits.slice(0,30).map(log=>'<div class="lead-campaign-history-row"><span><i class="fas fa-circle" style="color:'+(Date.now()-Number(log.timestamp)<300000?'var(--ok)':'var(--text-dim)')+'"></i> Acesso à URL</span><time>'+leadDate(log.timestamp)+'</time></div>').join(''):'<p class="td-sub">Nenhum acesso registrado nesta URL.</p>')+'</div>':'';
-    return '<article class="lead-campaign-card"><div class="lead-campaign-person">'+image+'<div><h3>'+leadText(c.name)+'</h3><p>'+leadText(c.displayName)+'</p></div></div><div><span class="lead-status '+(c.active?'complete':'')+'">'+(c.active?'Ativa':'Pausada')+'</span> <span class="lead-status '+(online?'complete':'')+'">'+(online?'Online agora':'Sem acesso online')+'</span></div><div class="lead-campaign-url">'+leadText(leadCampaignUrl(id))+'</div><div class="lead-campaign-actions"><button class="btn btn-ghost" data-lead-history="'+leadText(id)+'"><i class="fas fa-clock-rotate-left"></i> '+(open?'Fechar histórico':'Histórico online')+(visits.length?' ('+visits.length+')':'')+'</button><button class="btn btn-ghost" data-lead-copy="'+leadText(id)+'">Copiar URL</button><button class="btn btn-ghost" data-lead-edit="'+leadText(id)+'">Editar</button><button class="btn btn-ghost" data-lead-toggle="'+leadText(id)+'">'+(c.active?'Pausar':'Ativar')+'</button><button class="btn btn-ghost lead-delete" data-lead-delete-campaign="'+leadText(id)+'"><i class="fas fa-trash"></i> Excluir funcionário</button></div>'+history+'</article>';
+    const lastAccess=visits.length?leadDate(visits[0].timestamp):'Nenhum acesso';
+    return '<article class="lead-campaign-card"><div class="lead-campaign-person"><div class="lead-campaign-avatar-wrap">'+image+'<span class="lead-campaign-active-dot '+(c.active?'is-active':'')+'" title="'+(c.active?'Campanha ativa':'Campanha pausada')+'"></span></div><div><h3>'+leadText(c.displayName||c.name)+'</h3><p>'+leadText(c.name)+'</p></div></div><div class="lead-campaign-statuses"><span class="lead-campaign-online-status '+(online?'is-online':'')+'">'+(online?'Online agora':'Sem acesso online')+'</span></div><div class="lead-campaign-metrics"><div class="lead-campaign-metric"><strong>'+visits.length+'</strong><span>Acessos</span></div><div class="lead-campaign-metric"><strong>'+leadText(lastAccess)+'</strong><span>Último acesso</span></div></div><div class="lead-campaign-actions"><button class="btn btn-ghost" data-lead-history="'+leadText(id)+'"><i class="fas fa-clock-rotate-left"></i> '+(open?'Fechar histórico':'Histórico online')+(visits.length?' ('+visits.length+')':'')+'</button><button class="btn btn-ghost" data-lead-copy="'+leadText(id)+'"><i class="fas fa-copy"></i> Copiar URL</button><button class="btn btn-ghost" data-lead-edit="'+leadText(id)+'"><i class="fas fa-pencil"></i> Editar</button><button class="btn btn-ghost" data-lead-toggle="'+leadText(id)+'"><i class="fas fa-power-off"></i> '+(c.active?'Pausar':'Ativar')+'</button><button class="btn btn-ghost lead-delete" data-lead-delete-campaign="'+leadText(id)+'"><i class="fas fa-trash"></i> Excluir funcionário</button></div>'+history+'</article>';
   }).join('')||'<div class="lead-box lead-empty">Nenhuma campanha criada. Clique em Nova campanha para começar.</div>';
 }
 document.getElementById('leadCampaignRows').addEventListener('click',async event=>{
