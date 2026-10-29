@@ -38,7 +38,7 @@ function init(){
  const status=element('div','cs-status');status.setAttribute('role','status');
  const retry=element('button','cs-new','Tentar novamente');retry.type='button';retry.hidden=true;
  chatPane.append(top,intro,messages,form,status,retry);shell.append(chatPane);if(admin)form.hidden=true;
- let generation=0,roomId=null,visitorToken=null,connected=false,opened=false,busy=false,pending=null,lastFocus=null,all=new Map(),nodes=new Map(),messagesRef=null,timer=null,syncBusy=false,lastRead=0,inboxRef=null,chats=[],activeUser=null,auth=null,db=null;
+ let generation=0,roomId=null,visitorToken=null,connected=false,opened=false,busy=false,pending=null,lastFocus=null,all=new Map(),nodes=new Map(),pendingAutomatic=new Set(),messagesRef=null,timer=null,syncBusy=false,lastRead=0,inboxRef=null,chats=[],activeUser=null,auth=null,db=null;
  if(role!=='visitor'){
   try{
    const firebaseApp=admin?firebase.app('cim-admin'):firebase.app();
@@ -50,7 +50,7 @@ function init(){
  function isVisible(){return !document.hidden&&(admin?document.getElementById('panel-suporte')?.classList.contains('active'):opened);}
  function clearMessages(){all.clear();nodes.clear();messages.replaceChildren(older,empty);older.hidden=true;empty.hidden=false;lastRead=0;}
  function detach(){if(messagesRef)messagesRef.off();messagesRef=null;if(timer)clearInterval(timer);timer=null;}
- function reset(){generation++;detach();roomId=null;visitorToken=null;connected=false;busy=false;pending=null;syncBusy=false;clearMessages();input.value='';input.disabled=false;send.disabled=true;remove.hidden=true;retry.hidden=true;statusText('');}
+ function reset(){generation++;detach();roomId=null;visitorToken=null;connected=false;busy=false;pending=null;syncBusy=false;pendingAutomatic.clear();clearMessages();input.value='';input.disabled=false;send.disabled=true;remove.hidden=true;retry.hidden=true;statusText('');}
  async function api(op,extra={},id=roomId){
   const body={op,channel:role,chatId:id,...(role==='visitor'?{visitorToken}:{}),...extra},headers={'Content-Type':'application/json'};
   if(role!=='visitor'){const user=auth?.currentUser;if(!user)throw Error('Entre na sua conta para acessar o suporte.');headers.Authorization='Bearer '+await user.getIdToken();}
@@ -71,21 +71,48 @@ function init(){
   const id=roomId,g=generation;lastRead=seq;
   api('read',{seq},id).catch(()=>{if(g===generation)lastRead=0;});
  }
+ function dismissStaffShowcases(){
+  messages.querySelectorAll('.cs-staff-showcase').forEach(showcase=>{showcase.classList.add('is-leaving');setTimeout(()=>showcase.remove(),360);});
+ }
  function showMessages(incoming,keepPosition=false){
   const nearBottom=messages.scrollHeight-messages.scrollTop-messages.clientHeight<120,oldHeight=messages.scrollHeight,oldTop=messages.scrollTop;
-  const added=incoming.filter(message=>!all.has(message.id));if(!added.length){ack();return;}
+  const added=incoming.filter(message=>!all.has(message.id)&&!pendingAutomatic.has(message.id));if(!added.length){ack();return;}
   for(const message of incoming)all.set(message.id,message);
   empty.hidden=all.size>0;
   for(const message of added.sort((a,b)=>a.seq-b.seq)){
+   if(message.role==='admin'&&!message.kind)dismissStaffShowcases();
    const own=admin?message.role==='admin':message.role!=='admin',bubble=element('article','cs-message'+(message.role==='admin'?' cs-admin-message':'')+(own?' cs-own':''));
    bubble.dataset.seq=String(message.seq);bubble.append(element('span','cs-message-author',message.role==='admin'?'Equipe CIM':admin?(role==='admin'?(message.role==='visitor'?'Visitante':title.textContent):'Cliente'):'Você'),element('p','cs-message-text',message.text));
+   if(!admin&&message.kind==='customer_type_prompt'){
+    const choices=element('div','cs-prompt-choices');
+    for(const value of ['Pessoa Física','Pessoa Jurídica']){const choice=element('button','cs-prompt-choice',value);choice.type='button';choice.addEventListener('click',()=>{input.value=value;input.dispatchEvent(new Event('input'));form.requestSubmit();});choices.append(choice);}
+    bubble.append(choices);
+   }
    const time=element('time','',labelDate(message.createdAt,true));time.dateTime=new Date(message.createdAt).toISOString();time.title=labelDate(message.createdAt,true);bubble.append(time);
    const after=Array.from(nodes.values()).reduce((found,node)=>Number(node.dataset.seq)>message.seq&&(!found||Number(node.dataset.seq)<Number(found.dataset.seq))?node:found,null);
    if(after)messages.insertBefore(bubble,after);else messages.append(bubble);nodes.set(message.id,bubble);
+   if(!admin&&message.kind==='customer_forwarded'&&Array.isArray(message.staff)&&message.staff.length){
+    const showcase=element('div','cs-staff-showcase');showcase.setAttribute('aria-label','Atendentes disponíveis');
+    showcase.append(element('span','cs-staff-label','Equipe disponível'));
+    const people=element('div','cs-staff-people');
+    message.staff.forEach((person,index)=>{
+     if(!/^https:\/\//.test(person.photoURL||''))return;
+     const member=element('div','cs-staff-member');member.style.setProperty('--cs-staff-delay',(index*.34)+'s');
+     const photo=element('img');photo.src=person.photoURL;photo.alt=person.name?'Atendente '+person.name:'Atendente CIM';photo.loading='lazy';photo.onerror=()=>member.remove();
+     member.append(photo,element('span','',person.name||'Atendente'));people.append(member);
+    });
+    showcase.append(people);bubble.insertAdjacentElement('afterend',showcase);
+   }
   }
   older.hidden=Math.min(...Array.from(all.values(),m=>m.seq))<=1;
   if(keepPosition)messages.scrollTop=oldTop+(messages.scrollHeight-oldHeight);else if(nearBottom||all.size===added.length)messages.scrollTop=messages.scrollHeight;
   ack();
+ }
+ function showAutomaticReply(message){
+  if(!message)return;
+  pendingAutomatic.add(message.id);
+  const typing=element('div','cs-typing');typing.setAttribute('aria-label','Equipe CIM está digitando');typing.setAttribute('role','status');typing.append(element('span'),element('span'),element('span'));messages.append(typing);messages.scrollTop=messages.scrollHeight;
+  setTimeout(()=>{typing.remove();pendingAutomatic.delete(message.id);showMessages([message]);messages.scrollTop=messages.scrollHeight;},2200);
  }
  function ended(){
   detach();connected=false;clearMessages();empty.hidden=false;empty.replaceChildren(icon('chat'),element('strong','','Atendimento encerrado'),element('span','','Esta conversa foi encerrada pela equipe CIM.'));
@@ -134,7 +161,7 @@ function init(){
     pending={text,requestId};
   }
   const outgoing={...pending},g=generation,id=roomId;busy=true;send.disabled=true;statusText('');
-  try{const data=await api('send',outgoing,id);if(g!==generation)return;showMessages([data.message]);input.value='';pending=null;messages.scrollTop=messages.scrollHeight;input.focus();}
+  try{const data=await api('send',outgoing,id);if(g!==generation)return;showMessages([data.message]);if(data.autoMessage&&Array.isArray(data.staff))data.autoMessage.staff=data.staff;showAutomaticReply(data.autoMessage);input.value='';pending=null;messages.scrollTop=messages.scrollHeight;input.focus();}
   catch(error){if(g===generation){if(error.status===410)ended();else statusText(error.message);}}
   finally{if(g===generation){busy=false;send.disabled=!connected;}}
  });

@@ -52,3 +52,13 @@ test('catálogo usa logos das marcas, remove textos antigos e ordena disponívei
   assert.match(html,/background:radial-gradient/);
   assert.match(html,/header\{border-bottom:0\}/);
 });
+
+test('catálogo público permite carrinho, oculta menu privado e exige login para pagar',()=>{
+  const product={name:'Coxim público',prices:{PF:100},_publicPricing:{base:100,promotional:null,discount:0}};
+  const html=catalogHtml([['public-1',product]]);
+  assert.match(html,/class="public-add-cart"/);
+  assert.match(html,/cim_cart_guest/);
+  assert.match(html,/Entrar para finalizar pagamento/);
+  assert.match(html,/href="\/login\.html"/);
+  assert.doesNotMatch(html,/menu-toggle|bottomMenu|onclick="finalizePurchase\(\)"/);
+});
