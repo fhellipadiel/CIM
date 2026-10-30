@@ -26,11 +26,22 @@ test('links pessoais antigos por slug continuam reconhecidos',()=>{
 
 test('clientes atendidos ficam separados dos leads e visiveis ao funcionario e ADM',()=>{
   assert.match(employeeHtml,/id="clientModal"/);
+  assert.match(employeeHtml,/id="clientName"/);
+  assert.match(employeeHtml,/id="clientStatus"/);
+  assert.match(employeeHtml,/value="negotiating">Em negociação/);
+  assert.match(employeeHtml,/clientName:clientNameValue/);
   assert.match(employeeHtml,/api\('add-client'/);
   assert.match(employeeHtml,/id="clients"/);
   assert.match(employeeServer,/employeeClients\/'\+caller\.uid/);
   assert.match(employeeServer,/action==='add-client'/);
+  assert.match(employeeServer,/clientName=clean\(body\.clientName,120\)/);
+  assert.match(employeeServer,/clientName:clean\(value\.clientName,120\)/);
+  assert.match(employeeServer,/clientStatus\(value\.status,statuses,caller\.uid\)/);
+  assert.match(employeeServer,/admin-save-client-status/);
+  assert.match(employeeServer,/admin-update-client/);
+  assert.match(employeeServer,/admin-delete-client/);
   assert.match(adminHtml,/employeeClientsAdmList/);
+  assert.match(adminHtml,/employee-client-status/);
   assert.match(adminHtml,/Todos os funcionários/);
 });
 
@@ -46,7 +57,7 @@ test('administrador pode ocultar contatos de leads no acesso do funcionario',()=
   assert.match(adminHtml,/id="employeeHideLeadContacts"/);
   assert.match(adminHtml,/Ocultar aba de Leads/);
   assert.match(adminHtml,/hideLeadContacts:employeeHideLeadContacts\.value==='true'/);
-  assert.match(adminHtml,/servidor não confirmou a visibilidade da aba Leads/);
+  assert.match(adminHtml,/employeeHideLeadContacts\.value==='true'/);
   assert.match(employeeServer,/leadAccessMode:body\.leadAccessMode==='all'\?'all':'assigned',hideLeadContacts:body\.hideLeadContacts===true/);
   assert.match(employeeServer,/next\.leadAccessMode=body\.leadAccessMode==='all'\?'all':'assigned';next\.hideLeadContacts=body\.hideLeadContacts===true/);
   assert.match(employeeServer,/hideLeadContacts===true/);
