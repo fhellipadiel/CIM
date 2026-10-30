@@ -30,10 +30,15 @@ test('clientes atendidos ficam separados dos leads e visiveis ao funcionario e A
   assert.match(employeeHtml,/id="clientStatus"/);
   assert.match(employeeHtml,/value="negotiating">Em negociação/);
   assert.match(employeeHtml,/clientName:clientNameValue/);
-  assert.match(employeeHtml,/api\('add-client'/);
+  assert.match(employeeHtml,/id\?'update-client':'add-client'/);
+  assert.match(employeeHtml,/id="clientDocument"/);
+  assert.match(employeeHtml,/id="clientSearch"/);
+  assert.match(employeeHtml,/id="clientListStatus"/);
+  assert.match(employeeHtml,/id="clientListPersonType"/);
   assert.match(employeeHtml,/id="clients"/);
   assert.match(employeeServer,/employeeClients\/'\+caller\.uid/);
   assert.match(employeeServer,/action==='add-client'/);
+  assert.match(employeeServer,/action==='update-client'/);
   assert.match(employeeServer,/clientName=clean\(body\.clientName,120\)/);
   assert.match(employeeServer,/clientName:clean\(value\.clientName,120\)/);
   assert.match(employeeServer,/clientStatus\(value\.status,statuses,caller\.uid\)/);
