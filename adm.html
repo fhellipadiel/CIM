@@ -1,4 +1,4 @@
-va<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="pt-br">
 <head>
 <meta charset="UTF-8">
@@ -81,7 +81,8 @@ body.admin-authorized .sidebar,body.admin-authorized .main{visibility:visible}
 .sb-brand .mark img{width:100%;height:100%;object-fit:cover}
 .sb-brand .txt strong{display:block;font-family:var(--font-head);font-weight:700;font-size:.95rem}
 .sb-brand .txt span{display:block;font-size:.68rem;color:var(--text-dim)}
-.sb-brand .txt .admin-email{display:block;font-size:.65rem;color:var(--text-muted);margin-top:2px;font-weight:400}
+.sb-brand .txt{min-width:0;flex:1}
+.sb-brand .txt .admin-email{display:block;overflow:hidden;font-size:.65rem;color:var(--text-muted);margin-top:2px;font-weight:400;text-overflow:ellipsis;white-space:nowrap}
 .sb-nav{flex:1 1 auto;min-height:0;overflow-y:auto;scrollbar-width:none;-ms-overflow-style:none;padding:14px 12px;margin-top:10px}
 .sb-nav::-webkit-scrollbar{display:none;width:0}
 .sb-group{margin-bottom:18px}
@@ -116,7 +117,8 @@ body.admin-readonly .create-fab-wrap,body.admin-readonly .btn-danger,body.admin-
 .sidebar{background:rgba(8,8,8,.94);border-right:1px solid rgba(255,255,255,.055);box-shadow:18px 0 55px rgba(0,0,0,.22);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px)}
 .sb-brand{margin:10px 10px 2px;padding:12px;border-radius:18px;transition:.2s ease}
 .sb-brand:hover{background:rgba(255,255,255,.045)}
-.sb-brand .mark{width:40px;height:40px;border-radius:13px;background:#171717;box-shadow:inset 0 0 0 1px rgba(255,255,255,.07)}
+.sb-brand .mark{width:52px;height:52px;border-radius:50%;background:#171717;box-shadow:inset 0 0 0 1px rgba(255,255,255,.07)}
+.sb-brand .txt strong{font-size:.9rem;line-height:1.2}.sb-brand .txt .admin-email{margin-top:4px;font-size:.67rem}
 .sb-nav{padding:12px 10px 18px;margin-top:4px}
 .sb-group{margin-bottom:20px}
 .sb-group-label{padding:0 12px 7px;font-size:.62rem;font-weight:700;letter-spacing:.09em;text-transform:uppercase}
@@ -195,6 +197,18 @@ body.admin-readonly .create-fab-wrap,body.admin-readonly .btn-danger,body.admin-
 #panel-dashboard .stat-card:hover{border:0;background:#171719;transform:translateY(-3px)}
 #panel-dashboard .stat-card .sc-icon{width:34px;height:34px;border:0;background:transparent!important;border-radius:0}
 #panel-dashboard .stat-card .sc-val{font-size:1.85rem;letter-spacing:-.04em}
+#panel-dashboard .support-overview-card{position:relative;display:flex;flex-direction:column;min-width:0;text-align:left;color:var(--text)}
+#panel-dashboard .support-overview-card .sc-top{margin-bottom:10px}
+#panel-dashboard .support-overview-card .sc-preview{min-height:2.5em;margin-top:8px;color:var(--text-muted);font-size:.73rem;line-height:1.25;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+#panel-dashboard .support-overview-card .sc-foot{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:auto;padding-top:12px;color:var(--text-dim);font-size:.68rem}
+#panel-dashboard .support-overview-card .sc-unread{display:none;padding:3px 7px;border-radius:999px;background:rgba(255,54,1,.16);color:var(--accent);font-weight:700}
+#panel-dashboard .support-overview-card .sc-unread.is-visible{display:inline-flex}
+#dashboardEmployeeCarousel{display:flex;gap:22px;overflow-x:auto;margin:0 0 22px;padding:4px 2px 10px;scrollbar-width:thin;scrollbar-color:var(--accent) transparent}
+.dashboard-employee-shortcut{flex:0 0 98px;display:flex;flex-direction:column;align-items:center;gap:9px;padding:0;border:0;background:transparent;color:var(--text);font:inherit;cursor:pointer}
+.dashboard-employee-shortcut img{width:78px;height:78px;border-radius:50%;object-fit:cover;background:#171717;transition:transform .18s ease,box-shadow .18s ease}
+.dashboard-employee-shortcut span{max-width:98px;overflow:hidden;color:var(--text-muted);font-size:.75rem;line-height:1.2;text-align:center;text-overflow:ellipsis;white-space:nowrap}
+.dashboard-employee-shortcut:hover img,.dashboard-employee-shortcut:focus-visible img{transform:scale(1.06);box-shadow:0 0 0 2px var(--accent)}
+.dashboard-employee-shortcut:hover span,.dashboard-employee-shortcut:focus-visible span{color:var(--text)}
 #panel-dashboard .grid-2col{grid-template-columns:minmax(0,1.45fr) minmax(290px,.55fr);gap:14px}
 #panel-dashboard .block{overflow:hidden;background:#111113;border:0;border-radius:20px;box-shadow:none}
 #panel-dashboard .block-head{border-bottom:0;padding-bottom:8px}
@@ -818,10 +832,10 @@ tr:has(.admin-action-popover.open),.invoice-order-card:has(.admin-action-popover
      SIDEBAR
      ============================================================ -->
 <aside class="sidebar" id="sidebar">
-  <div class="sb-brand" role="button" tabindex="0" aria-label="Abrir perfil da loja" title="Abrir perfil da loja" onclick="switchPanel('perfil')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();switchPanel('perfil')}">
-    <div class="mark" id="sbBrandLogo"><i class="fas fa-cogs"></i></div>
+  <div class="sb-brand" role="button" tabindex="0" aria-label="Abrir perfil do administrador" title="Abrir perfil" onclick="switchPanel('perfil')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();switchPanel('perfil')}">
+    <div class="mark" id="sbBrandLogo"><i class="fas fa-user-shield"></i></div>
     <div class="txt">
-      <strong>CIM Global Parts</strong>
+      <strong id="sbAdminName">Administrador</strong>
       <span class="admin-email" id="sbUserEmailDisplay">Administrador</span>
     </div>
   </div>
@@ -906,7 +920,8 @@ tr:has(.admin-action-popover.open),.invoice-order-card:has(.admin-action-popover
          PAINEL: DASHBOARD
          ============================================================ -->
     <section class="panel active" id="panel-dashboard">
-      <div class="panel-head"><div><h1>Visão geral</h1><p>Resumo do desempenho e status da loja</p></div></div>
+      <div class="panel-head"><div><h1>Visão geral</h1></div></div>
+      <div id="dashboardEmployeeCarousel" aria-label="Atalhos de funcionários para os leads"></div>
       <div class="dashboard-section-title"><h2>Indicadores principais</h2><span>O que merece atenção agora</span></div>
       <div class="stats-grid">
         <div class="stat-card" onclick="goToPanel('produtos')">
@@ -956,6 +971,12 @@ tr:has(.admin-action-popover.open),.invoice-order-card:has(.admin-action-popover
           <div class="sc-top"><div class="sc-icon"><i class="fas fa-receipt"></i></div><i class="fas fa-arrow-up-right-from-square" style="color:var(--text-dim);font-size:.7rem;"></i></div>
           <div class="sc-val" id="statOrdersToday">0</div><div class="sc-label">Pedidos de hoje</div>
         </div>
+        <button class="stat-card support-overview-card" type="button" aria-label="Abrir suporte rápido" onclick="switchPanel('suporte')">
+          <div class="sc-top"><div class="sc-icon"><i class="fas fa-headset"></i></div><i class="fas fa-arrow-up-right-from-square" style="color:var(--text-dim);font-size:.7rem;"></i></div>
+          <div class="sc-val" id="statSupportMessages">0</div><div class="sc-label">Conversas de suporte</div>
+          <p class="sc-preview" id="statSupportPreview">Nenhuma mensagem recebida ainda.</p>
+          <div class="sc-foot"><span id="statSupportLatest">Aguardando atendimento</span><span class="sc-unread" id="statSupportUnread">0 novas</span></div>
+        </button>
       </div>
       <div class="dashboard-section-title"><h2>Clientes ativos</h2><span>Recorrência de acesso à plataforma</span></div>
       <div class="stats-grid" style="margin-top:4px;">
@@ -2485,15 +2506,19 @@ function closeImageViewer(){
 document.addEventListener('keydown', e => { if(e.key === 'Escape') closeImageViewer(); });
 
 function updateBrandLogo(photoUrl){
-  const brandLogo = document.getElementById('sbBrandLogo');
   const loginLogo = document.getElementById('loginLogoMark');
   if(photoUrl && photoUrl !== DEFAULT_AVATAR){
-    brandLogo.innerHTML = `<img src="${esc(safeAdminImage(photoUrl))}" alt="Logo">`;
     loginLogo.innerHTML = `<img src="${esc(safeAdminImage(photoUrl))}" alt="Logo">`;
   } else {
-    brandLogo.innerHTML = `<i class="fas fa-cogs"></i>`;
     loginLogo.innerHTML = '';
   }
+}
+function updateAdminSidebarProfile(data={},user=auth.currentUser){
+  const avatar=document.getElementById('sbBrandLogo'),name=document.getElementById('sbAdminName'),email=document.getElementById('sbUserEmailDisplay');
+  const photo=data.photoURL;
+  if(avatar)avatar.innerHTML=photo&&photo!==DEFAULT_AVATAR?`<img src="${esc(safeAdminImage(photo))}" alt="">`:'<i class="fas fa-user-shield"></i>';
+  if(name)name.textContent=data.name||user?.displayName||'Administrador';
+  if(email){email.textContent=data.email||user?.email||'Administrador';email.title=email.textContent;}
 }
 
 /* ============================================================
@@ -2536,9 +2561,10 @@ function adminCanAccessPanel(name){
   return currentAdminIsPrimary||currentAdminAllowedPanels===null||currentAdminAllowedPanels.has(name);
 }
 function updateOnlineAdminsBadge(admins=[]){
-  const others=(Array.isArray(admins)?admins:[]).filter(admin=>admin.uid!==auth.currentUser?.uid);
   const badge=document.getElementById('onlineAdminsBadge'),count=document.getElementById('onlineAdminsCount');
   if(!badge||!count)return;
+  if(!currentAdminIsPrimary){count.textContent='0';badge.hidden=true;badge.title='';return}
+  const others=(Array.isArray(admins)?admins:[]).filter(admin=>admin.uid!==auth.currentUser?.uid);
   count.textContent=others.length;badge.hidden=!others.length;
   badge.title=others.length?others.map(admin=>admin.name||admin.email||'Administrador').join(', ')+' online':'Nenhum outro administrador online';
 }
@@ -2584,6 +2610,7 @@ function lockAdminInterface(){
     const context=canvas.getContext?.('2d');
     if(context) context.clearRect(0,0,canvas.width,canvas.height);
   });
+  const name=document.getElementById('sbAdminName');if(name)name.textContent='Administrador';
   const email=document.getElementById('sbUserEmailDisplay');if(email)email.textContent='Administrador';
   const cfgName=document.getElementById('cfgAdminName');if(cfgName)cfgName.textContent='—';
   const cfgEmail=document.getElementById('cfgAdminEmail');if(cfgEmail)cfgEmail.textContent='—';
@@ -2613,7 +2640,7 @@ async function initializeAdminSession(user){
       if(auth.currentUser && auth.currentUser.uid===user.uid){
         currentAdmin={...data,uid:user.uid};
         updateOrdersRevenueDisplay();
-        document.getElementById('sbUserEmailDisplay').textContent = data.email || user.email || 'Administrador';
+        updateAdminSidebarProfile(data,user);
         document.getElementById('cfgAdminName').textContent=data.name||'Admin';
         document.getElementById('cfgAdminEmail').textContent=data.email||user.email;
         unlockAdminInterface();
@@ -2954,6 +2981,7 @@ function goToPanel(panel, opts = {}){
    LOAD ALL DATA
    ============================================================ */
 function loadAllData(){
+  database.ref('supportInbox').orderByChild('deleted').equalTo(false).on('value',snap=>renderSupportOverview(Object.values(snap.val()||{})));
   database.ref('products').on('value',snap=>{
     products = snap.val()? Object.values(snap.val()) : [];
     renderSessions();
@@ -2998,6 +3026,7 @@ function loadAllData(){
   });
   database.ref('users').on('value',async snap=>{
     const d=snap.val()||{};try{const response=await fetch('/api/admin-access',{method:'POST',headers:{'Content-Type':'application/json',Authorization:'Bearer '+await auth.currentUser.getIdToken()},body:'{}'});if(!response.ok)throw Error('Acesso negado');const directory=await response.json(),adminMap=new Map(directory.admins.map(admin=>[admin.uid,admin]));applyAdminAccess(directory);usersCache=Object.keys(d).map(uid=>({...d[uid],...(adminMap.get(uid)||{}),uid,isAdmin:adminMap.has(uid)}));}catch{usersCache=[];showToast('Não foi possível conferir as permissões dos administradores.','err');return;}
+    const signedAdmin=usersCache.find(entry=>entry.uid===auth.currentUser?.uid);if(signedAdmin)updateAdminSidebarProfile(signedAdmin);
     renderLeads(); renderUsers(); renderDashboard(); updateOnlineUsersBadge(); renderOrders(); renderOrderInvoicesAdm();
   });
 
@@ -3039,6 +3068,20 @@ function loadAllData(){
   loadAboutPhotosAdm();
   initAnalytics();
   listenOrdersAdm();
+}
+
+function renderSupportOverview(chats){
+  const total=chats.length;
+  const latest=chats.slice().sort((a,b)=>Number(b.updatedAt||0)-Number(a.updatedAt||0))[0];
+  const unread=chats.filter(chat=>chat.unread).length;
+  const countEl=document.getElementById('statSupportMessages');
+  const previewEl=document.getElementById('statSupportPreview');
+  const latestEl=document.getElementById('statSupportLatest');
+  const unreadEl=document.getElementById('statSupportUnread');
+  if(countEl)countEl.textContent=total.toLocaleString('pt-BR');
+  if(previewEl)previewEl.textContent=latest?.lastText||'Nenhuma mensagem recebida ainda.';
+  if(latestEl)latestEl.textContent=latest?(latest.lastRole==='admin'?'Última enviada pela equipe':'Última recebida do cliente'):'Aguardando atendimento';
+  if(unreadEl){unreadEl.textContent=unread+' '+(unread===1?'nova':'novas');unreadEl.classList.toggle('is-visible',unread>0);}
 }
 
 function updateOnlineUsersBadge(){
@@ -6031,7 +6074,7 @@ async function saveAdminProfileEditor(){
   if(file){if(!['image/jpeg','image/png','image/webp'].includes(file.type)||file.size>5*1024*1024)throw Error('Imagem invalida. Use JPG, PNG ou WebP de ate 5 MB.');
    const url=await uploadImg(file,'avatars/'+auth.currentUser.uid);if(!url)throw Error('A foto nao foi enviada.');changes.photoURL=url;}
   await database.ref('users/'+uid).update(changes);
-  if(currentAdmin?.uid===uid){Object.assign(currentAdmin,changes);document.getElementById('cfgAdminName').textContent=name;}
+  if(currentAdmin?.uid===uid){Object.assign(currentAdmin,changes);updateAdminSidebarProfile(currentAdmin);document.getElementById('cfgAdminName').textContent=name;}
   closeModal('modalAdminProfile');showToast('Perfil do administrador atualizado.');
  }catch(error){showToast(error.message||'Nao foi possivel salvar o perfil.','err');}
  finally{button.disabled=false;}
@@ -7046,7 +7089,7 @@ function loadLeadsAdmin(){
     ref.on('value',callback,()=>{if(path==='leads'){leadReadError='Não foi possível carregar os contatos. Confira sua permissão e conexão.';renderLeads();}else{document.getElementById('leadCampaignRows').textContent='Não foi possível carregar as campanhas. Confira sua permissão e conexão.';}});
     leadSubscriptions.push({ref,callback});
   });
-  setTimeout(()=>employeeApi('admin-list').then(result=>{leadEmployees=Object.fromEntries((result.employees||[]).map(employee=>[employee.uid,employee]));renderLeads();}).catch(()=>{}),0);
+  setTimeout(()=>employeeApi('admin-list').then(result=>{employeesAdm=result.employees||[];leadEmployees=Object.fromEntries(employeesAdm.map(employee=>[employee.uid,employee]));renderLeads();}).catch(()=>{}),0);
 }
 auth.onAuthStateChanged(user=>{if(!user){leadSubscriptions.forEach(({ref,callback})=>ref.off('value',callback));leadSubscriptions=[];leadRecords={};leadCampaigns={};leadLoaded=false;leadReadError='';renderLeads();renderLeadCampaigns();}});
 function leadList(){
@@ -7086,11 +7129,25 @@ function renderLeadEmployeeCards(list){
   });
   container.innerHTML=cards.join('');
 }
+function renderDashboardEmployeeCarousel(){
+  const carousel=document.getElementById('dashboardEmployeeCarousel');if(!carousel)return;
+  const source=Array.isArray(employeesAdm)&&employeesAdm.length?employeesAdm:Object.values(leadEmployees),employees=source.filter(employee=>employee&&employee.uid).sort((a,b)=>String(a.name||'').localeCompare(String(b.name||''),'pt-BR'));
+  carousel.replaceChildren();
+  employees.forEach(employee=>{const button=document.createElement('button'),image=document.createElement('img'),name=document.createElement('span');button.type='button';button.className='dashboard-employee-shortcut';button.title='Abrir '+(employee.name||'Funcionário');button.setAttribute('aria-label',button.title);image.src=safeAdminImage(employee.photoURL||'assets/logo.webp');image.alt='';image.onerror=()=>{image.onerror=null;image.src='assets/logo.webp';};name.textContent=employee.name||'Funcionário';button.append(image,name);button.addEventListener('click',()=>openDashboardEmployeeProfile(employee.uid));carousel.append(button);});
+}
+async function openDashboardEmployeeProfile(uid){
+  switchPanel('funcionarios');await loadEmployeesAdm();
+  const clientFilter=document.getElementById('employeeClientsFilter'),performanceFilter=document.getElementById('employeePerformanceFilter');
+  if(clientFilter)clientFilter.value=uid;
+  if(performanceFilter)performanceFilter.value=uid;
+  renderEmployeeClientsAdm();renderEmployeeSummaryAdm();
+  requestAnimationFrame(goToEmployeeClients);
+}
 function renderLeads(){
   renderEmployeeSummaryAdm();
   renderLeadCampaignAvatarStack();
   const rows=document.getElementById('leadRows');if(!rows)return;
-  const list=leadList();document.getElementById('leadTotal').textContent=list.length;renderLeadEmployeeCards(list);updateLeadNavBadge();renderLeadWeekChart();
+  const list=leadList();document.getElementById('leadTotal').textContent=list.length;renderLeadEmployeeCards(list);renderDashboardEmployeeCarousel();updateLeadNavBadge();renderLeadWeekChart();
   const from=document.getElementById('leadFrom').value,to=document.getElementById('leadTo').value;
   const todayActive=from===leadDayKey()&&to===from;document.getElementById('leadToday').classList.toggle('active',todayActive);document.getElementById('leadToday').setAttribute('aria-pressed',String(todayActive));
   const filtered=filteredLeadsForCsv(list);
@@ -7449,13 +7506,13 @@ async function exportContactsCsv(kind){
  </div>
 </div>
 
-<script src="assets/support-chat.js?v=20261026-2" data-support-role="admin" defer></script>
+<script src="assets/support-chat.js?v=20261101-1" data-support-role="admin" defer></script>
 <script src="assets/qrcode.min.js" defer></script>
 <script src="assets/admin-media.js?v=939b071"></script>
 <script src="assets/admin-mfa.js?v=939b071" defer></script>
 <script>let employeesAdm=[],employeeClientsAdm=[],employeeClientStatusesAdm=[],availableEmployeeLinksAdm=[],uploadedEmployeePhoto='',editingEmployeeUidAdm='',employeeWeekOffset=0,chartEmployeeWeekInstance=null,employeeTeamRevealed=false;
 async function employeeApi(action,extra={}){const token=await auth.currentUser.getIdToken();const r=await fetch('/api/employee',{method:'POST',headers:{'Content-Type':'application/json',Authorization:'Bearer '+token},body:JSON.stringify({action,...extra})}),j=await r.json();if(!r.ok)throw Error(j.error||j.message||'Falha na operação.');return j}
-async function loadEmployeesAdm(){try{const result=await employeeApi('admin-list');employeesAdm=result.employees||[];employeeClientsAdm=result.employeeClients||[];employeeClientStatusesAdm=result.clientStatuses||[];availableEmployeeLinksAdm=result.availableLinks||[];ensureEmployeePerformanceFilter();renderEmployeesAdm();renderEmployeeClientStatusesAdm();renderEmployeeClientsAdm();renderEmployeeSummaryAdm();renderEmployeeAvatarStack();renderLeadCampaignAvatarStack()}catch(e){employeesAdmList.innerHTML='<div class="block"><div class="block-body">'+esc(e.message)+'</div></div>'}}
+async function loadEmployeesAdm(){try{const result=await employeeApi('admin-list');employeesAdm=result.employees||[];employeeClientsAdm=result.employeeClients||[];employeeClientStatusesAdm=result.clientStatuses||[];availableEmployeeLinksAdm=result.availableLinks||[];ensureEmployeePerformanceFilter();renderEmployeesAdm();employeesAdmList.querySelectorAll('.employee-profile-card').forEach((card,index)=>card.id='employee-profile-'+employeesAdm[index].uid);renderEmployeeClientStatusesAdm();renderEmployeeClientsAdm();renderEmployeeSummaryAdm();renderEmployeeAvatarStack();renderLeadCampaignAvatarStack()}catch(e){employeesAdmList.innerHTML='<div class="block"><div class="block-body">'+esc(e.message)+'</div></div>'}}
 function ensureEmployeePerformanceFilter(){const nav=document.querySelector('#panel-funcionarios .employee-week-nav');if(!nav)return;let select=document.getElementById('employeePerformanceFilter');const selected=select?.value||document.getElementById('employeeClientsFilter')?.value||'';if(!select){select=document.createElement('select');select.id='employeePerformanceFilter';select.style.cssText='height:38px;min-width:190px;padding:0 12px;border:0;border-radius:9px;background:#1c1c1c;color:#fff';nav.prepend(select);select.addEventListener('change',()=>{employeeClientsFilter.value=select.value;renderEmployeeClientsAdm();renderEmployeeSummaryAdm()});const legend=document.createElement('div');legend.className='employee-week-legend';legend.innerHTML='<span><i style="background:#ff3601"></i>Leads</span><span><i style="background:#3ecf8e"></i>Contatos registrados</span>';document.getElementById('chartEmployeeWeek').parentElement.before(legend)}select.innerHTML='<option value="">Todos os funcionários</option>'+employeesAdm.map(employee=>'<option value="'+esc(employee.uid)+'">'+esc(employee.name)+'</option>').join('');select.value=employeesAdm.some(employee=>employee.uid===selected)?selected:'';const listFilter=document.getElementById('employeeClientsFilter');if(listFilter&&!listFilter.dataset.synced){listFilter.dataset.synced='1';listFilter.addEventListener('change',()=>{select.value=listFilter.value;renderEmployeeSummaryAdm()})}}
 function employeeWeekPeriod(){const now=new Date(),day=(now.getDay()+6)%7,start=new Date(now);start.setHours(0,0,0,0);start.setDate(start.getDate()-day+employeeWeekOffset*7);const end=new Date(start);end.setDate(end.getDate()+7);return{start,end}}
 function shiftEmployeeWeek(direction){employeeWeekOffset=Math.min(0,employeeWeekOffset+direction);renderEmployeeSummaryAdm()}

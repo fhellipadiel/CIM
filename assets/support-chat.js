@@ -7,6 +7,7 @@ function element(tag,className,text){const node=document.createElement(tag);if(c
 function iconButton(name,label,className='cs-icon-button'){const button=element('button',className);button.type='button';button.title=label;button.setAttribute('aria-label',label);button.append(icon(name));return button;}
 function avatar(profile){const box=element('span','cs-avatar');box.append(icon('user'));if(profile.type!=='visitor'&&/^https:\/\//.test(profile.photoURL||'')){const img=element('img');img.src=profile.photoURL;img.alt='';img.onerror=()=>img.remove();box.append(img);}return box;}
 function labelDate(value,full=false){if(!value)return '';return new Date(value).toLocaleString('pt-BR',full?{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'}:{hour:'2-digit',minute:'2-digit'});}
+function contactTypeLabel(type){return type==='PF'?'Pessoa Física':type==='PJ'?'Pessoa Jurídica':'';}
 let app,wantsOpen=false;
 window.CimSupport={open:function(){if(app)app.open();else wantsOpen=true;}};
 function init(){
@@ -61,8 +62,9 @@ function init(){
   return data;
  }
  function roomIdentity(meta){
-  title.textContent=admin?(meta.type==='visitor'?'Visitante':meta.name||'Cliente'):'CIM Global Parts';
-  subtitle.textContent=admin?(meta.type==='visitor'?'Visitante · Atendimento temporário':meta.email||'Cliente cadastrado'):(role==='visitor'?'':'Histórico salvo na sua conta');
+  const contactType=contactTypeLabel(meta.customerType);
+  title.textContent=admin?(meta.name||(meta.type==='visitor'?'Visitante':'Cliente')):'CIM Global Parts';
+  subtitle.textContent=admin?(meta.type==='visitor'?(contactType||'Visitante')+' · Atendimento temporário':meta.email||'Cliente cadastrado'):(role==='visitor'?'':'Histórico salvo na sua conta');
   subtitle.hidden=!subtitle.textContent;if(admin){identity.className='';identity.replaceChildren(avatar(meta));remove.hidden=meta.type!=='visitor';}
  }
  function ack(){
@@ -82,7 +84,7 @@ function init(){
   for(const message of added.sort((a,b)=>a.seq-b.seq)){
    if(message.role==='admin'&&!message.kind)dismissStaffShowcases();
    const own=admin?message.role==='admin':message.role!=='admin',bubble=element('article','cs-message'+(message.role==='admin'?' cs-admin-message':'')+(own?' cs-own':''));
-   bubble.dataset.seq=String(message.seq);bubble.append(element('span','cs-message-author',message.role==='admin'?'Equipe CIM':admin?(role==='admin'?(message.role==='visitor'?'Visitante':title.textContent):'Cliente'):'Você'),element('p','cs-message-text',message.text));
+   bubble.dataset.seq=String(message.seq);bubble.append(element('span','cs-message-author',message.role==='admin'?'Equipe CIM':admin?(role==='admin'?title.textContent:'Cliente'):'Você'),element('p','cs-message-text',message.text));
    if(!admin&&message.kind==='customer_type_prompt'){
     const choices=element('div','cs-prompt-choices');
     for(const value of ['Pessoa Física','Pessoa Jurídica']){const choice=element('button','cs-prompt-choice',value);choice.type='button';choice.addEventListener('click',()=>{input.value=value;input.dispatchEvent(new Event('input'));form.requestSubmit();});choices.append(choice);}
@@ -199,8 +201,8 @@ function init(){
   for(const chat of filtered){
    const button=element('button','cs-thread'+(roomId===chat.chatId?' is-selected':''));button.type='button';button.setAttribute('aria-pressed',String(roomId===chat.chatId));
    button.append(avatar(chat));const body=element('span','cs-thread-body'),row=element('span','cs-thread-top');
-   row.append(element('strong','cs-thread-name',chat.type==='visitor'?'Visitante':chat.name||'Cliente'),element('time','cs-thread-time',labelDate(chat.updatedAt)));
-   body.append(row);if(chat.type==='customer'&&chat.email)body.append(element('span','cs-thread-email',chat.email));else body.append(element('span','cs-thread-email','Visitante · Sem conta'));
+   row.append(element('strong','cs-thread-name',chat.name||(chat.type==='visitor'?'Visitante':'Cliente')),element('time','cs-thread-time',labelDate(chat.updatedAt)));
+   body.append(row);if(chat.type==='customer'&&chat.email)body.append(element('span','cs-thread-email',chat.email));else body.append(element('span','cs-thread-email',(contactTypeLabel(chat.customerType)||'Visitante')+' · Sem conta'));
    body.append(element('span','cs-thread-preview',(chat.lastRole==='admin'?'Equipe CIM: ':'')+chat.lastText));button.append(body);
    if(chat.unread){const dot=element('span','cs-unread-dot');dot.setAttribute('role','img');dot.setAttribute('aria-label','Mensagem não lida');button.append(dot);}
    button.addEventListener('click',()=>{if(roomId===chat.chatId){shell.classList.add('cs-selected');ack();return;}reset();roomId=chat.chatId;form.hidden=false;shell.classList.add('cs-selected');renderList();connect(chat);});

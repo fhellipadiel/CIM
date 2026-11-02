@@ -34,12 +34,16 @@ test('principal exclui secundario mas nunca pode excluir a propria conta',async(
 
 test('configuracoes e lista possuem gestao visual de administradores',()=>{
  const html=fs.readFileSync('adm.html','utf8');
+ const checkout=fs.readFileSync('server/checkout.cjs','utf8');
  assert.match(html,/id="adminManagementCard"/);
  assert.match(html,/id="modalCreateAdmin"/);
   assert.match(html,/id="usersCreateAdminOption"/);
  assert.match(html,/deleteAdministratorAdm/);
  assert.match(html,/currentAdminIsPrimary/);
  assert.match(html,/onlineAdminsBadge/);
+ assert.match(html,/if\(!currentAdminIsPrimary\)\{count\.textContent='0';badge\.hidden=true/);
+ assert.match(checkout,/if\(isPrimary\)\{[\s\S]*?adminPresence/);
+ assert.match(checkout,/onlineAdmins,admins/);
  assert.match(html,/modalAdminPermissions/);
  const login=html.match(/async function doLogin\(\)\{[\s\S]*?\n\}/)?.[0]||'';
  assert.doesNotMatch(login,/initializeAdminSession\(/);
