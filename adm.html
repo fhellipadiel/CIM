@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>CIM · Painel Administrativo</title>
 <script>
-if((location.hostname==='127.0.0.1'||location.hostname==='localhost')&&location.port&&location.port!=='3000'){
-  location.replace(`http://${location.hostname}:3000${location.pathname}${location.search}${location.hash}`);
+if((location.hostname==='127.0.0.1'||location.hostname==='localhost')&&location.port&&location.port!=='3003'){
+  location.replace(`http://${location.hostname}:3003${location.pathname}${location.search}${location.hash}`);
 }
 </script>
 <link rel="icon" type="image/webp" href="assets/logo.webp">
@@ -2837,7 +2837,7 @@ enhanceAdminActionMenusAdm(document);
 let publicContentAdmLoaded=false;
 function publicContentDefaultsAdm(){return {about:{title:'Sobre a CIM Global Parts',text:'Soluções em peças automotivas, componentes multimarcas e suporte para oficinas e parceiros.'},privacy:{title:'Política de Privacidade',text:'A CIM Global Parts respeita a sua privacidade e protege os dados pessoais tratados em nosso site e em nossos canais de atendimento.'}};}
 function fillPublicContentAdm(data={}){const defaults=publicContentDefaultsAdm(),about={...defaults.about,...(data.about||{})},privacy={...defaults.privacy,...(data.privacy||{})};document.getElementById('publicAboutTitle').textContent=about.title||'';document.getElementById('publicAboutText').textContent=about.text||'';document.getElementById('publicPrivacyTitle').textContent=privacy.title||'';document.getElementById('publicPrivacyText').textContent=privacy.text||'';}
-async function loadPublicContentAdm(){if(!auth?.currentUser)return;fillPublicContentAdm();try{const response=await fetch('/api/checkout?signupAction=site-content'),data=await response.json();if(!response.ok)throw Error(data.error||'Falha ao carregar');fillPublicContentAdm(data);publicContentAdmLoaded=true;}catch(error){showToast('Abra o painel pelo servidor local na porta 3000 para carregar e salvar o conteúdo.','err');}}
+async function loadPublicContentAdm(){if(!auth?.currentUser)return;fillPublicContentAdm();try{const response=await fetch('/api/checkout?signupAction=site-content'),data=await response.json();if(!response.ok)throw Error(data.error||'Falha ao carregar');fillPublicContentAdm(data);publicContentAdmLoaded=true;}catch(error){showToast('Abra o painel pelo servidor local na porta 3003 para carregar e salvar o conteúdo.','err');}}
 async function savePublicContentAdm(section){if(!currentAdminCanWrite){showToast('Este administrador não pode editar conteúdo.','err');return;}const fields=section==='about'?{title:document.getElementById('publicAboutTitle').innerText,text:document.getElementById('publicAboutText').innerText}:{title:document.getElementById('publicPrivacyTitle').innerText,text:document.getElementById('publicPrivacyText').innerText};const title=String(fields.title||'').trim().slice(0,100),text=String(fields.text||'').trim().slice(0,section==='about'?5000:7000);if(!title||!text){showToast('Preencha o título e o texto antes de salvar.','err');return;}try{const response=await fetch('/api/checkout?signupAction=site-content',{method:'POST',headers:{'Content-Type':'application/json',Authorization:'Bearer '+await auth.currentUser.getIdToken()},body:JSON.stringify({section,title,text})}),data=await response.json();if(!response.ok)throw Error(data.error||'Falha ao salvar');publicContentAdmLoaded=true;showToast('Conteúdo público salvo.');}catch(error){showToast(error.message||'Não foi possível salvar o conteúdo.','err');}}
 
 function switchPanel(name){
