@@ -4723,6 +4723,18 @@ function toggleBottomMenu() {
 
         auth.onAuthStateChanged(async (user) => {
             if (!user) { if(sharedSelection){currentUser=null;openSharedGuest();}else redirectToLogin();return; }
+            try {
+                await user.reload();
+                if (!auth.currentUser || !auth.currentUser.emailVerified) {
+                    await auth.signOut();
+                    window.location.replace('login.html?verification=required');
+                    return;
+                }
+            } catch (error) {
+                console.error('[Sessão] Não foi possível confirmar o e-mail.', error);
+                redirectToLogin();
+                return;
+            }
             document.body.classList.remove('shared-public');
             if (localStorage.getItem(CACHE_KEY)) unlockPage();
             const uid = user.uid;
