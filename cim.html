@@ -4725,7 +4725,9 @@ function toggleBottomMenu() {
             if (!user) { if(sharedSelection){currentUser=null;openSharedGuest();}else redirectToLogin();return; }
             try {
                 await user.reload();
-                if (!auth.currentUser || !auth.currentUser.emailVerified) {
+                const providers = (auth.currentUser?.providerData || []).map(item => item.providerId);
+                const isManualEmailAccount = providers.includes('password') && !providers.includes('google.com');
+                if (!auth.currentUser || (isManualEmailAccount && !auth.currentUser.emailVerified)) {
                     await auth.signOut();
                     window.location.replace('login.html?verification=required');
                     return;

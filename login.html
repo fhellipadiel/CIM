@@ -568,8 +568,11 @@
         let currentView = 'login';
         let modoGoogleCadastro = false;
         let usuarioGoogle = null;
-        let pendingGoogleCredential = null;
-        let pendingGoogleEmail = '';
+
+        function isManualEmailAccount(user) {
+            const providers = (user?.providerData || []).map(item => item.providerId);
+            return providers.includes('password') && !providers.includes('google.com');
+        }
 
         const DEFAULT_USER_AVATAR = 'assets/logo.webp';
 
@@ -1247,29 +1250,7 @@
             try {
                 const credential = await CimMfaAuth.signIn(auth,email,password);
                 registerSuccess(KEY);
-                if (pendingGoogleCredential) {
-                    const sameEmail = credential.user.email?.trim().toLowerCase() === pendingGoogleEmail;
-                    if (!sameEmail) {
-                        pendingGoogleCredential = null;
-                        pendingGoogleEmail = '';
-                        await auth.signOut();
-                        showMessage('Entre com a senha da mesma conta escolhida no Google.');
-                        return;
-                    }
-                    try {
-                        await credential.user.linkWithCredential(pendingGoogleCredential);
-                        pendingGoogleCredential = null;
-                        pendingGoogleEmail = '';
-                    } catch (linkError) {
-                        console.error('[Google] Não foi possível vincular a conta.', linkError);
-                        pendingGoogleCredential = null;
-                        pendingGoogleEmail = '';
-                        await auth.signOut();
-                        showMessage('Não foi possível vincular este Google à sua conta. Tente novamente.');
-                        return;
-                    }
-                }
-                if (credential.user.emailVerified !== true) {
+                if (isManualEmailAccount(credential.user) && credential.user.emailVerified !== true) {
                     await showEmailVerification(credential.user);
                     return;
                 }
@@ -1450,14 +1431,6 @@
             try {
                 const result = await CimMfaAuth.withChallenge(auth,()=>auth.signInWithPopup(provider));
                 const user = result.user;
-                // O Google devolve este estado assinado no próprio resultado do login.
-                // Não recarregamos a conta aqui: esse pedido extra pode falhar mesmo
-                // quando a autenticação Google já foi concluída com sucesso.
-                if (user.emailVerified !== true) {
-                    await auth.signOut();
-                    showMessage('O Google não confirmou este e-mail. Escolha uma conta Google com e-mail verificado.');
-                    return;
-                }
 
                 const snapshot = await database.ref(`users/${user.uid}`).once('value');
                 if (snapshot.exists()) {
@@ -1486,16 +1459,6 @@
                     showMessage('Janela de autenticação fechada. Tente novamente.');
                 } else if (error.code === 'auth/popup-blocked') {
                     showMessage('Permita pop-ups para usar o login com Google.');
-                } else if (error.code === 'auth/account-exists-with-different-credential') {
-                    const credential = firebase.auth.GoogleAuthProvider.credentialFromError(error);
-                    if (credential && error.email) {
-                        pendingGoogleCredential = credential;
-                        pendingGoogleEmail = String(error.email).trim().toLowerCase();
-                        document.getElementById('email').value = pendingGoogleEmail;
-                        showMessage('Este e-mail já possui senha. Entre uma vez com a senha para vincular o Google.');
-                    } else {
-                        showMessage('Esta conta já usa outro método de acesso. Entre com sua senha para vincular o Google.');
-                    }
                 } else if (error.code === 'auth/cancelled-popup-request') {
                     // silencioso
                 } else {
@@ -1608,8 +1571,7 @@
                 // Redireciona se já logado
                 auth.onAuthStateChanged(async user => {
                     if (user) {
-                        if (pendingGoogleCredential) return;
-                        if (user.emailVerified !== true) {
+                        if (isManualEmailAccount(user) && user.emailVerified !== true) {
                             await showEmailVerification(user, false);
                             return;
                         }
