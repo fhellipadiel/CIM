@@ -2,6 +2,7 @@ const http=require('node:http');
 const fs=require('node:fs/promises');
 const path=require('node:path');
 const {handle}=require('../servidor/checkout.cjs');
+const {route:publicProductRoute}=require('../servidor/public-products.cjs');
 const root=path.resolve(__dirname,'..');
 const routes=new Set(['admin-recovery','admin-access','admin-management','admin-media','admin-mfa','admin-import-history','admin-navigation-analytics','employee','analytics','support','register-profile','claim-referral','company-lookup','checkout','customer-orders','resume-payment','cart-save','cart-load','payment-status','admin-session','admin-notifications','admin-tests','admin-order-status','admin-archive-legacy-order','webhook']);
 http.createServer(async(req,res)=>{
@@ -9,8 +10,18 @@ http.createServer(async(req,res)=>{
   res.json=value=>{res.setHeader('Content-Type','application/json');res.end(JSON.stringify(value));};
   try {
     const pathname=new URL(req.url,'http://localhost').pathname;
+    const url=new URL(req.url,'http://localhost');
+    const publicAction=pathname==='/catalogo'?'product-catalog':pathname.startsWith('/categoria/')?'product-category':pathname.startsWith('/marca/')?'product-brand':pathname.startsWith('/veiculo/')?'product-vehicle':pathname.startsWith('/peca/')?'product-page':'';
+    if(publicAction){
+      const pieces=pathname.split('/').filter(Boolean);
+      req.query=Object.fromEntries(url.searchParams);
+      if(publicAction==='product-page'){req.query.slug=decodeURIComponent(pieces[1]||'');req.query.id=decodeURIComponent(pieces[2]||'');}
+      else req.query.slug=decodeURIComponent(pieces[1]||'');
+      return publicProductRoute(publicAction,req,res);
+    }
     if(pathname.startsWith('/api/')) {
-      const action=pathname.slice(5);
+      const action=pathname.slice(5),queryAction=url.searchParams.get('signupAction');
+      if(['product-page','product-sitemap','product-category','product-brand','product-catalog','product-vehicle'].includes(queryAction)){req.query=Object.fromEntries(url.searchParams);return publicProductRoute(queryAction,req,res);}
       if(!routes.has(action))return res.status(404).json({error:'Rota não encontrada'});
       let raw='';for await(const chunk of req){raw+=chunk;if(Buffer.byteLength(raw)>(action==='admin-media'?4250000:65536))return res.status(413).json({error:'Solicitação muito grande'});}
       req.body=raw ? JSON.parse(raw) : {};
