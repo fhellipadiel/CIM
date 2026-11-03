@@ -1428,8 +1428,10 @@
             try {
                 const result = await CimMfaAuth.withChallenge(auth,()=>auth.signInWithPopup(provider));
                 const user = result.user;
-                await user.reload();
-                if (!auth.currentUser.emailVerified) {
+                // O Google devolve este estado assinado no próprio resultado do login.
+                // Não recarregamos a conta aqui: esse pedido extra pode falhar mesmo
+                // quando a autenticação Google já foi concluída com sucesso.
+                if (user.emailVerified !== true) {
                     await auth.signOut();
                     showMessage('O Google não confirmou este e-mail. Escolha uma conta Google com e-mail verificado.');
                     return;
@@ -1457,7 +1459,7 @@
                     }, 450);
                 }
             } catch (error) {
-                console.error('[Google] Falha na autenticação.');
+                console.error('[Google] Falha na autenticação.', error);
                 if (error.code === 'auth/popup-closed-by-user') {
                     showMessage('Janela de autenticação fechada. Tente novamente.');
                 } else if (error.code === 'auth/popup-blocked') {
@@ -1465,7 +1467,7 @@
                 } else if (error.code === 'auth/cancelled-popup-request') {
                     // silencioso
                 } else {
-                    showMessage('Erro ao autenticar com Google. Tente novamente.');
+                    showMessage('Não foi possível concluir com Google. Tente novamente ou escolha outra conta.');
                 }
             }
         }
