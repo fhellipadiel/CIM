@@ -34,6 +34,11 @@ async function reconcile(db, payment) {
   const retain=()=>{};
   path.on('value',retain);
   try {
+    if(action==='site-content'&&req.method==='GET'){
+      const {db}=getServices(),stored=(await db.ref('siteContent').get()).val()||{},clean=value=>({title:String(value?.title||'').slice(0,100),text:String(value?.text||'').slice(0,7000)});
+      res.setHeader('Cache-Control','public, max-age=60, s-maxage=300');
+      return res.status(200).json({about:clean(stored.about),privacy:clean(stored.privacy)});
+    }
   const order=(await path.once('value')).val();
   if (!order) fail('Pedido de teste não encontrado.',404);
   const buyerId=process.env.MP_BUYER_ID;
@@ -163,6 +168,13 @@ async function handle(action,req,res,dependencies={}) {
     if(action==='admin-media')return res.status(200).json(await require('./admin-media.cjs').handleMedia({auth,caller,body,requireRead:()=> (dependencies.requireAdminAccess||requireAdminAccess)(req,db),requireWrite:()=> (dependencies.requireAdminWriteAccess||dependencies.requireAdminAccess||requireAdminWriteAccess)(req,db)}));
     if(action==='admin-mfa')return res.status(200).json(await require('./admin-mfa.cjs').handleAdminMfa({auth,db,caller,body,requireSetup:()=> (dependencies.requireAdminSetupAccess||requireAdminSetupAccess)(req,db),requireAdmin:()=> (dependencies.requireAdminAccess||requireAdminAccess)(req,db)}));
     if(action==='employee')return res.status(200).json(await require('./employees.cjs').handleEmployees({auth,db,caller,body,requireAdmin:()=> (dependencies.requireAdminWriteAccess||dependencies.requireAdminAccess||requireAdminWriteAccess)(req,db)}));
+    if(action==='site-content'){
+      await (dependencies.requireAdminWriteAccess||dependencies.requireAdminAccess||requireAdminWriteAccess)(req,db);
+      const section=body.section==='about'?'about':body.section==='privacy'?'privacy':'',limit=section==='about'?5000:7000,title=String(body.title||'').trim().slice(0,100),text=String(body.text||'').trim().slice(0,limit);
+      if(!section||!title||!text)fail('Informe o título e o texto do conteúdo.',400);
+      await db.ref('siteContent/'+section).set({title,text,updatedAt:Date.now(),updatedBy:caller.uid});
+      return res.status(200).json({saved:true,section,title,text});
+    }
     if(action==='admin-import-history'){
       if(caller.uid!==PRIMARY_ADMIN_UID)await (dependencies.requireAdminWriteAccess||dependencies.requireAdminAccess||requireAdminWriteAccess)(req,db);
       const historyId=String(body.historyId||'');

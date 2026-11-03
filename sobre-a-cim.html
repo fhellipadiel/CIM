@@ -19,8 +19,8 @@
 <body>
   <header><a href="/" aria-label="CIM Global Parts"><img class="brand-logo" src="assets/logo.webp" alt="CIM Global Parts"></a><a class="back" href="/">Voltar ao site</a></header>
   <main>
-    <h1>Sobre a CIM Global Parts</h1>
-    <p class="lead">Soluções em peças automotivas, componentes multimarcas e suporte para oficinas e parceiros.</p>
+    <h1 id="publicAboutTitle">Sobre a CIM Global Parts</h1>
+    <p class="lead" id="publicAboutText">Soluções em peças automotivas, componentes multimarcas e suporte para oficinas e parceiros.</p>
     <h2>Fundadora e proprietária</h2>
     <p>A CIM Global Parts foi criada por Helane, fundadora e proprietária da empresa.</p>
     <h2>Desenvolvimento digital</h2>
@@ -48,5 +48,6 @@
     <div class="links"><a class="link" href="/catalogo">Ver catálogo</a><a class="link" href="/politica-de-devolucao.html">Devoluções e trocas</a><a class="link" href="/politica-de-privacidade.html">Política de Privacidade</a></div>
   </main>
   <footer><img class="footer-logo" src="assets/logo.webp" alt="CIM Global Parts"></footer>
+  <script>(async()=>{try{const r=await fetch('/api/checkout?signupAction=site-content',{cache:'no-store'}),d=await r.json(),v=d?.about;if(v?.title)document.getElementById('publicAboutTitle').textContent=v.title;if(v?.text)document.getElementById('publicAboutText').textContent=v.text;}catch{}})();</script>
 </body>
 </html>

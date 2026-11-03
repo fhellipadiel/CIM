@@ -12,8 +12,8 @@
 <body>
   <header><a href="/" aria-label="CIM Global Parts"><img class="brand-logo" src="assets/logo.webp" alt="CIM Global Parts"></a><a class="back" href="/">Voltar ao site</a></header>
   <main>
-    <h1>Política de Privacidade</h1>
-    <p class="lead">A CIM Global Parts respeita a sua privacidade e protege os dados pessoais tratados em nosso site e em nossos canais de atendimento.</p>
+    <h1 id="publicPrivacyTitle">Política de Privacidade</h1>
+    <p class="lead" id="publicPrivacyText">A CIM Global Parts respeita a sua privacidade e protege os dados pessoais tratados em nosso site e em nossos canais de atendimento.</p>
     <h2>Dados que podemos coletar</h2>
     <p>Podemos coletar dados informados por você ao solicitar atendimento, fazer um pedido ou entrar em contato, como nome, telefone, e-mail, CPF ou CNPJ, endereço de entrega e informações do pedido. Também podemos registrar dados técnicos necessários ao funcionamento do site, como endereço IP, navegador e páginas acessadas.</p>
     <h2>Como usamos os dados</h2>
@@ -32,5 +32,6 @@
     <p><strong>Última atualização:</strong> 3 de novembro de 2026.</p>
   </main>
   <footer><img class="footer-logo" src="assets/logo.webp" alt="CIM Global Parts"></footer>
+  <script>(async()=>{try{const r=await fetch('/api/checkout?signupAction=site-content',{cache:'no-store'}),d=await r.json(),v=d?.privacy;if(v?.title)document.getElementById('publicPrivacyTitle').textContent=v.title;if(v?.text)document.getElementById('publicPrivacyText').textContent=v.text;}catch{}})();</script>
 </body>
 </html>
