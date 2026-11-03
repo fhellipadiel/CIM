@@ -17,7 +17,7 @@ http.createServer(async(req,res)=>{
       return await handle(action,req,res);
     }
     const local=pathname==='/' ? '/index.html' : pathname==='/admin' ? '/adm.html' : pathname==='/login' ? '/login.html' : pathname==='/funcionario' ? '/funcionario.html' : pathname;
-    if(!['/index.html','/cim.html','/adm.html','/login.html','/funcionario.html','/leads.html','/recuperar-acesso.html'].includes(local) && !/^\/assets\/[a-zA-Z0-9_./ -]+$/.test(local))return res.status(404).end('Não encontrado');
+    if(!['/index.html','/cim.html','/adm.html','/login.html','/funcionario.html','/leads.html','/recuperar-acesso.html','/politica-de-devolucao.html'].includes(local) && !/^\/assets\/[a-zA-Z0-9_./ -]+$/.test(local))return res.status(404).end('Não encontrado');
     const target=path.resolve(root,'.'+local);
     if(!target.startsWith(root+path.sep))return res.status(403).end();
     const content=await fs.readFile(target);
