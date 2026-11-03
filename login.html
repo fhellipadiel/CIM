@@ -568,6 +568,8 @@
         let currentView = 'login';
         let modoGoogleCadastro = false;
         let usuarioGoogle = null;
+        let pendingGoogleCredential = null;
+        let pendingGoogleEmail = '';
 
         const DEFAULT_USER_AVATAR = 'assets/logo.webp';
 
@@ -1245,6 +1247,28 @@
             try {
                 const credential = await CimMfaAuth.signIn(auth,email,password);
                 registerSuccess(KEY);
+                if (pendingGoogleCredential) {
+                    const sameEmail = credential.user.email?.trim().toLowerCase() === pendingGoogleEmail;
+                    if (!sameEmail) {
+                        pendingGoogleCredential = null;
+                        pendingGoogleEmail = '';
+                        await auth.signOut();
+                        showMessage('Entre com a senha da mesma conta escolhida no Google.');
+                        return;
+                    }
+                    try {
+                        await credential.user.linkWithCredential(pendingGoogleCredential);
+                        pendingGoogleCredential = null;
+                        pendingGoogleEmail = '';
+                    } catch (linkError) {
+                        console.error('[Google] Não foi possível vincular a conta.', linkError);
+                        pendingGoogleCredential = null;
+                        pendingGoogleEmail = '';
+                        await auth.signOut();
+                        showMessage('Não foi possível vincular este Google à sua conta. Tente novamente.');
+                        return;
+                    }
+                }
                 if (credential.user.emailVerified !== true) {
                     await showEmailVerification(credential.user);
                     return;
@@ -1462,6 +1486,16 @@
                     showMessage('Janela de autenticação fechada. Tente novamente.');
                 } else if (error.code === 'auth/popup-blocked') {
                     showMessage('Permita pop-ups para usar o login com Google.');
+                } else if (error.code === 'auth/account-exists-with-different-credential') {
+                    const credential = firebase.auth.GoogleAuthProvider.credentialFromError(error);
+                    if (credential && error.email) {
+                        pendingGoogleCredential = credential;
+                        pendingGoogleEmail = String(error.email).trim().toLowerCase();
+                        document.getElementById('email').value = pendingGoogleEmail;
+                        showMessage('Este e-mail já possui senha. Entre uma vez com a senha para vincular o Google.');
+                    } else {
+                        showMessage('Esta conta já usa outro método de acesso. Entre com sua senha para vincular o Google.');
+                    }
                 } else if (error.code === 'auth/cancelled-popup-request') {
                     // silencioso
                 } else {
@@ -1574,6 +1608,7 @@
                 // Redireciona se já logado
                 auth.onAuthStateChanged(async user => {
                     if (user) {
+                        if (pendingGoogleCredential) return;
                         if (user.emailVerified !== true) {
                             await showEmailVerification(user, false);
                             return;

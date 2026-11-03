@@ -6,6 +6,7 @@ test('login exige confirmação de e-mail antes de liberar a conta',()=>{
   assert.ok(login.includes('user.sendEmailVerification()'));
   assert.ok(login.includes('auth.currentUser.emailVerified'));
   assert.ok(login.includes("signInWithPopup(provider)"));
+  assert.ok(login.includes('linkWithCredential(pendingGoogleCredential)'));
   assert.ok(login.includes('O Google não confirmou este e-mail'));
 });
 
