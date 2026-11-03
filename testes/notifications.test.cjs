@@ -1,5 +1,5 @@
 const {test}=require('node:test'),assert=require('node:assert/strict');
-const notifications=require('../server/notifications.cjs');
+const notifications=require('../servidor/notifications.cjs');
 function memory(){
  const data={users:{admin:{isAdmin:true},alice:{name:'Alice'},bob:{name:'Bob'}}};
  const read=path=>path.split('/').filter(Boolean).reduce((v,k)=>v?.[k],data)||null;

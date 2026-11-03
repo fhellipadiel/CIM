@@ -1,4 +1,4 @@
-const {activeMode,settings}=require('../server/payment-config.cjs');
+const {activeMode,settings}=require('../servidor/payment-config.cjs');
 console.log('Ambiente ativo: '+activeMode());
 for(const mode of ['test','production']){
  try{const cfg=settings(mode);console.log(mode+': configuração de credenciais/domínio presente; conta e webhook ainda exigem validação externa.');}

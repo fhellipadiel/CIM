@@ -1,8 +1,8 @@
 const {test}=require('node:test');
 const assert=require('node:assert/strict');
-const {settings,activeMode,verifySeller}=require('../server/payment-config.cjs');
-const {verify,applyPayment}=require('../server/orders.cjs');
-const {handle}=require('../server/checkout.cjs');
+const {settings,activeMode,verifySeller}=require('../servidor/payment-config.cjs');
+const {verify,applyPayment}=require('../servidor/orders.cjs');
+const {handle}=require('../servidor/checkout.cjs');
 const production={MP_ENVIRONMENT:'production',MP_PRODUCTION_ACCESS_TOKEN:'production-secret',MP_PRODUCTION_SELLER_ID:'900',MP_PRODUCTION_WEBHOOK_SECRET:'webhook-secret',CHECKOUT_PRODUCTION_BASE_URL:'https://cimautoparts.com.br',MP_ACCESS_TOKEN:'test-secret',MP_SELLER_ID:'100',CHECKOUT_BASE_URL:'http://localhost:3000'};
 test('produção exige configuração própria e rejeita localhost e túnel temporário',()=>{
  assert.equal(activeMode({}),'test');assert.throws(()=>activeMode({MP_ENVIRONMENT:'prod'}));
@@ -52,7 +52,7 @@ async function call(action,body,db,options={}){
  let code=200,result;
  const res={setHeader:()=>{},status:value=>{code=value;return res;},json:value=>{result=value;return res;}};
  const auth={verifyIdToken:async token=>({uid:token==='admin'?'admin':'alice',auth_time:100})};
- await handle(action,{method:'POST',url:options.url||'/api/'+action,headers:{authorization:'Bearer '+(options.token||'alice'),...(options.headers||{})},body},res,{services:()=>({auth,db}),requireAdminAccess:async()=>{if(options.token!=='admin')require('../server/core.cjs').fail('Acesso restrito.',403);},mp:options.mp||(()=>{throw Error('Unexpected provider call');}),refreshOrder:options.refresh||asyncNoop,reconcileOrder:options.reconcile});
+ await handle(action,{method:'POST',url:options.url||'/api/'+action,headers:{authorization:'Bearer '+(options.token||'alice'),...(options.headers||{})},body},res,{services:()=>({auth,db}),requireAdminAccess:async()=>{if(options.token!=='admin')require('../servidor/core.cjs').fail('Acesso restrito.',403);},mp:options.mp||(()=>{throw Error('Unexpected provider call');}),refreshOrder:options.refresh||asyncNoop,reconcileOrder:options.reconcile});
  return {code,body:result};
 }
 async function asyncNoop(){}
@@ -91,7 +91,7 @@ test('admin não consegue confirmar pendente como pago nem cancelar pago sem est
 
 test('webhook de produção exige assinatura própria, aprova e mantém a etapa de entrega',()=>withProduction(async()=>{
  const crypto=require('node:crypto');
- const {reconcileOrder}=require('../server/checkout.cjs');
+ const {reconcileOrder}=require('../servidor/checkout.cjs');
  const {local,remote}=approved();remote.last_updated_date=new Date().toISOString();
  const db=memoryDb({users:{alice:{}},orders:{alice:{mine:{...local,status:'pendente',createdAt:Date.now()}}},paymentOrderIndex:{ORDREAL1:{uid:'alice',orderId:'mine',environment:'production'}}});
  const mp=async path=>path==='/users/me'?{id:900,tags:[]}:remote;

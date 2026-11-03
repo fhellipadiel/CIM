@@ -1,6 +1,6 @@
 const {test}=require('node:test'),assert=require('node:assert/strict');
-const notifications=require('../server/notifications.cjs');
-const {sendNotificationEmail}=require('../server/brevo-email.cjs');
+const notifications=require('../servidor/notifications.cjs');
+const {sendNotificationEmail}=require('../servidor/brevo-email.cjs');
 
 function memory(){
  const data={users:{admin:{isAdmin:true},alice:{name:'Alice',email:'alice@example.com'}}};

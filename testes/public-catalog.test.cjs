@@ -1,6 +1,6 @@
 const test=require('node:test');
 const assert=require('node:assert/strict');
-const {publicPricing,catalogHtml}=require('../server/public-products.cjs');
+const {publicPricing,catalogHtml}=require('../servidor/public-products.cjs');
 
 test('calcula o maior desconto público válido para PF',()=>{
   const product={id:'p1',category:'Suspensão',sessionId:'s1',prices:{PF:200}};

@@ -56,7 +56,7 @@ test('servidor confirma uma importação de peça e grava produto e histórico j
     update:async changes=>{for(const [key,value]of Object.entries(changes))write([base,key].filter(Boolean).join('/'),value);},
     transaction:async fn=>{const next=fn(structuredClone(read(base)));if(next===undefined)return{committed:false,snapshot:snap(read(base))};write(base,next);return{committed:true,snapshot:snap(next)};}
   })};
-  const {handle}=require('../server/checkout.cjs');
+  const {handle}=require('../servidor/checkout.cjs');
   let status=200,response;
   const res={setHeader(){},status(code){status=code;return this;},json(value){response=value;return this;}};
   await handle('admin-import-history',{method:'POST',url:'/api/admin-import-history',headers:{authorization:'Bearer admin','x-forwarded-for':'127.0.0.1'},body:{historyId:'historico_teste',finalBatch:false,updates:{'products/produto_parcial':{id:'produto_parcial',name:'Primeiro lote',prices:{PF:10}}}}},res,{services:()=>({auth:{verifyIdToken:async()=>({uid:'admin'})},db}),requireAdminWriteAccess:async()=>{}});

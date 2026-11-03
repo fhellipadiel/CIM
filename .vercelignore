@@ -7,4 +7,5 @@ public
 *.md
 firebase
 storage
-tests
+testes
+documentacao

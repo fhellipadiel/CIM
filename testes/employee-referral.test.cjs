@@ -1,11 +1,11 @@
 const test=require('node:test');
 const assert=require('node:assert/strict');
 const fs=require('node:fs');
-const {distributeLeads}=require('../server/employees.cjs');
+const {distributeLeads}=require('../servidor/employees.cjs');
 
 const employeeHtml=fs.readFileSync('funcionario.html','utf8');
 const landingHtml=fs.readFileSync('index.html','utf8');
-const employeeServer=fs.readFileSync('server/employees.cjs','utf8');
+const employeeServer=fs.readFileSync('servidor/employees.cjs','utf8');
 const adminHtml=fs.readFileSync('adm.html','utf8');
 
 test('link pessoal identifica explicitamente o funcionario',()=>{

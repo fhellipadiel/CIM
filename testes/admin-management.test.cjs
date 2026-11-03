@@ -1,7 +1,7 @@
 const test=require('node:test');
 const assert=require('node:assert/strict');
 const fs=require('node:fs');
-const {handleAdminManagement}=require('../server/admin-management.cjs');
+const {handleAdminManagement}=require('../servidor/admin-management.cjs');
 
 function fixture(){
  const data={accessControl:{admins:{primary:{enabled:true,canRead:true,canWrite:true},secondary:{enabled:true,canRead:true,canWrite:true}}},users:{secondary:{name:'Secundário',isAdmin:true}},adminMfaPolicy:{secondary:{required:true}}},deleted=[];
@@ -34,7 +34,7 @@ test('principal exclui secundario mas nunca pode excluir a propria conta',async(
 
 test('configuracoes e lista possuem gestao visual de administradores',()=>{
  const html=fs.readFileSync('adm.html','utf8');
- const checkout=fs.readFileSync('server/checkout.cjs','utf8');
+ const checkout=fs.readFileSync('servidor/checkout.cjs','utf8');
  assert.match(html,/id="adminManagementCard"/);
  assert.match(html,/id="modalCreateAdmin"/);
   assert.match(html,/id="usersCreateAdminOption"/);

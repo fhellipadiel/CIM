@@ -1,5 +1,5 @@
 const {test}=require('node:test');const assert=require('node:assert/strict');
-const {recordAdminSession}=require('../server/admin-sessions.cjs');
+const {recordAdminSession}=require('../servidor/admin-sessions.cjs');
 function memory(){const data={};return {data,ref:path=>({transaction:async fn=>{data[path]=fn(data[path]||null);return {snapshot:{val:()=>data[path]}};},set:async value=>{data[path]=value;}})};}
 test('recarregar com o mesmo login nao duplica entrada nem altera a hora',async()=>{
  const db=memory(),caller={uid:'admin',auth_time:100};await recordAdminSession(db,caller,'Browser',100001);

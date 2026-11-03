@@ -1,7 +1,7 @@
 const {test}=require('node:test');
 const assert=require('node:assert/strict');
-const {expiresAt,visibleOrder,notifyOrder}=require('../server/checkout.cjs');
-const {payload}=require('../server/orders.cjs');
+const {expiresAt,visibleOrder,notifyOrder}=require('../servidor/checkout.cjs');
+const {payload}=require('../servidor/orders.cjs');
 test('pedido pendente vence exatamente apos uma hora; pagos permanecem',()=>{
  const order={status:'pendente',createdAt:1000};
  assert.equal(expiresAt(order),3601000);assert.equal(visibleOrder(order,3600999),true);assert.equal(visibleOrder(order,3601000),false);

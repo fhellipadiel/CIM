@@ -1,1 +1,1 @@
-module.exports = (req, res) => require('../server/checkout.cjs').handle('admin-tests', req, res);
+module.exports = (req, res) => require('../servidor/checkout.cjs').handle('admin-tests', req, res);

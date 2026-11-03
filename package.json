@@ -3,7 +3,7 @@
   "private": true,
   "scripts": {
     "dev": "node --env-file=.env.local scripts/dev.cjs",
-    "test": "node --test tests/*.test.cjs",
+    "test": "node --test testes/*.test.cjs",
     "check:payments": "node --env-file=.env.local scripts/check-payments.cjs",
     "build": "node scripts/build.cjs"
   },

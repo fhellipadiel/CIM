@@ -22,7 +22,7 @@ Não inserir Access Token, assinatura ou credencial Firebase no HTML, repositór
 2. Configurar a URL de produção https://cimautoparts.com.br/api/webhook?environment=production para eventos de Order (Mercado Pago).
 3. Configurar a assinatura correspondente no ambiente do servidor.
 4. Revisar e publicar as regras do arquivo firebase: pedidos do provedor orders só podem ser criados/confirmados pelo backend; cliente pode confirmar recebimento após envio; dados de pagamento e índices são protegidos.
-5. Publicar a aplicação com os endpoints de api/ e módulos de server/. O caminho /admin foi corrigido para adm.html no vercel.json.
+5. Publicar a aplicação com os endpoints de api/ e módulos de servidor/. O caminho /admin foi corrigido para adm.html no vercel.json.
 6. Conferir domínio HTTPS, credencial Admin e MP_ENVIRONMENT. O comando npm run check:payments verifica presença/configuração sem imprimir segredos ou criar cobranças.
 
 ## Validação antes de liberar clientes

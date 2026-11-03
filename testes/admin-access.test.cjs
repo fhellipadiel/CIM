@@ -1,6 +1,6 @@
 const {test}=require('node:test');
 const assert=require('node:assert/strict');
-const {requireAdminAccess}=require('../server/admin-access.cjs');
+const {requireAdminAccess}=require('../servidor/admin-access.cjs');
 const db={ref:path=>({toString:()=> 'https://example.firebaseio.com/'+path})};
 const req={headers:{authorization:'Bearer fake-id-token'}};
 test('API verifica permissao usando token do usuario e as regras publicadas',async()=>{

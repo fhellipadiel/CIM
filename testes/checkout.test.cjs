@@ -1,7 +1,7 @@
 const {test}=require('node:test');
 const assert=require('node:assert/strict');
 const crypto=require('node:crypto');
-const {quote,shippingFee,shippingProfile,productWeight,validSignature,verifiedPayment}=require('../server/core.cjs');
+const {quote,shippingFee,shippingProfile,productWeight,validSignature,verifiedPayment}=require('../servidor/core.cjs');
 const user={uid:'u',userType:'PF',cep:'01512000',cidade:'São Paulo',uf:'SP'};
 const data={products:{p:{name:'Peça',prices:{PF:100,PJ:80}}}};
 const input={items:[{id:'p',quantity:2}],method:'pix',mode:'Retirar',expectedTotal:200};

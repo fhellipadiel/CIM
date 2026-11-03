@@ -1,4 +1,4 @@
-const {test}=require('node:test');const assert=require('node:assert/strict');const policy=require('../assets/signup-policy.js');const {registerProfile}=require('../server/registration.cjs');const {lookupCompany}=require('../server/company-lookup.cjs');
+const {test}=require('node:test');const assert=require('node:assert/strict');const policy=require('../assets/signup-policy.js');const {registerProfile}=require('../servidor/registration.cjs');const {lookupCompany}=require('../servidor/company-lookup.cjs');
 const cpf='52998224725',cnpj='11222333000181';
 function database(initial={}){let value=structuredClone(initial),queue=Promise.resolve();return {get value(){return value;},ref:()=>({on:()=>{},off:()=>{},once:async()=>({val:()=>value}),transaction:fn=>{const run=queue.then(()=>{const next=fn(structuredClone(value));if(next===undefined)return {committed:false};value=next;return {committed:true};});queue=run.catch(()=>{});return run;}})};}
 const caller=uid=>({uid,email:uid+'@example.com',firebase:{sign_in_provider:'password'}});

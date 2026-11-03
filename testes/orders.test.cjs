@@ -1,5 +1,5 @@
 const {test}=require('node:test');const assert=require('node:assert/strict');const crypto=require('node:crypto');
-const {payload,verify}=require('../server/orders.cjs');const {validSignature}=require('../server/core.cjs');
+const {payload,verify}=require('../servidor/orders.cjs');const {validSignature}=require('../servidor/core.cjs');
 const local={provider:'orders',testMode:true,mercadoOrderId:'ORDTSTABC123',reference:'local-order',total:552.02,installments:6,method:'card',items:[{id:'p',name:'Peça',quantity:1,unitPrice:552.02}]};
 const remote={id:local.mercadoOrderId,user_id:'123',type:'online',processing_mode:'manual',currency:'BRL',external_reference:local.reference,total_amount:'552.02',total_paid_amount:'552.02',status:'processed',transactions:{payments:[{id:'PAY1',status:'processed',status_detail:'accredited',amount:'552.02',paid_amount:'552.02',payment_method:{id:'master',type:'credit_card',installments:6}}]}};
 test('Orders deixa financiamento e escolha das parcelas para Mercado Pago',()=>{const p=payload(local,local.reference,'http://localhost:3000/cim.html');assert.equal(p.total_amount,'552.02');assert.equal(p.config.payment_method.installments,undefined);assert.equal(p.config.payment_method.max_installments,12);assert.equal(p.config.payment_method.installments_cost,undefined);assert.equal(p.config.payment_method.default_type,undefined);});
