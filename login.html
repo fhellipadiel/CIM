@@ -1245,9 +1245,8 @@
             try {
                 const credential = await CimMfaAuth.signIn(auth,email,password);
                 registerSuccess(KEY);
-                await credential.user.reload();
-                if (!auth.currentUser.emailVerified) {
-                    await showEmailVerification(auth.currentUser);
+                if (credential.user.emailVerified !== true) {
+                    await showEmailVerification(credential.user);
                     return;
                 }
                 await claimEmployeeReferral();
@@ -1388,9 +1387,8 @@
                 registerSuccess('login');
 
                 globalThis.CimGA?.track('sign_up', { method: 'email' });
-                await userCredential.user.reload();
-                if (!auth.currentUser.emailVerified) {
-                    await showEmailVerification(auth.currentUser);
+                if (userCredential.user.emailVerified !== true) {
+                    await showEmailVerification(userCredential.user);
                     return;
                 }
                 await claimEmployeeReferral();
@@ -1576,9 +1574,8 @@
                 // Redireciona se já logado
                 auth.onAuthStateChanged(async user => {
                     if (user) {
-                        await user.reload();
-                        if (!auth.currentUser.emailVerified) {
-                            await showEmailVerification(auth.currentUser, false);
+                        if (user.emailVerified !== true) {
+                            await showEmailVerification(user, false);
                             return;
                         }
                         database.ref(`users/${user.uid}`).once('value').then(async snapshot => {
