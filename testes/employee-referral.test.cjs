@@ -35,6 +35,9 @@ test('clientes atendidos ficam separados dos leads e visiveis ao funcionario e A
   assert.match(employeeHtml,/id="clientSearch"/);
   assert.match(employeeHtml,/id="clientListStatus"/);
   assert.match(employeeHtml,/id="clientListPersonType"/);
+  assert.match(employeeHtml,/id="clientToday"/);
+  assert.match(employeeHtml,/todayOnly=clientToday\?\.getAttribute\('aria-pressed'\)==='true'/);
+  assert.match(employeeHtml,/clientToday\.addEventListener\('click'/);
   assert.match(employeeHtml,/id="clients"/);
   assert.match(employeeServer,/employeeClients\/'\+caller\.uid/);
   assert.match(employeeServer,/action==='add-client'/);

@@ -38,6 +38,11 @@ test('falha no envio mantém a prévia disponível para tentar novamente',()=>{
   assert.match(failureBlock,/return;/);
 });
 
+test('histórico de importação carrega todos os arquivos salvos',()=>{
+  assert.ok(admin.includes('importHistoryCache = list;'));
+  assert.ok(!admin.includes('importHistoryCache = list.slice(0, 100);'));
+});
+
 test('123 peças grandes são divididas em lotes abaixo do limite do servidor',()=>{
   const updates=Object.fromEntries(Array.from({length:123},(_,index)=>[`products/item_${index}`,{id:`item_${index}`,name:'Peça automotiva '.repeat(8)+index,image:'https://example.com/'+('foto'.repeat(25))+index,prices:{PF:123.45,PJ:110}}]));
   const batches=Array.from(context.splitImportUpdatesAdm(updates));

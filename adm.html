@@ -3035,7 +3035,7 @@ function loadAllData(){
       const list = [];
       snap.forEach(c => list.push({ id: c.key, ...c.val() }));
       list.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
-      importHistoryCache = list.slice(0, 100);
+      importHistoryCache = list;
       renderImportHistory(); syncLegacyImportFixedStates();
     },
     err => { console.error('Erro listener importHistory:', err.code, err.message); const list=document.getElementById('importHistoryListAdm');if(list)list.innerHTML='<div class="empty-state"><p>Não foi possível carregar o histórico de importações.</p></div>';showToast('Não foi possível carregar o histórico de importações.','err'); }
