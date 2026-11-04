@@ -3,6 +3,12 @@ const {fail}=require('./core.cjs');
 const MAX_TEXT=2000,PAGE_SIZE=50;
 const key=/^[A-Za-z0-9_-]{8,200}$/;
 const hash=value=>crypto.createHash('sha256').update(value).digest('hex');
+const normalize=value=>String(value||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/\s+/g,' ').trim().toLowerCase();
+function automationConfig(value){
+ const question=String(value?.question||'').trim().replace(/\s+/g,' ').slice(0,1000);
+ const options=Array.isArray(value?.options)?value.options.slice(0,6).map((option,index)=>({id:'option_'+(index+1),label:String(option?.label||'').trim().replace(/\s+/g,' ').slice(0,120),response:String(option?.response||'').trim().replace(/\s+/g,' ').slice(0,1000)})).filter(option=>option.label&&option.response):[];
+ return value?.enabled===true&&question&&options.length>=2?{enabled:true,question,options}:null;
+}
 async function transaction(ref,update){const retain=()=>{};ref.on('value',retain);try{await ref.once('value');return await ref.transaction(update);}finally{ref.off('value',retain);}}
 function cleanMeta(meta){return {type:meta.type,name:meta.type==='visitor'?(meta.contactName||'Visitante'):meta.name||'Cliente',customerType:meta.customerType==='PF'||meta.customerType==='PJ'?meta.customerType:'',email:meta.type==='customer'?meta.email||'':'',photoURL:meta.type==='customer'?meta.photoURL||'':'',createdAt:meta.createdAt,deleted:!!meta.deleted};}
 function profilePhoto(value){return typeof value==='string'&&/^https:\/\//.test(value)&&!/(default-avatar|assets\/logo\.)/i.test(value)?value.slice(0,500):'';}
@@ -35,6 +41,17 @@ async function handleSupport({db,req,body,verifyCaller,requireAdmin,now=Date.now
   if(channel==='admin')await requireAdmin();
   profile=(await db.ref('users/'+caller.uid).get()).val();
   if(!profile)fail('Conclua seu cadastro para conversar com o suporte.',403);
+ }
+ if(op==='automation-get'){
+  if(channel!=='admin')fail('Acesso restrito.',403);
+  return {automation:automationConfig((await db.ref('settings/supportAutomation').get()).val())};
+ }
+ if(op==='automation-save'){
+  if(channel!=='admin')fail('Acesso restrito.',403);
+  const automation=automationConfig(body.automation);
+  if(body.automation?.enabled===true&&!automation)fail('Informe a mensagem e pelo menos duas opções com respostas.',400);
+  await db.ref('settings/supportAutomation').set(automation||{enabled:false});
+  return {automation};
  }
  if(op==='open'){
   if(channel==='admin')fail('Selecione uma conversa.',400);
@@ -120,6 +137,7 @@ async function handleSupport({db,req,body,verifyCaller,requireAdmin,now=Date.now
  if(op==='send'){
   const text=typeof body.text==='string'?body.text.trim():'';
   if(!text||text.length>MAX_TEXT||!key.test(body.requestId||''))fail('Escreva uma mensagem de ate 2000 caracteres.',400);
+  const automation=channel==='admin'?null:automationConfig((await db.ref('settings/supportAutomation').get()).val());
   let reason='Conversa indisponivel.',status=409;
   const result=await transaction(roomRef,current=>{
    if(!current?.meta||current.meta.deleted){reason='Este atendimento foi encerrado pela equipe.';status=410;return;}
@@ -128,16 +146,20 @@ async function handleSupport({db,req,body,verifyCaller,requireAdmin,now=Date.now
    if(old){if(old.role===role&&old.text===text)return current;return;}
    const window=Math.floor(now/60000),rate=current.meta.messageWindow===window?(current.meta.messageCount||0):0;
    if(rate>=30){reason='Aguarde um momento antes de enviar mais mensagens.';status=429;return;}
-   const seq=(current.meta.seq||0)+1,normalized=text.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase(),selectedType=/^pessoa\s*fisica$/.test(normalized)?'PF':/^pessoa\s*juridica$/.test(normalized)?'PJ':'';
+   const seq=(current.meta.seq||0)+1,normalized=normalize(text),selectedType=/^pessoa\s*fisica$/.test(normalized)?'PF':/^pessoa\s*juridica$/.test(normalized)?'PJ':'';
    const shouldPrompt=role!=='admin'&&!current.meta.customerTypePrompted&&!selectedType;
    const shouldAskName=role!=='admin'&&!!selectedType&&!current.meta.contactName;
    const shouldConfirmName=role!=='admin'&&current.meta.awaitingContactName&&!selectedType;
-   const hasAutoReply=shouldPrompt||shouldAskName||shouldConfirmName,finalSeq=hasAutoReply?seq+1:seq;
+   const selectedAutomationOption=role!=='admin'&&current.meta.awaitingAutomationResponse&&automation?.options.find(option=>normalize(option.label)===normalized);
+   const shouldAskAutomation=shouldConfirmName&&!!automation;
+   const shouldRetryAutomation=role!=='admin'&&current.meta.awaitingAutomationResponse&&!selectedAutomationOption;
+   const shouldResolveAutomation=!!selectedAutomationOption;
+   const hasAutoReply=shouldPrompt||shouldAskName||shouldConfirmName||shouldRetryAutomation||shouldResolveAutomation,finalSeq=hasAutoReply?seq+1:seq;
    const contactName=shouldConfirmName?text.replace(/\s+/g,' ').slice(0,120):current.meta.contactName;
-   const updated={...current.meta,...(channel==='customer'?{name:String(profile.name||'Cliente').slice(0,200),email:caller.email||profile.email||'',photoURL:profilePhoto(profile.photoURL)}:{}),seq:finalSeq,updatedAt:now,lastRole:role,lastText:text,messageWindow:window,messageCount:rate+1,...(role==='admin'?{lastAdminSeq:seq,lastHumanAdminSeq:seq,awaitingSalesEscalation:false}:{lastCustomerSeq:seq}),...(selectedType?{customerType:selectedType,customerTypePrompted:true,awaitingContactName:true}:{}),...(shouldPrompt?{customerTypePrompted:true}:{}),...(shouldConfirmName?{contactName,awaitingContactName:false,awaitingSalesEscalation:true,salesEscalationAt:now+120000}:{}),...(hasAutoReply?{lastAdminSeq:finalSeq}:{})};
+   const updated={...current.meta,...(channel==='customer'?{name:String(profile.name||'Cliente').slice(0,200),email:caller.email||profile.email||'',photoURL:profilePhoto(profile.photoURL)}:{}),seq:finalSeq,updatedAt:now,lastRole:role,lastText:text,messageWindow:window,messageCount:rate+1,...(role==='admin'?{lastAdminSeq:seq,lastHumanAdminSeq:seq,awaitingSalesEscalation:false}:{lastCustomerSeq:seq}),...(selectedType?{customerType:selectedType,customerTypePrompted:true,awaitingContactName:true}:{}),...(shouldPrompt?{customerTypePrompted:true}:{}),...(shouldConfirmName?{contactName,awaitingContactName:false,...(shouldAskAutomation?{awaitingAutomationResponse:true}:{awaitingSalesEscalation:true,salesEscalationAt:now+120000})}:{}),...(shouldResolveAutomation?{awaitingAutomationResponse:false,awaitingSalesEscalation:true,salesEscalationAt:now+120000}:{}),...(hasAutoReply?{lastAdminSeq:finalSeq}:{})};
    const message={id:body.requestId,seq,role,text,createdAt:now};
    const messages={...current.messages,[body.requestId]:message};
-   if(hasAutoReply){const suffix=shouldPrompt?'_type':shouldAskName?'_name':'_confirm',autoId=(body.requestId+suffix).slice(0,200),kind=shouldPrompt?'customer_type_prompt':shouldAskName?'customer_name_prompt':'customer_forwarded',autoText=shouldPrompt?'Olá! Para direcionarmos seu atendimento à equipe certa, você poderia informar como deseja ser atendido?':shouldAskName?'Perfeito! Agora, por favor, informe seu nome para continuarmos o atendimento.':`Obrigado, ${contactName}! Estamos encaminhando sua solicitação para o setor de atendimento. Aguarde um momento enquanto localizamos um especialista.`;messages[autoId]={id:autoId,seq:finalSeq,role:'admin',kind,text:autoText,createdAt:now+1};}
+   if(hasAutoReply){const customPrompt=shouldAskAutomation||shouldRetryAutomation,suffix=shouldPrompt?'_type':shouldAskName?'_name':customPrompt?'_custom':'_confirm',autoId=(body.requestId+suffix).slice(0,200),kind=shouldPrompt?'customer_type_prompt':shouldAskName?'customer_name_prompt':customPrompt?'custom_options_prompt':'customer_forwarded',autoText=shouldPrompt?'Olá! Para direcionarmos seu atendimento à equipe certa, você poderia informar como deseja ser atendido?':shouldAskName?'Perfeito! Agora, por favor, informe seu nome para continuarmos o atendimento.':customPrompt?automation.question:shouldResolveAutomation?`${selectedAutomationOption.response}\n\nObrigado, ${current.meta.contactName||'!'} Estamos encaminhando sua solicitação para o setor de atendimento. Aguarde um momento enquanto localizamos um especialista.`:`Obrigado, ${contactName}! Estamos encaminhando sua solicitação para o setor de atendimento. Aguarde um momento enquanto localizamos um especialista.`;messages[autoId]={id:autoId,seq:finalSeq,role:'admin',kind,text:autoText,createdAt:now+1,...(customPrompt?{options:automation.options.map(option=>({id:option.id,label:option.label}))}:{})};}
    return {...current,meta:updated,messages};
   });
   if(!result.committed)fail(reason,status);

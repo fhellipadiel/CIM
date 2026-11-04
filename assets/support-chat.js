@@ -19,7 +19,8 @@ function init(){
  let listNode,searchNode,centerEmpty;
  if(admin){
   const pane=element('aside','cs-list-pane'),head=element('div','cs-list-head');
-  head.append(element('h3','', 'Conversas'),element('p','','Atenda clientes e visitantes em um só lugar.'));
+   const automationButton=element('button','cs-automation-add','+');automationButton.type='button';automationButton.title='Criar mensagem automática';automationButton.setAttribute('aria-label','Criar mensagem automática');automationButton.addEventListener('click',openAutomationEditor);
+   head.append(element('h3','', 'Conversas'),automationButton,element('p','','Atenda clientes e visitantes em um só lugar.'));
   searchNode=element('input','cs-search');searchNode.placeholder='Buscar por nome ou e-mail';searchNode.setAttribute('aria-label','Buscar conversas');head.append(searchNode);
   listNode=element('div','cs-list');pane.append(head,listNode);shell.append(pane);
  }
@@ -61,6 +62,21 @@ function init(){
   if(!data)throw Error('Não foi possível acessar o suporte agora.');
   return data;
  }
+ async function openAutomationEditor(){
+  if(!admin)return;
+  let saved;
+  try{saved=(await api('automation-get')).automation;}catch(error){statusText(error.message);return;}
+  const dialog=element('dialog','cs-automation-dialog'),form=element('form','cs-automation-form');form.method='dialog';
+  const title=element('h2','','Mensagem automática personalizada'),note=element('p','cs-automation-note','Ela aparece após as perguntas padrão de tipo de pessoa e nome. A resposta escolhida recebe o texto configurado e o atendimento continua normalmente.');
+  const enabled=element('input');enabled.type='checkbox';enabled.checked=!!saved?.enabled;const enabledLabel=element('label','cs-automation-enabled');enabledLabel.append(enabled,document.createTextNode(' Ativar mensagem personalizada'));
+  const questionLabel=element('label','', 'Mensagem');const question=element('textarea');question.rows=3;question.maxLength=1000;question.placeholder='Ex.: Como podemos ajudar você hoje?';question.value=saved?.question||'';questionLabel.append(question);
+  const optionsBox=element('div','cs-automation-options'),optionsTitle=element('strong','','Opções e respostas'),add=element('button','cs-automation-add-option','+ Adicionar opção');add.type='button';optionsBox.append(optionsTitle,add);
+  const options=(saved?.options||[]).map(option=>({label:option.label,response:option.response}));if(options.length<2)options.push({label:'',response:''},{label:'',response:''});
+  function renderOptions(){optionsBox.querySelectorAll('.cs-automation-option').forEach(node=>node.remove());options.forEach((option,index)=>{const row=element('div','cs-automation-option'),label=element('label','','Opção');const optionInput=element('input');optionInput.maxLength=120;optionInput.value=option.label;optionInput.placeholder='Ex.: Quero falar sobre um pedido';optionInput.addEventListener('input',()=>option.label=optionInput.value);label.append(optionInput);const responseLabel=element('label','','Resposta automática');const response=element('textarea');response.rows=2;response.maxLength=1000;response.value=option.response;response.placeholder='Texto enviado após a pessoa escolher esta opção.';response.addEventListener('input',()=>option.response=response.value);responseLabel.append(response);const removeOption=element('button','cs-automation-remove','Remover');removeOption.type='button';removeOption.disabled=options.length<=2;removeOption.addEventListener('click',()=>{options.splice(index,1);renderOptions();});row.append(label,responseLabel,removeOption);optionsBox.insertBefore(row,add);});}
+  add.addEventListener('click',()=>{if(options.length<6){options.push({label:'',response:''});renderOptions();}});renderOptions();
+  const feedback=element('p','cs-automation-feedback'),actions=element('div','cs-automation-actions'),cancel=element('button','cs-automation-cancel','Cancelar'),save=element('button','cs-automation-save','Salvar');cancel.type='button';save.type='submit';cancel.addEventListener('click',()=>dialog.close());actions.append(cancel,save);form.append(title,note,enabledLabel,questionLabel,optionsBox,feedback,actions);dialog.append(form);document.body.append(dialog);
+  form.addEventListener('submit',async event=>{event.preventDefault();save.disabled=true;feedback.textContent='';try{const automation={enabled:enabled.checked,question:question.value,options};await api('automation-save',{automation});dialog.close();statusText(enabled.checked?'Mensagem automática salva.':'Mensagem automática desativada.');}catch(error){feedback.textContent=error.message;save.disabled=false;}});dialog.addEventListener('close',()=>dialog.remove());dialog.showModal();
+ }
  function roomIdentity(meta){
   const contactType=contactTypeLabel(meta.customerType);
   title.textContent=admin?(meta.name||(meta.type==='visitor'?'Visitante':'Cliente')):'CIM Global Parts';
@@ -85,9 +101,10 @@ function init(){
    if(message.role==='admin'&&!message.kind)dismissStaffShowcases();
    const own=admin?message.role==='admin':message.role!=='admin',bubble=element('article','cs-message'+(message.role==='admin'?' cs-admin-message':'')+(own?' cs-own':''));
    bubble.dataset.seq=String(message.seq);bubble.append(element('span','cs-message-author',message.role==='admin'?'Equipe CIM':admin?(role==='admin'?title.textContent:'Cliente'):'Você'),element('p','cs-message-text',message.text));
-   if(!admin&&message.kind==='customer_type_prompt'){
+   if(!admin&&(message.kind==='customer_type_prompt'||message.kind==='custom_options_prompt')){
     const choices=element('div','cs-prompt-choices');
-    for(const value of ['Pessoa Física','Pessoa Jurídica']){const choice=element('button','cs-prompt-choice',value);choice.type='button';choice.addEventListener('click',()=>{input.value=value;input.dispatchEvent(new Event('input'));form.requestSubmit();});choices.append(choice);}
+    const values=message.kind==='customer_type_prompt'?['Pessoa Física','Pessoa Jurídica']:(message.options||[]).map(option=>option.label).filter(Boolean);
+    for(const value of values){const choice=element('button','cs-prompt-choice',value);choice.type='button';choice.addEventListener('click',()=>{input.value=value;input.dispatchEvent(new Event('input'));form.requestSubmit();});choices.append(choice);}
     bubble.append(choices);
    }
    const time=element('time','',labelDate(message.createdAt,true));time.dateTime=new Date(message.createdAt).toISOString();time.title=labelDate(message.createdAt,true);bubble.append(time);
