@@ -19,8 +19,7 @@ function init(){
  let listNode,searchNode,centerEmpty;
  if(admin){
   const pane=element('aside','cs-list-pane'),head=element('div','cs-list-head');
-   const automationButton=element('button','cs-automation-add','+');automationButton.type='button';automationButton.title='Criar mensagem automática';automationButton.setAttribute('aria-label','Criar mensagem automática');automationButton.addEventListener('click',openAutomationEditor);
-   head.append(element('h3','', 'Conversas'),automationButton,element('p','','Atenda clientes e visitantes em um só lugar.'));
+  head.append(element('h3','', 'Conversas'),element('p','','Atenda clientes e visitantes em um só lugar.'));
   searchNode=element('input','cs-search');searchNode.placeholder='Buscar por nome ou e-mail';searchNode.setAttribute('aria-label','Buscar conversas');head.append(searchNode);
   listNode=element('div','cs-list');pane.append(head,listNode);shell.append(pane);
  }
@@ -62,26 +61,6 @@ function init(){
   if(!data)throw Error('Não foi possível acessar o suporte agora.');
   return data;
  }
- async function openAutomationEditor(){
-  if(!admin)return;
-  let saved;
-  try{saved=(await api('automation-get')).automation;}catch(error){statusText(error.message);return;}
-  const dialog=element('dialog','cs-automation-dialog'),form=element('form','cs-automation-form');form.method='dialog';
-  const title=element('h2','','Mensagem automática personalizada'),note=element('p','cs-automation-note','Ela aparece após as perguntas padrão de tipo de pessoa e nome. A resposta escolhida recebe o texto configurado e o atendimento continua normalmente.');
-  const published=element('section','cs-published-preview');
-  function renderPublished(){published.replaceChildren();if(saved?.enabled){published.append(element('strong','','Mensagem atualmente publicada'),element('p','',saved.question));const choices=element('div','cs-preview-choices');saved.options.forEach(option=>{const choice=element('button','',option.label);choice.type='button';choice.disabled=true;choices.append(choice);});published.append(choices);}else published.append(element('strong','','Nenhuma mensagem personalizada publicada'),element('p','','Preencha a mensagem e as opções abaixo. Ao salvar, ela aparece aqui e entra no atendimento depois do nome.'));}
-  renderPublished();
-  const enabled=element('input');enabled.type='checkbox';enabled.checked=saved?.enabled!==false;const enabledLabel=element('label','cs-automation-enabled');enabledLabel.append(enabled,document.createTextNode(' Mensagem ativa no atendimento'));
-  const questionLabel=element('label','', 'Mensagem');const question=element('textarea');question.rows=3;question.maxLength=1000;question.placeholder='Ex.: Como podemos ajudar você hoje?';question.value=saved?.question||'';questionLabel.append(question);
-  const optionsBox=element('div','cs-automation-options'),optionsTitle=element('strong','','Opções e respostas'),add=element('button','cs-automation-add-option','+ Adicionar opção');add.type='button';optionsBox.append(optionsTitle,add);
-  const options=(saved?.options||[]).map(option=>({label:option.label,response:option.response}));if(options.length<2)options.push({label:'',response:''},{label:'',response:''});
-  const livePreview=element('section','cs-live-preview'),liveTitle=element('strong','','Prévia ao vivo');livePreview.append(liveTitle);
-  function renderPreview(){livePreview.querySelectorAll('.cs-preview-chat').forEach(node=>node.remove());const chat=element('div','cs-preview-chat'),line=(who,text,own=false)=>{const bubble=element('div','cs-preview-bubble'+(own?' is-own':''));bubble.append(element('small','',who),element('span','',text));chat.append(bubble);};line('CIM','Olá! Para direcionarmos seu atendimento, você é Pessoa Física ou Jurídica?');line('Cliente','Pessoa Física',true);line('CIM','Perfeito! Agora, por favor, informe seu nome.');line('Cliente','Maria',true);line('CIM',question.value.trim()||'Sua mensagem aparecerá aqui.');const choices=element('div','cs-preview-choices');const previewOptions=options.filter(option=>option.label.trim());(previewOptions.length?previewOptions:[{label:'Opção 1'},{label:'Opção 2'}]).forEach(option=>{const choice=element('button','',option.label);choice.type='button';choice.addEventListener('click',()=>{const selected=options.find(item=>item.label.trim()===option.label.trim());if(selected?.response.trim())line('CIM',selected.response.trim());choices.querySelectorAll('button').forEach(button=>button.disabled=true);});choices.append(choice);});chat.append(choices);livePreview.append(chat);}
-  function renderOptions(){optionsBox.querySelectorAll('.cs-automation-option').forEach(node=>node.remove());options.forEach((option,index)=>{const row=element('div','cs-automation-option'),label=element('label','','Opção');const optionInput=element('input');optionInput.maxLength=120;optionInput.value=option.label;optionInput.placeholder='Ex.: Quero falar sobre um pedido';optionInput.addEventListener('input',()=>{option.label=optionInput.value;renderPreview();});label.append(optionInput);const responseLabel=element('label','','Resposta automática');const response=element('textarea');response.rows=2;response.maxLength=1000;response.value=option.response;response.placeholder='Texto enviado após a pessoa escolher esta opção.';response.addEventListener('input',()=>{option.response=response.value;renderPreview();});responseLabel.append(response);const removeOption=element('button','cs-automation-remove','Remover');removeOption.type='button';removeOption.disabled=options.length<=2;removeOption.addEventListener('click',()=>{options.splice(index,1);renderOptions();renderPreview();});row.append(label,responseLabel,removeOption);optionsBox.insertBefore(row,add);});}
-  add.addEventListener('click',()=>{if(options.length<6){options.push({label:'',response:''});renderOptions();renderPreview();}});question.addEventListener('input',renderPreview);renderOptions();renderPreview();
-  const feedback=element('p','cs-automation-feedback'),actions=element('div','cs-automation-actions'),cancel=element('button','cs-automation-cancel','Cancelar'),save=element('button','cs-automation-save','Salvar e publicar'),editor=element('div','cs-automation-editor');cancel.type='button';save.type='submit';cancel.addEventListener('click',()=>dialog.close());actions.append(cancel,save);editor.append(enabledLabel,actions,questionLabel,optionsBox,feedback);const content=element('div','cs-automation-content');content.append(livePreview,editor);form.append(title,note,published,content);dialog.append(form);document.body.append(dialog);
-  form.addEventListener('submit',async event=>{event.preventDefault();save.disabled=true;feedback.textContent='';try{const automation={enabled:enabled.checked,question:question.value,options};const result=await api('automation-save',{automation});saved=result.automation;renderPublished();feedback.textContent=enabled.checked?'Mensagem salva e publicada.':'Mensagem salva como desativada.';save.disabled=false;statusText('Configuração de mensagem automática atualizada.');}catch(error){feedback.textContent=error.message;save.disabled=false;}});dialog.addEventListener('close',()=>dialog.remove());dialog.showModal();
- }
  function roomIdentity(meta){
   const contactType=contactTypeLabel(meta.customerType);
   title.textContent=admin?(meta.name||(meta.type==='visitor'?'Visitante':'Cliente')):'CIM Global Parts';
@@ -106,12 +85,14 @@ function init(){
    if(message.role==='admin'&&!message.kind)dismissStaffShowcases();
    const own=admin?message.role==='admin':message.role!=='admin',bubble=element('article','cs-message'+(message.role==='admin'?' cs-admin-message':'')+(own?' cs-own':''));
    bubble.dataset.seq=String(message.seq);bubble.append(element('span','cs-message-author',message.role==='admin'?'Equipe CIM':admin?(role==='admin'?title.textContent:'Cliente'):'Você'),element('p','cs-message-text',message.text));
-   if(!admin&&(message.kind==='customer_type_prompt'||message.kind==='custom_options_prompt')){
+   if(!admin&&(message.kind==='customer_type_prompt'||message.kind==='service_choice')){
     const choices=element('div','cs-prompt-choices');
-    const values=message.kind==='customer_type_prompt'?['Pessoa Física','Pessoa Jurídica']:(message.options||[]).map(option=>option.label).filter(Boolean);
+    const values=message.kind==='customer_type_prompt'?['Pessoa Física','Pessoa Jurídica']:(message.options||[]);
     for(const value of values){const choice=element('button','cs-prompt-choice',value);choice.type='button';choice.addEventListener('click',()=>{input.value=value;input.dispatchEvent(new Event('input'));form.requestSubmit();});choices.append(choice);}
     bubble.append(choices);
    }
+   if(!admin&&message.kind==='vendor_whatsapp'&&/^https:\/\/wa\.me\//.test(message.href||'')){const link=element('a','cs-prompt-choice','Clique aqui');link.href=message.href;link.target='_blank';link.rel='noopener';bubble.append(link);}
+   if(!admin&&message.kind==='product_results'&&Array.isArray(message.products)&&message.products.length){const choices=element('div','cs-prompt-choices');message.products.forEach(product=>{const link=element('a','cs-prompt-choice',product.name+(product.code?' · '+product.code:''));link.href='cim.html?p='+encodeURIComponent(product.id);link.target='_blank';link.rel='noopener';choices.append(link);});bubble.append(choices);}
    const time=element('time','',labelDate(message.createdAt,true));time.dateTime=new Date(message.createdAt).toISOString();time.title=labelDate(message.createdAt,true);bubble.append(time);
    const after=Array.from(nodes.values()).reduce((found,node)=>Number(node.dataset.seq)>message.seq&&(!found||Number(node.dataset.seq)<Number(found.dataset.seq))?node:found,null);
    if(after)messages.insertBefore(bubble,after);else messages.append(bubble);nodes.set(message.id,bubble);
@@ -153,6 +134,7 @@ function init(){
  function listen(){
   detach();
   if(role==='visitor'){timer=setInterval(()=>{if(isVisible())sync();},2500);return;}
+  if(role==='customer')timer=setInterval(()=>{if(isVisible())sync();},2500);
   if(!db)return;
   const g=generation;
   messagesRef=db.ref('supportRooms/'+roomId+'/messages').orderByChild('seq').limitToLast(50);
