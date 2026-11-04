@@ -258,17 +258,6 @@
                     <span id="messageText" class="font-medium"></span>
                 </div>
 
-                <section id="emailVerificationPanel" class="hidden mb-6 rounded-2xl border border-white/10 bg-white/[0.04] p-5 text-center shadow-lg shadow-black/20">
-                    <i class="fa-solid fa-envelope-circle-check text-2xl text-gray-200"></i>
-                    <h2 class="mt-3 text-base font-bold text-white">Confirme seu e-mail</h2>
-                    <p class="mt-2 text-sm leading-relaxed text-gray-300">Enviamos um link de confirmação para <strong id="verificationEmail" class="text-white"></strong>. Abra o e-mail e confirme para acessar sua conta.</p>
-                    <div class="mt-5 grid gap-3 sm:grid-cols-2">
-                        <button type="button" id="checkVerificationBtn" onclick="checkEmailVerification()" class="rounded-full bg-white px-4 py-3 text-sm font-semibold text-black transition hover:bg-gray-100">Já confirmei</button>
-                        <button type="button" id="resendVerificationBtn" onclick="resendEmailVerification()" class="rounded-full border border-white/20 px-4 py-3 text-sm font-semibold text-white transition hover:bg-white/10">Reenviar e-mail</button>
-                    </div>
-                    <button type="button" onclick="cancelEmailVerification()" class="mt-4 text-xs text-gray-400 underline hover:text-white">Usar outra conta</button>
-                </section>
-
                 <!-- ================= FORM LOGIN ================= -->
                 <form id="loginForm" class="space-y-5 form-transition" onsubmit="handleLogin(event)" novalidate>
 
@@ -568,11 +557,7 @@
         let currentView = 'login';
         let modoGoogleCadastro = false;
         let usuarioGoogle = null;
-
-        function isManualEmailAccount(user) {
-            const providers = (user?.providerData || []).map(item => item.providerId);
-            return providers.includes('password') && !providers.includes('google.com');
-        }
+        const GOOGLE_REDIRECT_PENDING_KEY = 'cim_google_redirect_pending';
 
         const DEFAULT_USER_AVATAR = 'assets/logo.webp';
 
@@ -662,75 +647,6 @@
         // Esconde mensagem do topo
         function hideMessage() {
             document.getElementById('messageBox').classList.add('hidden');
-        }
-
-        function setVerificationPanelVisible(visible) {
-            document.getElementById('emailVerificationPanel').classList.toggle('hidden', !visible);
-            document.getElementById('loginForm').classList.toggle('hidden', visible);
-            document.getElementById('registerForm').classList.add('hidden');
-        }
-
-        async function sendVerificationEmail(user) {
-            const lastSent = Number(sessionStorage.getItem('cimVerificationSentAt') || 0);
-            if (Date.now() - lastSent < 60000) return false;
-            await user.sendEmailVerification();
-            sessionStorage.setItem('cimVerificationSentAt', String(Date.now()));
-            return true;
-        }
-
-        async function showEmailVerification(user, shouldSend = true) {
-            if (!user) return;
-            document.getElementById('verificationEmail').textContent = user.email || 'seu e-mail';
-            setVerificationPanelVisible(true);
-            if (shouldSend) {
-                try { await sendVerificationEmail(user); }
-                catch (error) { console.error('[Verificação] Não foi possível enviar o e-mail.', error); }
-            }
-        }
-
-        async function checkEmailVerification() {
-            const button = document.getElementById('checkVerificationBtn');
-            const user = auth && auth.currentUser;
-            if (!user) { setVerificationPanelVisible(false); return; }
-            button.disabled = true;
-            button.textContent = 'Verificando...';
-            try {
-                await user.reload();
-                if (auth.currentUser && auth.currentUser.emailVerified) {
-                    sessionStorage.removeItem('cimVerificationSentAt');
-                    await claimEmployeeReferral();
-                    window.location.href = CimProductLink.destination(location.search);
-                    return;
-                }
-                showMessage('A confirmação ainda não foi identificada. Abra o link enviado e tente novamente.');
-            } catch (error) {
-                console.error('[Verificação] Não foi possível atualizar o status.', error);
-                showMessage('Não foi possível verificar agora. Tente novamente em instantes.');
-            } finally {
-                button.disabled = false;
-                button.textContent = 'Já confirmei';
-            }
-        }
-
-        async function resendEmailVerification() {
-            const button = document.getElementById('resendVerificationBtn');
-            const user = auth && auth.currentUser;
-            if (!user) return;
-            button.disabled = true;
-            try {
-                sessionStorage.removeItem('cimVerificationSentAt');
-                await sendVerificationEmail(user);
-                showMessage('Enviamos outro link de confirmação para seu e-mail.');
-            } catch (error) {
-                console.error('[Verificação] Falha ao reenviar o e-mail.', error);
-                showMessage('Não foi possível reenviar agora. Tente novamente em instantes.');
-            } finally { button.disabled = false; }
-        }
-
-        async function cancelEmailVerification() {
-            sessionStorage.removeItem('cimVerificationSentAt');
-            try { if (auth) await auth.signOut(); } catch {}
-            setVerificationPanelVisible(false);
         }
 
         // Mostra texto de erro embaixo do input
@@ -1250,10 +1166,6 @@
             try {
                 const credential = await CimMfaAuth.signIn(auth,email,password);
                 registerSuccess(KEY);
-                if (isManualEmailAccount(credential.user) && credential.user.emailVerified !== true) {
-                    await showEmailVerification(credential.user);
-                    return;
-                }
                 await claimEmployeeReferral();
                 globalThis.CimGA?.track('login', { method: 'email' });
                     window.location.href = CimProductLink.destination(location.search);
@@ -1392,10 +1304,6 @@
                 registerSuccess('login');
 
                 globalThis.CimGA?.track('sign_up', { method: 'email' });
-                if (userCredential.user.emailVerified !== true) {
-                    await showEmailVerification(userCredential.user);
-                    return;
-                }
                 await claimEmployeeReferral();
                 window.location.href = CimProductLink.destination(location.search);
             } catch (error) {
@@ -1420,50 +1328,91 @@
         /* ============================================================
            15. LOGIN COM GOOGLE
            ============================================================ */
+        function googleProvider() {
+            const provider = new firebase.auth.GoogleAuthProvider();
+            provider.setCustomParameters({ prompt: 'select_account' });
+            return provider;
+        }
+
+        function isMobileOrEmbeddedBrowser() {
+            const agent = navigator.userAgent || '';
+            return /Android|iPhone|iPad|iPod|IEMobile|Opera Mini/i.test(agent) || window.self !== window.top;
+        }
+
+        function googleErrorMessage(error) {
+            if (error.code === 'auth/popup-closed-by-user') return 'Janela de autenticação fechada. Tente novamente.';
+            if (error.code === 'auth/popup-blocked') return 'O navegador bloqueou a janela de autenticação. Tentando abrir o Google nesta página.';
+            if (error.code === 'auth/cancelled-popup-request') return '';
+            if (error.code === 'auth/unauthorized-domain') return 'Este endereço ainda não foi autorizado para entrar com Google. Tente pelo site oficial ou avise o suporte.';
+            if (error.code === 'auth/network-request-failed') return 'Falha de conexão. Verifique sua internet e tente novamente.';
+            return 'Não foi possível concluir com Google. Tente novamente ou escolha outra conta.';
+        }
+
+        async function completeGoogleAuthentication(result) {
+            const user = result?.user;
+            if (!user) return;
+            const snapshot = await database.ref(`users/${user.uid}`).once('value');
+            if (snapshot.exists()) {
+                registerSuccess('login');
+                await claimEmployeeReferral();
+                globalThis.CimGA?.track('login', { method: 'google' });
+                window.location.href = CimProductLink.destination(location.search);
+                return;
+            }
+            modoGoogleCadastro = true;
+            usuarioGoogle = user;
+            document.getElementById('senhaContainer').style.display = 'none';
+            document.getElementById('regPassword').required = false;
+            switchView('register');
+            setTimeout(() => {
+                document.getElementById('regEmail').value = user.email || '';
+                document.getElementById('regName').value = user.displayName || '';
+            }, 450);
+        }
+
+        async function beginGoogleRedirect(provider) {
+            sessionStorage.setItem(GOOGLE_REDIRECT_PENDING_KEY, '1');
+            await auth.signInWithRedirect(provider);
+        }
+
         async function handleGoogleLogin() {
             if (!auth || !database) {
                 showMessage('Aguarde alguns segundos e tente novamente.');
                 return;
             }
 
-            const provider = new firebase.auth.GoogleAuthProvider();
+            hideMessage();
+            const provider = googleProvider();
 
             try {
-                const result = await CimMfaAuth.withChallenge(auth,()=>auth.signInWithPopup(provider));
-                const user = result.user;
-
-                const snapshot = await database.ref(`users/${user.uid}`).once('value');
-                if (snapshot.exists()) {
-                    registerSuccess('login');
-                    await claimEmployeeReferral();
-                    globalThis.CimGA?.track('login', { method: 'google' });
-                    window.location.href = CimProductLink.destination(location.search);
-                } else {
-                    // Novo usuário via Google → completa cadastro
-                    modoGoogleCadastro = true;
-                    usuarioGoogle = user;
-
-                    document.getElementById('senhaContainer').style.display = 'none';
-                    document.getElementById('regPassword').required = false;
-
-                    switchView('register');
-
-                    setTimeout(() => {
-                        document.getElementById('regEmail').value = user.email || '';
-                        document.getElementById('regName').value = user.displayName || '';
-                    }, 450);
+                if (isMobileOrEmbeddedBrowser()) {
+                    await beginGoogleRedirect(provider);
+                    return;
                 }
+                const result = await CimMfaAuth.withChallenge(auth,()=>auth.signInWithPopup(provider));
+                await completeGoogleAuthentication(result);
             } catch (error) {
                 console.error('[Google] Falha na autenticação.', error);
-                if (error.code === 'auth/popup-closed-by-user') {
-                    showMessage('Janela de autenticação fechada. Tente novamente.');
-                } else if (error.code === 'auth/popup-blocked') {
-                    showMessage('Permita pop-ups para usar o login com Google.');
-                } else if (error.code === 'auth/cancelled-popup-request') {
-                    // silencioso
-                } else {
-                    showMessage('Não foi possível concluir com Google. Tente novamente ou escolha outra conta.');
+                if (error.code === 'auth/popup-blocked') {
+                    try { await beginGoogleRedirect(provider); return; }
+                    catch (redirectError) { error = redirectError; }
                 }
+                const message = googleErrorMessage(error);
+                if (message) showMessage(message);
+            }
+        }
+
+        async function finishGoogleRedirect() {
+            const pending = sessionStorage.getItem(GOOGLE_REDIRECT_PENDING_KEY) === '1';
+            try {
+                const result = await auth.getRedirectResult();
+                sessionStorage.removeItem(GOOGLE_REDIRECT_PENDING_KEY);
+                if (result?.user) await completeGoogleAuthentication(result);
+            } catch (error) {
+                sessionStorage.removeItem(GOOGLE_REDIRECT_PENDING_KEY);
+                console.error('[Google] Falha ao retornar da autenticação.', error);
+                const message = googleErrorMessage(error);
+                if (message && (pending || error.code)) showMessage(message);
             }
         }
 
@@ -1567,14 +1516,11 @@
                 auth = firebase.auth();
                 database = firebase.database();
                 auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL).catch(() => {});
+                finishGoogleRedirect();
 
                 // Redireciona se já logado
                 auth.onAuthStateChanged(async user => {
                     if (user) {
-                        if (isManualEmailAccount(user) && user.emailVerified !== true) {
-                            await showEmailVerification(user, false);
-                            return;
-                        }
                         database.ref(`users/${user.uid}`).once('value').then(async snapshot => {
                             if (snapshot.exists()) {
                                 await claimEmployeeReferral();

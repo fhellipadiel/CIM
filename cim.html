@@ -4724,12 +4724,9 @@ function toggleBottomMenu() {
         auth.onAuthStateChanged(async (user) => {
             if (!user) { if(sharedSelection){currentUser=null;openSharedGuest();}else redirectToLogin();return; }
             try {
-                await user.reload();
-                const providers = (auth.currentUser?.providerData || []).map(item => item.providerId);
-                const isManualEmailAccount = providers.includes('password') && !providers.includes('google.com');
-                if (!auth.currentUser || (isManualEmailAccount && !auth.currentUser.emailVerified)) {
+                if (!auth.currentUser) {
                     await auth.signOut();
-                    window.location.replace('login.html?verification=required');
+                    window.location.replace('login.html');
                     return;
                 }
             } catch (error) {
