@@ -52,6 +52,7 @@ test('clientes atendidos ficam separados dos leads e visiveis ao funcionario e A
   assert.match(adminHtml,/employee-client-status/);
   assert.match(adminHtml,/employee-client-status-count/);
   assert.match(adminHtml,/const countByStatus=employeeClientsAdm\.reduce/);
+  assert.match(adminHtml,/employee-client-status-dot" style="background:'\+esc\(color\)\+'!important/);
   assert.match(adminHtml,/Todos os funcionários/);
 });
 
