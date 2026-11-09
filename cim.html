@@ -3879,6 +3879,8 @@ function toggleBottomMenu() {
                 const newCats = cats.filter(c => !categoryOrder.includes(c));
                 ordered = [...ordered, ...newCats];
             }
+            const now=Date.now(),categoryHasActivePromotion=category=>Object.values(promocoes).some(promo=>promo?.ativa&&(!promo.dataExpiracao||Number(promo.dataExpiracao)>now)&&((promo.tipo==='categoria'&&promo.alvoId===category)||promo.tipo==='todas_categorias'));
+            ordered.sort((a,b)=>Number(categoryHasActivePromotion(b))-Number(categoryHasActivePromotion(a)));
             ordered.forEach(c => {
                 const isActive = selectedCategory === c;
                 html += `<div class="category-tab ${isActive ? 'active' : ''}" data-category="${c}" onclick="selectCategory('${c}')">`;
