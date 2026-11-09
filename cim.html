@@ -3754,9 +3754,9 @@ function toggleBottomMenu() {
             let priceDisplay = '';
             const userType = currentUser ? currentUser.userType : null;
             const hideForUser = shouldHidePriceForUser(product, userType);
-            const priceAudience = userType || publicCatalogPriceAudience;
-            const showPublicPrice = !userType;
-            if ((!hideForUser && userType) || showPublicPrice) {
+            const priceAudience = publicCatalogPriceAudience;
+            const showPublicPrice = true;
+            if (showPublicPrice) {
                 const precoOriginal = priceAudience === 'PF' ? precoOriginalPF : precoOriginalPJ;
                 const precoPromo = priceAudience === 'PF' ? precoPromoPF : precoPromoPJ;
                 const label = priceAudience === 'PF' ? 'Pessoa Física' : 'Pessoa Jurídica';
