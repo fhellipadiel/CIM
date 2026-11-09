@@ -1074,7 +1074,7 @@
             const claim=()=>{
                 if(!window.firebase)return setTimeout(claim,80);
                 if(!firebase.apps.length)firebase.initializeApp({apiKey:'AIzaSyBVtlnA85ugvll5hLAvOF8FuM4BGnKEovM',authDomain:'redx-6b53f.firebaseapp.com',databaseURL:'https://redx-6b53f-default-rtdb.firebaseio.com',projectId:'redx-6b53f',appId:'1:194933965008:web:ae1dae6df66ea44259ded5'});
-                firebase.auth().onAuthStateChanged(async user=>{if(!user)return;try{const token=await user.getIdToken(),response=await fetch('/api/claim-referral',{method:'POST',headers:{'Content-Type':'application/json',Authorization:'Bearer '+token},body:JSON.stringify({employeeRef}),signal:AbortSignal.timeout(10000)});if(response.ok)sessionStorage.removeItem('campaignReferralPending')}catch{}});
+                firebase.auth().onAuthStateChanged(async user=>{if(!user)return;try{const token=await user.getIdToken(),response=await fetch('/api/claim-referral',{method:'POST',headers:{'Content-Type':'application/json',Authorization:'Bearer '+token},body:JSON.stringify({employeeRef})});if(response.ok)sessionStorage.removeItem('campaignReferralPending')}catch{}});
             };claim();
         })();
         function logVisitorClick(type,data={}){
