@@ -31,6 +31,8 @@ test('rota de login local descarta somente a sessao administrativa anterior',()=
 test('entrada pelo Link curto guarda a campanha e remove atribuicao antiga',()=>{
   assert.match(landingHtml,/sessionStorage\.setItem\('campaignRef', ref\)/);
   assert.match(landingHtml,/sessionStorage\.setItem\('campaignReferralPending', ref\)/);
+  assert.match(landingHtml,/function claimPendingCampaignReferral\(\)/);
+  assert.match(landingHtml,/fetch\('\/api\/claim-referral'/);
   assert.match(landingHtml,/sessionStorage\.removeItem\('employeeRef'\)/);
   assert.doesNotMatch(landingHtml,/employees\.json/);
 });
