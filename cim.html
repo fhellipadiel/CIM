@@ -3715,6 +3715,8 @@ function toggleBottomMenu() {
             if (selectedBrand && selectedBrand !== '') filtered = filtered.filter(p => p.brand === selectedBrand);
 
             filtered = randomlyOrderCatalog(filtered);
+            // Mantém a ordem aleatória dentro de cada grupo, mas destaca primeiro as peças com promoção ativa.
+            filtered.sort((a,b)=>Number(Boolean(getPromocaoParaProduto(b)))-Number(Boolean(getPromocaoParaProduto(a))));
             resultsCount.textContent = filtered.length;
 
             if (filtered.length === 0) {

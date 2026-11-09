@@ -1,5 +1,6 @@
 const {test}=require('node:test');const assert=require('node:assert/strict');const fs=require('node:fs');const vm=require('node:vm');const path=require('node:path');
 const html=fs.readFileSync(path.join(__dirname,'../cim.html'),'utf8');
+test('pecas com promocao ativa sao priorizadas antes da renderizacao do catalogo',()=>{assert.match(html,/filtered\.sort\(\(a,b\)=>Number\(Boolean\(getPromocaoParaProduto\(b\)\)\)-Number\(Boolean\(getPromocaoParaProduto\(a\)\)\)\)/);});
 function setup(randoms){const calls=[],scrolls=[],ctx=vm.createContext({Math:{random:()=>{if(!randoms.length)throw Error('Unexpected new random rank');return randoms.shift();}},filterProducts:force=>calls.push(force),window:{scrollTo:value=>scrolls.push(value)}});vm.runInContext(html.match(/const catalogRandomRanks=new Map\(\);[\s\S]*?let renderToken = 0;/)[0],ctx);return {ctx,calls,scrolls};}
 const products=[{id:'a',prices:{PF:100}},{id:'b',prices:{PF:50}},{id:'sold',soldOut:true,topPriority:true,featured:true},{id:'sold2',soldOut:true}];
 const ids=values=>Array.from(values,p=>p.id);

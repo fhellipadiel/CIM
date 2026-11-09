@@ -1,7 +1,8 @@
 const test=require('node:test');
 const assert=require('node:assert/strict');
 const fs=require('node:fs');
-const {distributeLeads}=require('../servidor/employees.cjs');
+const vm=require('node:vm');
+const {distributeLeads,handleEmployees}=require('../servidor/employees.cjs');
 
 const employeeHtml=fs.readFileSync('funcionario.html','utf8');
 const landingHtml=fs.readFileSync('index.html','utf8');
@@ -17,6 +18,11 @@ test('falha ao carregar painel nao encerra a sessao automaticamente',()=>{
   const authHandler=employeeHtml.match(/auth\.onAuthStateChanged\(async user=>\{if\(!user\)[\s\S]*?\}\);/g)?.at(-1)||'';
   assert.ok(authHandler);
   assert.doesNotMatch(authHandler,/auth\.signOut\(/);
+});
+
+test('rota de login local descarta somente a sessao administrativa anterior',()=>{
+  assert.match(adminHtml,/const adminLoginReset = new URLSearchParams\(location\.search\)\.has\('login'\)/);
+  assert.match(adminHtml,/if\(adminLoginReset\)await auth\.signOut\(\)/);
 });
 
 test('links pessoais antigos por slug continuam reconhecidos',()=>{
@@ -54,6 +60,36 @@ test('clientes atendidos ficam separados dos leads e visiveis ao funcionario e A
   assert.match(adminHtml,/const countByStatus=employeeClientsAdm\.reduce/);
   assert.match(adminHtml,/employee-client-status-dot" style="background:'\+esc\(color\)\+'!important/);
   assert.match(adminHtml,/Todos os funcionários/);
+});
+
+test('editor de promoção permite buscar categoria e sessão antes de selecionar o alvo',()=>{
+  assert.match(adminHtml,/id="promoTargetSearchAdm"/);
+  assert.match(adminHtml,/placeholder="Pesquisar categoria ou sessão"/);
+  assert.match(adminHtml,/function renderPromoTargetSearchAdm\(\)/);
+  assert.match(adminHtml,/targetSearchMode=tipo==='sessao'\|\|tipo==='categoria'/);
+});
+
+test('ponto do status personalizado recebe a cor salva ao renderizar e re-renderizar',()=>{
+  const source=adminHtml.match(/function renderEmployeeClientStatusesAdm\(\)\{[\s\S]*?\nfunction createEmployeeClientStatusAdm/);
+  assert.ok(source);
+  const box={innerHTML:''},context={document:{getElementById:()=>box},employeeClientsAdm:[],employeeClientStatusesAdm:[{id:'portfolio',name:'Portfólio enviado',color:'#0000f0',builtIn:false}],employeeClientStatusColor:()=> '#8e8e93',esc:value=>String(value||'').replace(/[&<>"']/g,''),console};
+  vm.runInNewContext(source[0].replace(/\nfunction createEmployeeClientStatusAdm[\s\S]*/,''),context);
+  context.renderEmployeeClientStatusesAdm();
+  assert.match(box.innerHTML,/class="employee-client-status-dot" style="background:#0000f0!important/);
+  context.renderEmployeeClientStatusesAdm();
+  assert.match(box.innerHTML,/background:#0000f0!important/);
+});
+
+test('editar status preserva a cor escolhida ao salvar e carregar novamente',async()=>{
+  const data={employeeClientStatuses:{portfolio:{name:'Portfólio enviado',color:'#8e8e93'}},employees:{},trackingLinks:{},orders:{},paymentTests:{},leads:{},employeeClients:{}};
+  const read=path=>path.split('/').filter(Boolean).reduce((value,key)=>value?.[key],data)??null;
+  const write=(path,value)=>{const keys=path.split('/').filter(Boolean),last=keys.pop();let node=data;for(const key of keys)node=node[key]??={};node[last]=structuredClone(value)};
+  const db={ref:path=>({get:async()=>({val:()=>structuredClone(read(path))}),set:async value=>write(path,value),update:async values=>{for(const [key,value]of Object.entries(values))write(path+'/'+key,value)},push:()=>({key:'portfolio'})})};
+  const call=body=>handleEmployees({auth:{},db,caller:{uid:'admin'},body,requireAdmin:async()=>{}});
+  const saved=await call({action:'admin-save-client-status',id:'portfolio',name:'Portfólio enviado',color:'#0000f0'});
+  assert.equal(saved.status.color,'#0000f0');
+  const listed=await call({action:'admin-list'});
+  assert.equal(listed.clientStatuses.find(status=>status.id==='portfolio').color,'#0000f0');
 });
 
 test('administrador escolhe entre dividir ou liberar todos os leads',()=>{

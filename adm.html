@@ -1953,7 +1953,7 @@ tr:has(.admin-action-popover.open),.invoice-order-card:has(.admin-action-popover
       <option value="todas_sessoes">Todas sessões</option>
       <option value="todas_categorias">Todas categorias</option>
     </select></div></div>
-    <div class="f-group"><label>Alvo <span class="req">*</span></label><div class="select-wrap" id="promoTargetSelectWrap"><select id="promoAlvoAdm"></select></div><div class="promo-product-search" id="promoProductSearchWrap" hidden><div class="notification-search"><i class="fas fa-search" aria-hidden="true"></i><input id="promoProductSearchAdm" type="search" placeholder="Pesquisar peça por nome ou código" autocomplete="off" oninput="renderPromoProductSearchAdm()" onfocus="renderPromoProductSearchAdm()"></div><div class="promo-product-results" id="promoProductResultsAdm"></div><small id="promoProductSelectedAdm">Selecione uma peça nos resultados.</small></div></div>
+    <div class="f-group"><label>Alvo <span class="req">*</span></label><div class="promo-product-search" id="promoTargetSearchWrap" hidden><div class="notification-search"><i class="fas fa-search" aria-hidden="true"></i><input id="promoTargetSearchAdm" type="search" placeholder="Pesquisar categoria ou sessão" autocomplete="off" oninput="renderPromoTargetSearchAdm()"></div></div><div class="select-wrap" id="promoTargetSelectWrap"><select id="promoAlvoAdm"></select></div><div class="promo-product-search" id="promoProductSearchWrap" hidden><div class="notification-search"><i class="fas fa-search" aria-hidden="true"></i><input id="promoProductSearchAdm" type="search" placeholder="Pesquisar peça por nome ou código" autocomplete="off" oninput="renderPromoProductSearchAdm()" onfocus="renderPromoProductSearchAdm()"></div><div class="promo-product-results" id="promoProductResultsAdm"></div><small id="promoProductSelectedAdm">Selecione uma peça nos resultados.</small></div></div>
     <div class="f-group"><label>Público <span class="req">*</span></label><div class="select-wrap"><select id="promoClienteAdm"><option value="PF">PF</option><option value="PJ">PJ</option><option value="ambos">Ambos</option></select></div></div>
     <div class="form-grid">
       <div class="f-group"><label>Desconto (%) <span class="req">*</span></label><input type="number" id="promoDescAdm" min="0" max="100"></div>
@@ -2247,7 +2247,8 @@ const database = adminFirebaseApp.database();
 const auth = adminFirebaseApp.auth();
 const storage = adminFirebaseApp.storage();
 // Aguarda a sessão isolada do ADM ficar pronta antes de observar ou trocar usuários.
-const adminAuthReady = auth.setPersistence(firebase.auth.Auth.Persistence.SESSION).catch(() => {});
+const adminLoginReset = new URLSearchParams(location.search).has('login');
+const adminAuthReady = auth.setPersistence(firebase.auth.Auth.Persistence.SESSION).then(async()=>{if(adminLoginReset)await auth.signOut();}).catch(() => {});
 
 const PLACEHOLDER_IMG = 'https://i.ibb.co/F4dXSwVG/IMG-6495.jpg';
 const DEFAULT_AVATAR  = 'https://i.ibb.co/6J5qZ9K/default-avatar.png';
@@ -4819,11 +4820,12 @@ function carregarAlvosPromoAdm(editId=null){
   else if(tipo==='categoria'){ const cats=[...new Set(products.map(p=>p.category).filter(c=>c&&c.trim()!==''))]; itens=cats.map(c=>({id:c,nome:c})).sort((a,b)=>a.nome.localeCompare(b.nome)); }
   else if(tipo==='produto') itens=products.map(p=>({id:p.id,nome:p.name})).sort((a,b)=>(a.nome||'').localeCompare(b.nome||''));
   else itens=[{id:'__all__',nome:'Aplicar a todos'}];
-  sel.innerHTML=itens.map(i=>`<option value="${esc(i.id)}">${esc(i.nome)}</option>`).join('');
+  sel._promoItems=itens;sel.innerHTML=itens.map(i=>`<option value="${esc(i.id)}">${esc(i.nome)}</option>`).join('');
   const hasCurrent=current&&[...sel.options].some(o=>o.value===current);
   if(hasCurrent)sel.value=current;else if(tipo==='produto')sel.value='';
-  const productMode=tipo==='produto',searchWrap=document.getElementById('promoProductSearchWrap'),selectWrap=document.getElementById('promoTargetSelectWrap');
-  searchWrap.hidden=!productMode;selectWrap.hidden=productMode;
+  const productMode=tipo==='produto',targetSearchMode=tipo==='sessao'||tipo==='categoria',searchWrap=document.getElementById('promoProductSearchWrap'),targetSearchWrap=document.getElementById('promoTargetSearchWrap'),selectWrap=document.getElementById('promoTargetSelectWrap');
+  searchWrap.hidden=!productMode;targetSearchWrap.hidden=!targetSearchMode;selectWrap.hidden=productMode;
+  if(targetSearchMode){const input=document.getElementById('promoTargetSearchAdm');input.value='';input.placeholder=tipo==='categoria'?'Pesquisar categoria':'Pesquisar sessão';}
   if(productMode){
     const selected=products.find(p=>p.id===sel.value),input=document.getElementById('promoProductSearchAdm');
     if(selected){input.value=[selected.name,selected.codigo].filter(Boolean).join(' - ');document.getElementById('promoProductSelectedAdm').textContent='Peça selecionada: '+(selected.name||'Sem nome');}
@@ -4831,6 +4833,7 @@ function carregarAlvosPromoAdm(editId=null){
     document.getElementById('promoProductResultsAdm').replaceChildren();
   }
 }
+function renderPromoTargetSearchAdm(){const input=document.getElementById('promoTargetSearchAdm'),sel=document.getElementById('promoAlvoAdm'),current=sel.value,query=normalizeLookupText(input.value),items=(sel._promoItems||[]).filter(item=>!query||matchTokens(normalizeLookupText(item.nome),query));sel.innerHTML=items.map(item=>`<option value="${esc(item.id)}">${esc(item.nome)}</option>`).join('');if([...sel.options].some(option=>option.value===current))sel.value=current;}
 function renderPromoProductSearchAdm(){
   const input=document.getElementById('promoProductSearchAdm'),results=document.getElementById('promoProductResultsAdm');
   const query=normalizeLookupText(input.value),matches=products.filter(p=>!query||matchTokens(normalizeLookupText([p.name,p.codigo,p.brand,p.category].filter(Boolean).join(' ')),query)).slice(0,30);
