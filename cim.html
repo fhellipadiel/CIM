@@ -1661,6 +1661,7 @@ body.fullscreen-panel-open{overflow:hidden!important}
         let cart = [];
         let products = [];
         let pricesHidden = false;
+        let publicCatalogPriceAudience = 'PF';
         let searchTerm = '';
         let selectedCategory = '';
         let selectedBrand = '';
@@ -1800,7 +1801,7 @@ body.fullscreen-panel-open{overflow:hidden!important}
                     localStorage.setItem(CACHE_KEY, JSON.stringify({
                         ts: Date.now(), products: slimProducts,
                         sessions, brands, contacts, promocoes, categoryOrder,
-                        pricesHidden, profileData, contactInfo
+                        pricesHidden, publicCatalogPriceAudience, profileData, contactInfo
                     }));
                 } catch (e) {}
             }, 350);
@@ -1819,6 +1820,7 @@ body.fullscreen-panel-open{overflow:hidden!important}
                 promocoes     = c.promocoes     || {};
                 categoryOrder = c.categoryOrder || [];
                 pricesHidden  = c.pricesHidden  || false;
+                publicCatalogPriceAudience = c.publicCatalogPriceAudience === 'PJ' ? 'PJ' : 'PF';
                 if (c.profileData) profileData = c.profileData;
                 if (c.contactInfo) contactInfo = c.contactInfo;
                 products.forEach(p => { if (isImgbbUrl(p.image)) p.image = DEFAULT_PLACEHOLDER_IMAGE; });
@@ -3692,7 +3694,7 @@ function toggleBottomMenu() {
                 Object.keys(promocoes).length, Object.keys(sessions).length,
                 Object.keys(categoryHidePF).length, Object.keys(categoryHidePJ).length,
                 searchTerm, selectedCategory, selectedBrand, selectedSessionId,
-                currentUser ? currentUser.userType : 'guest', pricesHidden,
+                currentUser ? currentUser.userType : 'guest', pricesHidden, publicCatalogPriceAudience,
                 cupomAtivo ? cupomAtivo.codigo : 'none'
             ].join('|');
             if (!force && _hasRenderedOnce && sig === _lastFilterSignature && productsGrid.children.length > 0) return;
@@ -3752,7 +3754,7 @@ function toggleBottomMenu() {
             let priceDisplay = '';
             const userType = currentUser ? currentUser.userType : null;
             const hideForUser = shouldHidePriceForUser(product, userType);
-            const priceAudience = userType || (product.publicPriceAudience === 'PJ' ? 'PJ' : 'PF');
+            const priceAudience = userType || publicCatalogPriceAudience;
             const showPublicPrice = !userType;
             if ((!hideForUser && userType) || showPublicPrice) {
                 const precoOriginal = priceAudience === 'PF' ? precoOriginalPF : precoOriginalPJ;
@@ -4818,6 +4820,10 @@ function toggleBottomMenu() {
                 const val = snapshot.val();
                 if (val === undefined || val === null) pricesHidden = false;
                 else pricesHidden = val;
+                schedulePriceRefresh(); saveCache();
+            });
+            database.ref('settings/publicCatalogPriceAudience').on('value', (snapshot) => {
+                publicCatalogPriceAudience = snapshot.val() === 'PJ' ? 'PJ' : 'PF';
                 schedulePriceRefresh(); saveCache();
             });
             database.ref('categoryHidePF').on('value', (snapshot) => { categoryHidePF = snapshot.val() || {}; schedulePriceRefresh(); });

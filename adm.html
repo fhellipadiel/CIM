@@ -2271,7 +2271,7 @@ let products=[], sessions={}, brands={}, contacts={}, promocoes={}, cupons={}, c
 let categoryClicks={}, sessionClicks={}, brandClicks={};
 let clickHistory=[], pageViewHistory=[], missingSearchHistory=[], metaAchievements=[], importHistoryCache=[], usersCache=[];
 let contactClicks=[];
-let pricesHidden=false, currentAdmin=null, currentAdminIsPrimary=false,currentAdminCanWrite=true,currentAdminAllowedPanels=null;
+let pricesHidden=false, publicCatalogPriceAudience='PF', currentAdmin=null, currentAdminIsPrimary=false,currentAdminCanWrite=true,currentAdminAllowedPanels=null;
 let adminPresenceTimer=null,adminPresenceLastPing=0,adminLastInteraction=Date.now(),adminPresenceListenersReady=false;
 let editingProductId=null, editingSessionId=null, editingBrandId=null, editingContactId=null, editingPromoId=null, editingCouponId=null;
 let uploadedProdImg=null, uploadedSesImg=null, uploadedBrImg=null, uploadedCtImg=null, uploadedProfileImg=null;
@@ -3004,6 +3004,7 @@ function loadAllData(){
   database.ref('brandClicks').on('value',snap=>{ brandClicks=snap.val()||{}; renderPerformanceTaxonomy(); });
   database.ref('settings/categoryOrder').on('value',snap=>{ categoryOrder=snap.val()||[]; renderCategories(); renderPerformanceTaxonomy(); updateSelectPopulators(); });
   database.ref('settings/pricesHidden').on('value',snap=>{ pricesHidden=snap.val()||false; updatePricesToggleBtn(); });
+  database.ref('settings/publicCatalogPriceAudience').on('value',snap=>{ publicCatalogPriceAudience=snap.val()==='PJ'?'PJ':'PF'; ensurePublicCatalogPriceAudienceControl(); });
   database.ref('clickLogs').orderByChild('timestamp').on('value',snap=>{
     const d=snap.val(); clickHistory = d? Object.values(d).reverse() : []; renderClickHistory();
   });
@@ -4727,6 +4728,7 @@ function updatePricesToggleBtn(){
   const labels={false:'Ocultar preços','PF':'Ocultar PF','PJ':'Ocultar PJ','both':'Ocultar ambos'};
   btn.innerHTML=`<i class="fas fa-eye-slash"></i> ${labels[pricesHidden]||'Ocultar preços'}`;
 }
+function ensurePublicCatalogPriceAudienceControl(){const statusFilter=document.getElementById('prodFilterStatus'),existing=document.getElementById('publicCatalogPriceAudience');if(existing){existing.value=publicCatalogPriceAudience;return}if(!statusFilter)return;const wrap=document.createElement('div');wrap.className='select-wrap';wrap.innerHTML='<select id="publicCatalogPriceAudience" aria-label="Preço mostrado no catálogo público"><option value="PF">Catálogo público: Preço PF</option><option value="PJ">Catálogo público: Preço PJ</option></select>';statusFilter.closest('.select-wrap')?.after(wrap);const select=wrap.querySelector('select');select.value=publicCatalogPriceAudience;select.addEventListener('change',()=>{select.disabled=true;database.ref('settings/publicCatalogPriceAudience').set(select.value==='PJ'?'PJ':'PF').then(()=>showToast('Preço do catálogo público atualizado.')).catch(()=>showToast('Não foi possível atualizar o catálogo público.','err')).finally(()=>select.disabled=false)})}
 function togglePricesVisibility(){
   if(pricesHidden===false) pricesHidden='PF';
   else if(pricesHidden==='PF') pricesHidden='PJ';
