@@ -1249,6 +1249,7 @@ tr:has(.admin-action-popover.open),.invoice-order-card:has(.admin-action-popover
       <div class="create-fab-wrap">
         <div class="create-fab-menu" role="menu">
           <button class="create-fab-option" type="button" role="menuitem" onclick="closeCreateMenus();openProductModal()"><i class="fas fa-box"></i> Nova peça</button>
+          <button class="create-fab-option" type="button" role="menuitem" onclick="closeCreateMenus();exportInStockProductsCsvAdm()"><i class="fas fa-file-csv"></i> Exportar peças em estoque</button>
           <button class="create-fab-option" type="button" role="menuitem" onclick="openLocateApplyAdm()"><i class="fas fa-wand-magic-sparkles"></i> Localizar e aplicar</button>
           <button class="create-fab-option" type="button" role="menuitem" onclick="openLocateExportAdm()"><i class="fas fa-file-csv"></i> Localizar e exportar CSV</button>
         </div>
@@ -4228,6 +4229,19 @@ function getLocatedExportProductsAdm(){
   });
 }
 
+function exportInStockProductsCsvAdm(){
+  const matches=products.filter(product=>product&&product.soldOut!==true).sort((a,b)=>(a.name||'').localeCompare(b.name||'','pt-BR',{numeric:true,sensitivity:'base'}));
+  if(!matches.length){showToast('Nenhuma peça em estoque para exportar','err');return;}
+  const header=['Nome','Preço PF','Preço PJ','Categoria','Código','Marca','Link da foto','Sessão','Status'];
+  const lines=[header,...matches.map(product=>[
+    product.name||'',Number(product.prices?.PF||0).toFixed(2).replace('.',','),Number(product.prices?.PJ||0).toFixed(2).replace('.',','),
+    product.category||'',product.codigo||'',product.brand||'',product.image||'',sessions[product.sessionId]?.name||'','Em estoque'
+  ])].map(row=>row.map(csvCellAdm).join(';'));
+  const blob=new Blob(['\ufeff'+lines.join('\r\n')],{type:'text/csv;charset=utf-8'}),url=URL.createObjectURL(blob),link=document.createElement('a');
+  link.href=url;link.download='pecas-em-estoque-'+new Date().toISOString().slice(0,10)+'.csv';document.body.appendChild(link);link.click();link.remove();
+  setTimeout(()=>URL.revokeObjectURL(url),1000);showToast(matches.length+' peça(s) em estoque exportada(s) para CSV');
+}
+
 function previewLocateExportAdm(){
   const summary=document.getElementById('locateExportSummaryAdm');
   const preview=document.getElementById('locateExportPreviewAdm');
@@ -7013,7 +7027,7 @@ Object.assign(window, {
   setLinkCategoryAdm, toggleNewLinkCategoryAdm, saveLinkCategoryAdm, toggleLinkCategoryMenuAdm, editLinkCategoryAdm, deleteLinkCategoryAdm, resetTaxonomyClicksAdm,
   copyLinkUrl, copyLinkFromRow,
   switchImportTab, renderImportPreviewAdm, importNamesAdm, renameImportAdm, downloadImportCsvAdm, fixImportAdm, unfixImportAdm, deleteImportAdm, confirmDeleteImportAdm,
-  openLocateApplyAdm, openLocateExportAdm, setLocateToolModeAdm, previewLocateExportAdm, exportLocatedProductsCsvAdm,
+  openLocateApplyAdm, openLocateExportAdm, setLocateToolModeAdm, previewLocateExportAdm, exportLocatedProductsCsvAdm, exportInStockProductsCsvAdm,
   updateLocateApplyTargetsAdm, previewLocateApplyAdm, applyLocateApplyAdm,
   switchClickTab, switchPerformanceDetail, setPerformancePeriod, scrollPerformanceCarousel, openPerformanceTaxonomy, closePerformanceTaxonomy, goToPerformanceProduct, setClickHistoryPeriod, clearClickHistoryAdm, clearMetaAchievementsAdm, clearContactClicksAdm,
   resetProductClicksAdm, resetMostSearchedProductsAdm, resetAllClicksAdm,
