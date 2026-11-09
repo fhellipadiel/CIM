@@ -1240,6 +1240,7 @@ tr:has(.admin-action-popover.open),.invoice-order-card:has(.admin-action-popover
           <option value="hidden">Preço oculto</option>
           <option value="nocategory">Sem categoria</option>
         </select></div>
+        <div class="select-wrap"><select id="publicCatalogPriceAudience" aria-label="Preço mostrado no catálogo público" onchange="setPublicCatalogPriceAudience(this.value)"><option value="PF">Catálogo público: Preço PF</option><option value="PJ">Catálogo público: Preço PJ</option></select></div>
       </div>
       <div class="block"><div class="block-body tight"><table>
         <thead><tr><th></th><th>Peça</th><th>Categoria</th><th>Marca</th><th>PF</th><th>PJ</th><th>Cliques/Meta</th><th>Status</th><th></th></tr></thead>
@@ -4729,6 +4730,7 @@ function updatePricesToggleBtn(){
   btn.innerHTML=`<i class="fas fa-eye-slash"></i> ${labels[pricesHidden]||'Ocultar preços'}`;
 }
 function ensurePublicCatalogPriceAudienceControl(){const statusFilter=document.getElementById('prodFilterStatus'),existing=document.getElementById('publicCatalogPriceAudience');if(existing){existing.value=publicCatalogPriceAudience;return}if(!statusFilter)return;const wrap=document.createElement('div');wrap.className='select-wrap';wrap.innerHTML='<select id="publicCatalogPriceAudience" aria-label="Preço mostrado no catálogo público"><option value="PF">Catálogo público: Preço PF</option><option value="PJ">Catálogo público: Preço PJ</option></select>';statusFilter.closest('.select-wrap')?.after(wrap);const select=wrap.querySelector('select');select.value=publicCatalogPriceAudience;select.addEventListener('change',()=>{select.disabled=true;database.ref('settings/publicCatalogPriceAudience').set(select.value==='PJ'?'PJ':'PF').then(()=>showToast('Preço do catálogo público atualizado.')).catch(()=>showToast('Não foi possível atualizar o catálogo público.','err')).finally(()=>select.disabled=false)})}
+function setPublicCatalogPriceAudience(value){const select=document.getElementById('publicCatalogPriceAudience');if(!select)return;select.disabled=true;database.ref('settings/publicCatalogPriceAudience').set(value==='PJ'?'PJ':'PF').then(()=>showToast('Preço do catálogo público atualizado.')).catch(()=>{select.value=publicCatalogPriceAudience;showToast('Não foi possível atualizar o catálogo público.','err')}).finally(()=>select.disabled=false)}
 function togglePricesVisibility(){
   if(pricesHidden===false) pricesHidden='PF';
   else if(pricesHidden==='PF') pricesHidden='PJ';
