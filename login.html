@@ -1120,7 +1120,7 @@
         /* ============================================================
            13. LOGIN
            ============================================================ */
-        async function claimEmployeeReferral(){const employeeRef=sessionStorage.getItem('campaignRef')||'';if(!employeeRef||!auth?.currentUser)return;try{const token=await auth.currentUser.getIdToken();await fetch('/api/claim-referral',{method:'POST',headers:{'Content-Type':'application/json',Authorization:'Bearer '+token},body:JSON.stringify({employeeRef}),signal:AbortSignal.timeout(10000)})}catch{}}
+        async function claimEmployeeReferral(){const employeeRef=sessionStorage.getItem('campaignReferralPending')||'';if(!employeeRef||!auth?.currentUser)return;try{const token=await auth.currentUser.getIdToken(),response=await fetch('/api/claim-referral',{method:'POST',headers:{'Content-Type':'application/json',Authorization:'Bearer '+token},body:JSON.stringify({employeeRef}),signal:AbortSignal.timeout(10000)});if(response.ok)sessionStorage.removeItem('campaignReferralPending')}catch{}}
 
         async function handleLogin(event) {
             event.preventDefault();

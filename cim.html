@@ -1621,6 +1621,7 @@ body.fullscreen-panel-open{overflow:hidden!important}
         const auth = firebase.auth();
         const storage = firebase.storage();
         auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL).catch(() => {});
+        async function claimPendingEmployeeReferral(){const employeeRef=sessionStorage.getItem('campaignReferralPending')||'';if(!employeeRef||!auth.currentUser)return;try{const token=await auth.currentUser.getIdToken(),response=await fetch('/api/claim-referral',{method:'POST',headers:{'Content-Type':'application/json',Authorization:'Bearer '+token},body:JSON.stringify({employeeRef}),signal:AbortSignal.timeout(10000)});if(response.ok)sessionStorage.removeItem('campaignReferralPending')}catch{}}
 
         const DEFAULT_PLACEHOLDER_IMAGE = 'assets/logo.webp';
         const DEFAULT_CONTACT_IMAGE   = 'assets/logo.webp';
@@ -4738,6 +4739,7 @@ function toggleBottomMenu() {
                 redirectToLogin();
                 return;
             }
+            await claimPendingEmployeeReferral();
             document.body.classList.remove('shared-public');
             if (localStorage.getItem(CACHE_KEY)) unlockPage();
             const uid = user.uid;

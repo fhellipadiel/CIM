@@ -41,6 +41,6 @@ async function registerProfile(db,caller,input,now=Date.now()){
 
 async function claimReferral(db,caller,input,now=Date.now()){
  const match=await employeeFromAssignedLink(db,input.employeeRef);if(!match)return{claimed:false};
- const ref=db.ref('users/'+caller.uid);let claimed=false;await ref.transaction(user=>{if(!user||user.employeeId)return user;claimed=true;return{...user,employeeId:match.uid,employeeSlug:match.employee.slug,employeeName:match.employee.name,employeeReferredAt:now}});return{claimed};
+ const ref=db.ref('users/'+caller.uid);let claimed=false;await ref.transaction(user=>{if(!user||user.employeeId===match.uid)return user;claimed=true;return{...user,employeeId:match.uid,employeeSlug:match.employee.slug,employeeName:match.employee.name,employeeReferredAt:now}});return{claimed};
 }
 module.exports={registerProfile,claimReferral,employeeFromAssignedLink,DOCUMENT_MESSAGE};
