@@ -1232,6 +1232,7 @@ tr:has(.admin-action-popover.open),.invoice-order-card:has(.admin-action-popover
       <div class="filter-bar">
         <input type="text" id="prodFilterText" placeholder="Buscar por nome, código ou marca..." oninput="renderProducts()">
         <div class="select-wrap"><select id="prodFilterCategory" onchange="renderProducts()"><option value="">Todas categorias</option></select></div>
+        <div class="select-wrap"><select id="prodFilterBrand" onchange="renderProducts()"><option value="">Todas marcas</option></select></div>
         <div class="select-wrap"><select id="prodFilterStatus" onchange="renderProducts()">
           <option value="">Todos status</option>
           <option value="featured">Destacados</option>
@@ -4065,6 +4066,13 @@ function updateSelectPopulators(){
     filterCat.innerHTML='<option value="">Todas categorias</option>'+cats.map(c=>`<option value="${esc(c)}">${esc(c)}</option>`).join('');
     if(cats.includes(cur)) filterCat.value=cur;
   }
+  const filterBrand=document.getElementById('prodFilterBrand');
+  if(filterBrand){
+    const cur=filterBrand.value;
+    const list=Object.keys(brands).map(key=>brands[key].name).filter(value=>value&&value.trim()!=='').sort((a,b)=>a.localeCompare(b,'pt-BR'));
+    filterBrand.innerHTML='<option value="">Todas marcas</option>'+list.map(value=>`<option value="${esc(value)}">${esc(value)}</option>`).join('');
+    if(list.includes(cur))filterBrand.value=cur;
+  }
   ['impSessionAdm'].forEach(id=>{
     const sel=document.getElementById(id); if(!sel) return; const cur=sel.value;
     const arr=Object.keys(sessions).map(k=>({id:k,...sessions[k]})).sort((a,b)=>(a.order||0)-(b.order||0));
@@ -4102,10 +4110,12 @@ let adminProductsList=[],adminProductsShown=0,adminProductsObserver=null;
 function renderProducts(){
   const text=(document.getElementById('prodFilterText')?.value||'').toLowerCase().trim();
   const cat=document.getElementById('prodFilterCategory')?.value||'';
+  const brand=document.getElementById('prodFilterBrand')?.value||'';
   const status=document.getElementById('prodFilterStatus')?.value||'';
   let list=[...products];
   if(text) list=list.filter(p => matchTokens([p.name,p.codigo,p.brand,p.category].join(' '), text));
   if(cat) list=list.filter(p=>p.category===cat);
+  if(brand) list=list.filter(p=>p.brand===brand);
   if(status==='featured') list=list.filter(p=>p.featured);
   if(status==='soldout') list=list.filter(p=>p.soldOut);
   if(status==='noprice') list=list.filter(p=>!p.soldOut && ((!p.hidePricePF && (p.prices?.PF||0)===0) || (!p.hidePricePJ && (p.prices?.PJ||0)===0)));
@@ -4230,7 +4240,8 @@ function getLocatedExportProductsAdm(){
 }
 
 function exportInStockProductsCsvAdm(){
-  const matches=products.filter(product=>product&&product.soldOut!==true).sort((a,b)=>(a.name||'').localeCompare(b.name||'','pt-BR',{numeric:true,sensitivity:'base'}));
+  const brand=document.getElementById('prodFilterBrand')?.value||'';
+  const matches=products.filter(product=>product&&product.soldOut!==true&&(!brand||product.brand===brand)).sort((a,b)=>(a.name||'').localeCompare(b.name||'','pt-BR',{numeric:true,sensitivity:'base'}));
   if(!matches.length){showToast('Nenhuma peça em estoque para exportar','err');return;}
   const header=['Nome','Preço PF','Preço PJ','Categoria','Código','Marca','Link da foto','Sessão','Status'];
   const lines=[header,...matches.map(product=>[
@@ -4238,8 +4249,8 @@ function exportInStockProductsCsvAdm(){
     product.category||'',product.codigo||'',product.brand||'',product.image||'',sessions[product.sessionId]?.name||'','Em estoque'
   ])].map(row=>row.map(csvCellAdm).join(';'));
   const blob=new Blob(['\ufeff'+lines.join('\r\n')],{type:'text/csv;charset=utf-8'}),url=URL.createObjectURL(blob),link=document.createElement('a');
-  link.href=url;link.download='pecas-em-estoque-'+new Date().toISOString().slice(0,10)+'.csv';document.body.appendChild(link);link.click();link.remove();
-  setTimeout(()=>URL.revokeObjectURL(url),1000);showToast(matches.length+' peça(s) em estoque exportada(s) para CSV');
+  link.href=url;link.download='pecas-em-estoque'+(brand?'-'+brand.replace(/[^a-z0-9]+/gi,'-').toLowerCase():'')+'-'+new Date().toISOString().slice(0,10)+'.csv';document.body.appendChild(link);link.click();link.remove();
+  setTimeout(()=>URL.revokeObjectURL(url),1000);showToast(matches.length+' peça(s) em estoque exportada(s) para CSV'+(brand?' da marca '+brand:''));
 }
 
 function previewLocateExportAdm(){
