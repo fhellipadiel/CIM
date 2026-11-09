@@ -4299,11 +4299,14 @@ async function applyLocateApplyAdm(){
   }catch(err){ hideLoading(); showToast('Erro: '+(err.message||err.code),'err'); }
 }
 
+function ensurePublicCatalogPriceSelector(){if(document.getElementById('pPublicPriceAudience'))return;const pricePJ=document.getElementById('pPricePJ'),group=document.createElement('div');group.className='f-group';group.innerHTML='<label>Mostrar no catálogo público</label><div class="select-wrap"><select id="pPublicPriceAudience"><option value="PF">Preço PF</option><option value="PJ">Preço PJ</option></select></div>';pricePJ?.closest('.f-group')?.after(group)}
 function openProductModal(){
+  ensurePublicCatalogPriceSelector();
   editingProductId=null; uploadedProdImg=null;
   document.getElementById('modalProdutoTitle').textContent='Nova peça';
   ['pName','pCodigo','pDesc'].forEach(id=>document.getElementById(id).value='');
   document.getElementById('pPricePF').value=''; document.getElementById('pPricePJ').value=''; document.getElementById('pMeta').value=0;
+  document.getElementById('pPublicPriceAudience').value='PF';
   document.getElementById('pShippingProfile').value='auto'; document.getElementById('pShippingWeight').value='';
   document.getElementById('pSoldOut').checked=false;
   document.getElementById('pHidePF').checked=false; document.getElementById('pHidePJ').checked=false;
@@ -4313,11 +4316,13 @@ function openProductModal(){
 }
 function editProductAdm(id){
   const p=products.find(x=>x.id===id); if(!p) return;
+  ensurePublicCatalogPriceSelector();
   editingProductId=id; uploadedProdImg=p.image||null;
   document.getElementById('modalProdutoTitle').textContent='Editar peça';
   document.getElementById('pName').value=p.name||''; document.getElementById('pCodigo').value=p.codigo||'';
   document.getElementById('pDesc').value=p.description||''; document.getElementById('pPricePF').value=p.prices?.PF||'';
   document.getElementById('pPricePJ').value=p.prices?.PJ||''; document.getElementById('pMeta').value=p.metaClicks||0;
+  document.getElementById('pPublicPriceAudience').value=p.publicPriceAudience==='PJ'?'PJ':'PF';
   document.getElementById('pShippingProfile').value=p.shippingProfile||'auto'; document.getElementById('pShippingWeight').value=p.shippingWeightKg||'';
   document.getElementById('pSoldOut').checked=p.soldOut||false;
   document.getElementById('pHidePF').checked=p.hidePricePF||false;
@@ -4346,6 +4351,7 @@ function saveProductAdm(){
     image:uploadedProdImg||PLACEHOLDER_IMG, featured:false, pinned:false,
     soldOut:document.getElementById('pSoldOut').checked, sessionId:document.getElementById('pSession').value||null,
     hidePricePF:document.getElementById('pHidePF').checked, hidePricePJ:document.getElementById('pHidePJ').checked,
+    publicPriceAudience:document.getElementById('pPublicPriceAudience').value==='PJ'?'PJ':'PF',
     clicks:0, metaClicks:parseInt(document.getElementById('pMeta').value)||0,
     prices:{PF:parseFloat(document.getElementById('pPricePF').value)||0, PJ:parseFloat(document.getElementById('pPricePJ').value)||0},
     shippingProfile:document.getElementById('pShippingProfile').value||'auto',

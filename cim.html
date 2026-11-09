@@ -3752,11 +3752,13 @@ function toggleBottomMenu() {
             let priceDisplay = '';
             const userType = currentUser ? currentUser.userType : null;
             const hideForUser = shouldHidePriceForUser(product, userType);
-            if (!hideForUser && userType) {
-                const precoOriginal = userType === 'PF' ? precoOriginalPF : precoOriginalPJ;
-                const precoPromo = userType === 'PF' ? precoPromoPF : precoPromoPJ;
-                const label = userType === 'PF' ? 'Pessoa Física' : 'Pessoa Jurídica';
-                const icon = userType === 'PF' ? 'fa-user' : 'fa-building';
+            const priceAudience = userType || (product.publicPriceAudience === 'PJ' ? 'PJ' : 'PF');
+            const showPublicPrice = !userType;
+            if ((!hideForUser && userType) || showPublicPrice) {
+                const precoOriginal = priceAudience === 'PF' ? precoOriginalPF : precoOriginalPJ;
+                const precoPromo = priceAudience === 'PF' ? precoPromoPF : precoPromoPJ;
+                const label = priceAudience === 'PF' ? 'Pessoa Física' : 'Pessoa Jurídica';
+                const icon = priceAudience === 'PF' ? 'fa-user' : 'fa-building';
                 if (precoOriginal > 0) {
                     let priceHtml = `<div class="price-value">R$ ${precoOriginal.toFixed(2)}</div>`;
                     if (isPromo && precoPromo > 0) priceHtml = `<span class="price-value original">R$ ${precoOriginal.toFixed(2)}</span> <span class="price-value promocional">R$ ${precoPromo.toFixed(2)}</span>`;
