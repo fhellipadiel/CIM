@@ -231,7 +231,7 @@
 <script src="assets/mfa-auth.js"></script>
     <script src="/assets/ga4.js" defer></script>
 </head>
-<script id="loginEmployeeReferral">(function(){const p=new URLSearchParams(location.search),value=(p.get('funcionario')||p.get('seller')||'').trim().toLowerCase();if(/^[a-z0-9_-]{2,80}$/.test(value))sessionStorage.setItem('employeeRef',value)})();</script><body class="h-full bg-darkbg text-white flex overflow-hidden font-sans relative">
+<body class="h-full bg-darkbg text-white flex overflow-hidden font-sans relative">
 
     <!-- COLUNA ESQUERDA: FORMULÁRIOS -->
     <div class="w-full lg:w-[45%] h-full relative z-20 overflow-y-auto overflow-x-hidden no-scrollbar bg-gradient-to-r from-darkbg via-darkbg/95 to-transparent">
@@ -1111,7 +1111,7 @@
                 dados.situacao_cadastral = document.getElementById('regSituacao').value || '';
             }
 
-            dados.employeeRef=sessionStorage.getItem('employeeRef')||sessionStorage.getItem('campaignRef')||'';
+            dados.employeeRef=sessionStorage.getItem('campaignRef')||'';
             const token=await auth.currentUser.getIdToken();
             const response=await fetch('/api/register-profile',{method:'POST',headers:{'Content-Type':'application/json',Authorization:'Bearer '+token},body:JSON.stringify(dados),signal:AbortSignal.timeout(30000)});
             if(!response.ok){const error=new Error('Não foi possível concluir o cadastro.');if(response.status===409)error.code='registration/document-unavailable';throw error;}
@@ -1120,7 +1120,7 @@
         /* ============================================================
            13. LOGIN
            ============================================================ */
-        async function claimEmployeeReferral(){const employeeRef=sessionStorage.getItem('employeeRef')||sessionStorage.getItem('campaignRef')||'';if(!employeeRef||!auth?.currentUser)return;try{const token=await auth.currentUser.getIdToken();await fetch('/api/claim-referral',{method:'POST',headers:{'Content-Type':'application/json',Authorization:'Bearer '+token},body:JSON.stringify({employeeRef}),signal:AbortSignal.timeout(10000)})}catch{}}
+        async function claimEmployeeReferral(){const employeeRef=sessionStorage.getItem('campaignRef')||'';if(!employeeRef||!auth?.currentUser)return;try{const token=await auth.currentUser.getIdToken();await fetch('/api/claim-referral',{method:'POST',headers:{'Content-Type':'application/json',Authorization:'Bearer '+token},body:JSON.stringify({employeeRef}),signal:AbortSignal.timeout(10000)})}catch{}}
 
         async function handleLogin(event) {
             event.preventDefault();

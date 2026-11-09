@@ -1025,9 +1025,6 @@
             let ref = null;
             const params = new URLSearchParams(window.location.search);
             const fromQuery = (params.get('ref') || '').trim().toLowerCase();
-            const employeeFromQuery = (params.get('seller') || params.get('funcionario') || '').trim().toLowerCase();
-            if (/^[a-z0-9_-]{2,80}$/.test(employeeFromQuery)) sessionStorage.setItem('employeeRef', employeeFromQuery);
-
             if (fromQuery) {
                 ref = fromQuery;
             } else {
@@ -1040,6 +1037,7 @@
 
             if (ref) {
                 sessionStorage.setItem('campaignRef', ref);
+                sessionStorage.removeItem('employeeRef');
                 window.campaignRef = ref;
             } else {
                 const stored = sessionStorage.getItem('campaignRef');
@@ -1049,18 +1047,7 @@
 
         (async function loadTrackingLinksMap() {
             try {
-                const pathSlug = window.location.pathname.replace(/^\/+|\/+$/g, '').toLowerCase();
-                const [response, employeesResponse] = await Promise.all([
-                    window.cimFetchWithTimeout('https://redx-6b53f-default-rtdb.firebaseio.com/trackingLinks.json'),
-                    pathSlug && !pathSlug.includes('/') && !pathSlug.includes('.')
-                        ? window.cimFetchWithTimeout('https://redx-6b53f-default-rtdb.firebaseio.com/employees.json')
-                        : Promise.resolve(null)
-                ]);
-                if (employeesResponse && employeesResponse.ok) {
-                    const employees = await employeesResponse.json() || {};
-                    const employee = Object.values(employees).find(item => item && item.enabled === true && String(item.slug || '').toLowerCase() === pathSlug);
-                    if (employee) sessionStorage.setItem('employeeRef', pathSlug);
-                }
+                const response = await window.cimFetchWithTimeout('https://redx-6b53f-default-rtdb.firebaseio.com/trackingLinks.json');
                 if (!response.ok) return;
                 const d = await response.json() || {};
                 Object.values(d).forEach(link => {

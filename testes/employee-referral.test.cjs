@@ -9,9 +9,10 @@ const landingHtml=fs.readFileSync('index.html','utf8');
 const employeeServer=fs.readFileSync('servidor/employees.cjs','utf8');
 const adminHtml=fs.readFileSync('adm.html','utf8');
 
-test('link pessoal identifica explicitamente o funcionario',()=>{
-  assert.match(employeeHtml,/employeeReferralUrl=slug=>location\.origin\+'\/\?funcionario='\+encodeURIComponent\(slug\)/);
-  assert.match(employeeHtml,/copyLink\.textContent=employeeReferralUrl\(e\.slug\)/);
+test('link atribuido pelo ADM vira a URL curta mostrada ao funcionario',()=>{
+  assert.match(employeeHtml,/employeeReferralUrl=slug=>location\.origin\+'\/'\+encodeURIComponent\(slug\)/);
+  assert.match(employeeHtml,/primaryLink=\(data\.links\|\|\[\]\)\[0\]/);
+  assert.match(employeeHtml,/employeeReferralUrl\(primaryLink\.slug\)/);
 });
 
 test('falha ao carregar painel nao encerra a sessao automaticamente',()=>{
@@ -25,9 +26,10 @@ test('rota de login local descarta somente a sessao administrativa anterior',()=
   assert.match(adminHtml,/if\(adminLoginReset\)await auth\.signOut\(\)/);
 });
 
-test('links pessoais antigos por slug continuam reconhecidos',()=>{
-  assert.match(landingHtml,/employees\.json/);
-  assert.match(landingHtml,/sessionStorage\.setItem\('employeeRef', pathSlug\)/);
+test('entrada pelo Link curto guarda a campanha e remove atribuicao antiga',()=>{
+  assert.match(landingHtml,/sessionStorage\.setItem\('campaignRef', ref\)/);
+  assert.match(landingHtml,/sessionStorage\.removeItem\('employeeRef'\)/);
+  assert.doesNotMatch(landingHtml,/employees\.json/);
 });
 
 test('clientes atendidos ficam separados dos leads e visiveis ao funcionario e ADM',()=>{
