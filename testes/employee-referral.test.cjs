@@ -13,6 +13,8 @@ test('link atribuido pelo ADM vira a URL curta mostrada ao funcionario',()=>{
   assert.match(employeeHtml,/employeeReferralUrl=slug=>location\.origin\+'\/'\+encodeURIComponent\(slug\)/);
   assert.match(employeeHtml,/primaryLink=\(data\.links\|\|\[\]\)\[0\]/);
   assert.match(employeeHtml,/employeeReferralUrl\(primaryLink\.slug\)/);
+  assert.match(adminHtml,/employeeUrl=primaryLink\?location\.origin\+'\/'\+encodeURIComponent\(primaryLink\.slug\)/);
+  assert.doesNotMatch(adminHtml,/location\.origin}\/\?funcionario=/);
 });
 
 test('falha ao carregar painel nao encerra a sessao automaticamente',()=>{
