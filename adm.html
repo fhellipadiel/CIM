@@ -3746,7 +3746,7 @@ function renderOrders(){
       ? (isOrderInvoiceSentAdm(o) ? '<span class="invoice-status-sent">Enviado pelo e-mail</span>' : '<span class="invoice-status-pending">Pendente</span>')
       : '<span class="td-sub">—</span>';
 
-    return `<tr data-product-id="${esc(p.id)}">
+    return `<tr data-order-id="${esc(o.id)}">
       <td>
         <div class="td-name" style="color:var(--accent);">${orderShortIdAdm(o)}</div>
         <span class="order-method-chip ${methodClass}">${methodLabel}</span>
