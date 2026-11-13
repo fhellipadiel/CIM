@@ -7751,22 +7751,29 @@ document.addEventListener('DOMContentLoaded',()=>{
     tabs.append(button);
   }
   const switchEmployeeAreaBase=window.switchEmployeeAreaAdm;
+  const team=document.getElementById('employeesAdmList'),teamHeading=team?.previousElementSibling,clients=document.getElementById('employeeClientsSection');
   window.switchEmployeeAreaAdm=area=>{
     if(area==='goals'){
       main.hidden=true;
       document.getElementById('employeeStockArea').hidden=true;
+      if(team)team.hidden=true;
+      if(teamHeading)teamHeading.hidden=true;
+      if(clients)clients.hidden=true;
       section.hidden=false;
       document.querySelectorAll('[data-employee-area]').forEach(button=>button.classList.toggle('active',button.dataset.employeeArea==='goals'));
       return;
     }
     section.hidden=true;
+    if(team)team.hidden=false;
+    if(teamHeading)teamHeading.hidden=false;
+    if(clients)clients.hidden=true;
     switchEmployeeAreaBase(area);
   };
   section.hidden=true;
 });
 </script>
 <script>
-document.addEventListener('DOMContentLoaded',()=>document.getElementById('employeeClientsSection')?.remove());
+document.addEventListener('DOMContentLoaded',()=>document.getElementById('employeeClientsSection')?.setAttribute('hidden',''));
 document.addEventListener('DOMContentLoaded',()=>{const style=document.createElement('style');style.textContent='.employee-goal-adm-card{border:0!important;box-shadow:none!important;background:#111113!important}.employee-goal-adm-trend{display:flex;align-items:center;gap:8px;margin:15px 0 0;padding:10px 12px;border-radius:11px;font-size:.74rem;font-weight:700}.employee-goal-adm-trend i{font-size:1rem}.employee-goal-adm-trend.good{background:rgba(48,209,88,.12);color:#52dc7b}.employee-goal-adm-trend.steady{background:rgba(255,159,10,.12);color:#ffb340}.employee-goal-adm-trend.risk{background:rgba(255,69,58,.12);color:#ff746d}';document.head.append(style)});
 window.renderEmployeeGoalsAdm=function(){const target=document.getElementById('employeeGoalsAdmList'),filter=document.getElementById('employeeGoalsFilter');if(!target||!filter)return;const selected=filter.value||'';filter.innerHTML='<option value="">Todos os vendedores</option>'+employeesAdm.filter(employee=>(employee.role||'Vendedor')==='Vendedor').map(employee=>'<option value="'+esc(employee.uid)+'">'+esc(employee.name||'Vendedor')+'</option>').join('');filter.value=employeesAdm.some(employee=>employee.uid===selected)?selected:'';const money=value=>fmtBRLAdm(Number(value)||0),date=value=>value?String(value).split('-').reverse().join('/'):'';const rhythm=goal=>{const targetValue=Number(goal.target)||0,total=goal.status==='closed'&&goal.totalAtClose?goal.totalAtClose:(goal.entries||[]).reduce((sum,entry)=>sum+(Number(entry.amount)||0),0),actual=targetValue?total/targetValue*100:0;if(goal.status==='closed')return actual>=100?{kind:'good',icon:'↑',text:'Meta atingida'}:{kind:'risk',icon:'↓',text:'Meta encerrada abaixo do objetivo'};const start=new Date(goal.startDate+'T00:00:00'),end=new Date(goal.endDate+'T23:59:59'),now=new Date(),totalDays=Math.max(1,end-start),elapsed=Math.min(totalDays,Math.max(0,now-start)),expected=elapsed/totalDays*100,delta=actual-expected;if(delta>=10)return{kind:'good',icon:'↑',text:Math.round(delta)+' p.p. à frente do ritmo'};if(delta<=-10)return{kind:'risk',icon:'↓',text:Math.abs(Math.round(delta))+' p.p. abaixo do ritmo'};return{kind:'steady',icon:'→',text:'No ritmo esperado'}};const goals=employeeGoalsAdm.filter(goal=>!filter.value||goal.employeeId===filter.value).sort((a,b)=>(a.status==='active'?0:1)-(b.status==='active'?0:1)||(b.closedAt||0)-(a.closedAt||0));target.innerHTML=goals.length?goals.map(goal=>{const employee=employeesAdm.find(item=>item.uid===goal.employeeId)||{},total=goal.status==='closed'&&goal.totalAtClose?goal.totalAtClose:(goal.entries||[]).reduce((sum,entry)=>sum+(Number(entry.amount)||0),0),targetValue=Number(goal.target)||0,percent=targetValue?Math.min(100,Math.round(total/targetValue*100)):0,remaining=Math.max(0,targetValue-total),entries=[...(goal.entries||[])].sort((a,b)=>(b.createdAt||0)-(a.createdAt||0)),trend=rhythm(goal);return '<article class="employee-goal-adm-card"><div class="employee-goal-adm-top"><img src="'+esc(employee.photoURL||'assets/logo.webp')+'" alt=""><div><strong>'+esc(employee.name||'Vendedor removido')+'</strong><small>'+date(goal.startDate)+' a '+date(goal.endDate)+'</small></div><span class="employee-goal-adm-status '+(goal.status==='closed'?'closed':'')+'">'+(goal.status==='closed'?'Fechada':'Em andamento')+'</span></div><div class="employee-goal-adm-values"><div><small>Realizado</small><b>'+money(total)+'</b></div><div><small>Meta</small><b>'+money(targetValue)+'</b></div><div><small>Falta</small><b>'+money(remaining)+'</b></div></div><div class="employee-goal-adm-progress" aria-label="'+percent+'% concluído"><i style="width:'+percent+'%"></i></div><div class="employee-goal-adm-foot"><span>'+percent+'% concluído</span><span>'+entries.length+' lançamento'+(entries.length===1?'':'s')+'</span></div><div class="employee-goal-adm-trend '+trend.kind+'"><i aria-hidden="true">'+trend.icon+'</i><span>'+trend.text+'</span></div>'+(entries.length?'<details><summary>Ver lançamentos</summary>'+entries.map(entry=>'<div class="employee-goal-adm-entry"><span>'+money(entry.amount)+(Number(entry.freight)>0?' · Frete '+money(entry.freight):'')+'</span><span>'+new Date(entry.createdAt).toLocaleDateString('pt-BR')+'</span></div>').join('')+'</details>':'')+'</article>';}).join(''):'<div class="employee-goal-adm-empty"><i class="fas fa-bullseye"></i><p>Nenhuma meta encontrada para este vendedor.</p></div>'};
 </script>
