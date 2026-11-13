@@ -7790,5 +7790,43 @@ document.addEventListener('DOMContentLoaded',()=>{
   window.switchEmployeeAreaAdm('main');
 });
 </script>
+<script>
+/* Filtro de ruas do estoque no ADM: R1-A1 e R1-D1 pertencem à rua R1. */
+let stockAdmStreetFilter='';
+function stockAdmStreetGroup(street){
+  const value=String(street||'').trim().toUpperCase();
+  return value.split('-')[0]||value;
+}
+function stockAdmFilteredEntries(){
+  const query=String(document.getElementById('employeeStockSearch')?.value||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().trim();
+  const tokens=query.split(/\s+/).filter(Boolean);
+  const rows=stockEntriesAdm.filter(entry=>{
+    const searchable=[entry.partCode,entry.description,entry.street,entry.brand,entry.employeeName].join(' ').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
+    const matchesSearch=tokens.every(token=>searchable.includes(token));
+    const matchesAvailability=stockAdmViewFilter==='depleted'?Number(entry.quantity)<=0:stockAdmViewFilter==='available'?Number(entry.quantity)>0:true;
+    return matchesSearch&&matchesAvailability&&(!stockAdmStreetFilter||stockAdmStreetGroup(entry.street)===stockAdmStreetFilter);
+  });
+  return stockAdmViewFilter==='all'?[...rows.filter(entry=>Number(entry.quantity)>0),...rows.filter(entry=>Number(entry.quantity)<=0)]:rows;
+}
+const renderStockEntriesAdmWithStreetFilter=renderStockEntriesAdm;
+renderStockEntriesAdm=()=>{
+  renderStockEntriesAdmWithStreetFilter();
+  const search=document.getElementById('employeeStockSearch');
+  if(!search)return;
+  const streets=[...new Set(stockEntriesAdm.map(entry=>stockAdmStreetGroup(entry.street)).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'pt-BR',{numeric:true}));
+  if(stockAdmStreetFilter&&!streets.includes(stockAdmStreetFilter))stockAdmStreetFilter='';
+  let select=document.getElementById('stockAdmStreetFilter');
+  if(!select){
+    select=document.createElement('select');
+    select.id='stockAdmStreetFilter';
+    select.setAttribute('aria-label','Filtrar por rua');
+    select.addEventListener('change',()=>{stockAdmStreetFilter=select.value;renderStockEntriesAdm()});
+    (document.getElementById('stockAdmFilterSelect')||search).after(select);
+  }
+  select.innerHTML='<option value="">Todas as ruas</option>'+streets.map(street=>'<option value="'+esc(street)+'">Rua '+esc(street)+'</option>').join('');
+  select.value=stockAdmStreetFilter;
+};
+document.addEventListener('DOMContentLoaded',()=>{const style=document.createElement('style');style.textContent='#stockAdmStreetFilter{height:42px;margin:0 0 14px 8px;padding:0 32px 0 12px;border:1px solid var(--border);border-radius:10px;background:#101010;color:#fff;font-weight:700}@media(max-width:600px){#stockAdmStreetFilter{width:100%;margin:0 0 12px}}';document.head.append(style)});
+</script>
 </body>
 </html>
