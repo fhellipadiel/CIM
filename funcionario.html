@@ -319,4 +319,41 @@ stockRender=()=>{
     cell.innerHTML=entry.updatedAt&&edited?actor(editedPhoto,edited,'Última edição')+'<small style="display:block;margin-top:5px;color:#8e8e93">'+esc(dateTime(entry.updatedAt))+'</small>':actor(addedPhoto,added,'Adicionado por')+'<small style="display:block;margin-top:5px;color:#8e8e93">'+esc(dateTime(entry.createdAt))+'</small>';
   });
 };
+</script><script>
+/* A atualização mostra a pessoa/equipe que a fez e a leitura permanece após recarregar. */
+const stockRenderWithPersistentChangeRead=stockRender;
+stockRender=()=>{
+  stockRenderWithPersistentChangeRead();
+  const table=document.querySelector('#stockEntries table');
+  if(!table)return;
+  const title=table.querySelector('thead th:nth-child(7)');
+  if(title)title.textContent='Atualização';
+  const entries=stockEntriesForSelectedStreet();
+  const actor=(photo,name,label)=>'<span style="display:flex;align-items:center;gap:7px"><img src="'+esc(photo||'assets/logo.webp')+'" alt="" style="width:26px;height:26px;border-radius:50%;object-fit:cover;background:#28282c"><span><small style="display:block;color:#8e8e93">'+label+'</small><strong style="font-size:12px">'+esc(name)+'</strong></span></span>';
+  table.querySelectorAll('tbody tr[data-stock-entry-id]').forEach((row,index)=>{
+    const entry=entries[index],cell=row.children[6];
+    if(!entry||!cell)return;
+    const changed=Number(entry.updatedAt)>0,seenKey='cim-stock-change-seen-'+entry.id;
+    let isSeen=!changed||localStorage.getItem(seenKey)===String(entry.updatedAt);
+    const name=entry.updatedByName||entry.responsibleName||'Equipe CIM';
+    const photo=entry.updatedByPhotoURL||entry.responsiblePhotoURL||'assets/logo.webp';
+    const renderCell=()=>{cell.innerHTML=actor(photo,name,changed?'Atualizado por':'Adicionado por')+(changed&&!isSeen?'<small class="stock-change-notice" style="display:block;margin-top:5px">Alterado</small>':'')+'<small style="display:block;margin-top:3px;color:#8e8e93">'+esc(dateTime(changed?entry.updatedAt:entry.createdAt))+'</small>'};
+    renderCell();
+    if(!changed)return;
+    row.style.cursor='pointer';row.title='Clique para ver os detalhes da alteração';
+    row.onclick=async event=>{
+      if(event.target.closest('button,a,input,select'))return;
+      localStorage.setItem(seenKey,String(entry.updatedAt));
+      isSeen=true;renderCell();
+      const next=row.nextElementSibling;
+      if(next?.classList.contains('stock-change-detail')){next.remove();return}
+      try{
+        const detail=await api('stock-change-detail',{id:entry.id}),line=document.createElement('tr');
+        line.className='stock-change-detail';
+        line.innerHTML='<td colspan="8"><strong>Detalhes da alteração</strong><div><b>Campos alterados:</b> '+esc(detail.changeDetails||'Dados da peça')+'</div><div><b>Justificativa:</b> '+esc(detail.changeReason||'Não informada')+'</div></td>';
+        row.after(line);
+      }catch(error){alert(error.message)}
+    };
+  });
+};
 </script></body></html>

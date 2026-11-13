@@ -7828,5 +7828,36 @@ renderStockEntriesAdm=()=>{
 };
 document.addEventListener('DOMContentLoaded',()=>{const style=document.createElement('style');style.textContent='#stockAdmStreetFilter{height:42px;margin:0 0 14px 8px;padding:0 32px 0 12px;border:1px solid var(--border);border-radius:10px;background:#101010;color:#fff;font-weight:700}@media(max-width:600px){#stockAdmStreetFilter{width:100%;margin:0 0 12px}}';document.head.append(style)});
 </script>
-</body>
+<script>
+/* O ADM mostra somente quem fez a atualização mais recente, com foto e nome. */
+const renderStockEntriesAdmWithLatestEditor=renderStockEntriesAdm;
+renderStockEntriesAdm=()=>{
+  renderStockEntriesAdmWithLatestEditor();
+  const table=document.querySelector('#employeeStockAdmList table');
+  if(!table)return;
+  table.querySelectorAll('tbody tr[data-stock-id]').forEach(row=>{
+    const entry=stockEntriesAdm.find(item=>item.id===row.dataset.stockId),personCell=row.children[6],updateCell=row.children[7];
+    if(!entry||!personCell||!updateCell)return;
+    const hasAdminUpdate=Boolean(entry.adminUpdatedName),name=hasAdminUpdate?entry.adminUpdatedName:entry.employeeName,photo=hasAdminUpdate?entry.adminUpdatedPhotoURL:entry.employeePhotoURL;
+    personCell.innerHTML='<span class="employee-client-cell"><img src="'+esc(photo||'assets/logo.webp')+'" alt="" onerror="this.onerror=null;this.src=\'assets/logo.webp\'"><span>'+esc(name||'Equipe CIM')+'<small>'+ (hasAdminUpdate?'Equipe CIM':'Estoque') +'</small></span></span>';
+    if(!entry.updatedAt)return;
+    const seenKey='cim-stock-admin-change-seen-'+entry.employeeId+'-'+entry.id;
+    const setUpdate=()=>{const seen=localStorage.getItem(seenKey)===String(entry.updatedAt);updateCell.innerHTML=seen?esc(leadDate(entry.updatedAt)):'<strong style="color:#ff8b75">Alterado</strong><small style="display:block;margin-top:4px;color:#8e8e93">'+esc(leadDate(entry.updatedAt))+'</small>'};
+    setUpdate();
+    row.style.cursor='pointer';row.title='Clique para ver os detalhes da alteração';
+    row.onclick=async event=>{
+      if(event.target.closest('button,a,input,select'))return;
+      localStorage.setItem(seenKey,String(entry.updatedAt));setUpdate();
+      const next=row.nextElementSibling;
+      if(next?.classList.contains('stock-change-detail')){next.remove();return}
+      try{
+        const detail=await employeeApi('admin-stock-change-detail',{employeeId:entry.employeeId,id:entry.id}),line=document.createElement('tr');
+        line.className='stock-change-detail';
+        line.innerHTML='<td colspan="9" style="padding:16px 18px;background:#151517;color:#f5f5f7"><strong>Detalhes da alteração</strong><div class="td-sub" style="margin-top:7px"><b>Campos alterados:</b> '+esc(detail.changeDetails||'Dados da peça')+'</div><div class="td-sub" style="margin-top:5px"><b>Justificativa:</b> '+esc(detail.changeReason||'Não informada')+'</div></td>';
+        row.after(line);
+      }catch(error){alert(error.message)}
+    };
+  });
+};
+</script></body>
 </html>
