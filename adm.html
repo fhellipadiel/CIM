@@ -1251,6 +1251,7 @@ tr:has(.admin-action-popover.open),.invoice-order-card:has(.admin-action-popover
         <div class="create-fab-menu" role="menu">
           <button class="create-fab-option" type="button" role="menuitem" onclick="closeCreateMenus();openProductModal()"><i class="fas fa-box"></i> Nova peça</button>
           <button class="create-fab-option" type="button" role="menuitem" onclick="closeCreateMenus();exportInStockProductsCsvAdm()"><i class="fas fa-file-csv"></i> Exportar peças em estoque</button>
+          <button class="create-fab-option" type="button" role="menuitem" onclick="closeCreateMenus();exportInStockProductsPdfAdm()"><i class="fas fa-file-pdf"></i> Imprimir / salvar em PDF</button>
           <button class="create-fab-option" type="button" role="menuitem" onclick="openLocateApplyAdm()"><i class="fas fa-wand-magic-sparkles"></i> Localizar e aplicar</button>
           <button class="create-fab-option" type="button" role="menuitem" onclick="openLocateExportAdm()"><i class="fas fa-file-csv"></i> Localizar e exportar CSV</button>
         </div>
@@ -4252,6 +4253,18 @@ function exportInStockProductsCsvAdm(){
   setTimeout(()=>URL.revokeObjectURL(url),1000);showToast(matches.length+' peça(s) em estoque exportada(s) para CSV'+(brand?' da marca '+brand:''));
 }
 
+function exportInStockProductsPdfAdm(){
+  const brand=document.getElementById('prodFilterBrand')?.value||'';
+  const matches=products.filter(product=>product&&product.soldOut!==true&&(!brand||product.brand===brand)).sort((a,b)=>(a.name||'').localeCompare(b.name||'','pt-BR',{numeric:true,sensitivity:'base'}));
+  if(!matches.length){showToast('Nenhuma peça em estoque para imprimir','err');return;}
+  const issuedAt=new Date().toLocaleString('pt-BR');
+  const rows=matches.map(product=>'<tr><td>'+esc(product.codigo||'—')+'</td><td><strong>'+esc(product.name||'Sem nome')+'</strong></td><td>'+esc(product.category||'—')+'</td><td>'+esc(product.brand||'—')+'</td><td>'+esc(fmtBRLAdm(product.prices?.PF))+'</td><td>'+esc(fmtBRLAdm(product.prices?.PJ))+'</td></tr>').join('');
+  const printWindow=window.open('','_blank');
+  if(!printWindow){showToast('Permita a abertura da janela de impressão','err');return;}
+  printWindow.document.write('<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><title>Peças em estoque — CIM</title><style>@page{size:A4 landscape;margin:12mm}*{box-sizing:border-box}body{margin:0;color:#202020;font:10px Arial,Helvetica,sans-serif}.head{display:flex;align-items:flex-end;justify-content:space-between;gap:20px;padding-bottom:13px;border-bottom:3px solid #ef3f24}.brand{font-size:24px;font-weight:900;letter-spacing:-1px}.brand span{color:#ef3f24}.brand small{display:block;margin-top:3px;font-size:7px;letter-spacing:1.8px}.head strong{display:block;font-size:15px}.head small{display:block;margin-top:5px;color:#666}.summary{display:flex;justify-content:space-between;margin:13px 0;color:#555}.summary b{color:#202020}table{width:100%;border-collapse:collapse}th{padding:8px 7px;background:#202020;color:#fff;text-align:left;font-size:8px;text-transform:uppercase;letter-spacing:.3px}td{padding:8px 7px;border-bottom:1px solid #ddd;vertical-align:top}tbody tr:nth-child(even){background:#f6f6f6}td:nth-child(1){white-space:nowrap}td:nth-child(5),td:nth-child(6){white-space:nowrap;text-align:right}.footer{position:fixed;bottom:0;left:0;right:0;padding-top:5px;border-top:1px solid #ddd;color:#777;font-size:8px}</style></head><body><header class="head"><div class="brand">C<span>I</span>M <small>GLOBAL PARTS</small></div><div><strong>Relatório de peças em estoque</strong><small>'+esc(brand?'Marca: '+brand:'Todas as marcas')+'</small></div></header><div class="summary"><span><b>'+matches.length+'</b> '+(matches.length===1?'peça disponível':'peças disponíveis')+'</span><span>Emitido em '+esc(issuedAt)+'</span></div><table><thead><tr><th>Código</th><th>Peça</th><th>Categoria</th><th>Marca</th><th>Preço PF</th><th>Preço PJ</th></tr></thead><tbody>'+rows+'</tbody></table><footer class="footer">CIM Global Parts · Controle de catálogo</footer><script>window.onload=function(){window.print()}<\\/script></body></html>');
+  printWindow.document.close();
+}
+
 function previewLocateExportAdm(){
   const summary=document.getElementById('locateExportSummaryAdm');
   const preview=document.getElementById('locateExportPreviewAdm');
@@ -7037,7 +7050,7 @@ Object.assign(window, {
   setLinkCategoryAdm, toggleNewLinkCategoryAdm, saveLinkCategoryAdm, toggleLinkCategoryMenuAdm, editLinkCategoryAdm, deleteLinkCategoryAdm, resetTaxonomyClicksAdm,
   copyLinkUrl, copyLinkFromRow,
   switchImportTab, renderImportPreviewAdm, importNamesAdm, renameImportAdm, downloadImportCsvAdm, fixImportAdm, unfixImportAdm, deleteImportAdm, confirmDeleteImportAdm,
-  openLocateApplyAdm, openLocateExportAdm, setLocateToolModeAdm, previewLocateExportAdm, exportLocatedProductsCsvAdm, exportInStockProductsCsvAdm,
+  openLocateApplyAdm, openLocateExportAdm, setLocateToolModeAdm, previewLocateExportAdm, exportLocatedProductsCsvAdm, exportInStockProductsCsvAdm, exportInStockProductsPdfAdm,
   updateLocateApplyTargetsAdm, previewLocateApplyAdm, applyLocateApplyAdm,
   switchClickTab, switchPerformanceDetail, setPerformancePeriod, scrollPerformanceCarousel, openPerformanceTaxonomy, closePerformanceTaxonomy, goToPerformanceProduct, setClickHistoryPeriod, clearClickHistoryAdm, clearMetaAchievementsAdm, clearContactClicksAdm,
   resetProductClicksAdm, resetMostSearchedProductsAdm, resetAllClicksAdm,
