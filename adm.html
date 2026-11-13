@@ -7794,7 +7794,7 @@ document.addEventListener('DOMContentLoaded',()=>{
 /* Filtro de ruas do estoque no ADM: R1-A1 e R1-D1 pertencem à rua R1. */
 let stockAdmStreetFilter='';
 function stockAdmStreetGroup(street){
-  const value=String(street||'').trim().toUpperCase();
+  const value=String(street||'').toUpperCase().replace(/\s+/g,'');
   return value.split('-')[0]||value;
 }
 function stockAdmFilteredEntries(){
