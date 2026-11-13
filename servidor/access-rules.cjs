@@ -27,6 +27,11 @@ service firebase.storage {
    allow create, update: if request.auth != null && request.auth.uid == userId && image();
    allow delete: if request.auth != null && request.auth.uid == userId;
   }
+  match /employeeStock/{userId}/{allPaths=**} {
+   allow get: if true;
+   allow create, update: if request.auth != null && request.auth.uid == userId && image();
+   allow delete: if request.auth != null && request.auth.uid == userId;
+  }
  }
 }
 `;
