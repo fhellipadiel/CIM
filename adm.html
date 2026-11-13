@@ -7741,6 +7741,7 @@ function renderEmployeeGoalsAdm(){const target=document.getElementById('employee
 document.addEventListener('DOMContentLoaded',()=>{
   const section=document.getElementById('employeeGoalsAdmSection'),tabs=document.getElementById('employeeAreaTabs'),main=document.getElementById('employeeMainArea');
   if(!section||!tabs||!main)return;
+  main.after(section);
   section.querySelector('.employee-goals-eyebrow')?.remove();
   section.querySelector('.employee-goals-head p')?.remove();
   if(!tabs.querySelector('[data-employee-area="goals"]')){
@@ -7751,17 +7752,15 @@ document.addEventListener('DOMContentLoaded',()=>{
   }
   const switchEmployeeAreaBase=window.switchEmployeeAreaAdm;
   window.switchEmployeeAreaAdm=area=>{
-    const children=[...main.children];
     if(area==='goals'){
-      switchEmployeeAreaBase('main');
-      children.forEach(child=>child.hidden=child!==section);
+      main.hidden=true;
+      document.getElementById('employeeStockArea').hidden=true;
       section.hidden=false;
       document.querySelectorAll('[data-employee-area]').forEach(button=>button.classList.toggle('active',button.dataset.employeeArea==='goals'));
       return;
     }
-    children.forEach(child=>child.hidden=false);
-    switchEmployeeAreaBase(area);
     section.hidden=true;
+    switchEmployeeAreaBase(area);
   };
   section.hidden=true;
 });
