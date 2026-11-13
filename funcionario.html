@@ -313,9 +313,10 @@ stockRender=()=>{
   table.querySelectorAll('tbody tr[data-stock-entry-id]').forEach(row=>{
     const entry=(data.stockEntries||[]).find(item=>item.id===row.dataset.stockEntryId),cell=row.children[6];
     if(!entry||!cell)return;
-    const added=entry.responsibleName||'Não informado';
-    const edited=entry.updatedByName||'';
-    cell.innerHTML='<strong>Adicionado por: '+esc(added)+'</strong>'+(entry.updatedAt?'<small style="display:block;margin-top:4px;color:#8e8e93">'+esc(dateTime(entry.updatedAt))+(edited?' · Editado por: '+esc(edited):'')+'</small>':'<small style="display:block;margin-top:4px;color:#8e8e93">'+esc(dateTime(entry.createdAt))+'</small>');
+    const added=entry.responsibleName||'Não informado',addedPhoto=entry.responsiblePhotoURL||'assets/logo.webp';
+    const edited=entry.updatedByName||'',editedPhoto=entry.updatedByPhotoURL||'assets/logo.webp';
+    const actor=(photo,name,label)=>'<span style="display:flex;align-items:center;gap:7px"><img src="'+esc(photo)+'" alt="" style="width:26px;height:26px;border-radius:50%;object-fit:cover;background:#28282c"><span><small style="display:block;color:#8e8e93">'+label+'</small><strong style="font-size:12px">'+esc(name)+'</strong></span></span>';
+    cell.innerHTML=entry.updatedAt&&edited?actor(editedPhoto,edited,'Última edição')+'<small style="display:block;margin-top:5px;color:#8e8e93">'+esc(dateTime(entry.updatedAt))+'</small>':actor(addedPhoto,added,'Adicionado por')+'<small style="display:block;margin-top:5px;color:#8e8e93">'+esc(dateTime(entry.createdAt))+'</small>';
   });
 };
 </script></body></html>
