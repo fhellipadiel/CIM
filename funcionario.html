@@ -356,4 +356,40 @@ stockRender=()=>{
     };
   });
 };
-</script></body></html>
+</script>
+<script>
+/* Exportação de produtos para vendedores: respeita a busca atual e mostra só código e nome. */
+document.addEventListener('DOMContentLoaded',()=>{
+  if(stockIsRole())return;
+  const button=document.createElement('button');
+  button.id='productExportButton';
+  button.type='button';
+  button.className='product-export-button';
+  button.title='Exportar peças filtradas';
+  button.setAttribute('aria-label','Exportar peças filtradas');
+  button.innerHTML='<i class="fas fa-file-export" aria-hidden="true"></i>';
+  button.onclick=exportFilteredProducts;
+  document.body.append(button);
+  const updateVisibility=()=>{button.hidden=productsView.classList.contains('hidden')};
+  document.addEventListener('click',()=>setTimeout(updateVisibility,0));
+  updateVisibility();
+});
+function exportFilteredProducts(){
+  const query=normalizeEmployeeSearch(productSearch||document.getElementById('search')?.value||'');
+  const tokens=query.split(/\s+/).filter(Boolean);
+  const products=(data?.products||[]).filter(product=>{
+    const text=normalizeEmployeeSearch([product.name,product.codigo,product.brand].join(' '));
+    return tokens.every(token=>text.includes(token));
+  }).sort((a,b)=>String(a.codigo||'').localeCompare(String(b.codigo||''),'pt-BR'));
+  const printWindow=window.open('','_blank');
+  if(!printWindow){alert('Permita a abertura de janela para exportar as peças.');return}
+  const logo=new URL('assets/logo.webp',location.href).href;
+  const rows=products.map(product=>'<tr><td>'+esc(product.codigo||'—')+'</td><td>'+esc(product.name||'Sem nome')+'</td></tr>').join('');
+  const filterLabel=query?'Resultado da busca: “'+esc(document.getElementById('search')?.value.trim()||query)+'”':'Todos os produtos';
+  printWindow.document.write('<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><title>Peças — CIM</title><style>@page{size:A4 portrait;margin:15mm}*{box-sizing:border-box}body{margin:0;color:#202020;font:10px Arial,Helvetica,sans-serif}.header{text-align:center;padding:0 0 18px}.brand-logo{display:block;width:108px;height:64px;object-fit:contain;margin:0 auto;filter:brightness(0)}.filter{margin:0 0 14px;color:#555;text-align:center;font-size:10px}table{width:100%;border-collapse:collapse}th,td{padding:10px 8px;text-align:left;vertical-align:middle;border-bottom:1px dotted #999}th{background:#f0f0f0;color:#202020;font-size:8px;font-weight:700;text-transform:uppercase}th:first-child,td:first-child{width:34%}.empty{text-align:center;padding:36px;color:#666}.footer{position:fixed;bottom:0;left:0;right:0;text-align:right;color:#777;font-size:8px}</style></head><body><header class="header"><img class="brand-logo" src="'+logo+'" alt="CIM Global Parts"></header><p class="filter">'+filterLabel+'</p>'+(rows?'<table><thead><tr><th>Código da peça</th><th>Nome da peça</th></tr></thead><tbody>'+rows+'</tbody></table>':'<p class="empty">Nenhuma peça encontrada para esta busca.</p>')+'<footer class="footer">'+products.length+' '+(products.length===1?'peça':'peças')+' · Emissão: '+esc(new Date().toLocaleString('pt-BR'))+'</footer><script>window.onload=function(){window.print()}<\/script></body></html>');
+  printWindow.document.close();
+}
+</script>
+<style>
+.product-export-button{position:fixed;left:28px;bottom:28px;z-index:20;display:grid;place-items:center;width:54px;height:54px;border:0;border-radius:50%;background:#ff4b1f;color:#fff;box-shadow:0 12px 30px rgba(255,75,31,.35);font-size:21px;cursor:pointer}.product-export-button:hover{background:#ff603b;transform:translateY(-2px)}.product-export-button[hidden]{display:none}@media(max-width:700px){.product-export-button{left:20px;bottom:20px}}
+</style></body></html>
