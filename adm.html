@@ -2642,8 +2642,11 @@ async function initializeAdminSession(user){
     document.getElementById('loginError').textContent='Validando acesso administrativo...';
     try{
       await verifyAdminAuthorization(user);
-      const snap=await database.ref(`users/${user.uid}`).once('value');
-      const data=snap.val()||{};
+      const snap=await Promise.race([
+        database.ref(`users/${user.uid}`).once('value'),
+        new Promise(resolve=>setTimeout(()=>resolve(null),8000))
+      ]);
+      const data=snap?.val?.()||{name:user.displayName||'Administrador',email:user.email||''};
       if(generation!==adminSessionGeneration)return;
       if(auth.currentUser && auth.currentUser.uid===user.uid){
         currentAdmin={...data,uid:user.uid};
