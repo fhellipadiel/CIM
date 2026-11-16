@@ -7936,5 +7936,33 @@ document.addEventListener('DOMContentLoaded',()=>{
   };
   window.switchEmployeeAreaAdm('main');
 });
+</script>
+<script>
+// Notificação de novas peças: atualiza em tempo real e é zerada ao abrir Estoque.
+document.addEventListener('DOMContentLoaded',()=>{
+  const clearStockNotification=()=>{
+    localStorage.setItem('cim-stock-admin-seen',String(Date.now()));
+    const badge=document.querySelector('[data-employee-area="stock"] .stock-admin-badge');
+    if(badge)badge.hidden=true;
+  };
+  const refreshStockNotification=async()=>{
+    try{
+      const result=await employeeApi('admin-stock-list-details');
+      stockEntriesAdm=result.entries||[];
+      stockAdminNotification();
+    }catch(error){
+      // A próxima atualização tentará novamente sem interferir na tela atual.
+    }
+  };
+  const switchEmployeeAreaWithStockNotification=window.switchEmployeeAreaAdm;
+  window.switchEmployeeAreaAdm=area=>{
+    if(area==='stock')clearStockNotification();
+    switchEmployeeAreaWithStockNotification(area);
+    if(area==='stock')clearStockNotification();
+  };
+  refreshStockNotification();
+  if(typeof database!=='undefined')database.ref('employeeStock').on('value',refreshStockNotification);
+  setInterval(refreshStockNotification,30000);
+});
 </script></body>
 </html>
