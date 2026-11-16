@@ -7920,5 +7920,21 @@ document.addEventListener('DOMContentLoaded',()=>{
   document.getElementById('employeeGoalsFilter')?.addEventListener('change',window.renderEmployeeGoalsAdm);
   window.renderEmployeeGoalsAdm();
 });
+</script>
+<script>
+// A equipe só é exibida quando o cartão "Funcionários cadastrados" é acionado.
+document.addEventListener('DOMContentLoaded',()=>{
+  const switchEmployeeAreaWithCollapsedTeam=window.switchEmployeeAreaAdm;
+  window.switchEmployeeAreaAdm=area=>{
+    employeeTeamRevealed=false;
+    switchEmployeeAreaWithCollapsedTeam(area);
+    const team=document.getElementById('employeesAdmList');
+    const heading=team?.previousElementSibling;
+    if(team)team.hidden=true;
+    if(heading)heading.hidden=true;
+    document.getElementById('employeeTotalCount')?.closest('.employee-summary-card')?.setAttribute('aria-expanded','false');
+  };
+  window.switchEmployeeAreaAdm('main');
+});
 </script></body>
 </html>
