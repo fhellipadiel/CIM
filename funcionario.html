@@ -392,4 +392,58 @@ function exportFilteredProducts(){
 </script>
 <style>
 .product-export-button{position:fixed;left:28px;bottom:28px;z-index:20;display:grid;place-items:center;width:54px;height:54px;border:0;border-radius:50%;background:#ff4b1f;color:#fff;box-shadow:0 12px 30px rgba(255,75,31,.35);font-size:21px;cursor:pointer}.product-export-button:hover{background:#ff603b;transform:translateY(-2px)}.product-export-button[hidden]{display:none}@media(max-width:700px){.product-export-button{left:20px;bottom:20px}}
+</style>
+<script>
+/* Gaveta de exportação de produtos para vendedores. */
+document.addEventListener('DOMContentLoaded',()=>{
+  if(stockIsRole())return;
+  const button=document.getElementById('productExportButton');
+  if(!button)return;
+  button.innerHTML='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v11m0 0 4-4m-4 4-4-4M5 15v4a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-4"/></svg>';
+  button.title='Exportar peças';
+  button.onclick=openProductExportDrawer;
+  document.body.insertAdjacentHTML('beforeend','<div id="productExportDrawer" class="product-export-drawer" hidden><div class="product-export-backdrop" data-close-product-export></div><aside class="product-export-panel" aria-label="Exportar peças"><header><div><span>Produtos</span><h2>Exportar peças</h2></div><button type="button" data-close-product-export aria-label="Fechar">×</button></header><div class="product-export-content"><label for="productExportSearch">Localizar por palavra-chave</label><input id="productExportSearch" type="search" autocomplete="off" placeholder="Nome, código ou marca"><p id="productExportCount" class="product-export-count">Digite uma palavra para localizar as peças.</p><div id="productExportResults" class="product-export-results"></div></div><footer><button id="productExportConfirm" class="product-export-confirm" type="button" disabled>Exportar</button></footer></aside></div>');
+  document.querySelectorAll('[data-close-product-export]').forEach(item=>item.onclick=closeProductExportDrawer);
+  document.getElementById('productExportSearch').addEventListener('input',renderProductExportResults);
+  document.getElementById('productExportConfirm').onclick=exportDrawerProducts;
+});
+function openProductExportDrawer(){
+  const drawer=document.getElementById('productExportDrawer');
+  drawer.hidden=false;
+  const input=document.getElementById('productExportSearch');
+  input.value='';
+  renderProductExportResults();
+  setTimeout(()=>input.focus(),50);
+}
+function closeProductExportDrawer(){document.getElementById('productExportDrawer').hidden=true}
+function filteredProductsForExport(){
+  const raw=document.getElementById('productExportSearch')?.value||'';
+  const tokens=normalizeEmployeeSearch(raw).split(/\s+/).filter(Boolean);
+  if(!tokens.length)return[];
+  return(data?.products||[]).filter(product=>{
+    const text=normalizeEmployeeSearch([product.name,product.codigo,product.brand].join(' '));
+    return tokens.every(token=>text.includes(token));
+  }).sort((a,b)=>String(a.codigo||'').localeCompare(String(b.codigo||''),'pt-BR'));
+}
+function renderProductExportResults(){
+  const raw=document.getElementById('productExportSearch')?.value.trim()||'';
+  const products=filteredProductsForExport();
+  const count=document.getElementById('productExportCount'),results=document.getElementById('productExportResults'),confirm=document.getElementById('productExportConfirm');
+  confirm.disabled=!products.length;
+  if(!raw){count.textContent='Digite uma palavra para localizar as peças.';results.innerHTML='';return}
+  count.textContent=products.length+' '+(products.length===1?'peça encontrada':'peças encontradas');
+  results.innerHTML=products.length?products.map(product=>'<article><strong>'+esc(product.name||'Sem nome')+'</strong><span>'+esc(product.codigo||'Sem código')+'</span></article>').join(''):'<p class="product-export-empty">Nenhuma peça encontrada.</p>';
+}
+function exportDrawerProducts(){
+  const products=filteredProductsForExport(),keyword=document.getElementById('productExportSearch')?.value.trim()||'';
+  if(!products.length)return;
+  const printWindow=window.open('','_blank');
+  if(!printWindow){alert('Permita a abertura de janela para exportar as peças.');return}
+  const logo=new URL('assets/logo.webp',location.href).href,rows=products.map(product=>'<tr><td>'+esc(product.codigo||'—')+'</td><td>'+esc(product.name||'Sem nome')+'</td></tr>').join('');
+  printWindow.document.write('<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><title>Peças — CIM</title><style>@page{size:A4 portrait;margin:15mm}*{box-sizing:border-box}body{margin:0;color:#202020;font:10px Arial,Helvetica,sans-serif}.header{text-align:center;padding:0 0 18px}.brand-logo{display:block;width:108px;height:64px;object-fit:contain;margin:0 auto;filter:brightness(0)}.filter{margin:0 0 14px;color:#555;text-align:center;font-size:10px}table{width:100%;border-collapse:collapse}th,td{padding:10px 8px;text-align:left;vertical-align:middle;border-bottom:1px dotted #999}th{background:#f0f0f0;color:#202020;font-size:8px;font-weight:700;text-transform:uppercase}th:first-child,td:first-child{width:34%}.footer{position:fixed;bottom:0;left:0;right:0;text-align:right;color:#777;font-size:8px}</style></head><body><header class="header"><img class="brand-logo" src="'+logo+'" alt="CIM Global Parts"></header><p class="filter">Resultado da busca: '+esc(keyword)+'</p><table><thead><tr><th>Código da peça</th><th>Nome da peça</th></tr></thead><tbody>'+rows+'</tbody></table><footer class="footer">'+products.length+' '+(products.length===1?'peça':'peças')+' · Emissão: '+esc(new Date().toLocaleString('pt-BR'))+'</footer><script>window.onload=function(){window.print()}<\/script></body></html>');
+  printWindow.document.close();
+}
+</script>
+<style>
+.product-export-button{left:auto;right:28px;width:58px;height:58px}.product-export-button svg{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}.product-export-drawer[hidden]{display:none}.product-export-drawer{position:fixed;inset:0;z-index:1000}.product-export-backdrop{position:absolute;inset:0;background:rgba(0,0,0,.62);backdrop-filter:blur(3px)}.product-export-panel{position:absolute;top:0;right:0;display:flex;flex-direction:column;width:min(430px,100%);height:100%;background:#151517;color:#f7f7f8;box-shadow:-18px 0 50px rgba(0,0,0,.45);animation:productExportDrawerIn .22s ease-out}.product-export-panel header{display:flex;align-items:flex-start;justify-content:space-between;padding:25px 24px 19px;border-bottom:1px solid #29292d}.product-export-panel header span{display:block;color:#ff603b;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.08em}.product-export-panel h2{margin:5px 0 0;font-size:23px}.product-export-panel header button{border:0;background:transparent;color:#aaa;font-size:30px;line-height:1;cursor:pointer}.product-export-content{flex:1;overflow:auto;padding:22px 24px}.product-export-content label{display:block;margin-bottom:8px;color:#b9b9be;font-size:13px;font-weight:700}.product-export-content input{width:100%;height:46px;border:1px solid #39393e;border-radius:12px;padding:0 13px;background:#202023;color:#fff;font:inherit;outline:none}.product-export-content input:focus{border-color:#ff603b}.product-export-count{margin:17px 0 11px;color:#9a9aa0;font-size:12px}.product-export-results{display:grid;gap:8px}.product-export-results article{padding:12px 13px;border:1px solid #29292d;border-radius:11px;background:#1b1b1e}.product-export-results strong,.product-export-results span{display:block}.product-export-results strong{font-size:13px}.product-export-results span{margin-top:5px;color:#a2a2a8;font-size:12px}.product-export-empty{margin:14px 0;color:#999;text-align:center}.product-export-panel footer{padding:16px 24px calc(16px + env(safe-area-inset-bottom));border-top:1px solid #29292d}.product-export-confirm{width:100%;height:46px;border:0;border-radius:12px;background:#ff4b1f;color:#fff;font:700 14px inherit;cursor:pointer}.product-export-confirm:disabled{opacity:.42;cursor:not-allowed}@keyframes productExportDrawerIn{from{transform:translateX(100%)}to{transform:translateX(0)}}@media(max-width:700px){.product-export-button{right:20px;left:auto;bottom:20px}.product-export-panel{width:min(390px,100%)}}
 </style></body></html>
