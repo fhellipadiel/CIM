@@ -466,12 +466,12 @@ function renderClientDuplicateSuggestions(){
   const editingId=document.getElementById('clientEditId')?.value||'';
   const typedName=normalizeEmployeeSearch(document.getElementById('clientName')?.value||'');
   const typedPhone=String(document.getElementById('clientPhone')?.value||'').replace(/\D/g,'');
-  if(typedName.length<3&&typedPhone.length<4){box.hidden=true;box.innerHTML='';return}
+  if(!typedName&&!typedPhone){box.hidden=true;box.innerHTML='';return}
   const matches=(data?.clients||[]).filter(client=>{
     if(client.id===editingId)return false;
     const savedName=normalizeEmployeeSearch(client.clientName||'');
     const savedPhone=String(client.phone||'').replace(/\D/g,'');
-    return(typedName.length>=3&&savedName&&(savedName.includes(typedName)||typedName.includes(savedName)))||(typedPhone.length>=4&&savedPhone.includes(typedPhone));
+    return(typedName&&savedName&&(savedName.includes(typedName)||typedName.includes(savedName)))||(typedPhone&&savedPhone.includes(typedPhone));
   }).slice(0,5);
   if(!matches.length){box.hidden=true;box.innerHTML='';return}
   box.innerHTML='<span>Contato já cadastrado. Clique para editar:</span>'+matches.map(client=>'<button type="button" class="client-duplicate-suggestion" onclick="openSuggestedClient(\''+esc(client.id)+'\')"><span><strong>'+esc(client.clientName||'Cliente sem nome')+'</strong><small>'+esc(client.phone||'Sem telefone')+'</small></span><b>Editar</b></button>').join('');
