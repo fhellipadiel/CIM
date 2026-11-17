@@ -7981,11 +7981,14 @@ document.addEventListener('DOMContentLoaded',()=>{
 </script>
 <script>
 /* Resumo de metas no final da Visão Geral. */
+let dashboardGoalsEmployeesSource=null,dashboardGoalsRecordsSource=null;
 function renderDashboardEmployeeGoalsOverview(){
   const list=document.getElementById('dashboardTeamGoalsList'),summary=document.getElementById('dashboardTeamGoalsSummary');
   if(!list||!summary)return;
-  const allGoals=employeeGoalsAdm||[];
-  const sellers=(employeesAdm||[]).filter(employee=>(employee.role||'Vendedor')==='Vendedor'||allGoals.some(goal=>goal.employeeId===employee.uid));
+  const goalSource=dashboardGoalsRecordsSource;
+  const allGoals=goalSource===null?(employeeGoalsAdm||[]):Object.entries(goalSource||{}).flatMap(([employeeId,goals])=>Object.entries(goals||{}).map(([id,goal])=>({id,employeeId,target:Number(goal.target)||0,startDate:String(goal.startDate||''),endDate:String(goal.endDate||''),status:goal.status==='closed'?'closed':'active',entries:Object.entries(goal.entries||{}).map(([entryId,entry])=>({id:entryId,amount:Number(entry.amount)||0,freight:Number(entry.freight)||0,createdAt:Number(entry.createdAt)||0})),totalAtClose:Number(goal.totalAtClose)||0,closedAt:Number(goal.closedAt)||0})));
+  const employeeSource=dashboardGoalsEmployeesSource===null?(employeesAdm||[]):Object.entries(dashboardGoalsEmployeesSource||{}).map(([uid,employee])=>({...employee,uid}));
+  const sellers=employeeSource.filter(employee=>(employee.role||'Vendedor')==='Vendedor'||allGoals.some(goal=>goal.employeeId===employee.uid));
   const activeGoals=allGoals.filter(goal=>goal.status==='active');
   const amount=goal=>(goal.entries||[]).reduce((sum,entry)=>sum+(Number(entry.amount)||0),0);
   const money=value=>typeof fmtBRLAdm==='function'?fmtBRLAdm(Number(value)||0):Number(value||0).toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
@@ -8014,5 +8017,13 @@ const loadEmployeesAdmForDashboardGoals=loadEmployeesAdm;
 loadEmployeesAdm=async()=>{const result=await loadEmployeesAdmForDashboardGoals();renderDashboardEmployeeGoalsOverview();return result};
 const renderDashboardForTeamGoals=renderDashboard;
 renderDashboard=()=>{renderDashboardForTeamGoals();renderDashboardEmployeeGoalsOverview();if(!window.dashboardTeamGoalsRequested&&auth?.currentUser){window.dashboardTeamGoalsRequested=true;loadEmployeesAdm().catch(()=>{})}};
+document.addEventListener('DOMContentLoaded',()=>{
+  const subscribe=()=>{
+    if(typeof database==='undefined'){setTimeout(subscribe,100);return}
+    database.ref('employees').on('value',snapshot=>{dashboardGoalsEmployeesSource=snapshot.val()||{};renderDashboardEmployeeGoalsOverview()});
+    database.ref('employeeGoals').on('value',snapshot=>{dashboardGoalsRecordsSource=snapshot.val()||{};renderDashboardEmployeeGoalsOverview()});
+  };
+  subscribe();
+});
 </script></body>
 </html>
