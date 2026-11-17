@@ -7984,8 +7984,8 @@ document.addEventListener('DOMContentLoaded',()=>{
 function renderDashboardEmployeeGoalsOverview(){
   const list=document.getElementById('dashboardTeamGoalsList'),summary=document.getElementById('dashboardTeamGoalsSummary');
   if(!list||!summary)return;
-  const allGoals=window.employeeGoalsAdm||[];
-  const sellers=(window.employeesAdm||[]).filter(employee=>(employee.role||'Vendedor')==='Vendedor'||allGoals.some(goal=>goal.employeeId===employee.uid));
+  const allGoals=employeeGoalsAdm||[];
+  const sellers=(employeesAdm||[]).filter(employee=>(employee.role||'Vendedor')==='Vendedor'||allGoals.some(goal=>goal.employeeId===employee.uid));
   const activeGoals=allGoals.filter(goal=>goal.status==='active');
   const amount=goal=>(goal.entries||[]).reduce((sum,entry)=>sum+(Number(entry.amount)||0),0);
   const money=value=>typeof fmtBRLAdm==='function'?fmtBRLAdm(Number(value)||0):Number(value||0).toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
