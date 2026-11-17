@@ -1006,7 +1006,18 @@ tr:has(.admin-action-popover.open),.invoice-order-card:has(.admin-action-popover
           </div>
         </div>
       </div>
+      <section class="dashboard-team-goals" aria-labelledby="dashboardTeamGoalsTitle">
+        <div class="dashboard-team-goals-head"><div><span>Equipe comercial</span><h2 id="dashboardTeamGoalsTitle">Metas dos vendedores</h2><p>Resumo rápido do andamento das metas da equipe.</p></div><button class="btn btn-ghost" type="button" onclick="openDashboardGoalsDetails()"><i class="fas fa-arrow-up-right-from-square"></i> Ver detalhes</button></div>
+        <div id="dashboardTeamGoalsSummary" class="dashboard-team-goals-summary"></div>
+        <div id="dashboardTeamGoalsList" class="dashboard-team-goals-list"><div class="dashboard-team-goals-loading">Carregando metas da equipe...</div></div>
+      </section>
     </section>
+    <style>
+      .dashboard-team-goals{margin-top:46px;padding:26px 0 4px;border-top:1px solid var(--border-soft)}
+      .dashboard-team-goals-head{display:flex;align-items:end;justify-content:space-between;gap:18px;margin-bottom:18px}.dashboard-team-goals-head span{color:var(--accent);font-size:.68rem;font-weight:800;letter-spacing:.09em;text-transform:uppercase}.dashboard-team-goals-head h2{margin:7px 0 5px;font-size:1.25rem}.dashboard-team-goals-head p{margin:0;color:var(--text-muted);font-size:.8rem}
+      .dashboard-team-goals-summary{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-bottom:14px}.dashboard-team-goals-summary div{padding:15px;border-radius:15px;background:#111113}.dashboard-team-goals-summary small{display:block;color:var(--text-dim);font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em}.dashboard-team-goals-summary strong{display:block;margin-top:8px;font-size:1.16rem;letter-spacing:-.03em}
+      .dashboard-team-goals-list{display:grid;grid-template-columns:repeat(auto-fit,minmax(235px,1fr));gap:10px}.dashboard-team-goal-card{padding:15px;border:0;border-radius:16px;background:#111113;color:var(--text);text-align:left;cursor:pointer}.dashboard-team-goal-card:hover{background:#19191b}.dashboard-team-goal-card.no-goal{cursor:default}.dashboard-team-goal-person{display:flex;align-items:center;gap:10px}.dashboard-team-goal-person img{width:38px;height:38px;border-radius:50%;object-fit:cover;background:#252527}.dashboard-team-goal-person strong,.dashboard-team-goal-person small{display:block}.dashboard-team-goal-person small{margin-top:3px;color:var(--text-dim);font-size:.68rem}.dashboard-team-goal-status{margin-left:auto;font-size:.68rem;font-weight:800}.dashboard-team-goal-status.low{color:#ff746d}.dashboard-team-goal-status.yellow{color:#ffb340}.dashboard-team-goal-status.green{color:#63d98b}.dashboard-team-goal-status.muted{color:#8e8e93}.dashboard-team-goal-values{display:flex;justify-content:space-between;gap:10px;margin:15px 0 9px;color:var(--text-muted);font-size:.7rem}.dashboard-team-goal-values b{display:block;margin-top:4px;color:var(--text);font-size:.86rem}.dashboard-team-goal-track{height:7px;border-radius:99px;overflow:hidden;background:#29292c}.dashboard-team-goal-track i{display:block;height:100%;border-radius:inherit;background:#ff453a}.dashboard-team-goal-track.yellow i{background:#ffb340}.dashboard-team-goal-track.green i{background:#30d158}.dashboard-team-goal-foot{display:flex;justify-content:space-between;margin-top:9px;color:var(--text-dim);font-size:.68rem}.dashboard-team-goals-loading{grid-column:1/-1;padding:24px;color:var(--text-dim);text-align:center}@media(max-width:780px){.dashboard-team-goals-head{align-items:flex-start;flex-direction:column}.dashboard-team-goals-summary{grid-template-columns:repeat(2,minmax(0,1fr))}}
+    </style>
 
     <!-- ============================================================
          PAINEL: PEDIDOS
@@ -7967,5 +7978,39 @@ document.addEventListener('DOMContentLoaded',()=>{
   if(typeof database!=='undefined')database.ref('employeeStock').on('value',refreshStockNotification);
   setInterval(refreshStockNotification,30000);
 });
+</script>
+<script>
+/* Resumo de metas no final da Visão Geral. */
+function renderDashboardEmployeeGoalsOverview(){
+  const list=document.getElementById('dashboardTeamGoalsList'),summary=document.getElementById('dashboardTeamGoalsSummary');
+  if(!list||!summary)return;
+  const sellers=(window.employeesAdm||[]).filter(employee=>(employee.role||'Vendedor')==='Vendedor');
+  const activeGoals=(window.employeeGoalsAdm||[]).filter(goal=>goal.status==='active');
+  const amount=goal=>(goal.entries||[]).reduce((sum,entry)=>sum+(Number(entry.amount)||0),0);
+  const money=value=>typeof fmtBRLAdm==='function'?fmtBRLAdm(Number(value)||0):Number(value||0).toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
+  const targetTotal=activeGoals.reduce((sum,goal)=>sum+(Number(goal.target)||0),0),realizedTotal=activeGoals.reduce((sum,goal)=>sum+amount(goal),0);
+  summary.innerHTML='<div><small>Vendedores</small><strong>'+sellers.length+'</strong></div><div><small>Metas em andamento</small><strong>'+activeGoals.length+'</strong></div><div><small>Total realizado</small><strong>'+money(realizedTotal)+'</strong></div><div><small>Meta da equipe</small><strong>'+money(targetTotal)+'</strong></div>';
+  if(!sellers.length){list.innerHTML='<div class="dashboard-team-goals-loading">Nenhum vendedor cadastrado.</div>';return}
+  list.innerHTML=sellers.map(employee=>{
+    const goal=activeGoals.find(item=>item.employeeId===employee.uid);
+    if(!goal)return '<article class="dashboard-team-goal-card no-goal"><div class="dashboard-team-goal-person"><img src="'+esc(safeAdminImage(employee.photoURL||'assets/logo.webp'))+'" alt=""><div><strong>'+esc(employee.name||'Vendedor')+'</strong><small>Sem meta em andamento</small></div><span class="dashboard-team-goal-status muted">Sem meta</span></div></article>';
+    const total=amount(goal),target=Number(goal.target)||0,percent=target?Math.min(100,Math.round(total/target*100)):0,remaining=Math.max(0,target-total),level=percent>=50?'green':percent>=30?'yellow':'low',label=percent>=50?'Bom':percent>=30?'Razoável':'Baixo';
+    return '<button type="button" class="dashboard-team-goal-card" onclick="openDashboardGoalsDetails(\''+esc(employee.uid)+'\')"><div class="dashboard-team-goal-person"><img src="'+esc(safeAdminImage(employee.photoURL||'assets/logo.webp'))+'" alt=""><div><strong>'+esc(employee.name||'Vendedor')+'</strong><small>'+esc(String(goal.startDate||'').split('-').reverse().join('/'))+' a '+esc(String(goal.endDate||'').split('-').reverse().join('/'))+'</small></div><span class="dashboard-team-goal-status '+level+'">'+label+'</span></div><div class="dashboard-team-goal-values"><span>Realizado<b>'+money(total)+'</b></span><span>Meta<b>'+money(target)+'</b></span></div><div class="dashboard-team-goal-track '+level+'"><i style="width:'+percent+'%"></i></div><div class="dashboard-team-goal-foot"><span>'+percent+'% concluído</span><span>Falta '+money(remaining)+'</span></div></button>';
+  }).join('');
+}
+function openDashboardGoalsDetails(employeeId=''){
+  switchPanel('funcionarios');
+  loadEmployeesAdm().finally(()=>{
+    switchEmployeeAreaAdm('goals');
+    const filter=document.getElementById('employeeGoalsFilter');
+    if(filter&&employeeId)filter.value=employeeId;
+    renderEmployeeGoalsAdm();
+    document.getElementById('employeeGoalsAdmSection')?.scrollIntoView({behavior:'smooth',block:'start'});
+  });
+}
+const loadEmployeesAdmForDashboardGoals=loadEmployeesAdm;
+loadEmployeesAdm=async()=>{const result=await loadEmployeesAdmForDashboardGoals();renderDashboardEmployeeGoalsOverview();return result};
+const renderDashboardForTeamGoals=renderDashboard;
+renderDashboard=()=>{renderDashboardForTeamGoals();renderDashboardEmployeeGoalsOverview();if(!window.dashboardTeamGoalsRequested&&auth?.currentUser){window.dashboardTeamGoalsRequested=true;loadEmployeesAdm().catch(()=>{})}};
 </script></body>
 </html>
