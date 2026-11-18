@@ -33,6 +33,10 @@
       "destination": "/api/checkout?signupAction=admin-navigation-analytics"
     },
     {
+      "source": "/api/admin-cart-abandonment",
+      "destination": "/api/checkout?signupAction=admin-cart-abandonment"
+    },
+    {
       "source": "/api/employee",
       "destination": "/api/checkout?signupAction=employee"
     },

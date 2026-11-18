@@ -198,7 +198,7 @@ async function handle(action,req,res,dependencies={}) {
     if(action==='claim-referral')return res.status(200).json(await require('./registration.cjs').claimReferral(db,caller,body));
     if(action==='register-profile')return res.status(200).json(await require('./registration.cjs').registerProfile(db,caller,body));
     const user={...((await db.ref('users/'+caller.uid).get()).val()||{}),uid:caller.uid};
-    if(['admin-notifications','admin-tests','admin-archive-legacy-order','admin-order-status','admin-session','admin-navigation-analytics'].includes(action)){
+    if(['admin-notifications','admin-tests','admin-archive-legacy-order','admin-order-status','admin-session','admin-navigation-analytics','admin-cart-abandonment'].includes(action)){
       await ((['admin-order-status','admin-archive-legacy-order'].includes(action)||(action==='admin-notifications'&&body.action!=='list'))?(dependencies.requireAdminWriteAccess||dependencies.requireAdminAccess||requireAdminWriteAccess):(dependencies.requireAdminAccess||requireAdminAccess))(req,db);
       user.isAdmin=true;
     }
@@ -207,6 +207,18 @@ async function handle(action,req,res,dependencies={}) {
       const [pages,searches,leadVisits]=await Promise.all([db.ref('pageViewLogs').get(),db.ref('searchNoResultLogs').get(),db.ref('leadCampaignVisitLogs').get()]);
       const latest=snapshot=>Object.values(snapshot.val()||{}).sort((a,b)=>(b.timestamp||0)-(a.timestamp||0)).slice(0,5000);
       return res.status(200).json({pages:latest(pages),searches:latest(searches),leadVisits:latest(leadVisits)});
+    }
+    if(action==='admin-cart-abandonment'){
+      const [carts,users,products]=await Promise.all([db.ref('customerCarts').get(),db.ref('users').get(),db.ref('products').get()]);
+      const now=Date.now(),userData=users.val()||{},productData=products.val()||{};
+      const entries=Object.entries(carts.val()||{}).flatMap(([uid,cart])=>{
+        const updatedAt=Number(cart?.updatedAt)||0,items=Array.isArray(cart?.items)?cart.items:[];
+        if(!items.length||now-updatedAt<30*60*1000)return [];
+        const user=userData[uid]||{},pieces=items.map(item=>({id:item.id,name:String(productData[item.id]?.name||'Peça removida'),quantity:Number(item.quantity)||1}));
+        const minutes=Math.floor((now-updatedAt)/60000);
+        return [{uid,userName:String(user.name||user.email||'Cliente sem nome'),userEmail:String(user.email||''),userType:['PF','PJ'].includes(user.userType)?user.userType:'',pieces,updatedAt,minutes,reason:minutes>=1440?'Carrinho parado há mais de 24 horas; não houve início de checkout.':'Carrinho sem atualização e sem início de checkout.'}];
+      }).sort((a,b)=>b.updatedAt-a.updatedAt).slice(0,200);
+      return res.status(200).json({carts:entries,generatedAt:now});
     }
     if(action==='admin-notifications')return res.status(200).json(await require('./notifications.cjs')(db,user,body));
     if (action==='admin-tests') {
@@ -223,7 +235,8 @@ async function handle(action,req,res,dependencies={}) {
       if(action==='cart-save'){
         if(!Array.isArray(body.items)||body.items.length>100)fail('Carrinho inválido.');
         const items=body.items.map(item=>{if(!key.test(item.id||'')||!Number.isInteger(item.quantity)||item.quantity<1||item.quantity>999)fail('Item inválido.');return {id:item.id,quantity:item.quantity};});
-        await cartRef.set({items,updatedAt:Date.now()});
+        const previous=(await cartRef.get()).val()||{},updatedAt=Date.now();
+        await cartRef.set({items,updatedAt,createdAt:previous.createdAt||updatedAt});
         return res.status(200).json({saved:true});
       }
       const saved=(await cartRef.get()).val();
