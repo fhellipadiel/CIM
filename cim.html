@@ -806,6 +806,7 @@
         .cart-mode-option.selected:hover { color: #000; }
         .cart-mode-option.disabled { color: #666; cursor: not-allowed; pointer-events:none; }
         .cart-mode-option.disabled::after { content:'Indisponível para este CEP'; margin-left:8px; font-size:.65rem; color:#777; }
+        .motoboy-notice{z-index:3100;align-items:center;justify-content:center;padding:20px;background:rgba(0,0,0,.72);backdrop-filter:blur(8px)}.motoboy-notice .modal-content{width:min(100%,440px);max-height:none;padding:30px;border:1px solid #363636;border-radius:24px;background:linear-gradient(145deg,#202020,#121212);transform:translate3d(0,18px,0);box-shadow:0 24px 80px rgba(0,0,0,.6)}.motoboy-notice.active .modal-content{transform:translate3d(0,0,0)}.motoboy-notice .modal-content::before{display:none}.motoboy-notice-icon{width:58px;height:58px;display:grid;place-items:center;border-radius:18px;background:rgba(255,54,1,.13);color:#ff3601;font-size:25px;margin-bottom:20px}.motoboy-notice h2{margin:0 0 10px;color:#fff;font-size:1.3rem;letter-spacing:-.02em}.motoboy-notice p{margin:0;color:#b8b8b8;font-size:.9rem;line-height:1.55}.motoboy-notice p strong{color:#fff}.motoboy-notice-actions{display:flex;gap:10px;margin-top:25px}.motoboy-notice-actions button{flex:1;min-height:46px;border-radius:13px;padding:11px 14px;font:700 .88rem inherit;cursor:pointer}.motoboy-change{border:1px solid #444;background:transparent;color:#fff}.motoboy-continue{border:1px solid #ff3601;background:#ff3601;color:#1b0904}.motoboy-change:hover{border-color:#aaa}.motoboy-continue:hover{background:#ff572b}
 
         .cart-coupon-section { margin-bottom: 5px; padding-bottom: 5px; border-bottom: 1px solid #222; }
         .cart-coupon-wrap { display: flex; gap: 6px; align-items: center; position: relative; }
@@ -1484,6 +1485,15 @@ body.fullscreen-panel-open{overflow:hidden!important}
         </div>
     </div>
 
+    <div class="modal motoboy-notice" id="motoboyNoticeModal" role="dialog" aria-modal="true" aria-labelledby="motoboyNoticeTitle" aria-describedby="motoboyNoticeText">
+        <div class="modal-content">
+            <div class="motoboy-notice-icon"><i class="fas fa-motorcycle" aria-hidden="true"></i></div>
+            <h2 id="motoboyNoticeTitle">Entrega por motoboy</h2>
+            <p id="motoboyNoticeText">O motoboy está disponível das <strong>9h às 15h</strong>. Compras feitas após as <strong>15h</strong> serão liberadas no dia seguinte.</p>
+            <div class="motoboy-notice-actions"><button type="button" class="motoboy-change" onclick="changeMotoboyDelivery()">Mudar envio</button><button type="button" class="motoboy-continue" onclick="confirmMotoboyDelivery()">Continuar</button></div>
+        </div>
+    </div>
+
     <div class="cart-panel" id="cartPanel" role="dialog" aria-label="Carrinho de compras" aria-modal="true">
         <div class="cart-view" id="cartMainView">
             <div class="cart-header">
@@ -2072,13 +2082,21 @@ body.fullscreen-panel-open{overflow:hidden!important}
             motoboy?.setAttribute('aria-disabled', String(blocked));
             if (blocked && cartMode === 'Motoboy') cartMode = 'Transportadora';
         }
-        function setCartMode(mode) {
+        function setCartMode(mode, skipNotice = false) {
             const supportedModes = ['Transportadora', 'Motoboy', 'Retirar'];
-            cartMode = mode === 'Enviar' ? 'Transportadora' : supportedModes.includes(mode) ? mode : 'Transportadora';
-            if (cartMode === 'Motoboy' && currentUser?.uf && String(currentUser.uf).toUpperCase() !== 'SP') {
+            const nextMode = mode === 'Enviar' ? 'Transportadora' : supportedModes.includes(mode) ? mode : 'Transportadora';
+            if (nextMode === 'Motoboy' && currentUser?.uf && String(currentUser.uf).toUpperCase() !== 'SP') {
                 cartMode = 'Transportadora';
                 showToast('Motoboy atende somente o estado de São Paulo. Selecionamos transportadora.', 'error');
+            } else if (nextMode === 'Motoboy' && !skipNotice) {
+                document.getElementById('motoboyNoticeModal')?.classList.add('active');
+                return;
+            } else {
+                cartMode = nextMode;
             }
+            applyCartMode();
+        }
+        function applyCartMode() {
             updateDeliveryModeAvailability();
             localStorage.setItem('cim_cart_mode', cartMode);
             const label = document.getElementById('cartModeLabel');
@@ -2089,6 +2107,16 @@ body.fullscreen-panel-open{overflow:hidden!important}
             if (dd) dd.classList.remove('open');
             if (bar) bar.classList.remove('open');
             updateCart();
+        }
+        function confirmMotoboyDelivery() {
+            cartMode = 'Motoboy';
+            document.getElementById('motoboyNoticeModal')?.classList.remove('active');
+            applyCartMode();
+        }
+        function changeMotoboyDelivery() {
+            document.getElementById('motoboyNoticeModal')?.classList.remove('active');
+            const dd=document.getElementById('cartModeDropdown'),bar=document.getElementById('cartModeBar');
+            if(dd)dd.classList.add('open');if(bar)bar.classList.add('open');
         }
 
         function getCartModeLabel(mode) {
@@ -4328,7 +4356,7 @@ function toggleBottomMenu() {
                 const temCache = loadCache();
                 if (!temCache) renderSkeletons(6);
                 buildInstallmentsOptions();
-                setCartMode(cartMode);
+                setCartMode(cartMode, true);
                 setPaymentMethod(paymentMethod);
                 loadData();
                 scheduleExpiryCheck();
@@ -4865,7 +4893,7 @@ function toggleBottomMenu() {
             openUserOrders, closeUserOrders,
             openPjExplanation, closePjExplanation,
             shareCurrentProduct, shareProduct, updateSharedQuantity,
-            setCartMode, toggleCartModeDropdown, setPaymentMethod, onInstallmentsChange,
+            setCartMode, toggleCartModeDropdown, confirmMotoboyDelivery, changeMotoboyDelivery, setPaymentMethod, onInstallmentsChange,
             toggleCardInstallments,
             toggleCartConfirm, updateSettingsAvatar,
             showPixScreen, closePixScreen, copyPixCode, confirmPixOrder,
