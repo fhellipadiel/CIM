@@ -37,6 +37,10 @@
       "destination": "/api/checkout?signupAction=admin-cart-abandonment"
     },
     {
+      "source": "/api/client-issue",
+      "destination": "/api/checkout?signupAction=client-issue"
+    },
+    {
       "source": "/api/employee",
       "destination": "/api/checkout?signupAction=employee"
     },

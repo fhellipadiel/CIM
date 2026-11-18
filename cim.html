@@ -2671,19 +2671,28 @@ body.fullscreen-panel-open{overflow:hidden!important}
         }
 
         let checkoutBusy = false;
+        function reportClientIssue(stage,error) {
+            const raw=String(error?.code||error?.name||error?.message||'unknown').toLowerCase();
+            const category=raw.includes('auth')||raw.includes('token')?'authentication':raw.includes('firebase')||raw.includes('database')?'firebase':raw.includes('network')||raw.includes('fetch')||raw.includes('timeout')?'network':stage==='checkout'?'payment':'unexpected';
+            const code=(raw.match(/[a-z]+[a-z0-9._-]{1,80}/)?.[0]||'unknown').slice(0,100);
+            const user=auth.currentUser;if(!user)return;
+            user.getIdToken().then(token=>fetch('/api/client-issue',{method:'POST',headers:{'Content-Type':'application/json',Authorization:'Bearer '+token},body:JSON.stringify({stage,category,code}),keepalive:true}).catch(()=>{})).catch(()=>{});
+        }
         async function checkoutRequest(route, payload) {
-            if (!auth.currentUser) throw new Error('Entre na sua conta para continuar.');
-            const token = await auth.currentUser.getIdToken();
-            const response = await fetch('/api/' + route, {
-                method: 'POST', headers: {'Content-Type':'application/json', Authorization:'Bearer ' + token},
-                body: JSON.stringify(payload), signal: AbortSignal.timeout(30000)
-            });
-            const result = await response.json().catch(() => ({}));
-            if (!response.ok) {
-                if (route === 'checkout' && response.status === 409) sessionStorage.removeItem('cim_checkout_attempt');
-                throw new Error(result.error || 'Não foi possível abrir o pagamento. Confira o servidor de testes.');
-            }
-            return result;
+            try {
+                if (!auth.currentUser) throw new Error('auth/no-current-user');
+                const token = await auth.currentUser.getIdToken();
+                const response = await fetch('/api/' + route, {
+                    method: 'POST', headers: {'Content-Type':'application/json', Authorization:'Bearer ' + token},
+                    body: JSON.stringify(payload), signal: AbortSignal.timeout(30000)
+                });
+                const result = await response.json().catch(() => ({}));
+                if (!response.ok) {
+                    if (route === 'checkout' && response.status === 409) sessionStorage.removeItem('cim_checkout_attempt');
+                    const failure=new Error('request-'+response.status);failure.code='http-'+response.status;throw failure;
+                }
+                return result;
+            } catch(error) { if(route!=='client-issue')reportClientIssue(route==='checkout'?'checkout':route,error);throw error; }
         }
         async function processPayment() {
             if (checkoutBusy) return;
@@ -2708,7 +2717,7 @@ body.fullscreen-panel-open{overflow:hidden!important}
                 sessionStorage.removeItem('cim_checkout_attempt');
                 window.location.assign(target.href);
             } catch (error) {
-                showToast(error.message || 'Não foi possível abrir o Mercado Pago.', 'error');
+                showToast('Não foi possível iniciar o pagamento agora. Tente novamente ou fale com nosso atendimento.', 'error');
                 checkoutBusy = false;
                 if (button) { button.disabled = false; button.textContent = 'Continuar para o Mercado Pago'; }
             }
