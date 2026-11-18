@@ -314,11 +314,11 @@ async function handle(action,req,res,dependencies={}) {
     if (action==='customer-orders') {
       const path=db.ref(cfg.root+'/'+caller.uid);
       let raw=(await path.get()).val()||{};
-      const pending=Object.values(raw).filter(o=>o.status==='pendente' && o.provider==='orders' && o.mercadoOrderId).sort((a,b)=>b.createdAt-a.createdAt).slice(0,100);
+      const pending=Object.values(raw).filter(o=>o&&typeof o==='object'&&o.status==='pendente'&&o.provider==='orders'&&o.mercadoOrderId).sort((a,b)=>b.createdAt-a.createdAt).slice(0,100);
       await Promise.all(pending.map(order=>refresh(db,order)));
       raw=(await path.get()).val()||{};
       await Promise.all(Object.entries(raw).map(([id,o])=>notifyOrder(db,caller.uid,id,o)));
-      const orders=Object.entries(raw).filter(([,o])=>o.provider==='orders' && visibleOrder(o)).map(([id,o])=>({...o,id,expiresAt:expiresAt(o),installments:o.actualInstallments||o.installments,total:o.paidTotal||o.total}));
+      const orders=Object.entries(raw).filter(([,o])=>o&&typeof o==='object'&&o.provider==='orders'&&visibleOrder(o)).map(([id,o])=>({...o,id,expiresAt:expiresAt(o),installments:o.actualInstallments||o.installments,total:o.paidTotal||o.total}));
       return res.status(200).json({orders:orders.sort((a,b)=>b.createdAt-a.createdAt)});
     }
     if (action==='payment-status') {
