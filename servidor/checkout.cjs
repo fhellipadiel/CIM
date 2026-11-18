@@ -27,6 +27,15 @@ async function identity(req, auth) {
   try { return await auth.verifyIdToken(token,true); } catch { fail('Faça login novamente para continuar.',401); }
 }
 const key=/^[a-zA-Z0-9_-]{1,128}$/;
+function issueExplanation(stage,category,code){
+ if(stage==='customer-orders'&&code==='typeerror')return{summary:'Não foi possível atualizar os pedidos e pagamentos deste cliente.',reason:'Há um pedido antigo com dados incompletos ou em formato incompatível.',action:'Abra os pedidos deste cliente no ADM e revise os dados do pedido mais recente.'};
+ if(stage==='customer-orders')return{summary:'Não foi possível sincronizar os pedidos deste cliente.',reason:'A atualização automática dos pagamentos não foi concluída.',action:'Confira os pedidos pendentes deste cliente no ADM e tente novamente mais tarde.'};
+ if(stage==='checkout')return{summary:'Não foi possível iniciar o pagamento.',reason:'O serviço de pagamento recusou ou não concluiu a solicitação.',action:'Verifique a configuração do Mercado Pago e os itens do carrinho.'};
+ if(category==='authentication')return{summary:'A sessão do cliente expirou.',reason:'A conta precisou ser autenticada novamente.',action:'Peça para o cliente entrar novamente na conta.'};
+ if(category==='network')return{summary:'A conexão falhou durante a operação.',reason:'O navegador não conseguiu falar com o servidor a tempo.',action:'Confira a conexão e tente novamente.'};
+ if(category==='firebase')return{summary:'Não foi possível acessar os dados do cliente.',reason:'O banco de dados não respondeu como esperado.',action:'Confira a disponibilidade do Firebase e tente novamente.'};
+ return{summary:'Ocorreu uma falha inesperada durante a operação.',reason:'O sistema não conseguiu concluir esta etapa.',action:'Tente novamente; se persistir, revise os dados deste cliente.'};
+}
 async function reconcile(db, payment) {
   const ref=String(payment.external_reference||'').split(':');
   if (ref.length!==3 || ref[0]!=='cimtest' || !key.test(ref[1]) || !key.test(ref[2])) fail('Pedido de teste não encontrado.',404);
@@ -203,7 +212,7 @@ async function handle(action,req,res,dependencies={}) {
       const code=/^[a-z0-9._-]{1,100}$/i.test(body.code||'')?body.code:'unknown';
       const category=['authentication','firebase','network','payment','validation','unexpected'].includes(body.category)?body.category:'unexpected';
       const cart=(await db.ref('customerCarts/'+caller.uid).get()).val()||{};
-      const event={uid:caller.uid,userName:String(user.name||user.email||'Cliente'),userEmail:String(user.email||''),stage,category,code,items:Array.isArray(cart.items)?cart.items.slice(0,30):[],createdAt:Date.now(),read:false};
+      const explanation=issueExplanation(stage,category,code),event={uid:caller.uid,userName:String(user.name||user.email||'Cliente'),userEmail:String(user.email||''),stage,category,code,summary:explanation.summary,reason:explanation.reason,action:explanation.action,items:Array.isArray(cart.items)?cart.items.slice(0,30):[],createdAt:Date.now(),read:false};
       await db.ref('checkoutIssues').push(event);
       return res.status(200).json({recorded:true});
     }

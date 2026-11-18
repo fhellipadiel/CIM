@@ -5804,10 +5804,20 @@ function switchClickTab(tab){
 
 let cartAbandonmentCache=[],cartIssueCache=[];
 function cartRiskAge(minutes){return minutes>=1440?Math.floor(minutes/1440)+' d':minutes>=60?Math.floor(minutes/60)+' h':minutes+' min';}
+function cartIssueExplanationAdm(issue){
+  if(issue.summary)return{summary:issue.summary,reason:issue.reason||'',action:issue.action||''};
+  if(issue.stage==='customer-orders'&&issue.code==='typeerror')return{summary:'Não foi possível atualizar os pedidos e pagamentos deste cliente.',reason:'Há um pedido antigo com dados incompletos ou em formato incompatível.',action:'Abra os pedidos deste cliente no ADM e revise o pedido mais recente.'};
+  if(issue.stage==='customer-orders')return{summary:'Não foi possível sincronizar os pedidos deste cliente.',reason:'A atualização automática dos pagamentos não foi concluída.',action:'Confira os pedidos pendentes deste cliente no ADM.'};
+  if(issue.stage==='checkout')return{summary:'Não foi possível iniciar o pagamento.',reason:'O serviço de pagamento não concluiu a solicitação.',action:'Confira a configuração do Mercado Pago e os itens do carrinho.'};
+  if(issue.category==='authentication')return{summary:'A sessão do cliente expirou.',reason:'A conta precisa ser autenticada novamente.',action:'Peça para o cliente entrar novamente na conta.'};
+  if(issue.category==='network')return{summary:'A conexão falhou durante a operação.',reason:'O navegador não conseguiu falar com o servidor a tempo.',action:'Confira a conexão e tente novamente.'};
+  if(issue.category==='firebase')return{summary:'Não foi possível acessar os dados do cliente.',reason:'O banco de dados não respondeu como esperado.',action:'Confira o Firebase e tente novamente.'};
+  return{summary:'Ocorreu uma falha inesperada durante a operação.',reason:'O sistema não conseguiu concluir esta etapa.',action:'Tente novamente; se persistir, revise os dados deste cliente.'};
+}
 function renderCartAbandonmentAdm(){
   const node=document.getElementById('cartAbandonmentList');if(!node)return;
   node.innerHTML=cartAbandonmentCache.length?cartAbandonmentCache.map(entry=>`<article class="cart-risk-item"><div><strong>${esc(entry.userName||'Cliente')}</strong><small>${esc([entry.userEmail,entry.userType].filter(Boolean).join(' · '))}</small><p>${esc((entry.pieces||[]).map(piece=>`${piece.quantity}× ${piece.name}`).join(', '))}</p><small>${esc(entry.reason||'Carrinho sem atualização.')}</small></div><span class="cart-risk-age">${esc(cartRiskAge(Number(entry.minutes)||0))}</span></article>`).join(''):'<div class="empty-state"><i class="fas fa-circle-check"></i><p>Nenhum carrinho em risco no momento.</p></div>';
-  const issueNode=document.getElementById('cartIssueList');if(issueNode)issueNode.innerHTML=cartIssueCache.length?cartIssueCache.map(issue=>`<article class="cart-risk-item"><div><strong>${esc(issue.userName||'Cliente')}</strong><small>${esc(issue.userEmail||'')}</small><p>${esc(issue.category||'unexpected')} · ${esc(issue.stage||'unknown')} · ${esc(issue.code||'unknown')}</p><small>${new Date(Number(issue.createdAt)||0).toLocaleString('pt-BR')}</small></div><span class="cart-risk-age">Erro</span></article>`).join(''):'<div class="empty-state"><i class="fas fa-circle-check"></i><p>Nenhuma falha recente.</p></div>';
+  const issueNode=document.getElementById('cartIssueList');if(issueNode)issueNode.innerHTML=cartIssueCache.length?cartIssueCache.map(issue=>{const info=cartIssueExplanationAdm(issue);return `<article class="cart-risk-item"><div><strong>${esc(issue.userName||'Cliente')}</strong><small>${esc(issue.userEmail||'')}</small><p>${esc(info.summary)}</p><small>Motivo: ${esc(info.reason)}</small><small>Ação: ${esc(info.action)}</small><small>${new Date(Number(issue.createdAt)||0).toLocaleString('pt-BR')}</small></div><span class="cart-risk-age">Atenção</span></article>`;}).join(''):'<div class="empty-state"><i class="fas fa-circle-check"></i><p>Nenhuma falha recente.</p></div>';
 }
 async function loadCartAbandonmentAdm(){
   const node=document.getElementById('cartAbandonmentList');if(node&&!cartAbandonmentCache.length)node.innerHTML='<p class="td-sub">Carregando carrinhos…</p>';
